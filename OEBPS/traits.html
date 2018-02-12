@@ -23,14 +23,14 @@ inherit from just one superclass, a class can mix in any number of
 traits. This chapter shows you how traits work and shows two of the most
 common ways they are useful: widening thin interfaces to rich ones,
 and defining stackable modifications.  It also shows how to use the
- <span class="code">Ordered</span> trait and compares traits to the multiple
+ <pre class="code">Ordered</pre> trait and compares traits to the multiple
 inheritance of other languages.</p>
 
 <h3>12.1 How traits work</h3>
 
 
 <p>A trait definition looks just like a class definition except that it
-uses the keyword <span class="code">trait</span>. An example is shown in <a href="traits.html#lst-defining-a-trait">Listing 12.1</a>:</p>
+uses the keyword <pre class="code">trait</pre>. An example is shown in <a href="traits.html#lst-defining-a-trait">Listing 12.1</a>:</p>
 
 <p><a id="lst-defining-a-trait"/></p>
 
@@ -43,22 +43,22 @@ uses the keyword <span class="code">trait</span>. An example is shown in <a href
 </pre>
 
 
-<h5>Listing 12.1 - The definition of trait <span class="code">Philosophical</span>.</h5>
+<h5>Listing 12.1 - The definition of trait <pre class="code">Philosophical</pre>.</h5>
 
 
-<p>This trait is named <span class="code">Philosophical</span>.  It does not declare a superclass,
+<p>This trait is named <pre class="code">Philosophical</pre>.  It does not declare a superclass,
 so like a class, it has the
-default superclass of <span class="code">AnyRef</span>.  It defines one method,
-named <span class="code">philosophize</span>, which is concrete.  It's a simple trait,
+default superclass of <pre class="code">AnyRef</pre>.  It defines one method,
+named <pre class="code">philosophize</pre>, which is concrete.  It's a simple trait,
 just enough to show how traits work.</p>
 
-<p>Once a trait is defined, it can be <em>mixed in</em> to a class using either the <span class="code">extends</span> or <span class="code">with</span>
+<p>Once a trait is defined, it can be <em>mixed in</em> to a class using either the <pre class="code">extends</pre> or <pre class="code">with</pre>
 keywords.<a id="i-1415422629-1"/> Scala programmers "mix in" traits rather than
   inherit from them, because mixing in a trait has important
   differences from the multiple inheritance found in many other
   languages.<a id="i-917586794-1"/> This issue is discussed in
   <a href="traits.html#sec-traits-vs-multi">Section 12.6</a>.
-For example, <a href="traits.html#lst-extending-a-trait">Listing 12.2</a> shows a class that mixes in the <span class="code">Philosophical</span> trait using <span class="code">extends</span>:</p>
+For example, <a href="traits.html#lst-extending-a-trait">Listing 12.2</a> shows a class that mixes in the <pre class="code">Philosophical</pre> trait using <pre class="code">extends</pre>:</p>
 
 <p><a id="lst-extending-a-trait"/></p>
 
@@ -69,12 +69,12 @@ For example, <a href="traits.html#lst-extending-a-trait">Listing 12.2</a> shows 
 </pre>
 
 
-<h5>Listing 12.2 - Mixing in a trait using <span class="code">extends</span>.</h5>
+<h5>Listing 12.2 - Mixing in a trait using <pre class="code">extends</pre>.</h5>
 
 
-<p>You can use the <span class="code">extends</span> keyword to mix in a trait; in that case you implicitly inherit the trait's superclass.  
-For instance, in <a href="traits.html#lst-extending-a-trait">Listing 12.2</a>, class <span class="code">Frog</span> subclasses <span class="code">AnyRef</span> (the superclass of <span class="code">Philosophical</span>) 
-and mixes in <span class="code">Philosophical</span>.
+<p>You can use the <pre class="code">extends</pre> keyword to mix in a trait; in that case you implicitly inherit the trait's superclass.  
+For instance, in <a href="traits.html#lst-extending-a-trait">Listing 12.2</a>, class <pre class="code">Frog</pre> subclasses <pre class="code">AnyRef</pre> (the superclass of <pre class="code">Philosophical</pre>) 
+and mixes in <pre class="code">Philosophical</pre>.
 Methods inherited from a trait can be used just like methods inherited
 from a superclass. Here's an example:</p>
 
@@ -86,7 +86,7 @@ from a superclass. Here's an example:</p>
 </pre>
 
 
-<p>A trait also defines a type.  Here's an example in which  <span class="code">Philosophical</span>
+<p>A trait also defines a type.  Here's an example in which  <pre class="code">Philosophical</pre>
 is used as a type:</p>
 
 <pre>
@@ -97,14 +97,14 @@ is used as a type:</p>
 </pre>
 
 
-<p>The type of <span class="code">phil</span> is <span class="code">Philosophical</span>, a trait.  Thus, variable <span class="code">phil</span> could have been
+<p>The type of <pre class="code">phil</pre> is <pre class="code">Philosophical</pre>, a trait.  Thus, variable <pre class="code">phil</pre> could have been
 initialized with any object whose class mixes in
-<span class="code">Philosophical</span>.</p>
+<pre class="code">Philosophical</pre>.</p>
 
-<p>If you wish to mix a trait into a class that explicitly extends a superclass, you use <span class="code">extends</span> to indicate the superclass and
-<span class="code">with</span> to mix in the trait. <a href="traits.html#lst-mixing-in-using-with">Listing 12.3</a> shows an example.
-If you want to mix in multiple traits, you add more <span class="code">with</span> clauses. For example, given a trait <span class="code">HasLegs</span>, you
-could mix both <span class="code">Philosophical</span> and <span class="code">HasLegs</span> into <span class="code">Frog</span> as shown in <a href="traits.html#lst-multiple-withs">Listing 12.4</a>.</p>
+<p>If you wish to mix a trait into a class that explicitly extends a superclass, you use <pre class="code">extends</pre> to indicate the superclass and
+<pre class="code">with</pre> to mix in the trait. <a href="traits.html#lst-mixing-in-using-with">Listing 12.3</a> shows an example.
+If you want to mix in multiple traits, you add more <pre class="code">with</pre> clauses. For example, given a trait <pre class="code">HasLegs</pre>, you
+could mix both <pre class="code">Philosophical</pre> and <pre class="code">HasLegs</pre> into <pre class="code">Frog</pre> as shown in <a href="traits.html#lst-multiple-withs">Listing 12.4</a>.</p>
 
 <p><a id="lst-mixing-in-using-with"/></p>
 
@@ -116,7 +116,7 @@ could mix both <span class="code">Philosophical</span> and <span class="code">Ha
 </pre>
 
 
-<h5>Listing 12.3 - Mixing in a trait using <span class="code">with</span>.<a id="i1578124431-1"/></h5>
+<h5>Listing 12.3 - Mixing in a trait using <pre class="code">with</pre>.<a id="i1578124431-1"/></h5>
 
 
 <p><a id="lst-multiple-withs"/></p>
@@ -133,9 +133,9 @@ could mix both <span class="code">Philosophical</span> and <span class="code">Ha
 <h5>Listing 12.4 - Mixing in multiple traits.</h5>
 
 
-<p>In the examples you've seen so far, class <span class="code">Frog</span> has inherited an implementation of <span class="code">philosophize</span> from
-trait <span class="code">Philosophical</span>. Alternatively, <span class="code">Frog</span> could
-override <span class="code">philosophize</span>. The syntax looks the same as overriding a method declared in a superclass. Here's an example:</p>
+<p>In the examples you've seen so far, class <pre class="code">Frog</pre> has inherited an implementation of <pre class="code">philosophize</pre> from
+trait <pre class="code">Philosophical</pre>. Alternatively, <pre class="code">Frog</pre> could
+override <pre class="code">philosophize</pre>. The syntax looks the same as overriding a method declared in a superclass. Here's an example:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Animal</code>
@@ -148,9 +148,9 @@ override <span class="code">philosophize</span>. The syntax looks the same as ov
 </pre>
 
 
-<p>Because this new definition of <span class="code">Frog</span> still mixes in trait <span class="code">Philosophical</span>, you can still use
-it from a variable of that type. But because <span class="code">Frog</span> overrides <span class="code">Philosophical</span>'s implementation
-of <span class="code">philosophize</span>, you'll get a new behavior when you call it:</p>
+<p>Because this new definition of <pre class="code">Frog</pre> still mixes in trait <pre class="code">Philosophical</pre>, you can still use
+it from a variable of that type. But because <pre class="code">Frog</pre> overrides <pre class="code">Philosophical</pre>'s implementation
+of <pre class="code">philosophize</pre>, you'll get a new behavior when you call it:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;phrog:&nbsp;<code class="typename">Philosophical</code>&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Frog</code>
@@ -183,16 +183,16 @@ In other words, although you could define a class like this:</p>
 <p>You'll find out in 
 <a href="abstract-members.html#sec-val-init">Section 20.5</a> how to work around this restriction.</p>
 
-<p>The other difference between classes and traits is that whereas in classes, <span class="code">super</span> calls are statically bound, in traits,<a id="i-718179772-1"/>
+<p>The other difference between classes and traits is that whereas in classes, <pre class="code">super</pre> calls are statically bound, in traits,<a id="i-718179772-1"/>
 they are dynamically bound.<a id="i-1297249718-2"/>
 If you write
-"<span class="code">super.toString</span>" in a class, you know exactly which method implementation
+"<pre class="code">super.toString</pre>" in a class, you know exactly which method implementation
 will be invoked.  When you write the same thing in a trait, however, the 
-method implementation to invoke for the <span class="code">super</span> call is undefined when you define the trait. Rather, the
+method implementation to invoke for the <pre class="code">super</pre> call is undefined when you define the trait. Rather, the
 implementation to invoke will be determined
-anew each time the trait is mixed into a concrete class.  This curious behavior of <span class="code">super</span> is key to allowing
+anew each time the trait is mixed into a concrete class.  This curious behavior of <pre class="code">super</pre> is key to allowing
 traits to work as  <em>stackable modifications</em>, which will be described in
-<a href="traits.html#sec-stackable-modifications">Section 12.5</a>.  The rules for resolving <span class="code">super</span> calls  will be
+<a href="traits.html#sec-stackable-modifications">Section 12.5</a>.  The rules for resolving <pre class="code">super</pre> calls  will be
 given in <a href="traits.html#sec-traits-vs-multi">Section 12.6</a>.</p>
 
 <h3>12.2 Thin versus rich interfaces</h3>
@@ -214,7 +214,7 @@ to choose a less than perfect match for their needs and write extra code to use 
 
 <p>Java's interfaces are more often thin than rich.  For example,
 interface
-<span class="code">CharSequence</span>, which was introduced in Java 1.4, is a thin interface common to all
+<pre class="code">CharSequence</pre>, which was introduced in Java 1.4, is a thin interface common to all
 string-like classes that hold a sequence of characters.  Here's its 
 definition when seen as a Scala trait:</p>
 
@@ -228,11 +228,11 @@ definition when seen as a Scala trait:</p>
 </pre>
 
 
-<p>Although most of the dozens of methods in class <span class="code">String</span> would apply to any
-<span class="code">CharSequence</span>, Java's <span class="code">CharSequence</span> interface declares only four
-methods.  Had <span class="code">CharSequence</span> instead included the full <span class="code">String</span>
+<p>Although most of the dozens of methods in class <pre class="code">String</pre> would apply to any
+<pre class="code">CharSequence</pre>, Java's <pre class="code">CharSequence</pre> interface declares only four
+methods.  Had <pre class="code">CharSequence</pre> instead included the full <pre class="code">String</pre>
 interface, it would have placed a large burden on implementers of
-<span class="code">CharSequence</span>.  Every programmer that implemented <span class="code">CharSequence</span> in Java would have had to define dozens more methods.
+<pre class="code">CharSequence</pre>.  Every programmer that implemented <pre class="code">CharSequence</pre> in Java would have had to define dozens more methods.
 Because Scala traits can contain concrete methods, they make rich interfaces far more convenient.</p>
 
 <p>Adding a concrete method to a trait tilts the thin-rich trade-off
@@ -257,15 +257,15 @@ a class that has all of the rich interface available.</p>
 many different classes that represent something rectangular. Some examples are windows,
 bitmap images, and regions selected with a mouse.  To make these rectangular objects
 convenient to use, it is nice if the library provides geometric
-queries, such as <span class="code">width</span>, <span class="code">height</span>, <span class="code">left</span>, <span class="code">right</span>, <span class="code">topLeft</span>,
+queries, such as <pre class="code">width</pre>, <pre class="code">height</pre>, <pre class="code">left</pre>, <pre class="code">right</pre>, <pre class="code">topLeft</pre>,
 and so on.  However, many such methods exist that would be nice to
 have, so it can be a large burden on library writers to provide all of them for all rectangular objects in a Java library.  If such a library were
 written in Scala, by contrast, the library writer could use traits to
 easily supply all of these convenience methods on all the classes they like.</p>
 
 <p>To see how, first imagine what the code would look like without
-traits.  There would be some basic geometric classes like <span class="code">Point</span> and
-<span class="code">Rectangle</span>:</p>
+traits.  There would be some basic geometric classes like <pre class="code">Point</pre> and
+<pre class="code">Rectangle</pre>:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Point</code>(<code class="vem">val</code>&nbsp;x:&nbsp;<code class="typename">Int</code>,&nbsp;<code class="vem">val</code>&nbsp;y:&nbsp;<code class="typename">Int</code>)
@@ -278,9 +278,9 @@ traits.  There would be some basic geometric classes like <span class="code">Poi
 </pre>
 
 
-<p>This <span class="code">Rectangle</span> class takes two points in its primary constructor:
+<p>This <pre class="code">Rectangle</pre> class takes two points in its primary constructor:
 the coordinates of the top-left and bottom-right corners.  It then implements many convenience methods, such
-as <span class="code">left</span>, <span class="code">right</span>, and <span class="code">width</span>, by performing simple calculations
+as <pre class="code">left</pre>, <pre class="code">right</pre>, and <pre class="code">width</pre>, by performing simple calculations
 on these two points.</p>
 
 <p>Another class a graphics library might have is a 2-D graphical widget:</p>
@@ -297,7 +297,7 @@ on these two points.</p>
 </pre>
 
 
-<p>Notice that the definitions of <span class="code">left</span>, <span class="code">right</span>, and <span class="code">width</span> are
+<p>Notice that the definitions of <pre class="code">left</pre>, <pre class="code">right</pre>, and <pre class="code">width</pre> are
 exactly the same in the two classes.  They will also be the same,
 aside from minor variations, in any other classes for rectangular
 objects.</p>
@@ -326,8 +326,8 @@ queries.  <a href="traits.html#lst-enrichment-trait">Listing 12.5</a> shows what
 <h5>Listing 12.5 - Defining an enrichment trait.</h5>
 
 
-<p>Class <span class="code">Component</span> can mix in this trait to get all the geometric
-methods provided by <span class="code">Rectangular</span>:</p>
+<p>Class <pre class="code">Component</pre> can mix in this trait to get all the geometric
+methods provided by <pre class="code">Rectangular</pre>:</p>
 
 <pre>
   <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Component</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Rectangular</code>&nbsp;{
@@ -336,7 +336,7 @@ methods provided by <span class="code">Rectangular</span>:</p>
 </pre>
 
 
-<p>Similarly, <span class="code">Rectangle</span> itself can mix in the trait:</p>
+<p>Similarly, <pre class="code">Rectangle</pre> itself can mix in the trait:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Rectangle</code>(<code class="vem">val</code>&nbsp;topLeft:&nbsp;<code class="typename">Point</code>,&nbsp;<code class="vem">val</code>&nbsp;bottomRight:&nbsp;<code class="typename">Point</code>)
@@ -346,8 +346,8 @@ methods provided by <span class="code">Rectangular</span>:</p>
 </pre>
 
 
-<p>Given these definitions, you can create a <span class="code">Rectangle</span> and
-call geometric methods such as <span class="code">width</span> and <span class="code">left</span> on it:</p>
+<p>Given these definitions, you can create a <pre class="code">Rectangle</pre> and
+call geometric methods such as <pre class="code">width</pre> and <pre class="code">left</pre> on it:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;rect&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Rectangle</code>(<code class="vem">new</code>&nbsp;<code class="typename">Point</code>(<code class="literal">1</code>,&nbsp;<code class="literal">1</code>),
@@ -362,22 +362,22 @@ call geometric methods such as <span class="code">width</span> and <span class="
 </pre>
 
 
-<h3 id="sec-the-ordered-trait">12.4 The <span class="code">Ordered</span> trait</h3>
+<h3 id="sec-the-ordered-trait">12.4 The <pre class="code">Ordered</pre> trait</h3>
 
 
 <p>Comparison is another domain where a rich interface is convenient.<a id="i2068605051-1"/><a id="i795809807-1"/>
 Whenever you compare two objects that are ordered, it is convenient if
 you use a single method call to ask about the precise comparison you
-want.  If you want "is less than," you would like to call <span class="code">&lt;</span>, and
-if you want "is less than or equal," you would like to call <span class="code">&lt;=</span>.
-With a thin comparison interface, you might just have the <span class="code">&lt;</span> method, and you would sometimes have to write things like
-"<span class="code">(x</span>&nbsp;<span class="code">&lt;</span>&nbsp;<span class="code">y)</span>&nbsp;<span class="code">||</span>&nbsp;<span class="code">(x</span>&nbsp;<span class="code">==</span>&nbsp;<span class="code">y)</span>".  A rich interface would provide you with
+want.  If you want "is less than," you would like to call <pre class="code">&lt;</pre>, and
+if you want "is less than or equal," you would like to call <pre class="code">&lt;=</pre>.
+With a thin comparison interface, you might just have the <pre class="code">&lt;</pre> method, and you would sometimes have to write things like
+"<pre class="code">(x</pre>&nbsp;<pre class="code">&lt;</pre>&nbsp;<pre class="code">y)</pre>&nbsp;<pre class="code">||</pre>&nbsp;<pre class="code">(x</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">y)</pre>".  A rich interface would provide you with
 all of the usual comparison operators, thus allowing you to directly
-write things like "<span class="code">x</span>&nbsp;<span class="code">&lt;=</span>&nbsp;<span class="code">y</span>".</p>
+write things like "<pre class="code">x</pre>&nbsp;<pre class="code">&lt;=</pre>&nbsp;<pre class="code">y</pre>".</p>
 
-<p>Before looking at <span class="code">Ordered</span>, imagine
+<p>Before looking at <pre class="code">Ordered</pre>, imagine
 what you might do without it.  Suppose
-you took the <span class="code">Rational</span> class from
+you took the <pre class="code">Rational</pre> class from
 <a href="functional-objects.html">Chapter 6</a> and added comparison operations to
 it.  You would end up with something like this:<a href="traits.html#footnotemain12-1">[1]</a></p>
 
@@ -393,28 +393,28 @@ it.  You would end up with something like this:<a href="traits.html#footnotemain
 </pre>
 
 
-<p>This class defines four comparison operators (<span class="code">&lt;</span>, <span class="code">&gt;</span>, <span class="code">&lt;=</span>, and
-<span class="code">&gt;=</span>), and it's
+<p>This class defines four comparison operators (<pre class="code">&lt;</pre>, <pre class="code">&gt;</pre>, <pre class="code">&lt;=</pre>, and
+<pre class="code">&gt;=</pre>), and it's
 a classic demonstration of the costs of defining a
 rich interface.  First, notice that three of the comparison operators
-are defined in terms of the first one.  For example, <span class="code">&gt;</span> is defined
-as the reverse of <span class="code">&lt;</span>, and <span class="code">&lt;=</span> is defined as literally "less than
+are defined in terms of the first one.  For example, <pre class="code">&gt;</pre> is defined
+as the reverse of <pre class="code">&lt;</pre>, and <pre class="code">&lt;=</pre> is defined as literally "less than
 or equal."  Next, notice that all three of these methods
 would be the same for any other class that is comparable.  There is
-nothing special about rational numbers regarding <span class="code">&lt;=</span>.  In a comparison context,
-<span class="code">&lt;=</span> is <em>always</em> used to mean "less than or equals."  Overall, there
+nothing special about rational numbers regarding <pre class="code">&lt;=</pre>.  In a comparison context,
+<pre class="code">&lt;=</pre> is <em>always</em> used to mean "less than or equals."  Overall, there
 is quite a lot of boilerplate code in this class which would be the
 same in any other class that implements comparison operations.</p>
 
 <p>This problem is so common that Scala provides a trait to help with
-it.  The trait is called <span class="code">Ordered</span>.  To use it, you replace all of
-the individual comparison methods with a single <span class="code">compare</span> method.<a id="i1970675952-1"/>
-The <span class="code">Ordered</span> trait then defines <span class="code">&lt;</span>, <span class="code">&gt;</span>, <span class="code">&lt;=</span>, and <span class="code">&gt;=</span> for you
-in terms of this one method. Thus, trait <span class="code">Ordered</span> allows you to enrich a class
-with comparison methods by implementing only one method, <span class="code">compare</span>.</p>
+it.  The trait is called <pre class="code">Ordered</pre>.  To use it, you replace all of
+the individual comparison methods with a single <pre class="code">compare</pre> method.<a id="i1970675952-1"/>
+The <pre class="code">Ordered</pre> trait then defines <pre class="code">&lt;</pre>, <pre class="code">&gt;</pre>, <pre class="code">&lt;=</pre>, and <pre class="code">&gt;=</pre> for you
+in terms of this one method. Thus, trait <pre class="code">Ordered</pre> allows you to enrich a class
+with comparison methods by implementing only one method, <pre class="code">compare</pre>.</p>
 
-<p>Here is how it looks if you define comparison operations on <span class="code">Rational</span>
-by using the <span class="code">Ordered</span> trait:</p>
+<p>Here is how it looks if you define comparison operations on <pre class="code">Rational</pre>
+by using the <pre class="code">Ordered</pre> trait:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Rational</code>(n:&nbsp;<code class="typename">Int</code>,&nbsp;d:&nbsp;<code class="typename">Int</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Ordered[Rational]</code>&nbsp;{
@@ -425,27 +425,27 @@ by using the <span class="code">Ordered</span> trait:</p>
 </pre>
 
 
-<p>There are just two things to do.  First, this version of <span class="code">Rational</span>
-mixes in the <span class="code">Ordered</span> trait.  Unlike the traits you have seen so
-far, <span class="code">Ordered</span> requires you to specify a <a href="glossary.html#g772613699"><em>type parameter</em></a> when
+<p>There are just two things to do.  First, this version of <pre class="code">Rational</pre>
+mixes in the <pre class="code">Ordered</pre> trait.  Unlike the traits you have seen so
+far, <pre class="code">Ordered</pre> requires you to specify a <a href="glossary.html#g772613699"><em>type parameter</em></a> when
 you mix it in.  Type parameters are not discussed in detail until
 <a href="type-parameterization.html">Chapter 19</a>, but for now all you need to
-know is that when you mix in <span class="code">Ordered</span>, you must actually mix in
-<span class="code">Ordered[</span><em>C</em><span class="code">]</span>, where <em>C</em> is the class
-whose elements you compare.  In this case, <span class="code">Rational</span> mixes in
-<span class="code">Ordered[Rational]</span>.</p>
+know is that when you mix in <pre class="code">Ordered</pre>, you must actually mix in
+<pre class="code">Ordered[</pre><em>C</em><pre class="code">]</pre>, where <em>C</em> is the class
+whose elements you compare.  In this case, <pre class="code">Rational</pre> mixes in
+<pre class="code">Ordered[Rational]</pre>.</p>
 
-<p>The second thing you need to do is define a <span class="code">compare</span> method for
+<p>The second thing you need to do is define a <pre class="code">compare</pre> method for
 comparing two objects.  This method should compare the receiver,
-<span class="code">this</span>, with the object passed as an argument to the method.  It
+<pre class="code">this</pre>, with the object passed as an argument to the method.  It
 should return an integer that is zero if the objects are the same,
 negative if receiver is less than the argument, and positive if the
 receiver is greater than the argument.</p>
 
-<p>In this case, the comparison method of <span class="code">Rational</span> uses a formula
+<p>In this case, the comparison method of <pre class="code">Rational</pre> uses a formula
 based on converting the fractions to a common denominator and
 then subtracting the resulting numerators.
-Given this mixin and the definition of <span class="code">compare</span>, class <span class="code">Rational</span>
+Given this mixin and the definition of <pre class="code">compare</pre>, class <pre class="code">Rational</pre>
 now has all four comparison methods:</p>
 
 <pre>
@@ -461,19 +461,19 @@ now has all four comparison methods:</p>
 
 
 <p>Any time you implement a class that is ordered by some comparison, you
-should consider mixing in the <span class="code">Ordered</span> trait.  If you do, you will provide
+should consider mixing in the <pre class="code">Ordered</pre> trait.  If you do, you will provide
 the class's users with a rich
 set of comparison methods.</p>
 
-<p>Beware that the <span class="code">Ordered</span> trait does not define <span class="code">equals</span> for you,
+<p>Beware that the <pre class="code">Ordered</pre> trait does not define <pre class="code">equals</pre> for you,
 because it is unable to do so. The problem is that implementing
-<span class="code">equals</span> in terms of <span class="code">compare</span> requires checking the type of the
-passed object, and because of type erasure, <span class="code">Ordered</span> itself cannot
-do this test. Thus, you need to define <span class="code">equals</span> yourself, even if
-you inherit <span class="code">Ordered</span>. You'll find out how to go about this in
+<pre class="code">equals</pre> in terms of <pre class="code">compare</pre> requires checking the type of the
+passed object, and because of type erasure, <pre class="code">Ordered</pre> itself cannot
+do this test. Thus, you need to define <pre class="code">equals</pre> yourself, even if
+you inherit <pre class="code">Ordered</pre>. You'll find out how to go about this in
 <a href="object-equality.html">Chapter 30</a>.</p>
 
-<p>The complete <span class="code">Ordered</span> trait, minus comments and compatibility cruft, is
+<p>The complete <pre class="code">Ordered</pre> trait, minus comments and compatibility cruft, is
 as follows:</p>
 
 <pre>
@@ -487,15 +487,15 @@ as follows:</p>
 </pre>
 
 
-<p>Do not worry much about the <span class="code">T</span>'s and <span class="code">[T]</span>'s.  <span class="code">T</span> here is a
+<p>Do not worry much about the <pre class="code">T</pre>'s and <pre class="code">[T]</pre>'s.  <pre class="code">T</pre> here is a
 <a href="glossary.html#g772613699">type parameter</a>, as described in detail in
 <a href="type-parameterization.html">Chapter 19</a>.  For understanding the
-<span class="code">Ordered</span> trait, just think of it as "the same type as the
+<pre class="code">Ordered</pre> trait, just think of it as "the same type as the
 receiver".  You can then see that this trait defines one abstract
-method, <span class="code">compare</span>, which is expected to compare the receiver (<span class="code">this</span>)
-against another object of the same type as the receiver (<span class="code">that</span>).
-Given this one method, <span class="code">Ordered</span> can then provide concrete
-definitions for <span class="code">&lt;</span>, <span class="code">&gt;</span>, <span class="code">&lt;=</span>, and <span class="code">&gt;=</span>.</p>
+method, <pre class="code">compare</pre>, which is expected to compare the receiver (<pre class="code">this</pre>)
+against another object of the same type as the receiver (<pre class="code">that</pre>).
+Given this one method, <pre class="code">Ordered</pre> can then provide concrete
+definitions for <pre class="code">&lt;</pre>, <pre class="code">&gt;</pre>, <pre class="code">&lt;=</pre>, and <pre class="code">&gt;=</pre>.</p>
 
 <h3 id="sec-stackable-modifications">12.5 Traits as stackable modifications</h3>
 
@@ -507,8 +507,8 @@ methods of a class, and they do so in a way that allows you to <em>stack</em>
 those modifications with each other.</p>
 
 <p>As an example, consider stacking modifications to a queue of integers.
-The queue will have two operations: <span class="code">put</span>, which places integers in the queue, and <span class="code">get</span>, which takes them back out.  Queues are
-first-in, first-out, so <span class="code">get</span> should return the integers in the same
+The queue will have two operations: <pre class="code">put</pre>, which places integers in the queue, and <pre class="code">get</pre>, which takes them back out.  Queues are
+first-in, first-out, so <pre class="code">get</pre> should return the integers in the same
 order they were put in the queue.</p>
 
 <p>Given a class that implements such a queue, you could define traits to 
@@ -517,15 +517,15 @@ perform modifications such as these:</p>
 <ul>
 
 
-<li><span class="code">Doubling</span>: double all integers that are put in the queue
+<li><pre class="code">Doubling</pre>: double all integers that are put in the queue
 
 
 </li>
-<li><span class="code">Incrementing</span>: increment all integers that are put in the queue
+<li><pre class="code">Incrementing</pre>: increment all integers that are put in the queue
 
 
 </li>
-<li><span class="code">Filtering</span>: filter out negative integers from a queue
+<li><pre class="code">Filtering</pre>: filter out negative integers from a queue
 
 
 </li></ul>
@@ -537,11 +537,11 @@ queue class themselves.  The three are also <em>stackable</em>.  You
 can select any of the three you like, mix them into a class, and obtain
 a new class that has all of the modifications you chose.</p>
 
-<p>An abstract <span class="code">IntQueue</span> class is shown in <a href="traits.html#lst-class-intqueue">Listing 12.6</a>.
-<span class="code">IntQueue</span> has a <span class="code">put</span> method that 
-adds new integers to the queue, and a <span class="code">get</span> method that removes and returns them.
+<p>An abstract <pre class="code">IntQueue</pre> class is shown in <a href="traits.html#lst-class-intqueue">Listing 12.6</a>.
+<pre class="code">IntQueue</pre> has a <pre class="code">put</pre> method that 
+adds new integers to the queue, and a <pre class="code">get</pre> method that removes and returns them.
 A basic
-implementation of <span class="code">IntQueue</span> that uses an <span class="code">ArrayBuffer</span> is shown in <a href="traits.html#lst-basic-intqueue">Listing 12.7</a>.</p>
+implementation of <pre class="code">IntQueue</pre> that uses an <pre class="code">ArrayBuffer</pre> is shown in <a href="traits.html#lst-basic-intqueue">Listing 12.7</a>.</p>
 
 <p><a id="lst-class-intqueue"/></p>
 
@@ -553,7 +553,7 @@ implementation of <span class="code">IntQueue</span> that uses an <span class="c
 </pre>
 
 
-<h5>Listing 12.6 - Abstract class <span class="code">IntQueue</span>.</h5>
+<h5>Listing 12.6 - Abstract class <pre class="code">IntQueue</pre>.</h5>
 
 
 <p><a id="lst-basic-intqueue"/></p>
@@ -568,12 +568,12 @@ implementation of <span class="code">IntQueue</span> that uses an <span class="c
 </pre>
 
 
-<h5>Listing 12.7 - A <span class="code">BasicIntQueue</span> implemented with an <span class="code">ArrayBuffer</span>.</h5>
+<h5>Listing 12.7 - A <pre class="code">BasicIntQueue</pre> implemented with an <pre class="code">ArrayBuffer</pre>.</h5>
 
 
-<p>Class <span class="code">BasicIntQueue</span> has a private field holding an array buffer.  The
-<span class="code">get</span> method removes an entry from one end of the buffer, while the
-<span class="code">put</span> method adds elements to the other end.  Here's how this
+<p>Class <pre class="code">BasicIntQueue</pre> has a private field holding an array buffer.  The
+<pre class="code">get</pre> method removes an entry from one end of the buffer, while the
+<pre class="code">put</pre> method adds elements to the other end.  Here's how this
 implementation looks when you use it:</p>
 
 <pre>
@@ -591,10 +591,10 @@ implementation looks when you use it:</p>
 <p>So far so good.  Now take a look at using traits to modify this
 behavior.  <a href="traits.html#lst-doubling-trait">Listing 12.8</a> shows a trait that doubles integers as they are
 put in the queue.
-The <span class="code">Doubling</span> trait has two funny things going on.  The first is that it
-declares a superclass, <span class="code">IntQueue</span>.  This declaration means that the
-trait can only be mixed into a class that also extends <span class="code">IntQueue</span>.  Thus, you
-can mix <span class="code">Doubling</span> into <span class="code">BasicIntQueue</span>, but not into <span class="code">Rational</span>.</p>
+The <pre class="code">Doubling</pre> trait has two funny things going on.  The first is that it
+declares a superclass, <pre class="code">IntQueue</pre>.  This declaration means that the
+trait can only be mixed into a class that also extends <pre class="code">IntQueue</pre>.  Thus, you
+can mix <pre class="code">Doubling</pre> into <pre class="code">BasicIntQueue</pre>, but not into <pre class="code">Rational</pre>.</p>
 
 <p><a id="lst-doubling-trait"/></p>
 
@@ -605,19 +605,19 @@ can mix <span class="code">Doubling</span> into <span class="code">BasicIntQueue
 </pre>
 
 
-<h5>Listing 12.8 - The <span class="code">Doubling</span> stackable modification trait.</h5>
+<h5>Listing 12.8 - The <pre class="code">Doubling</pre> stackable modification trait.</h5>
 
 
-<p>The second funny thing is that the trait has a <span class="code">super</span> call on a
+<p>The second funny thing is that the trait has a <pre class="code">super</pre> call on a
 method declared abstract.  Such calls are illegal for normal classes because they will certainly fail at run time.  For a trait, however,
-such a call can actually succeed.  Since <span class="code">super</span> calls in a trait are
-dynamically bound, the <span class="code">super</span> call in trait <span class="code">Doubling</span> will work so
+such a call can actually succeed.  Since <pre class="code">super</pre> calls in a trait are
+dynamically bound, the <pre class="code">super</pre> call in trait <pre class="code">Doubling</pre> will work so
 long as the trait is mixed in <em>after</em> another trait or class
 that gives a concrete definition to the method.</p>
 
 <p>This arrangement is frequently needed with traits that implement
 stackable modifications.  To tell the compiler you are doing this on
-purpose, you must mark such methods as <span class="code">abstract</span> <span class="code">override</span>.<a id="i-1048822646-1"/> This
+purpose, you must mark such methods as <pre class="code">abstract</pre> <pre class="code">override</pre>.<a id="i-1048822646-1"/> This
 combination of modifiers is only allowed for members of traits, not classes, and it
 means that the trait must be mixed into some class that has a concrete
 definition of the method in question.</p>
@@ -636,14 +636,14 @@ Here's how it looks to use the trait:</p>
 </pre>
 
 
-<p>In the first line in this interpreter session, we define class <span class="code">MyQueue</span>, which extends
-<span class="code">BasicIntQueue</span> and mixes in <span class="code">Doubling</span>.  We then put a 10 in the
-queue, but because <span class="code">Doubling</span> has been mixed in, the 10 is doubled.  When we get an integer from the queue, it is a
+<p>In the first line in this interpreter session, we define class <pre class="code">MyQueue</pre>, which extends
+<pre class="code">BasicIntQueue</pre> and mixes in <pre class="code">Doubling</pre>.  We then put a 10 in the
+queue, but because <pre class="code">Doubling</pre> has been mixed in, the 10 is doubled.  When we get an integer from the queue, it is a
 20.</p>
 
-<p>Note that <span class="code">MyQueue</span> defines no new code.  It simply identifies a
+<p>Note that <pre class="code">MyQueue</pre> defines no new code.  It simply identifies a
 class and mixes in a trait.  In this situation, you could
-supply "<span class="code">BasicIntQueue</span> <span class="code">with</span> <span class="code">Doubling</span>" directly to <span class="code">new</span>
+supply "<pre class="code">BasicIntQueue</pre> <pre class="code">with</pre> <pre class="code">Doubling</pre>" directly to <pre class="code">new</pre>
 instead of defining a named class. It would look as shown in <a href="traits.html#lst-new-with">Listing 12.9</a>:</p>
 
 <p><a id="lst-new-with"/></p>
@@ -657,11 +657,11 @@ instead of defining a named class. It would look as shown in <a href="traits.htm
 </pre>
 
 
-<h5>Listing 12.9 - Mixing in a trait when instantiating with <span class="code">new</span>.</h5>
+<h5>Listing 12.9 - Mixing in a trait when instantiating with <pre class="code">new</pre>.</h5>
 
 
 <p>  To see how to stack modifications, we need to
-define the other two modification traits, <span class="code">Incrementing</span> and <span class="code">Filtering</span>. Implementations of these traits
+define the other two modification traits, <pre class="code">Incrementing</pre> and <pre class="code">Filtering</pre>. Implementations of these traits
 are shown in <a href="traits.html#lst-incrementing-filtering">Listing 12.10</a>:</p>
 
 <p><a id="lst-incrementing-filtering"/></p>
@@ -678,7 +678,7 @@ are shown in <a href="traits.html#lst-incrementing-filtering">Listing 12.10</a>:
 </pre>
 
 
-<h5>Listing 12.10 - Stackable modification traits <span class="code">Incrementing</span> and <span class="code">Filtering</span>.</h5>
+<h5>Listing 12.10 - Stackable modification traits <pre class="code">Incrementing</pre> and <pre class="code">Filtering</pre>.</h5>
 
 
 <p>Given these modifications, you can now pick and choose which ones you
@@ -706,10 +706,10 @@ it keeps:</p>
 the following section, but, roughly speaking, traits further to the
 right take effect first.  When you call a method on a class with
 mixins, the method in the trait furthest to the right is called first.
-If that method calls <span class="code">super</span>, it invokes the method in the next trait
-to its left, and so on.  In the previous example, <span class="code">Filtering</span>'s
-<span class="code">put</span> is invoked first, so it removes integers that were negative to
-begin with.  <span class="code">Incrementing</span>'s <span class="code">put</span> is invoked second, so it adds
+If that method calls <pre class="code">super</pre>, it invokes the method in the next trait
+to its left, and so on.  In the previous example, <pre class="code">Filtering</pre>'s
+<pre class="code">put</pre> is invoked first, so it removes integers that were negative to
+begin with.  <pre class="code">Incrementing</pre>'s <pre class="code">put</pre> is invoked second, so it adds
 one to those integers that remain.</p>
 
 <p>If you reverse the order, first integers will be incremented, and
@@ -741,7 +741,7 @@ eyes open for opportunities to arrange code as stackable modifications.</p>
 <p>Traits are a way to inherit from multiple class-like constructs, but
 they differ in important ways from the multiple inheritance present
 in many languages.  One difference is especially important: the
-interpretation of <span class="code">super</span>. With multiple inheritance, the method called by a <span class="code">super</span> call can be
+interpretation of <pre class="code">super</pre>. With multiple inheritance, the method called by a <pre class="code">super</pre> call can be
 determined right where the call appears.  With traits, the method
 called is determined by a <em>linearization</em> of the classes and
 traits that are mixed into a class. This is the difference that enables the
@@ -759,16 +759,16 @@ multiple inheritance instead of trait mixin:</p>
 </pre>
 
 
-<p>The first question is: Which <span class="code">put</span> method would get invoked by this call?
+<p>The first question is: Which <pre class="code">put</pre> method would get invoked by this call?
 Perhaps the rule would be that the last superclass wins, in which case
-<span class="code">Doubling</span> would get called.  <span class="code">Doubling</span> would double its argument and
-call <span class="code">super.put</span>, and that would be it.  No incrementing would happen!  Likewise,
+<pre class="code">Doubling</pre> would get called.  <pre class="code">Doubling</pre> would double its argument and
+call <pre class="code">super.put</pre>, and that would be it.  No incrementing would happen!  Likewise,
 if the rule were that the first superclass wins, the resulting queue
 would increment integers but not double them.  Thus neither ordering would work.</p>
 
 <p>You might also entertain the possibility of allowing programmers to identify exactly which superclass method
-they want when they say <span class="code">super</span>. For example, imagine the following Scala-like code, in which <span class="code">super</span> appears to be explicitly invoked
-on both <span class="code">Incrementing</span> and <span class="code">Doubling</span>:</p>
+they want when they say <pre class="code">super</pre>. For example, imagine the following Scala-like code, in which <pre class="code">super</pre> appears to be explicitly invoked
+on both <pre class="code">Incrementing</pre> and <pre class="code">Doubling</pre>:</p>
 
 <pre>
   <code class="comment">//&nbsp;Multiple&nbsp;inheritance&nbsp;thought&nbsp;experiment</code>
@@ -782,7 +782,7 @@ on both <span class="code">Incrementing</span> and <span class="code">Doubling</
 </pre>
 
 
-<p>This approach would give us new problems (with the verbosity of this attempt being the least of its problems). What would happen is that the base class's <span class="code">put</span> method would get called
+<p>This approach would give us new problems (with the verbosity of this attempt being the least of its problems). What would happen is that the base class's <pre class="code">put</pre> method would get called
 <em>twice</em>&mdash;once with an incremented value and once with a doubled
 value, but neither time with an incremented, doubled value.</p>
 
@@ -790,22 +790,22 @@ value, but neither time with an incremented, doubled value.</p>
 inheritance.  You would have to back up in your design and factor
 the code differently.  By contrast,
 the traits solution in Scala is straightforward.  You simply mix in
-<span class="code">Incrementing</span> and <span class="code">Doubling</span>, and Scala's special
-treatment of <span class="code">super</span> in traits makes it all work out.  Something is clearly
+<pre class="code">Incrementing</pre> and <pre class="code">Doubling</pre>, and Scala's special
+treatment of <pre class="code">super</pre> in traits makes it all work out.  Something is clearly
 different here from traditional multiple inheritance, but what?
 As hinted previously, the answer is  linearization.  When you instantiate a class with
-<span class="code">new</span>, Scala takes the class, and all of its inherited classes and
+<pre class="code">new</pre>, Scala takes the class, and all of its inherited classes and
 traits, and puts them in a single, <em>linear</em> order.  Then,
-whenever you call <span class="code">super</span> inside one of those classes, the invoked
+whenever you call <pre class="code">super</pre> inside one of those classes, the invoked
 method is the next one up the chain.  If all of the methods but the
-last call <span class="code">super</span>, the net result is stackable behavior.</p>
+last call <pre class="code">super</pre>, the net result is stackable behavior.</p>
 
 <p>The precise order of the linearization is described in the language
 specification.  It is a little bit complicated, but the main thing you need
 to know is that, in any linearization, a class is 
 always linearized
 in front of <em>all</em> its superclasses and mixed in traits.  Thus, when
-you write a method that calls <span class="code">super</span>, that method is definitely
+you write a method that calls <pre class="code">super</pre>, that method is definitely
 modifying the behavior of the superclasses and mixed in traits, not
 the other way around.</p>
 
@@ -821,9 +821,9 @@ not interested in understanding those details right now.</p>
 
 
 <p>The main properties of Scala's linearization are illustrated by the
-following example: Say you have a class <span class="code">Cat</span>, which inherits from a superclass <span class="code">Animal</span> and 
-two supertraits <span class="code">Furry</span> and <span class="code">FourLegged</span>. <span class="code">FourLegged</span> extends in turn another trait 
-<span class="code">HasLegs</span>:</p>
+following example: Say you have a class <pre class="code">Cat</pre>, which inherits from a superclass <pre class="code">Animal</pre> and 
+two supertraits <pre class="code">Furry</pre> and <pre class="code">FourLegged</pre>. <pre class="code">FourLegged</pre> extends in turn another trait 
+<pre class="code">HasLegs</pre>:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Animal</code>&nbsp;
@@ -834,10 +834,10 @@ two supertraits <span class="code">Furry</span> and <span class="code">FourLegge
 </pre>
 
 
-<p>Class <span class="code">Cat</span>'s inheritance hierarchy and linearization are shown in <a href="traits.html#fig-linearization">Figure 12.1</a>. Inheritance is indicated
+<p>Class <pre class="code">Cat</pre>'s inheritance hierarchy and linearization are shown in <a href="traits.html#fig-linearization">Figure 12.1</a>. Inheritance is indicated
 using traditional UML notation:<a href="traits.html#footnotemain12-3">[3]</a> arrows with white, triangular arrowheads indicate inheritance, with the 
 arrowhead pointing to the supertype. The arrows with darkened, non-triangular arrowheads depict linearization. The darkened arrowheads point in the
-direction in which <span class="code">super</span> calls will be resolved.</p>
+direction in which <pre class="code">super</pre> calls will be resolved.</p>
 
 <div class="figure"><a id="fig-linearization"/>
 
@@ -845,15 +845,15 @@ direction in which <span class="code">super</span> calls will be resolved.</p>
 <p><img src="images/linearization160.png" alt="image images/linearization160.png"/></p>
 
 </div>
-<h5> Figure 12.1 - Inheritance hierarchy and linearization of class <span class="code">Cat</span>.</h5>
+<h5> Figure 12.1 - Inheritance hierarchy and linearization of class <pre class="code">Cat</pre>.</h5>
 
 
-<p>The linearization of <span class="code">Cat</span> is computed from back to front as follows. 
-The <span style="font-style:italic">last</span> part of the linearization of <span class="code">Cat</span> is the linearization of
-its superclass, <span class="code">Animal</span>. This linearization is copied over without any changes. 
+<p>The linearization of <pre class="code">Cat</pre> is computed from back to front as follows. 
+The <span style="font-style:italic">last</span> part of the linearization of <pre class="code">Cat</pre> is the linearization of
+its superclass, <pre class="code">Animal</pre>. This linearization is copied over without any changes. 
 (The linearization of each of these types is shown in <a href="traits.html#tab-linearization-several">Table 12.1</a>  <a href="traits.html#tab-linearization-several">here</a>.)
-Because <span class="code">Animal</span> doesn't explicitly extend a superclass or mix in any supertraits, it by default
-extends <span class="code">AnyRef</span>, which extends <span class="code">Any</span>. <span class="code">Animal</span>'s linearization, therefore, looks like:</p>
+Because <pre class="code">Animal</pre> doesn't explicitly extend a superclass or mix in any supertraits, it by default
+extends <pre class="code">AnyRef</pre>, which extends <pre class="code">Any</pre>. <pre class="code">Animal</pre>'s linearization, therefore, looks like:</p>
 
 <div style="text-align: center">
 <img src="images/AnimalLine160.png" alt="image images/AnimalLine160.png"/>
@@ -863,8 +863,8 @@ extends <span class="code">AnyRef</span>, which extends <span class="code">Any</
 
 
 <p>The second to last part is the linearization of the first mixin, 
-trait <span class="code">Furry</span>, but all classes that are already in the linearization of <span class="code">Animal</span> 
-are left out now, so that each class appears only once in <span class="code">Cat</span>'s linearization.
+trait <pre class="code">Furry</pre>, but all classes that are already in the linearization of <pre class="code">Animal</pre> 
+are left out now, so that each class appears only once in <pre class="code">Cat</pre>'s linearization.
 The result is:</p>
 
 <div style="text-align: center">
@@ -874,7 +874,7 @@ The result is:</p>
 </div>
 
 
-<p>This is preceded by the linearization of <span class="code">FourLegged</span>, where again any classes
+<p>This is preceded by the linearization of <pre class="code">FourLegged</pre>, where again any classes
 that have already been copied in the linearizations of the superclass or 
 the first mixin are left out:</p>
 
@@ -886,7 +886,7 @@ the first mixin are left out:</p>
 
 
 <p>Finally, the first class in the linearization of 
-<span class="code">Cat</span> is <span class="code">Cat</span> itself:</p>
+<pre class="code">Cat</pre> is <pre class="code">Cat</pre> itself:</p>
 
 <div style="text-align: center">
 <img src="images/CatLine160.png" alt="image images/CatLine160.png"/>
@@ -895,12 +895,12 @@ the first mixin are left out:</p>
 </div>
 
 
-<p>When any of these classes and traits invokes a method via <span class="code">super</span>, the implementation invoked will 
+<p>When any of these classes and traits invokes a method via <pre class="code">super</pre>, the implementation invoked will 
 be the first implementation to its right in the linearization.</p>
 
 <p><a id="tab-linearization-several"/></p>
 
-<h5>Table 12.1 - Linearization of types in <span class="code">Cat</span>'s hierarchy</h5>
+<h5>Table 12.1 - Linearization of types in <pre class="code">Cat</pre>'s hierarchy</h5>
 
 
 <div style="text-align: center">
@@ -917,7 +917,7 @@ be the first implementation to its right in the linearization.</p>
 </tr>
 <tr class="topline ">
   <td>
-    <span class="code">Animal</span>
+    <pre class="code">Animal</pre>
   </td>
   <td>
     Animal, AnyRef, Any
@@ -925,7 +925,7 @@ be the first implementation to its right in the linearization.</p>
 </tr>
 <tr>
   <td>
-    <span class="code">Furry</span>
+    <pre class="code">Furry</pre>
   </td>
   <td>
     Furry, Animal, AnyRef, Any
@@ -933,7 +933,7 @@ be the first implementation to its right in the linearization.</p>
 </tr>
 <tr>
   <td>
-    <span class="code">FourLegged</span>
+    <pre class="code">FourLegged</pre>
   </td>
   <td>
     FourLegged, HasLegs, Animal, AnyRef, Any
@@ -941,7 +941,7 @@ be the first implementation to its right in the linearization.</p>
 </tr>
 <tr>
   <td>
-    <span class="code">HasLegs</span>
+    <pre class="code">HasLegs</pre>
   </td>
   <td>
     HasLegs, Animal, AnyRef, Any
@@ -949,7 +949,7 @@ be the first implementation to its right in the linearization.</p>
 </tr>
 <tr class="bottomline">
   <td>
-    <span class="code">Cat</span>
+    <pre class="code">Cat</pre>
   </td>
   <td>
     Cat, FourLegged, HasLegs, Furry, Animal, AnyRef, Any
@@ -1001,9 +1001,9 @@ in general using a trait keeps more options open.</p>
 
 <p>This chapter has shown you how traits work and how to use them in
 several common idioms.  You saw that traits are similar to
-multiple inheritance. But because traits interpret <span class="code">super</span> using
+multiple inheritance. But because traits interpret <pre class="code">super</pre> using
 linearization, they both avoid some of the difficulties of traditional multiple
-inheritance and allow you to stack behaviors.  You also saw the <span class="code">Ordered</span> trait and learned how to write your own enrichment traits.</p>
+inheritance and allow you to stack behaviors.  You also saw the <pre class="code">Ordered</pre> trait and learned how to write your own enrichment traits.</p>
 
 <p>Now that you have seen all of these facets, it is worth stepping back
 and taking another look at traits as a whole.  Traits do not merely
@@ -1018,7 +1018,7 @@ through trait mixin.</p>
 <h4>Footnotes for Chapter 12:</h4>
 
 
-<p><a id="footnotemain12-1"/>[1] This example is based on the <span class="code">Rational</span> class shown in <a href="functional-objects.html#lst-overloaded-methods">Listing 6.5</a>  <a href="functional-objects.html#lst-overloaded-methods">here</a>, with <span class="code">equals</span>, <span class="code">hashCode</span>, and modifications to ensure a positive <span class="code">denom</span> added.</p>
+<p><a id="footnotemain12-1"/>[1] This example is based on the <pre class="code">Rational</pre> class shown in <a href="functional-objects.html#lst-overloaded-methods">Listing 6.5</a>  <a href="functional-objects.html#lst-overloaded-methods">here</a>, with <pre class="code">equals</pre>, <pre class="code">hashCode</pre>, and modifications to ensure a positive <pre class="code">denom</pre> added.</p>
 
 <p><a id="footnotemain12-2"/>[2] Once a trait is mixed into a class, you can alternatively call it a <em>mixin</em>.</p>
 

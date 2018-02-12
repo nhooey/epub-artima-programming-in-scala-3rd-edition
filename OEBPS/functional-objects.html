@@ -25,7 +25,7 @@ class parameters and constructors, methods and operators, private
 members, overriding, checking preconditions, overloading, and self
 references<a id="i1689782844-2"/><a id="i-2121954815-1"/>.</p>
 
-<h3 id="sec-class-for-rational-numbers">6.1 A specification for class <span class="code">Rational</span></h3>
+<h3 id="sec-class-for-rational-numbers">6.1 A specification for class <pre class="code">Rational</pre></h3>
 
 
 <p>A <em>rational number</em> is a number that can be expressed as a ratio <sup>n</sup>/<sub>d</sub>,
@@ -53,14 +53,14 @@ multiplying.  For instance <sup>1</sup>/<sub>2</sub> / <sup>3</sup>/<sub>5</sub>
 <p>One, maybe rather trivial, observation is that in mathematics, rational numbers do
 not have mutable state. You can add one rational number to another, but the
 result will be a new rational number.  The original numbers will not
-have "changed." The immutable <span class="code">Rational</span> class we'll design in this chapter will have the same
-property. Each rational number will be represented by one <span class="code">Rational</span>
+have "changed." The immutable <pre class="code">Rational</pre> class we'll design in this chapter will have the same
+property. Each rational number will be represented by one <pre class="code">Rational</pre>
 object. When you add two
-<span class="code">Rational</span> objects, you'll create a new <span class="code">Rational</span> object to hold the sum.</p>
+<pre class="code">Rational</pre> objects, you'll create a new <pre class="code">Rational</pre> object to hold the sum.</p>
 
 <p>This chapter will give you a glimpse of some of the ways Scala enables you to write libraries 
 that feel like native language support. For example, at the end of this chapter you'll
-be able to do this with class <span class="code">Rational</span>:</p>
+be able to do this with class <pre class="code">Rational</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;oneHalf&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Rational</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -72,11 +72,11 @@ be able to do this with class <span class="code">Rational</span>:</p>
 </pre>
 
 
-<h3>6.2 Constructing a <span class="code">Rational</span></h3>
+<h3>6.2 Constructing a <pre class="code">Rational</pre></h3>
 
 
-<p>A good place to start designing class <span class="code">Rational</span> is to consider how client programmers
-will create a new <span class="code">Rational</span> object. Given we've decided to make <span class="code">Rational</span> objects immutable,
+<p>A good place to start designing class <pre class="code">Rational</pre> is to consider how client programmers
+will create a new <pre class="code">Rational</pre> object. Given we've decided to make <pre class="code">Rational</pre> objects immutable,
 we'll require that clients provide all data needed by an instance (in this case, a numerator and
 a denominator) when they construct the instance. Thus, we will start the
 design with this:</p>
@@ -90,8 +90,8 @@ design with this:</p>
 a body, you don't need to specify empty curly braces (though you could,
 of course, if you wanted
 to).<a id="i-1274918996-1"/><a id="i-1738295964-1"/>
-The identifiers <span class="code">n</span> and <span class="code">d</span> in the
-parentheses after the class name, <span class="code">Rational</span>, are called <em>class
+The identifiers <pre class="code">n</pre> and <pre class="code">d</pre> in the
+parentheses after the class name, <pre class="code">Rational</pre>, are called <em>class
 parameters</em><a id="i177886610-1"/>. The Scala compiler will gather up these two class
 parameters and create a <em>primary constructor</em> that takes the same
 two parameters.<a id="i2081307927-1"/><a id="i161912641-1"/></p>
@@ -109,15 +109,15 @@ objects before passing them to other code. Third, there is no way for
 two threads concurrently accessing an immutable to corrupt its state
 once it has been properly constructed, because no thread can change the state of an immutable. Fourth, immutable objects make
 safe hash table keys. If a mutable object is mutated after it is
-placed into a <span class="code">HashSet</span>, for example, that object may not be found
-the next time you look into the <span class="code">HashSet</span>.</p>
+placed into a <pre class="code">HashSet</pre>, for example, that object may not be found
+the next time you look into the <pre class="code">HashSet</pre>.</p>
 
 <p>The main disadvantage of immutable objects is that they sometimes
 require that a large object graph be copied, whereas an update
 could be done in its place. In some cases this can be awkward to express
 and might also cause a performance bottleneck.  As a result, it is<a id="i-222173474-1"/>
 not uncommon for libraries to provide mutable alternatives to immutable classes. For
-example, class <span class="code">StringBuilder</span> is a mutable alternative to the immutable <span class="code">String</span>. We'll
+example, class <pre class="code">StringBuilder</pre> is a mutable alternative to the immutable <pre class="code">String</pre>. We'll
 give you more information on designing mutable objects in Scala in
 <a href="mutable-objects.html">Chapter 18</a>.</p>
 
@@ -128,7 +128,7 @@ give you more information on designing mutable objects in Scala in
 <h4>Note</h4>
 
 
-<p>This initial <span class="code">Rational</span> example highlights a difference between Java and Scala.<a id="i263298648-1"/>
+<p>This initial <pre class="code">Rational</pre> example highlights a difference between Java and Scala.<a id="i263298648-1"/>
 In Java, classes have constructors, which can take parameters; whereas in Scala, classes can take parameters directly.
 The Scala notation is more concise&mdash;class parameters can be used directly in the 
 body of the class; there's no need to define fields and write assignments that copy
@@ -149,8 +149,8 @@ For example, you could print a debug message like this:</p>
 </pre>
 
 
-<p>Given this code, the Scala compiler would place the call to <span class="code">println</span> into <span class="code">Rational</span>'s primary constructor.
-The <span class="code">println</span> call will, therefore, print its debug message whenever you create a new <span class="code">Rational</span> instance:</p>
+<p>Given this code, the Scala compiler would place the call to <pre class="code">println</pre> into <pre class="code">Rational</pre>'s primary constructor.
+The <pre class="code">println</pre> call will, therefore, print its debug message whenever you create a new <pre class="code">Rational</pre> instance:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Rational</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)
@@ -159,21 +159,21 @@ The <span class="code">println</span> call will, therefore, print its debug mess
 </pre>
 
 
-<h3 id="sec-reimp-tostring">6.3 Reimplementing the <span class="code">toString</span> method</h3>
+<h3 id="sec-reimp-tostring">6.3 Reimplementing the <pre class="code">toString</pre> method</h3>
 
 
-<p>When we created an instance of <span class="code">Rational</span> in the previous example, the interpreter
+<p>When we created an instance of <pre class="code">Rational</pre> in the previous example, the interpreter
 printed "Rational@90110a". 
 The interpreter obtained this somewhat funny looking string by
-calling <span class="code">toString</span> on the <span class="code">Rational</span> object. By default, class <span class="code">Rational</span> 
-inherits the implementation of <span class="code">toString</span> defined in class <span class="code">java.lang.Object</span>,
+calling <pre class="code">toString</pre> on the <pre class="code">Rational</pre> object. By default, class <pre class="code">Rational</pre> 
+inherits the implementation of <pre class="code">toString</pre> defined in class <pre class="code">java.lang.Object</pre>,
 which just prints the class name, an @ sign, and a hexadecimal number.
-The result of <span class="code">toString</span> is primarily intended to help programmers by providing information that can be used in
+The result of <pre class="code">toString</pre> is primarily intended to help programmers by providing information that can be used in
 debug print statements, log messages, test failure reports, and interpreter and debugger output. The result currently
-provided by <span class="code">toString</span> is not especially helpful because it doesn't give any clue about the rational number's value. A more useful implementation of <span class="code">toString</span> 
-would print out the values of the <span class="code">Rational</span>'s numerator and denominator.
-You can <em>override</em> the default implementation by adding a method <span class="code">toString</span>
-to class <span class="code">Rational</span>, like this:<a id="i-189935346-1"/><a id="i-720005867-1"/></p>
+provided by <pre class="code">toString</pre> is not especially helpful because it doesn't give any clue about the rational number's value. A more useful implementation of <pre class="code">toString</pre> 
+would print out the values of the <pre class="code">Rational</pre>'s numerator and denominator.
+You can <em>override</em> the default implementation by adding a method <pre class="code">toString</pre>
+to class <pre class="code">Rational</pre>, like this:<a id="i-189935346-1"/><a id="i-720005867-1"/></p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Rational</code>(n:&nbsp;<code class="typename">Int</code>,&nbsp;d:&nbsp;<code class="typename">Int</code>)&nbsp;{
@@ -182,12 +182,12 @@ to class <span class="code">Rational</span>, like this:<a id="i-189935346-1"/><a
 </pre>
 
 
-<p>The <span class="code">override</span> modifier in front of a method definition signals that a previous method definition
+<p>The <pre class="code">override</pre> modifier in front of a method definition signals that a previous method definition
 is overridden (more on this in <a href="composition-and-inheritance.html">Chapter 10</a>).
-Since <span class="code">Rational</span> numbers will display nicely now,
-we removed the debug <span class="code">println</span> statement we put into the body of
-previous version of class <span class="code">Rational</span>.<a id="i1201360043-1"/>
-You can test the new behavior of <span class="code">Rational</span> in the interpreter:</p>
+Since <pre class="code">Rational</pre> numbers will display nicely now,
+we removed the debug <pre class="code">println</pre> statement we put into the body of
+previous version of class <pre class="code">Rational</pre>.<a id="i1201360043-1"/>
+You can test the new behavior of <pre class="code">Rational</pre> in the interpreter:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;x&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Rational</code>(<code class="literal">1</code>,&nbsp;<code class="literal">3</code>)
@@ -204,7 +204,7 @@ You can test the new behavior of <span class="code">Rational</span> in the inter
 current behavior of the primary constructor.  As mentioned at the
 beginning of this chapter, rational numbers may not have a zero in the
 denominator. Currently, however, the primary constructor accepts a
-zero passed as <span class="code">d</span>:</p>
+zero passed as <pre class="code">d</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Rational</code>(<code class="literal">5</code>,&nbsp;<code class="literal">0</code>)
@@ -215,15 +215,15 @@ zero passed as <span class="code">d</span>:</p>
 <p>One of the benefits of object-oriented programming is that it allows
 you to encapsulate data inside objects so that you can ensure the data
 is valid throughout its lifetime.  In the case of an immutable object
-such as <span class="code">Rational</span>, this means that you should ensure the data is
+such as <pre class="code">Rational</pre>, this means that you should ensure the data is
 valid when the object is constructed. Given that a zero denominator is
-an invalid state for a <span class="code">Rational</span> number, you should not let a
-<span class="code">Rational</span> be constructed if a zero is passed in the <span class="code">d</span> parameter.</p>
+an invalid state for a <pre class="code">Rational</pre> number, you should not let a
+<pre class="code">Rational</pre> be constructed if a zero is passed in the <pre class="code">d</pre> parameter.</p>
 
 <p>The best way to approach this problem is to define as a <em>precondition</em> of the primary
-constructor that <span class="code">d</span> must be non-zero. A precondition is a constraint on values passed into
+constructor that <pre class="code">d</pre> must be non-zero. A precondition is a constraint on values passed into
 a method or constructor, a requirement which callers must fulfill. 
-One way to do that is to use <span class="code">require</span>,<a href="functional-objects.html#footnotemain6-1">[1]</a>
+One way to do that is to use <pre class="code">require</pre>,<a href="functional-objects.html#footnotemain6-1">[1]</a>
 like this:</p>
 
 <pre>
@@ -234,19 +234,19 @@ like this:</p>
 </pre>
 
 
-<p>The <span class="code">require</span> method takes one boolean parameter. If the passed value
-is true, <span class="code">require</span> will return normally<a id="i-2113140869-1"/>. Otherwise,
-<span class="code">require</span> will prevent the object from being constructed by throwing an <span class="code">IllegalArgumentException</span>.</p>
+<p>The <pre class="code">require</pre> method takes one boolean parameter. If the passed value
+is true, <pre class="code">require</pre> will return normally<a id="i-2113140869-1"/>. Otherwise,
+<pre class="code">require</pre> will prevent the object from being constructed by throwing an <pre class="code">IllegalArgumentException</pre>.</p>
 
 <h3 id="sec-adding-fields">6.5 Adding fields</h3>
 
 
 <p>Now that the primary constructor is properly enforcing its precondition, we will turn our
 attention to supporting addition.  To do so, we'll define
-a public <span class="code">add</span> method on class <span class="code">Rational</span> that takes another <span class="code">Rational</span> as a parameter.
-To keep <span class="code">Rational</span> immutable, the <span class="code">add</span> method must not add the passed rational number to itself.
-Rather, it must create and return a new <span class="code">Rational</span> that holds the sum.
-You might think you could write <span class="code">add</span> this way:</p>
+a public <pre class="code">add</pre> method on class <pre class="code">Rational</pre> that takes another <pre class="code">Rational</pre> as a parameter.
+To keep <pre class="code">Rational</pre> immutable, the <pre class="code">add</pre> method must not add the passed rational number to itself.
+Rather, it must create and return a new <pre class="code">Rational</pre> that holds the sum.
+You might think you could write <pre class="code">add</pre> this way:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Rational</code>(n:&nbsp;<code class="typename">Int</code>,&nbsp;d:&nbsp;<code class="typename">Int</code>)&nbsp;{&nbsp;<code class="comment">//&nbsp;This&nbsp;won't&nbsp;compile</code>
@@ -270,13 +270,13 @@ You might think you could write <span class="code">add</span> this way:</p>
 </pre>
 
 
-<p>Although class parameters <span class="code">n</span> and <span class="code">d</span> are in scope in the code of your <span class="code">add</span> method, you
-can only access their value on the object on which <span class="code">add</span> was invoked. Thus, when you say <span class="code">n</span> or <span class="code">d</span>
-in <span class="code">add</span>'s implementation, the compiler is happy to provide you with the values for
-these class parameters. But it won't let you say <span class="code">that.n</span> or <span class="code">that.d</span> because <span class="code">that</span>
-does not refer to the <span class="code">Rational</span> object on which <span class="code">add</span> was invoked.<a href="functional-objects.html#footnotemain6-2">[2]</a>
-To access the numerator and denominator on <span class="code">that</span>, you'll need to make them into fields.
-<a href="functional-objects.html#lst-rational-fields">Listing 6.1</a> shows how you could add these fields to class <span class="code">Rational</span>.<a href="functional-objects.html#footnotemain6-3">[3]</a><a id="i2138903369-1"/><a id="i-590826255-1"/></p>
+<p>Although class parameters <pre class="code">n</pre> and <pre class="code">d</pre> are in scope in the code of your <pre class="code">add</pre> method, you
+can only access their value on the object on which <pre class="code">add</pre> was invoked. Thus, when you say <pre class="code">n</pre> or <pre class="code">d</pre>
+in <pre class="code">add</pre>'s implementation, the compiler is happy to provide you with the values for
+these class parameters. But it won't let you say <pre class="code">that.n</pre> or <pre class="code">that.d</pre> because <pre class="code">that</pre>
+does not refer to the <pre class="code">Rational</pre> object on which <pre class="code">add</pre> was invoked.<a href="functional-objects.html#footnotemain6-2">[2]</a>
+To access the numerator and denominator on <pre class="code">that</pre>, you'll need to make them into fields.
+<a href="functional-objects.html#lst-rational-fields">Listing 6.1</a> shows how you could add these fields to class <pre class="code">Rational</pre>.<a href="functional-objects.html#footnotemain6-3">[3]</a><a id="i2138903369-1"/><a id="i-590826255-1"/></p>
 
 <p><a id="lst-rational-fields"/></p>
 
@@ -295,13 +295,13 @@ To access the numerator and denominator on <span class="code">that</span>, you'l
 </pre>
 
 
-<h5>Listing 6.1 - <span class="code">Rational</span> with fields.</h5>
+<h5>Listing 6.1 - <pre class="code">Rational</pre> with fields.</h5>
 
 
-<p>In the version of <span class="code">Rational</span> shown in <a href="functional-objects.html#lst-rational-fields">Listing 6.1</a>, we added two fields named <span class="code">numer</span> and <span class="code">denom</span>, and initialized
-them with the values of class parameters <span class="code">n</span> and <span class="code">d</span>.<a href="functional-objects.html#footnotemain6-4">[4]</a> We also changed the implementation of
-<span class="code">toString</span> and <span class="code">add</span> so that they use the fields, not the class parameters.
-This version of class <span class="code">Rational</span> compiles. You can test it by adding some rational numbers:</p>
+<p>In the version of <pre class="code">Rational</pre> shown in <a href="functional-objects.html#lst-rational-fields">Listing 6.1</a>, we added two fields named <pre class="code">numer</pre> and <pre class="code">denom</pre>, and initialized
+them with the values of class parameters <pre class="code">n</pre> and <pre class="code">d</pre>.<a href="functional-objects.html#footnotemain6-4">[4]</a> We also changed the implementation of
+<pre class="code">toString</pre> and <pre class="code">add</pre> so that they use the fields, not the class parameters.
+This version of class <pre class="code">Rational</pre> compiles. You can test it by adding some rational numbers:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;oneHalf&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Rational</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)
@@ -314,7 +314,7 @@ This version of class <span class="code">Rational</span> compiles. You can test 
 
 
 <p>One other thing you can do now that you couldn't do before is access the numerator and denominator values from outside
-the object. Simply access the public <span class="code">numer</span> and <span class="code">denom</span> fields, like this:</p>
+the object. Simply access the public <pre class="code">numer</pre> and <pre class="code">denom</pre> fields, like this:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;r&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Rational</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)
@@ -329,12 +329,12 @@ the object. Simply access the public <span class="code">numer</span> and <span c
 <h3 id="sec-self-references">6.6 Self references</h3>
 
 
-<p>The keyword <span class="code">this</span> refers to the<a id="i3559070-1"/><a id="i423816156-1"/>
+<p>The keyword <pre class="code">this</pre> refers to the<a id="i3559070-1"/><a id="i423816156-1"/>
 object instance on which the currently executing method was invoked, or if used in
 a constructor, the object instance being
 constructed.
-As an example, consider adding a method, <span class="code">lessThan</span>,
-which tests whether the given <span class="code">Rational</span> is smaller than a parameter:</p>
+As an example, consider adding a method, <pre class="code">lessThan</pre>,
+which tests whether the given <pre class="code">Rational</pre> is smaller than a parameter:</p>
 
 <pre>
   <code class="vem">def</code>&nbsp;lessThan(that:&nbsp;<code class="typename">Rational</code>)&nbsp;=&nbsp;
@@ -342,12 +342,12 @@ which tests whether the given <span class="code">Rational</span> is smaller than
 </pre>
 
 
-<p>Here, <span class="code">this.numer</span> refers to the numerator of the object on which
-<span class="code">lessThan</span> was invoked.  You can also leave off the <span class="code">this</span> prefix
-and write just <span class="code">numer</span>; the two notations are equivalent.</p>
+<p>Here, <pre class="code">this.numer</pre> refers to the numerator of the object on which
+<pre class="code">lessThan</pre> was invoked.  You can also leave off the <pre class="code">this</pre> prefix
+and write just <pre class="code">numer</pre>; the two notations are equivalent.</p>
 
-<p>As an example of where you can't do without <span class="code">this</span>, consider adding a
-<span class="code">max</span> method to class <span class="code">Rational</span> that returns the greater of the
+<p>As an example of where you can't do without <pre class="code">this</pre>, consider adding a
+<pre class="code">max</pre> method to class <pre class="code">Rational</pre> that returns the greater of the
 given rational number and an argument:</p>
 
 <pre>
@@ -356,7 +356,7 @@ given rational number and an argument:</p>
 </pre>
 
 
-<p>Here, the first <span class="code">this</span> is redundant. You could have left it off and written: <span class="code">lessThan(that)</span>.  But the second <span class="code">this</span> represents the result
+<p>Here, the first <pre class="code">this</pre> is redundant. You could have left it off and written: <pre class="code">lessThan(that)</pre>.  But the second <pre class="code">this</pre> represents the result
 of the method in the case where the test returns false; were you to omit
 it, there would be nothing left to return!</p>
 
@@ -368,8 +368,8 @@ constructors
 other than the primary constructor are called <a href="glossary.html#g729406368"><em>auxiliary constructors</em></a>.<a id="i-717257147-1"/><a id="i1136761043-1"/><a id="i-1656673269-1"/>
 For example, a rational number with a denominator of 1 can be written more succinctly as
 simply the numerator. Instead of <sup>5</sup>/<sub>1</sub>, for example, you can just write 5.
-It might be nice, therefore, if instead of writing <span class="code">new</span>&nbsp;<span class="code">Rational(5,</span>&nbsp;<span class="code">1)</span>, client programmers could simply
-write <span class="code">new</span>&nbsp;<span class="code">Rational(5)</span>. This would require adding an auxiliary constructor to <span class="code">Rational</span> that
+It might be nice, therefore, if instead of writing <pre class="code">new</pre>&nbsp;<pre class="code">Rational(5,</pre>&nbsp;<pre class="code">1)</pre>, client programmers could simply
+write <pre class="code">new</pre>&nbsp;<pre class="code">Rational(5)</pre>. This would require adding an auxiliary constructor to <pre class="code">Rational</pre> that
 takes only one argument, the numerator, with the denominator predefined to be 1.
 <a href="functional-objects.html#lst-aux-constructor">Listing 6.2</a> shows what that would look like.</p>
 
@@ -391,12 +391,12 @@ takes only one argument, the numerator, with the denominator predefined to be 1.
 </pre>
 
 
-<h5>Listing 6.2 - <span class="code">Rational</span> with an auxiliary constructor.</h5>
+<h5>Listing 6.2 - <pre class="code">Rational</pre> with an auxiliary constructor.</h5>
 
 
-<p>Auxiliary constructors in Scala start with <span class="code">def</span>&nbsp;<span class="code">this(...)</span>. The body of <span class="code">Rational</span>'s auxiliary constructor merely invokes
-the primary constructor, passing along its lone argument, <span class="code">n</span>, as the
-numerator and <span class="code">1</span> as the denominator.
+<p>Auxiliary constructors in Scala start with <pre class="code">def</pre>&nbsp;<pre class="code">this(...)</pre>. The body of <pre class="code">Rational</pre>'s auxiliary constructor merely invokes
+the primary constructor, passing along its lone argument, <pre class="code">n</pre>, as the
+numerator and <pre class="code">1</pre> as the denominator.
 You can see the auxiliary constructor in action by typing the
 following into the interpreter:</p>
 
@@ -408,8 +408,8 @@ following into the interpreter:</p>
 
 <p>In Scala, every auxiliary constructor must invoke another constructor of the same
 class as its first action. In other words, the first statement in every auxiliary
-constructor in every Scala class will have the form "<span class="code">this(</span>...<span class="code">)</span>". The invoked constructor is either the
-primary constructor (as in the <span class="code">Rational</span> example), or another
+constructor in every Scala class will have the form "<pre class="code">this(</pre>...<pre class="code">)</pre>". The invoked constructor is either the
+primary constructor (as in the <pre class="code">Rational</pre> example), or another
 auxiliary constructor that comes textually before the calling
 constructor. The net effect of this rule is that every constructor
 invocation in Scala will end up eventually calling the primary
@@ -434,11 +434,11 @@ and inheritance interact will be explained in <a href="composition-and-inheritan
 <h3>6.8 Private fields and methods</h3>
 
 
-<p>In the previous version of <span class="code">Rational</span>, we simply initialized <span class="code">numer</span> with <span class="code">n</span> and
-<span class="code">denom</span> with <span class="code">d</span>.
+<p>In the previous version of <pre class="code">Rational</pre>, we simply initialized <pre class="code">numer</pre> with <pre class="code">n</pre> and
+<pre class="code">denom</pre> with <pre class="code">d</pre>.
 As a result, the numerator and
-denominator of a <span class="code">Rational</span> can be larger than needed. For example, the fraction <sup>66</sup>/<sub>42</sub>
-could be normalized to an equivalent reduced form, <sup>11</sup>/<sub>7</sub>, but <span class="code">Rational</span>'s primary constructor
+denominator of a <pre class="code">Rational</pre> can be larger than needed. For example, the fraction <sup>66</sup>/<sub>42</sub>
+could be normalized to an equivalent reduced form, <sup>11</sup>/<sub>7</sub>, but <pre class="code">Rational</pre>'s primary constructor
 doesn't currently do this:</p>
 
 <pre>
@@ -473,29 +473,29 @@ form, <sup>11</sup>/<sub>7</sub>. <a href="functional-objects.html#lst-private-m
 </pre>
 
 
-<h5>Listing 6.3 - <span class="code">Rational</span> with a private field and method.<a id="i694224322-2"/><a id="i1692219636-2"/><a id="i-1558980393-1"/><a id="i-1621898821-1"/></h5>
+<h5>Listing 6.3 - <pre class="code">Rational</pre> with a private field and method.<a id="i694224322-2"/><a id="i1692219636-2"/><a id="i-1558980393-1"/><a id="i-1621898821-1"/></h5>
 
 
-<p>In this version of <span class="code">Rational</span>, we added a private field, <span class="code">g</span>, and modified the initializers
-for <span class="code">numer</span> and <span class="code">denom</span>. (An <em>initializer</em> is the code that initializes a variable; for example, the
-"<span class="code">n</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">g</span>" that initializes <span class="code">numer</span>.) Because <span class="code">g</span> is private, it can be accessed inside the body of the class, but not
-outside<a id="i1857067865-1"/>. We also added a private method, <span class="code">gcd</span>, which calculates the greatest common
-divisor of two passed <span class="code">Int</span>s. For example, <span class="code">gcd(12,</span>&nbsp;<span class="code">8)</span> is <span class="code">4</span>. 
+<p>In this version of <pre class="code">Rational</pre>, we added a private field, <pre class="code">g</pre>, and modified the initializers
+for <pre class="code">numer</pre> and <pre class="code">denom</pre>. (An <em>initializer</em> is the code that initializes a variable; for example, the
+"<pre class="code">n</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">g</pre>" that initializes <pre class="code">numer</pre>.) Because <pre class="code">g</pre> is private, it can be accessed inside the body of the class, but not
+outside<a id="i1857067865-1"/>. We also added a private method, <pre class="code">gcd</pre>, which calculates the greatest common
+divisor of two passed <pre class="code">Int</pre>s. For example, <pre class="code">gcd(12,</pre>&nbsp;<pre class="code">8)</pre> is <pre class="code">4</pre>. 
 As you saw in <a href="classes-and-objects.html#sec-classes-fields-methods">Section 4.1</a>,
 to make a field or method private
-you simply place the <span class="code">private</span> keyword in front of its definition.
-The purpose of the private "helper method" <span class="code">gcd</span> is to factor out code needed by
-some other part of the class, in this case, the primary constructor. To ensure <span class="code">g</span> is always positive, we
-pass the absolute value of <span class="code">n</span> and <span class="code">d</span>, which we obtain by invoking
-<span class="code">abs</span> on them, a method you can invoke on any <span class="code">Int</span> to get its
+you simply place the <pre class="code">private</pre> keyword in front of its definition.
+The purpose of the private "helper method" <pre class="code">gcd</pre> is to factor out code needed by
+some other part of the class, in this case, the primary constructor. To ensure <pre class="code">g</pre> is always positive, we
+pass the absolute value of <pre class="code">n</pre> and <pre class="code">d</pre>, which we obtain by invoking
+<pre class="code">abs</pre> on them, a method you can invoke on any <pre class="code">Int</pre> to get its
 absolute value.<a id="i-1171773097-1"/></p>
 
-<p>The Scala compiler will place the code for the initializers of <span class="code">Rational</span>'s three 
+<p>The Scala compiler will place the code for the initializers of <pre class="code">Rational</pre>'s three 
 fields into the primary constructor in the order in which they appear
-in the source code.<a id="i-400083503-1"/> Thus, <span class="code">g</span>'s initializer, <span class="code">gcd(n.abs,</span>&nbsp;<span class="code">d.abs)</span>, will execute before the other two,
-because it appears first in the source. Field <span class="code">g</span> will be initialized with the result, the 
-greatest common divisor of the absolute value of the class parameters, <span class="code">n</span> and <span class="code">d</span>.
-Field <span class="code">g</span> is then used in the initializers of <span class="code">numer</span> and <span class="code">denom</span>. By dividing <span class="code">n</span> and <span class="code">d</span> by their greatest common divisor, <span class="code">g</span>, every <span class="code">Rational</span> will be constructed in
+in the source code.<a id="i-400083503-1"/> Thus, <pre class="code">g</pre>'s initializer, <pre class="code">gcd(n.abs,</pre>&nbsp;<pre class="code">d.abs)</pre>, will execute before the other two,
+because it appears first in the source. Field <pre class="code">g</pre> will be initialized with the result, the 
+greatest common divisor of the absolute value of the class parameters, <pre class="code">n</pre> and <pre class="code">d</pre>.
+Field <pre class="code">g</pre> is then used in the initializers of <pre class="code">numer</pre> and <pre class="code">denom</pre>. By dividing <pre class="code">n</pre> and <pre class="code">d</pre> by their greatest common divisor, <pre class="code">g</pre>, every <pre class="code">Rational</pre> will be constructed in
 its normalized form:</p>
 
 <pre>
@@ -507,7 +507,7 @@ its normalized form:</p>
 <h3>6.9 Defining operators</h3>
 
 
-<p>The current implementation of <span class="code">Rational</span> addition is OK, but
+<p>The current implementation of <pre class="code">Rational</pre> addition is OK, but
 could be made more convenient to use. You might ask yourself why you
 can write:</p>
 
@@ -516,7 +516,7 @@ can write:</p>
 </pre>
 
 
-<p>if <span class="code">x</span> and <span class="code">y</span> are integers or floating-point 
+<p>if <pre class="code">x</pre> and <pre class="code">y</pre> are integers or floating-point 
 numbers, but you have to write:</p>
 
 <pre>
@@ -542,11 +542,11 @@ numbers.</p>
 <p>Why should you not use the natural arithmetic operators on
 them? In Scala you can do this. In the rest of this chapter, we'll show you how.</p>
 
-<p>The first step is to replace <span class="code">add</span> by the usual
-mathematical symbol. This is straightforward, as <span class="code">+</span>
+<p>The first step is to replace <pre class="code">add</pre> by the usual
+mathematical symbol. This is straightforward, as <pre class="code">+</pre>
 is a legal identifier in Scala. We can simply define a method with
-<span class="code">+</span> as its name. While we're at it, we may as well implement a method
-named <span class="code">*</span> that performs multiplication. The result is shown in <a href="functional-objects.html#lst-operator-methods">Listing 6.4</a>:</p>
+<pre class="code">+</pre> as its name. While we're at it, we may as well implement a method
+named <pre class="code">*</pre> that performs multiplication. The result is shown in <a href="functional-objects.html#lst-operator-methods">Listing 6.4</a>:</p>
 
 <p><a id="lst-operator-methods"/></p>
 
@@ -571,10 +571,10 @@ named <span class="code">*</span> that performs multiplication. The result is sh
 </pre>
 
 
-<h5>Listing 6.4 - <span class="code">Rational</span> with operator methods.</h5>
+<h5>Listing 6.4 - <pre class="code">Rational</pre> with operator methods.</h5>
 
 
-<p>With class <span class="code">Rational</span> defined in this manner, you can now write:</p>
+<p>With class <pre class="code">Rational</pre> defined in this manner, you can now write:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;x&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Rational</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)
@@ -598,9 +598,9 @@ a method call.<a id="i-614149608-3"/> You could also write:</p>
 <p>but this is not as readable.</p>
 
 <p>Another thing to note is that given Scala's rules for operator precedence, which were described
-in <a href="basic-types-and-operations.html#sec-precedence">Section 5.9</a>, the <span class="code">*</span> method will bind more tightly than the <span class="code">+</span> method
-for <span class="code">Rational</span>s. In other words, expressions involving <span class="code">+</span> and <span class="code">*</span> operations on <span class="code">Rational</span>s will
-behave as expected.<a id="i1955596960-2"/><a id="i2084616098-2"/> For example, <span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">x</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">y</span> will execute as <span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">(x</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">y)</span>, not <span class="code">(x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">x)</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">y</span>:</p>
+in <a href="basic-types-and-operations.html#sec-precedence">Section 5.9</a>, the <pre class="code">*</pre> method will bind more tightly than the <pre class="code">+</pre> method
+for <pre class="code">Rational</pre>s. In other words, expressions involving <pre class="code">+</pre> and <pre class="code">*</pre> operations on <pre class="code">Rational</pre>s will
+behave as expected.<a id="i1955596960-2"/><a id="i2084616098-2"/> For example, <pre class="code">x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">x</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">y</pre> will execute as <pre class="code">x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">(x</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">y)</pre>, not <pre class="code">(x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">x)</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">y</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;x&nbsp;+&nbsp;x&nbsp;*&nbsp;y
@@ -627,84 +627,84 @@ identifiers generated by the Scala compiler. Identifiers in user
 programs should not contain `$' characters, even though it will compile; if they do, this might lead to name clashes
 with identifiers generated by the Scala compiler.<a id="i-890920833-1"/></p>
 
-<p>Scala follows Java's convention of using camel-case<a href="functional-objects.html#footnotemain6-5">[5]</a> identifiers,<a id="i81954455-1"/> such as <span class="code">toString</span> and <span class="code">HashSet</span>.<a id="i857734909-1"/><a id="i-917788527-1"/><a id="i350029111-1"/><a id="i-1611050102-1"/>
+<p>Scala follows Java's convention of using camel-case<a href="functional-objects.html#footnotemain6-5">[5]</a> identifiers,<a id="i81954455-1"/> such as <pre class="code">toString</pre> and <pre class="code">HashSet</pre>.<a id="i857734909-1"/><a id="i-917788527-1"/><a id="i350029111-1"/><a id="i-1611050102-1"/>
 Although underscores are legal in identifiers, they are not used that often in Scala programs, in part to be
 consistent with Java, but also because underscores have many other
 non-identifier uses in Scala code<a id="i1978221382-1"/>. As a result, it
-is best to avoid identifiers like <span class="code">to_string</span>, <span class="code">__init__</span>, or <span class="code">name_</span>.
+is best to avoid identifiers like <pre class="code">to_string</pre>, <pre class="code">__init__</pre>, or <pre class="code">name_</pre>.
 Camel-case names of fields, method parameters, local variables, and functions should start with a lower case letter,
-for example: <span class="code">length</span>, <span class="code">flatMap</span>, and <span class="code">s</span>. Camel-case names of classes and traits should start with an upper
-case letter, for example: <span class="code">BigInt</span>, <span class="code">List</span>, and <span class="code">UnbalancedTreeMap</span>.<a href="functional-objects.html#footnotemain6-6">[6]</a></p>
+for example: <pre class="code">length</pre>, <pre class="code">flatMap</pre>, and <pre class="code">s</pre>. Camel-case names of classes and traits should start with an upper
+case letter, for example: <pre class="code">BigInt</pre>, <pre class="code">List</pre>, and <pre class="code">UnbalancedTreeMap</pre>.<a href="functional-objects.html#footnotemain6-6">[6]</a></p>
 
 <div class="note">
 <h4>Note</h4>
 
 
-<p>One consequence of using a trailing underscore in an identifier is that if you attempt, for example, to write a declaration like this, "<span class="code">val</span>&nbsp;<span class="code">name_:</span>&nbsp;<span class="code">Int</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code">1</span>", you'll
-get a compiler error. The compiler will think you are trying to declare a <span class="code">val</span> named "<span class="code">name_:</span>". To get this to compile, you would need to insert
-an extra space before the colon, as in: "<span class="code">val</span>&nbsp;<span class="code">name_</span>&nbsp;<span class="code">:</span>&nbsp;<span class="code">Int</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code">1</span>".</p>
+<p>One consequence of using a trailing underscore in an identifier is that if you attempt, for example, to write a declaration like this, "<pre class="code">val</pre>&nbsp;<pre class="code">name_:</pre>&nbsp;<pre class="code">Int</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code">1</pre>", you'll
+get a compiler error. The compiler will think you are trying to declare a <pre class="code">val</pre> named "<pre class="code">name_:</pre>". To get this to compile, you would need to insert
+an extra space before the colon, as in: "<pre class="code">val</pre>&nbsp;<pre class="code">name_</pre>&nbsp;<pre class="code">:</pre>&nbsp;<pre class="code">Int</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code">1</pre>".</p>
 
 </div>
 
 
 <p>One way in which Scala's conventions depart from Java's involves constant names.<a id="i-422276785-1"/> In Scala, the word <em>constant</em> does not just
-mean <span class="code">val</span>. Even though a <span class="code">val</span> does remain constant after it is initialized, it is still a variable. For example, method parameters
-are <span class="code">val</span>s, but each time the method is called those <span class="code">val</span>s can hold different values. A constant is more permanent.
-For example, <span class="code">scala.math.Pi</span> is defined to be the
+mean <pre class="code">val</pre>. Even though a <pre class="code">val</pre> does remain constant after it is initialized, it is still a variable. For example, method parameters
+are <pre class="code">val</pre>s, but each time the method is called those <pre class="code">val</pre>s can hold different values. A constant is more permanent.
+For example, <pre class="code">scala.math.Pi</pre> is defined to be the
 double value closest to the real value of &pi;, the ratio of a circle's circumference to its diameter. 
-This value is unlikely to change ever; thus, <span class="code">Pi</span> is clearly a constant. You can also use constants to give names to values
+This value is unlikely to change ever; thus, <pre class="code">Pi</pre> is clearly a constant. You can also use constants to give names to values
 that would otherwise be <em>magic numbers</em> in your code:<a id="i1838929623-1"/> literal values with no explanation, which in the worst case appear
 in multiple places. You may also want to define constants for use in pattern matching, a use case that
 will be described in <a href="case-classes-and-pattern-matching.html#subsec-kinds-of-patterns-variables">Section 15.2</a>. In Java, the convention is to give constants names that
-are all upper case, with underscores separating the words, such as <span class="code">MAX_VALUE</span> or <span class="code">PI</span>. In Scala, the convention is merely that
+are all upper case, with underscores separating the words, such as <pre class="code">MAX_VALUE</pre> or <pre class="code">PI</pre>. In Scala, the convention is merely that
 the first character should be upper case. Thus, constants named
-in the Java style, such as <span class="code">X_OFFSET</span>, will work as Scala constants, but the Scala convention is to use
-camel case for constants, such as <span class="code">XOffset</span>.</p>
+in the Java style, such as <pre class="code">X_OFFSET</pre>, will work as Scala constants, but the Scala convention is to use
+camel case for constants, such as <pre class="code">XOffset</pre>.</p>
 
 <p>An <span style="font-style:italic">operator identifier</span> consists of one or more 
 operator characters.<a id="i1206563604-1"/><a id="i-12268236-1"/> Operator characters are printable ASCII 
-characters such as <span class="code">+</span>, <span class="code">:</span>, <span class="code">?</span>, <span class="code"><span style="font-size:large">~</span></span> or <span class="code">#</span>.<a href="functional-objects.html#footnotemain6-7">[7]</a>
+characters such as <pre class="code">+</pre>, <pre class="code">:</pre>, <pre class="code">?</pre>, <span class="code"><span style="font-size:large">~</span></span> or <pre class="code">#</pre>.<a href="functional-objects.html#footnotemain6-7">[7]</a>
 Here are some examples of operator identifiers:</p>
 
 <div style="text-align: center">
 
 
-<p><span class="code">+</span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code">++</span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code">&lt;?&gt;</span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code">:-&gt;</span></p>
+<p><pre class="code">+</pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code">++</pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code">:::</pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code">&lt;?&gt;</pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code">:-&gt;</pre></p>
 
 </div>
 
 
 <p>The Scala compiler will internally "mangle" operator identifiers to turn
-them into legal Java identifiers with embedded <span class="code">$</span> characters. For instance, 
-the identifier <span class="code">:-&gt;</span> would be represented internally 
-as <span class="code">$colon$minus$greater</span>. If you ever wanted to access this identifier from Java code, 
+them into legal Java identifiers with embedded <pre class="code">$</pre> characters. For instance, 
+the identifier <pre class="code">:-&gt;</pre> would be represented internally 
+as <pre class="code">$colon$minus$greater</pre>. If you ever wanted to access this identifier from Java code, 
 you'd need to use this internal representation.</p>
 
 <p>Because operator identifiers in Scala can become arbitrarily long,
 there is a small difference between Java and Scala.  In Java,
-the input <span class="code">x&lt;-y</span> would be parsed as four lexical symbols, so it would be
-equivalent to <span class="code">x</span>&nbsp;<span class="code">&lt;</span>&nbsp;<span class="code">-</span>&nbsp;<span class="code">y</span>. In Scala, <span class="code">&lt;-</span> would be parsed as a single identifier,
-giving <span class="code">x</span>&nbsp;<span class="code">&lt;-</span>&nbsp;<span class="code">y</span>. If you want the first interpretation, you need to separate
-the <span class="code">&lt;</span> and the <span class="code">-</span> characters by a space. This is unlikely to 
-be a problem in practice, as very few people would write <span class="code">x&lt;-y</span> in Java
+the input <pre class="code">x&lt;-y</pre> would be parsed as four lexical symbols, so it would be
+equivalent to <pre class="code">x</pre>&nbsp;<pre class="code">&lt;</pre>&nbsp;<pre class="code">-</pre>&nbsp;<pre class="code">y</pre>. In Scala, <pre class="code">&lt;-</pre> would be parsed as a single identifier,
+giving <pre class="code">x</pre>&nbsp;<pre class="code">&lt;-</pre>&nbsp;<pre class="code">y</pre>. If you want the first interpretation, you need to separate
+the <pre class="code">&lt;</pre> and the <pre class="code">-</pre> characters by a space. This is unlikely to 
+be a problem in practice, as very few people would write <pre class="code">x&lt;-y</pre> in Java
 without inserting spaces or parentheses between the operators.</p>
 
 <p>A <span style="font-style:italic">mixed identifier</span> consists of an alphanumeric identifier, which is followed by
 an underscore and an operator
-identifier.<a id="i-1955463099-1"/><a id="i1641787755-1"/> For example, <span class="code">unary_+</span><a id="i-1088310403-2"/> used as a method
-name defines a unary <span class="code">+</span> operator. Or, 
-<span class="code">myvar_=</span> used as method name defines an assignment operator.
+identifier.<a id="i-1955463099-1"/><a id="i1641787755-1"/> For example, <pre class="code">unary_+</pre><a id="i-1088310403-2"/> used as a method
+name defines a unary <pre class="code">+</pre> operator. Or, 
+<pre class="code">myvar_=</pre> used as method name defines an assignment operator.
 In addition, the mixed identifier form
-<span class="code">myvar_=</span> is generated by the Scala compiler to support <span style="font-style:italic">properties</span> (more on that in <a href="mutable-objects.html">Chapter 18</a><a id="i-926053069-1"/>).</p>
+<pre class="code">myvar_=</pre> is generated by the Scala compiler to support <span style="font-style:italic">properties</span> (more on that in <a href="mutable-objects.html">Chapter 18</a><a id="i-926053069-1"/>).</p>
 
 <p><a id="sec-literal-identifier"/>
 A <span style="font-style:italic">literal identifier</span> is an arbitrary string enclosed in back ticks
-(<span class="code">`</span> ...<span class="code">`</span>).<a id="i-144177089-1"/><a id="i-1241489226-1"/><a id="i1204364761-1"/> Some examples of literal identifiers are:</p>
+(<pre class="code">`</pre> ...<pre class="code">`</pre>).<a id="i-144177089-1"/><a id="i-1241489226-1"/><a id="i1204364761-1"/> Some examples of literal identifiers are:</p>
 
 <div style="text-align: center">
 
 
-<p><span class="code">`x`</span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code">`&lt;clinit&gt;`</span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code">`yield`</span></p>
+<p><pre class="code">`x`</pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code">`&lt;clinit&gt;`</pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code">`yield`</pre></p>
 
 </div>
 
@@ -713,23 +713,23 @@ A <span style="font-style:italic">literal identifier</span> is an arbitrary stri
 as an identifier between back ticks. The result is always a Scala
 identifier. This works even if the name contained in the back ticks
 would be a Scala reserved word<a id="i1517246665-1"/>.  
-A typical use case is accessing the static <span class="code">yield</span> method in Java's
-<span class="code">Thread</span> class. You cannot write <span class="code">Thread.yield()</span> because <span class="code">yield</span> is
+A typical use case is accessing the static <pre class="code">yield</pre> method in Java's
+<pre class="code">Thread</pre> class. You cannot write <pre class="code">Thread.yield()</pre> because <pre class="code">yield</pre> is
 a reserved word in Scala. However, you can still name the method
-in back ticks, <i>e.g.</i>, <span class="code">Thread.`yield`()</span>.</p>
+in back ticks, <i>e.g.</i>, <pre class="code">Thread.`yield`()</pre>.</p>
 
 <h3 id="sec-method-overloading">6.11 Method overloading</h3>
 
 
-<p>Back to class <span class="code">Rational</span>. With the latest changes, you can now do<a id="i-1178969056-1"/><a id="i1636832800-1"/>
+<p>Back to class <pre class="code">Rational</pre>. With the latest changes, you can now do<a id="i-1178969056-1"/><a id="i1636832800-1"/>
 addition and multiplication operations in a natural style on rational numbers. But
 one thing still missing is mixed arithmetic. For instance, you cannot
 multiply a rational number by an integer because the operands of
-<span class="code">*</span> always have to be <span class="code">Rational</span>s. So for a rational number <span class="code">r</span> you
-can't write <span class="code">r</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">2</span>. You must write <span class="code">r</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">new</span>&nbsp;<span class="code">Rational(2)</span>, which is not as
+<pre class="code">*</pre> always have to be <pre class="code">Rational</pre>s. So for a rational number <pre class="code">r</pre> you
+can't write <pre class="code">r</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">2</pre>. You must write <pre class="code">r</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">new</pre>&nbsp;<pre class="code">Rational(2)</pre>, which is not as
 nice.</p>
 
-<p>To make <span class="code">Rational</span> even more convenient, we'll add new methods
+<p>To make <pre class="code">Rational</pre> even more convenient, we'll add new methods
 to the class that perform mixed addition and multiplication on rational numbers and integers.
 While we're at it, we'll add methods for subtraction and division
 too. The result
@@ -773,18 +773,18 @@ is shown in <a href="functional-objects.html#lst-overloaded-methods">Listing 6.5
 </pre>
 
 
-<h5>Listing 6.5 - <span class="code">Rational</span> with overloaded methods.<a id="i-1789856-1"/></h5>
+<h5>Listing 6.5 - <pre class="code">Rational</pre> with overloaded methods.<a id="i-1789856-1"/></h5>
 
 
 <p>There are now two versions each of the arithmetic methods: one
 that takes a rational as its argument and another that takes an integer.
 In other words, each of these method names is <em>overloaded</em> because each name is now being used by multiple
-methods. For example, the name <span class="code">+</span> is used by one method that takes a <span class="code">Rational</span> and another that takes an <span class="code">Int</span>. In a method call,
+methods. For example, the name <pre class="code">+</pre> is used by one method that takes a <pre class="code">Rational</pre> and another that takes an <pre class="code">Int</pre>. In a method call,
 the compiler picks the version of an overloaded method that correctly matches the
-types of the arguments.  For instance, if the argument <span class="code">y</span> in
-<span class="code">x.+(y)</span> is a <span class="code">Rational</span>, the compiler will pick the method <span class="code">+</span> that takes a
-<span class="code">Rational</span> parameter. But if the argument is an integer, 
-the compiler will pick the method <span class="code">+</span> that takes an <span class="code">Int</span> parameter instead.
+types of the arguments.  For instance, if the argument <pre class="code">y</pre> in
+<pre class="code">x.+(y)</pre> is a <pre class="code">Rational</pre>, the compiler will pick the method <pre class="code">+</pre> that takes a
+<pre class="code">Rational</pre> parameter. But if the argument is an integer, 
+the compiler will pick the method <pre class="code">+</pre> that takes an <pre class="code">Int</pre> parameter instead.
 If you try this:</p>
 
 <pre>
@@ -797,7 +797,7 @@ If you try this:</p>
 </pre>
 
 
-<p>You'll see that the <span class="code">*</span> method invoked is determined in each case by the type of the right operand.</p>
+<p>You'll see that the <pre class="code">*</pre> method invoked is determined in each case by the type of the right operand.</p>
 
 <div class="note">
 <h4>Note</h4>
@@ -815,7 +815,7 @@ best matching version; in that case the compiler will give you an
 <h3>6.12 Implicit conversions</h3>
 
 
-<p>Now that you can write <span class="code">r</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">2</span>, you might also want to swap the operands, as in <span class="code">2</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">r</span>. Unfortunately this does not work yet:<a id="i869323971-1"/></p>
+<p>Now that you can write <pre class="code">r</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">2</pre>, you might also want to swap the operands, as in <pre class="code">2</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">r</pre>. Unfortunately this does not work yet:<a id="i869323971-1"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="literal">2</code>&nbsp;*&nbsp;r
@@ -834,10 +834,10 @@ best matching version; in that case the compiler will give you an
 </pre>
 
 
-<p>The problem here is that <span class="code">2</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">r</span> is equivalent to <span class="code">2.*(r)</span>, so it is
-a method call on the number <span class="code">2</span>, which is an integer. But the <span class="code">Int</span>
-class contains no multiplication method that takes a <span class="code">Rational</span>
-argument&mdash;it couldn't because class <span class="code">Rational</span> is 
+<p>The problem here is that <pre class="code">2</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">r</pre> is equivalent to <pre class="code">2.*(r)</pre>, so it is
+a method call on the number <pre class="code">2</pre>, which is an integer. But the <pre class="code">Int</pre>
+class contains no multiplication method that takes a <pre class="code">Rational</pre>
+argument&mdash;it couldn't because class <pre class="code">Rational</pre> is 
 not a standard class in the Scala library.</p>
 
 <p>However, there is another way to solve this problem in Scala: You can
@@ -849,7 +849,7 @@ rational numbers when needed.<a id="i-2127602858-1"/> Try adding this line in th
 </pre>
 
 
-<p>This defines a conversion method from <span class="code">Int</span> to <span class="code">Rational</span>. The <span class="code">implicit</span> 
+<p>This defines a conversion method from <pre class="code">Int</pre> to <pre class="code">Rational</pre>. The <pre class="code">implicit</pre> 
 modifier in front of the method tells the compiler to apply it automatically
 in a number of situations<a id="i-425423387-1"/>. With the conversion defined, you can now retry the example that failed before:</p>
 
@@ -862,7 +862,7 @@ in a number of situations<a id="i-425423387-1"/>. With the conversion defined, y
 
 
 <p>For an implicit conversion to work, it needs to be in scope. If you place the implicit method definition
-inside class <span class="code">Rational</span>, it won't be in scope in the interpreter. For now, you'll need to define it directly in the interpreter.</p>
+inside class <pre class="code">Rational</pre>, it won't be in scope in the interpreter. For now, you'll need to define it directly in the interpreter.</p>
 
 <p>As you can glimpse from this example, implicit conversions are
 a very powerful technique for making libraries more flexible and more
@@ -903,44 +903,44 @@ constructors, define operators as methods, and customize
 classes so that they are natural to use.  Maybe most importantly, you saw that defining and using immutable
 objects is a quite natural way to code in Scala.</p>
 
-<p>Although the final version of <span class="code">Rational</span> shown in this chapter
+<p>Although the final version of <pre class="code">Rational</pre> shown in this chapter
 fulfills the requirements set forth at the beginning of the chapter,
 it could still be improved. We will in fact return to this example
 later in the book. For example, in
 <a href="object-equality.html">Chapter 30</a>, you'll learn how to
-override <span class="code">equals</span> and <span class="code">hashcode</span> to allow <span class="code">Rational</span>s to behave
-better when compared with <span class="code">==</span> or placed into hash tables.
+override <pre class="code">equals</pre> and <pre class="code">hashcode</pre> to allow <pre class="code">Rational</pre>s to behave
+better when compared with <pre class="code">==</pre> or placed into hash tables.
 In <a href="implicit-conversions-and-parameters.html">Chapter 21</a>, you'll learn
 how to place implicit method definitions in a companion object for
-<span class="code">Rational</span>, so they can be more easily placed into scope when client
-programmers are working with <span class="code">Rational</span>s.</p>
+<pre class="code">Rational</pre>, so they can be more easily placed into scope when client
+programmers are working with <pre class="code">Rational</pre>s.</p>
 
 <hr/>
 <h4>Footnotes for Chapter 6:</h4>
 
 
-<p><a id="footnotemain6-1"/>[1] The <span class="code">require</span> method is defined in standalone
-object, <span class="code">Predef</span>. As mentioned in <a href="classes-and-objects.html#sec-a-scala-application">Section 4.4</a>, <span class="code">Predef</span>'s members are imported automatically
+<p><a id="footnotemain6-1"/>[1] The <pre class="code">require</pre> method is defined in standalone
+object, <pre class="code">Predef</pre>. As mentioned in <a href="classes-and-objects.html#sec-a-scala-application">Section 4.4</a>, <pre class="code">Predef</pre>'s members are imported automatically
 into every Scala source file.</p>
 
 <p><a id="footnotemain6-2"/>[2] Actually, you could add
-a <span class="code">Rational</span> to itself, in which case <span class="code">that</span> would refer to the object on which <span class="code">add</span> was invoked. But because 
-you can pass any <span class="code">Rational</span> object to <span class="code">add</span>, the compiler still won't let you say <span class="code">that.n</span>.</p>
+a <pre class="code">Rational</pre> to itself, in which case <pre class="code">that</pre> would refer to the object on which <pre class="code">add</pre> was invoked. But because 
+you can pass any <pre class="code">Rational</pre> object to <pre class="code">add</pre>, the compiler still won't let you say <pre class="code">that.n</pre>.</p>
 
 <p><a id="footnotemain6-3"/>[3] In <a href="composition-and-inheritance.html#sec-parametric-fields">Section 10.6</a>
 you'll find out about <em>parametric fields</em>, which provide a
 shorthand for writing the same code.</p>
 
-<p><a id="footnotemain6-4"/>[4] Even though <span class="code">n</span> and <span class="code">d</span> are used
+<p><a id="footnotemain6-4"/>[4] Even though <pre class="code">n</pre> and <pre class="code">d</pre> are used
 in the body of the class, given they are only used inside
 constructors, the Scala compiler will not emit fields for them. Thus, given this code the Scala compiler will
-generate a class with two <span class="code">Int</span> fields, one for <span class="code">numer</span> and one for <span class="code">denom</span>.</p>
+generate a class with two <pre class="code">Int</pre> fields, one for <pre class="code">numer</pre> and one for <pre class="code">denom</pre>.</p>
 
 <p><a id="footnotemain6-5"/>[5] This style of naming identifiers is called <em>camel case</em> because the identifiersHaveHumps consisting of the embedded capital letters.</p>
 
 <p><a id="footnotemain6-6"/>[6] In <a href="working-with-lists.html#sec-list-patterns">Section 16.5</a>, you'll see that sometimes
 you may want to give a special kind of class known as a <em>case class</em> a name consisting solely of operator characters. For example,
-the Scala API contains a class named <span class="code">::</span>, which facilitates pattern matching on <span class="code">List</span>s.</p>
+the Scala API contains a class named <pre class="code">::</pre>, which facilitates pattern matching on <pre class="code">List</pre>s.</p>
 
 <p><a id="footnotemain6-7"/>[7] More precisely, an operator character
 belongs to the Unicode set of mathematical symbols(Sm) or other symbols(So), 

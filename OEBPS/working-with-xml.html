@@ -61,10 +61,10 @@ XML in Scala.</p>
 elements,<a id="i-84923540-1"/><a id="i-1968563942-1"/>
 text<a id="i599729872-1"/><a id="i-891684874-1"/> and
 tags.<a id="i599725500-1"/><a id="i-1699783286-1"/><a href="working-with-xml.html#footnotemain28-2">[2]</a>  Text is, as usual, any sequence of characters.  Tags,
-written like <span class="code">&lt;pod&gt;</span>, consist of a less-than sign, an alphanumeric
+written like <pre class="code">&lt;pod&gt;</pre>, consist of a less-than sign, an alphanumeric
 label, and a greater than sign.  Tags can be <em>start</em> or
 <em>end</em> tags.  An end tag looks just like a start tag except
-that it has a slash just before the tag's label, like this: <span class="code">&lt;/pod&gt;</span>.</p>
+that it has a slash just before the tag's label, like this: <pre class="code">&lt;/pod&gt;</pre>.</p>
 
 <p>Start and end tags must match each other, just like parentheses.
 Any start tag must eventually be followed by an end
@@ -96,8 +96,8 @@ XML.  You cannot have two pairs of matching tags overlap each other:</p>
 nested <em>elements</em>.  Each pair of matching start and end tags
 forms
 an element, and elements may be nested within each other.  In the above
-example, the entirety of <span class="code">&lt;pod&gt;Three</span>&nbsp;<span class="code">&lt;peas&gt;&lt;/peas&gt;</span>&nbsp;<span class="code">in</span>&nbsp;<span class="code">the</span>&nbsp;<span class="code">&lt;/pod&gt;</span> is an element, and
-<span class="code">&lt;peas&gt;&lt;/peas&gt;</span> is an element nested within it.</p>
+example, the entirety of <pre class="code">&lt;pod&gt;Three</pre>&nbsp;<pre class="code">&lt;peas&gt;&lt;/peas&gt;</pre>&nbsp;<pre class="code">in</pre>&nbsp;<pre class="code">the</pre>&nbsp;<pre class="code">&lt;/pod&gt;</pre> is an element, and
+<pre class="code">&lt;peas&gt;&lt;/peas&gt;</pre> is an element nested within it.</p>
 
 <div style="page-break-after:always"/>
 
@@ -118,7 +118,7 @@ be written as follows:</p>
 them.  An
 attribute is a name-value pair written with an equals sign in the
 middle.<a id="i-1944660140-1"/><a id="i2120320186-1"/>  The attribute name itself is plain, unstructured text, and the value is surrounded
-by either double quotes (<span class="code">""</span>) or single quotes (<span class="code">"</span>).  Attributes
+by either double quotes (<pre class="code">""</pre>) or single quotes (<pre class="code">"</pre>).  Attributes
 look like this:</p>
 
 <pre>
@@ -148,31 +148,31 @@ tag you began with:</p>
 </pre>
 
 
-<p>The result of this expression is of type <span class="code">Elem</span>,
+<p>The result of this expression is of type <pre class="code">Elem</pre>,
 meaning it is an XML
-element with a label ("<span class="code">a</span>") and children ("<span class="code">This</span>&nbsp;<span class="code">is</span>&nbsp;<span class="code">some</span>&nbsp;<span class="code">XML</span>...,"
+element with a label ("<pre class="code">a</pre>") and children ("<pre class="code">This</pre>&nbsp;<pre class="code">is</pre>&nbsp;<pre class="code">some</pre>&nbsp;<pre class="code">XML</pre>...,"
 <i>etc.</i>).<a id="i583597511-1"/> Some other important XML classes are:</p>
 
 <ul>
 
 
-<li>Class <span class="code">Node</span> is the abstract superclass of all XML node
+<li>Class <pre class="code">Node</pre> is the abstract superclass of all XML node
       classes.<a id="i1729641978-1"/>
 
 
 </li>
-<li>Class <span class="code">Text</span> is a node holding just text.  For example, the "stuff"
-      part of <span class="code">&lt;a&gt;stuff&lt;/a&gt;</span> is of class <span class="code">Text</span>.<a id="i1739516731-1"/>
+<li>Class <pre class="code">Text</pre> is a node holding just text.  For example, the "stuff"
+      part of <pre class="code">&lt;a&gt;stuff&lt;/a&gt;</pre> is of class <pre class="code">Text</pre>.<a id="i1739516731-1"/>
 
 
 </li>
-<li>Class <span class="code">NodeSeq</span> holds a sequence of nodes.  Many methods in the
-      XML library process <span class="code">NodeSeq</span>s in places you might expect them to
-      process individual <span class="code">Node</span>s.  You can still use such methods with
-      individual nodes, however, since <span class="code">Node</span> extends from <span class="code">NodeSeq</span>.
+<li>Class <pre class="code">NodeSeq</pre> holds a sequence of nodes.  Many methods in the
+      XML library process <pre class="code">NodeSeq</pre>s in places you might expect them to
+      process individual <pre class="code">Node</pre>s.  You can still use such methods with
+      individual nodes, however, since <pre class="code">Node</pre> extends from <pre class="code">NodeSeq</pre>.
       This may sound weird, but it works out well for XML.  You can
-      think of an individual <span class="code">Node</span> as a one-element
-<span class="code">NodeSeq</span>.<a id="i808041077-1"/>
+      think of an individual <pre class="code">Node</pre> as a one-element
+<pre class="code">NodeSeq</pre>.<a id="i808041077-1"/>
 
 
 </li></ul>
@@ -180,7 +180,7 @@ element with a label ("<span class="code">a</span>") and children ("<span class=
 
 <p>You are not restricted to writing out the exact XML you want,
 character for character.  You can evaluate Scala code in the middle of
-an XML literal by using curly braces (<span class="code">{}</span>) as an
+an XML literal by using curly braces (<pre class="code">{}</pre>) as an
 escape.<a id="i1212676591-1"/><a id="i544063905-1"/> Here is a
 simple example:</p>
 
@@ -208,9 +208,9 @@ switch back and forth between XML and ordinary Scala code. Here's an example:</p
 
 <p>If the code inside the curly braces evaluates to either an XML node or a
 sequence of XML nodes, those nodes are inserted directly as is.
-In the above example, if <span class="code">yearMade</span> is less than 2000, it is wrapped
-in <span class="code">&lt;old&gt;</span> tags and added to the <span class="code">&lt;a&gt;</span> element.  Otherwise, nothing is added.  Note in the above example that
-"nothing" as an XML node is denoted with <span class="code">xml.NodeSeq.Empty</span>.</p>
+In the above example, if <pre class="code">yearMade</pre> is less than 2000, it is wrapped
+in <pre class="code">&lt;old&gt;</pre> tags and added to the <pre class="code">&lt;a&gt;</pre> element.  Otherwise, nothing is added.  Note in the above example that
+"nothing" as an XML node is denoted with <pre class="code">xml.NodeSeq.Empty</pre>.</p>
 
 <p>An expression inside a brace escape does not have to evaluate to an
 XML node.  It can evaluate to any Scala value.  In such a case, the result
@@ -222,7 +222,7 @@ is converted to a string and inserted as a text node:</p>
 </pre>
 
 
-<p>Any <span class="code">&lt;</span>, <span class="code">&gt;</span>, and <span class="code">&amp;</span> characters in the text will be escaped
+<p>Any <pre class="code">&lt;</pre>, <pre class="code">&gt;</pre>, and <pre class="code">&amp;</pre> characters in the text will be escaped
 if you print the node back out:</p>
 
 <div style="page-break-after:always"/>
@@ -245,10 +245,10 @@ will run into traps such as the following:</p>
 
 
 <p>What happens here is that a user-supplied string has included XML tags
-of its own, in this case <span class="code">&lt;/a&gt;</span> and <span class="code">&lt;a&gt;</span>.  This behavior can allow
+of its own, in this case <pre class="code">&lt;/a&gt;</pre> and <pre class="code">&lt;a&gt;</pre>.  This behavior can allow
 some nasty surprises for the original programmer, because it allows
 the user to affect the resulting XML tree outside of the space
-provided for the user inside the <span class="code">&lt;a&gt;</span> element.  You can prevent this
+provided for the user inside the <pre class="code">&lt;a&gt;</pre> element.  You can prevent this
 entire class of problems by always constructing XML using XML
 literals, not string
 appends.</p>
@@ -282,7 +282,7 @@ might make the following internal class to hold entries in the catalog:</p>
 of information such as when the thermometer was made, when you got it,
 and how much you paid for it.</p>
 
-<p>To convert instances of this class to XML, simply add a <span class="code">toXML</span>
+<p>To convert instances of this class to XML, simply add a <pre class="code">toXML</pre>
 method that uses XML literals and brace escapes, like this:</p>
 
 <pre>
@@ -328,15 +328,15 @@ method that uses XML literals and brace escapes, like this:</p>
 
 <div class="note">
 <h4>Note</h4>
-The "<span class="code">new</span>&nbsp;<span class="code">CCTherm</span>" expression in the previous example works even though <span class="code">CCTherm</span> is an abstract class, because
-this syntax actually instantiates an anonymous subclass of <span class="code">CCTherm</span>. Anonymous classes were
+The "<pre class="code">new</pre>&nbsp;<pre class="code">CCTherm</pre>" expression in the previous example works even though <pre class="code">CCTherm</pre> is an abstract class, because
+this syntax actually instantiates an anonymous subclass of <pre class="code">CCTherm</pre>. Anonymous classes were
 described in <a href="abstract-members.html#sec-val-init">Section 20.5</a>.
 
 
 </div>
 
 
-<p>By the way, if you want to include a curly brace (`<span class="code">{</span>' or `<span class="code">}</span>') as XML text, as
+<p>By the way, if you want to include a curly brace (`<pre class="code">{</pre>' or `<pre class="code">}</pre>') as XML text, as
 opposed to using them to escape to Scala code, simply write two curly braces
 in a row:</p>
 
@@ -358,7 +358,7 @@ XML.<a id="i83750045-1"/><a id="i1385250650-1"/>
 As is common in Scala, you can write them directly in Scala code
 instead of needing to invoke an external tool.</p>
 
-<p><b>Extracting text.</b>  By calling the <span class="code">text</span> method 
+<p><b>Extracting text.</b>  By calling the <pre class="code">text</pre> method 
 on any XML node you retrieve
 all of the text within that node, minus any element
 tags:<a id="i-620325929-1"/><a id="i-892340276-1"/></p>
@@ -379,7 +379,7 @@ tags:<a id="i-620325929-1"/><a id="i-892340276-1"/></p>
 
 <p><b>Extracting sub-elements.</b>  If you want to find a sub-element by
       tag name, 
-simply call <span class="code">\</span> with the name of the tag:</p>
+simply call <pre class="code">\</pre> with the name of the tag:</p>
 
 <pre>
   scala&gt;&nbsp;&lt;a&gt;&lt;b&gt;&lt;c&gt;hello&lt;/c&gt;&lt;/b&gt;&lt;/a&gt;&nbsp;\&nbsp;<code class="quotedstring">"b"</code>
@@ -388,7 +388,7 @@ simply call <span class="code">\</span> with the name of the tag:</p>
 
 
 <p>You can do a "deep search" and look through sub-sub-elements, <i>etc.</i>,
-by using <span class="code">\\</span> instead of the <span class="code">\</span> operator:<a id="i1322432817-1"/><a id="i32859236-1"/><a id="i583597511-2"/></p>
+by using <pre class="code">\\</pre> instead of the <pre class="code">\</pre> operator:<a id="i1322432817-1"/><a id="i32859236-1"/><a id="i583597511-2"/></p>
 
 <pre>
   scala&gt;&nbsp;&nbsp;&lt;a&gt;&lt;b&gt;&lt;c&gt;hello&lt;/c&gt;&lt;/b&gt;&lt;/a&gt;&nbsp;\&nbsp;<code class="quotedstring">"c"</code>
@@ -407,8 +407,8 @@ by using <span class="code">\\</span> instead of the <span class="code">\</span>
 <h4>Note</h4>
 
 
-<p>Scala uses <span class="code">\</span> and <span class="code">\\</span> instead of XPath's <span class="code">/</span> and
-<span class="code">//</span>. The reason is that <span class="code">//</span> starts a comment in Scala!  Thus,
+<p>Scala uses <pre class="code">\</pre> and <pre class="code">\\</pre> instead of XPath's <pre class="code">/</pre> and
+<pre class="code">//</pre>. The reason is that <pre class="code">//</pre> starts a comment in Scala!  Thus,
 some other symbol has to be used, and using the other kind of slashes
 works well.</p>
 
@@ -417,8 +417,8 @@ works well.</p>
 
 <p><b>Extracting attributes.</b>
 You can extract tag attributes using the
-      same <span class="code">\</span> and <span class="code">\\</span>
-methods.<a id="i-1944660140-2"/><a id="i2120320186-2"/>  Simply put an at sign (<span class="code">@</span>) before
+      same <pre class="code">\</pre> and <pre class="code">\\</pre>
+methods.<a id="i-1944660140-2"/><a id="i2120320186-2"/>  Simply put an at sign (<pre class="code">@</pre>) before
       the attribute name:<a id="i-1417487143-1"/><a id="i-2110526308-1"/></p>
 
 <pre>
@@ -442,7 +442,7 @@ methods.<a id="i-1944660140-2"/><a id="i2120320186-2"/>  Simply put an at sign (
 dual of a serializer, a parser from XML back into your internal
 data
 structures.<a id="i-1744729332-1"/><a id="i1294189452-1"/> 
-For example, you can parse back a <span class="code">CCTherm</span>
+For example, you can parse back a <pre class="code">CCTherm</pre>
 instance by using the following code:</p>
 
 <pre>
@@ -458,9 +458,9 @@ instance by using the following code:</p>
 </pre>
 
 
-<p>This code searches through an input XML node, named <span class="code">node</span>, to find each of
-the six pieces of data needed to specify a <span class="code">CCTherm</span>.  The data that
-is text is extracted with <span class="code">.text</span> and left as is.  
+<p>This code searches through an input XML node, named <pre class="code">node</pre>, to find each of
+the six pieces of data needed to specify a <pre class="code">CCTherm</pre>.  The data that
+is text is extracted with <pre class="code">.text</pre> and left as is.  
 Here is this method in
 action:</p>
 
@@ -489,8 +489,8 @@ because there are library routines that will do it all for you.  You
 simply have to call the right routine on the right data.</p>
 
 <p>To convert XML to a string, all you need is
-<span class="code">toString</span>.  The
-presence of a workable <span class="code">toString</span> is why you can experiment with XML
+<pre class="code">toString</pre>.  The
+presence of a workable <pre class="code">toString</pre> is why you can experiment with XML
 in the Scala shell.  However, it is better to use a library routine
 and convert all the way to bytes.  That way, the resulting XML can
 include a directive that specifies which character encoding was used.
@@ -498,7 +498,7 @@ If you encode the string to bytes yourself, then the onus is on you to
 keep track of the character encoding.<a id="i1598423906-1"/><a id="i1840683213-1"/></p>
 
 <p>To convert from XML to a file of bytes, you can use the
-<span class="code">XML.save</span> command.<a id="i-2053547351-1"/><a id="i1587478341-1"/>
+<pre class="code">XML.save</pre> command.<a id="i-2053547351-1"/><a id="i1587478341-1"/>
 You must specify a file name and a node to be saved:</p>
 
 <pre>
@@ -523,7 +523,7 @@ looks like the following:</p>
 
 
 <p>Loading is simpler than saving, because the file includes everything
-the loader needs to know.  Simply call <span class="code">XML.loadFile</span> on a file
+the loader needs to know.  Simply call <pre class="code">XML.loadFile</pre> on a file
 name:<a id="i1775530286-1"/><a id="i1708565962-1"/></p>
 
 <pre>
@@ -550,8 +550,8 @@ streams.</p>
 <h3>28.8 Pattern matching on XML</h3>
 
 
-<p>So far you have seen how to dissect XML using <span class="code">text</span> and the XPath-like methods,
-<span class="code">\</span> and <span class="code">\\</span>.<a id="i1974282179-1"/><a id="i1884986778-1"/> These are good when you know exactly what
+<p>So far you have seen how to dissect XML using <pre class="code">text</pre> and the XPath-like methods,
+<pre class="code">\</pre> and <pre class="code">\\</pre>.<a id="i1974282179-1"/><a id="i1884986778-1"/> These are good when you know exactly what
 kind of XML structure you are taking apart.  Sometimes, though, there
 are a few possible structures the XML could have.  Maybe there are
 multiple kinds of records within the data, for example because you
@@ -561,11 +561,11 @@ between tags.  Whatever the reason, you can use the pattern matcher to
 sift through the possibilities.</p>
 
 <p>An XML pattern looks just like an XML literal.  The main difference is
-that if you insert a <span class="code">{}</span> escape, then the code inside the <span class="code">{}</span> is
+that if you insert a <pre class="code">{}</pre> escape, then the code inside the <pre class="code">{}</pre> is
 not an expression but a
-pattern.<a id="i-2088304360-1"/><a id="i1428654986-1"/><a id="i428757728-1"/> A pattern embedded in <span class="code">{}</span> can use
+pattern.<a id="i-2088304360-1"/><a id="i1428654986-1"/><a id="i428757728-1"/> A pattern embedded in <pre class="code">{}</pre> can use
 the full Scala pattern language, including binding new variables,
-performing type tests, and ignoring content using the <span class="code">_</span> and <span class="code">_*</span>
+performing type tests, and ignoring content using the <pre class="code">_</pre> and <pre class="code">_*</pre>
 patterns.
 Here is a simple example:</p>
 
@@ -580,9 +580,9 @@ Here is a simple example:</p>
 
 
 <p>This function has a pattern match with three cases. The first case
-looks for an <span class="code">&lt;a&gt;</span> element whose contents consist of a single sub-node.  It binds those contents to a variable named <span class="code">contents</span> and then evaluates the code to
-the right of the associated right arrow (<span class="code">=&gt;</span>).  The second case
-does the same thing but looks for a <span class="code">&lt;b&gt;</span> instead of an <span class="code">&lt;a&gt;</span>, and
+looks for an <pre class="code">&lt;a&gt;</pre> element whose contents consist of a single sub-node.  It binds those contents to a variable named <pre class="code">contents</pre> and then evaluates the code to
+the right of the associated right arrow (<pre class="code">=&gt;</pre>).  The second case
+does the same thing but looks for a <pre class="code">&lt;b&gt;</pre> instead of an <pre class="code">&lt;a&gt;</pre>, and
 the third case matches anything not matched by any other case.  Here
 is the function in use:</p>
 
@@ -597,7 +597,7 @@ is the function in use:</p>
 
 
 <p>Most likely this function is not exactly what you want, because it looks
-precisely for contents consisting of a single sub-node within the <span class="code">&lt;a&gt;</span> or <span class="code">&lt;b&gt;</span>.  Thus
+precisely for contents consisting of a single sub-node within the <pre class="code">&lt;a&gt;</pre> or <pre class="code">&lt;b&gt;</pre>.  Thus
 it will fail to match in cases like the following:</p>
 
 <pre>
@@ -611,9 +611,9 @@ it will fail to match in cases like the following:</p>
 <p>If you want the function to match in cases like these, you can match
 against a sequence of nodes instead of a single one.  The pattern for
 "any sequence" of XML nodes is written
-`<span class="code">_*</span>'.<a id="i521514024-1"/> Visually, this sequence
-looks like the wildcard pattern (<span class="code">_</span>) followed by a regex-style
-Kleene star (<span class="code">*</span>).  Here is the updated function that matches a
+`<pre class="code">_*</pre>'.<a id="i521514024-1"/> Visually, this sequence
+looks like the wildcard pattern (<pre class="code">_</pre>) followed by a regex-style
+Kleene star (<pre class="code">*</pre>).  Here is the updated function that matches a
 sequence of sub-elements instead of a single sub-element:</p>
 
 <pre>
@@ -626,8 +626,8 @@ sequence of sub-elements instead of a single sub-element:</p>
 </pre>
 
 
-<p>Notice that the result of the <span class="code">_*</span> is bound to
-the <span class="code">contents</span> variable by using the <span class="code">@</span> pattern described
+<p>Notice that the result of the <pre class="code">_*</pre> is bound to
+the <pre class="code">contents</pre> variable by using the <pre class="code">@</pre> pattern described
 in <a href="case-classes-and-pattern-matching.html#sec-var-binding">Section 15.2</a>.
 Here is the new version in action:</p>
 
@@ -641,7 +641,7 @@ Here is the new version in action:</p>
 
 
 <p>As a final tip, be aware that XML patterns work very nicely with
-<span class="code">for</span> expressions
+<pre class="code">for</pre> expressions
 as a way to iterate through some parts of an XML tree
 while ignoring other parts.<a id="i-96590517-1"/>  For example, suppose you wish to skip
 over the white space between records in the following XML structure:</p>
@@ -669,7 +669,7 @@ over the white space between records in the following XML structure:</p>
 </pre>
 
 
-<p>Visually, it looks like there are two nodes inside the <span class="code">&lt;catalog&gt;</span> element.  Actually, though, there are five.  There
+<p>Visually, it looks like there are two nodes inside the <pre class="code">&lt;catalog&gt;</pre> element.  Actually, though, there are five.  There
 is white space before, after, and between the two elements!  If you
 do not consider this white space, you might incorrectly process
 the thermometer records as follows:</p>
@@ -696,8 +696,8 @@ the thermometer records as follows:</p>
 <p>Notice all of the lines that try to process white space as if it were
 a true thermometer record.  What you would really like to do is ignore
 the white space and process only those sub-nodes that are inside a
-<span class="code">&lt;cctherm&gt;</span> element.  You can describe this subset using the pattern
-<span class="code">&lt;cctherm&gt;{_*}&lt;/cctherm&gt;</span>, and you can restrict the <span class="code">for</span> expression
+<pre class="code">&lt;cctherm&gt;</pre> element.  You can describe this subset using the pattern
+<pre class="code">&lt;cctherm&gt;{_*}&lt;/cctherm&gt;</pre>, and you can restrict the <pre class="code">for</pre> expression
 to iterating over items that match that pattern:</p>
 
 <pre>

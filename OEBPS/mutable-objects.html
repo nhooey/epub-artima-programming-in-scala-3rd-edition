@@ -41,9 +41,9 @@ result.</p>
 </pre>
 
 
-<p>an application of <span class="code">cs.head</span> will always return <span class="code">'a'</span>. This is the case even if
-there is an arbitrary number of operations on the list <span class="code">cs</span> between the point 
-where it is defined and the point where the access <span class="code">cs.head</span> is made.</p>
+<p>an application of <pre class="code">cs.head</pre> will always return <pre class="code">'a'</pre>. This is the case even if
+there is an arbitrary number of operations on the list <pre class="code">cs</pre> between the point 
+where it is defined and the point where the access <pre class="code">cs.head</pre> is made.</p>
 
 <p>For a mutable object, on the other hand, the result of a method call
 or field access may depend on what operations were previously performed on the object. A good example of a mutable object is a bank account.
@@ -71,16 +71,16 @@ or field access may depend on what operations were previously performed on the o
 <h5>Listing 18.1 - A mutable bank account class.</h5>
 
 
-<p>The <span class="code">BankAccount</span> class defines a private variable, <span class="code">bal</span>,
-and three public methods: <span class="code">balance</span> returns the
-current balance; <span class="code">deposit</span> adds a given <span class="code">amount</span> to
-<span class="code">bal</span>; and <span class="code">withdraw</span> tries to subtract a given <span class="code">amount</span>
-from <span class="code">bal</span> while assuring that the remaining balance won't be
-negative.  The return value of <span class="code">withdraw</span> is a <span class="code">Boolean</span> indicating 
+<p>The <pre class="code">BankAccount</pre> class defines a private variable, <pre class="code">bal</pre>,
+and three public methods: <pre class="code">balance</pre> returns the
+current balance; <pre class="code">deposit</pre> adds a given <pre class="code">amount</pre> to
+<pre class="code">bal</pre>; and <pre class="code">withdraw</pre> tries to subtract a given <pre class="code">amount</pre>
+from <pre class="code">bal</pre> while assuring that the remaining balance won't be
+negative.  The return value of <pre class="code">withdraw</pre> is a <pre class="code">Boolean</pre> indicating 
 whether the requested funds were successfully withdrawn.</p>
 
-<p>Even if you know nothing about the inner workings of the <span class="code">BankAccount</span> class,
-you can still tell that <span class="code">BankAccount</span>s are mutable objects:</p>
+<p>Even if you know nothing about the inner workings of the <pre class="code">BankAccount</pre> class,
+you can still tell that <pre class="code">BankAccount</pre>s are mutable objects:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;account&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">BankAccount</code>
@@ -94,25 +94,25 @@ you can still tell that <span class="code">BankAccount</span>s are mutable objec
 
 
 <p>Note that the two final withdrawals in the previous interaction returned different results. 
-The first withdraw operation returned <span class="code">true</span>
+The first withdraw operation returned <pre class="code">true</pre>
 because the bank account contained sufficient funds to allow the withdrawal. The second 
-operation, although the same as the first one, returned <span class="code">false</span> because the 
+operation, although the same as the first one, returned <pre class="code">false</pre> because the 
 balance of the account had been reduced so that it no longer covered the 
 requested funds. So, clearly, bank accounts have mutable state, because the same operation 
 can return different results at different times.</p>
 
-<p>You might think that the mutability of <span class="code">BankAccount</span> is immediately
-apparent because it contains a <span class="code">var</span>
-definition<a id="i176085891-1"/>. Mutation and <span class="code">var</span>s
+<p>You might think that the mutability of <pre class="code">BankAccount</pre> is immediately
+apparent because it contains a <pre class="code">var</pre>
+definition<a id="i176085891-1"/>. Mutation and <pre class="code">var</pre>s
 usually go hand in hand, but things are not always so clear cut. For
 instance, a class might be mutable without defining or inheriting any
-<span class="code">var</span>s because it forwards method calls to other objects that have
+<pre class="code">var</pre>s because it forwards method calls to other objects that have
 mutable state.  The reverse is also possible: A class might contain
-<span class="code">var</span>s and still be purely functional. An example would be a class
+<pre class="code">var</pre>s and still be purely functional. An example would be a class
 that caches the result of an expensive operation in
 a field for optimization purposes. To pick an example, assume the
-following unoptimized class <span class="code">Keyed</span> with an expensive operation
-<span class="code">computeKey</span>:</p>
+following unoptimized class <pre class="code">Keyed</pre> with an expensive operation
+<pre class="code">computeKey</pre>:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Keyed</code>&nbsp;{
@@ -122,8 +122,8 @@ following unoptimized class <span class="code">Keyed</span> with an expensive op
 </pre>
 
 
-<p>Provided that <span class="code">computeKey</span> neither reads nor writes any <span class="code">var</span>s,
-you can make <span class="code">Keyed</span> more efficient by adding a cache:</p>
+<p>Provided that <pre class="code">computeKey</pre> neither reads nor writes any <pre class="code">var</pre>s,
+you can make <pre class="code">Keyed</pre> more efficient by adding a cache:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">MemoKeyed</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Keyed</code>&nbsp;{
@@ -136,13 +136,13 @@ you can make <span class="code">Keyed</span> more efficient by adding a cache:</
 </pre>
 
 
-<p>Using <span class="code">MemoKeyed</span> instead of <span class="code">Keyed</span> can speed things up because
-the second time the result of the <span class="code">computeKey</span> operation is
-requested, the value stored in the <span class="code">keyCache</span> field can be returned
-instead of running <span class="code">computeKey</span> once again. But except for this speed
-gain, the behavior of class <span class="code">Keyed</span> and <span class="code">MemoKeyed</span> is exactly the
-same. Consequently, if <span class="code">Keyed</span> is purely functional, then so is
-<span class="code">MemoKeyed</span>, even though it contains a reassignable variable.</p>
+<p>Using <pre class="code">MemoKeyed</pre> instead of <pre class="code">Keyed</pre> can speed things up because
+the second time the result of the <pre class="code">computeKey</pre> operation is
+requested, the value stored in the <pre class="code">keyCache</pre> field can be returned
+instead of running <pre class="code">computeKey</pre> once again. But except for this speed
+gain, the behavior of class <pre class="code">Keyed</pre> and <pre class="code">MemoKeyed</pre> is exactly the
+same. Consequently, if <pre class="code">Keyed</pre> is purely functional, then so is
+<pre class="code">MemoKeyed</pre>, even though it contains a reassignable variable.</p>
 
 <h3 id="sec-properties">18.2 Reassignable variables and properties</h3>
 
@@ -154,28 +154,28 @@ as JavaBeans, these operations are often encapsulated in separate
 getter<a id="i-1969580643-1"/> and setter<a id="i553650449-1"/> methods,<a id="i696953561-1"/> which need to be defined explicitly.</p>
 
 <p>In
-Scala, every <span class="code">var</span> that is a non-private member of some object
+Scala, every <pre class="code">var</pre> that is a non-private member of some object
 implicitly defines a getter and a setter method with it. These getters
 and setters are named differently from the Java convention,
-however. The getter of a <span class="code">var</span> <span class="code">x</span> is just named "<span class="code">x</span>", while its
-setter is named "<span class="code">x_=</span>"<a id="i-1901486033-1"/>.</p>
+however. The getter of a <pre class="code">var</pre> <pre class="code">x</pre> is just named "<pre class="code">x</pre>", while its
+setter is named "<pre class="code">x_=</pre>"<a id="i-1901486033-1"/>.</p>
 
-<p>For example, if it appears in a class, the <span class="code">var</span> definition:</p>
+<p>For example, if it appears in a class, the <pre class="code">var</pre> definition:</p>
 
 <pre>
   <code class="vem">var</code>&nbsp;hour&nbsp;=&nbsp;<code class="literal">12</code>
 </pre>
 
 
-<p>generates a getter, "<span class="code">hour</span>", and setter, "<span class="code">hour_=</span>", in addition to a reassignable field.
-The field is always marked <span class="code">private[this]</span>, which means it can
+<p>generates a getter, "<pre class="code">hour</pre>", and setter, "<pre class="code">hour_=</pre>", in addition to a reassignable field.
+The field is always marked <pre class="code">private[this]</pre>, which means it can
 be accessed only from the object that contains it. The getter and
-setter, on the other hand, get the same visibility as the original <span class="code">var</span>. If
-the <span class="code">var</span> definition is public, so are its getter and setter. If it
-is <span class="code">protected</span>, they are also <span class="code">protected</span>, and so on.</p>
+setter, on the other hand, get the same visibility as the original <pre class="code">var</pre>. If
+the <pre class="code">var</pre> definition is public, so are its getter and setter. If it
+is <pre class="code">protected</pre>, they are also <pre class="code">protected</pre>, and so on.</p>
 
-<p>For instance, consider the class <span class="code">Time</span> shown in <a href="mutable-objects.html#lst-class-with-public-vars">Listing 18.2</a>, which defines 
-two public <span class="code">var</span>s named <span class="code">hour</span> and <span class="code">minute</span>:</p>
+<p>For instance, consider the class <pre class="code">Time</pre> shown in <a href="mutable-objects.html#lst-class-with-public-vars">Listing 18.2</a>, which defines 
+two public <pre class="code">var</pre>s named <pre class="code">hour</pre> and <pre class="code">minute</pre>:</p>
 
 <p><a id="lst-class-with-public-vars"/></p>
 
@@ -187,11 +187,11 @@ two public <span class="code">var</span>s named <span class="code">hour</span> a
 </pre>
 
 
-<h5>Listing 18.2 - A class with public <span class="code">var</span>s.</h5>
+<h5>Listing 18.2 - A class with public <pre class="code">var</pre>s.</h5>
 
 
 <p>This implementation is exactly equivalent to the class definition shown in <a href="mutable-objects.html#lst-public-var-expansion">Listing 18.3</a>.
-In the definitions shown in <a href="mutable-objects.html#lst-public-var-expansion">Listing 18.3</a>, the names of the local fields <span class="code">h</span> and <span class="code">m</span> are arbitrarily 
+In the definitions shown in <a href="mutable-objects.html#lst-public-var-expansion">Listing 18.3</a>, the names of the local fields <pre class="code">h</pre> and <pre class="code">m</pre> are arbitrarily 
 chosen so as not to clash with any names already in use.</p>
 
 <p><a id="lst-public-var-expansion"/></p>
@@ -208,15 +208,15 @@ chosen so as not to clash with any names already in use.</p>
 </pre>
 
 
-<h5>Listing 18.3 - How public <span class="code">var</span>s are expanded into getter and setter methods.</h5>
+<h5>Listing 18.3 - How public <pre class="code">var</pre>s are expanded into getter and setter methods.</h5>
 
 
-<p>An interesting aspect about this expansion of <span class="code">var</span>s into getters and setters 
+<p>An interesting aspect about this expansion of <pre class="code">var</pre>s into getters and setters 
 is that you can also choose to define a getter and a setter directly, instead 
-of defining a <span class="code">var</span>. By defining these access methods directly you can interpret
+of defining a <pre class="code">var</pre>. By defining these access methods directly you can interpret
 the operations of variable access and variable assignment as you like. 
-For instance, the variant of class <span class="code">Time</span> shown in <a href="mutable-objects.html#lst-hand-written-get-set">Listing 18.4</a> contains requirements
-that catch all assignments to <span class="code">hour</span> and <span class="code">minute</span> with illegal values.</p>
+For instance, the variant of class <pre class="code">Time</pre> shown in <a href="mutable-objects.html#lst-hand-written-get-set">Listing 18.4</a> contains requirements
+that catch all assignments to <pre class="code">hour</pre> and <pre class="code">minute</pre> with illegal values.</p>
 
 <p><a id="lst-hand-written-get-set"/></p>
 
@@ -257,7 +257,7 @@ variables with events, for instance by notifying some subscriber methods
 each time a variable is modified (you'll see examples of this in <a href="the-scells-spreadsheet.html">Chapter 35</a>).</p>
 
 <p>It's also possible, and sometimes useful, to define a getter and a
-setter without an associated field. For example, <a href="mutable-objects.html#lst-class-thermometer">Listing 18.5</a> shows a <span class="code">Thermometer</span> class, which encapsulates a temperature variable that can be
+setter without an associated field. For example, <a href="mutable-objects.html#lst-class-thermometer">Listing 18.5</a> shows a <pre class="code">Thermometer</pre> class, which encapsulates a temperature variable that can be
 read and updated. Temperatures can be expressed in Celsius or
 Fahrenheit degrees. This class allows you to get and set the
 temperature in either measure.</p>
@@ -279,16 +279,16 @@ temperature in either measure.</p>
 <h5>Listing 18.5 - Defining a getter and setter without an associated field.</h5>
 
 
-<p>The first line in the body of this class defines a <span class="code">var</span>, <span class="code">celsius</span>,
+<p>The first line in the body of this class defines a <pre class="code">var</pre>, <pre class="code">celsius</pre>,
 which will contain the temperature in degrees Celsius.
-The <span class="code">celsius</span> variable is initially set to a default value by specifying `<span class="code">_</span>'
+The <pre class="code">celsius</pre> variable is initially set to a default value by specifying `<pre class="code">_</pre>'
 as the "initializing value" of the variable. More precisely, an initializer<a id="i969211487-1"/><a id="i769452465-1"/><a id="i1897052361-1"/><a id="i1853080782-1"/><a id="i-388295396-1"/>
-"<span class="code">=</span>&nbsp;<span class="code">_</span>" of a field assigns a zero value to that field.
-The zero value depends on the field's type. It is <span class="code">0</span> for numeric types, <span class="code">false</span> for
-booleans, and <span class="code">null</span> for reference types.
+"<pre class="code">=</pre>&nbsp;<pre class="code">_</pre>" of a field assigns a zero value to that field.
+The zero value depends on the field's type. It is <pre class="code">0</pre> for numeric types, <pre class="code">false</pre> for
+booleans, and <pre class="code">null</pre> for reference types.
 This is the same as if the same variable was defined in Java without an initializer.</p>
 
-<p>Note that you cannot simply leave off the "<span class="code">=</span>&nbsp;<span class="code">_</span>" initializer in Scala. If you had written:</p>
+<p>Note that you cannot simply leave off the "<pre class="code">=</pre>&nbsp;<pre class="code">_</pre>" initializer in Scala. If you had written:</p>
 
 <pre>
   <code class="vem">var</code>&nbsp;celsius:&nbsp;<code class="typename">Float</code>
@@ -297,13 +297,13 @@ This is the same as if the same variable was defined in Java without an initiali
 
 <p>this would declare an abstract variable, not an uninitialized one.<a href="mutable-objects.html#footnotemain18-1">[1]</a></p>
 
-<p>The <span class="code">celsius</span> variable definition is followed by a getter,
-"<span class="code">fahrenheit</span>", and a setter, "<span class="code">fahrenheit_=</span>", which access the same
+<p>The <pre class="code">celsius</pre> variable definition is followed by a getter,
+"<pre class="code">fahrenheit</pre>", and a setter, "<pre class="code">fahrenheit_=</pre>", which access the same
 temperature, but in degrees Fahrenheit. There is no separate field
 that contains the current temperature value in Fahrenheit. Instead
 the getter and setter methods for Fahrenheit values automatically convert from and to degrees
 Celsius, respectively. Here's an example of interacting with
-a <span class="code">Thermometer</span> object:</p>
+a <pre class="code">Thermometer</pre> object:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;t&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Thermometer</code>
@@ -376,8 +376,8 @@ Scala instead, it's safe to skip ahead to the next chapter.</p>
 <p>We'll start with a "little language" to describe digital circuits.  A
 digital circuit is built from <span style="font-style:italic">wires</span> and <span style="font-style:italic">function boxes</span>.
 Wires carry <span style="font-style:italic">signals</span>, which are transformed by function boxes.  
-Signals are represented by booleans: <span class="code">true</span> for signal-on
-and <span class="code">false</span> for signal-off.</p>
+Signals are represented by booleans: <pre class="code">true</pre> for signal-on
+and <pre class="code">false</pre> for signal-off.</p>
 
 <p><a href="mutable-objects.html#fig-gates">Figure 18.1</a> shows three basic function boxes (or <span style="font-style:italic">gates</span>):</p>
 
@@ -405,7 +405,7 @@ time after its inputs change.</p>
 
 <p>We'll describe the elements of a digital circuit by the following set of
 Scala classes and functions.
-First, there is a class <span class="code">Wire</span> for wires.
+First, there is a class <pre class="code">Wire</pre> for wires.
 We can construct wires like this:</p>
 
 <pre>
@@ -434,8 +434,8 @@ We can construct wires like this:</p>
 <p>What's unusual, given the functional emphasis of Scala, is that these
 procedures construct the gates as a side effect, 
 instead of returning the constructed gates as a result.
-For instance, an invocation of <span class="code">inverter(a,</span>&nbsp;<span class="code">b)</span> places an inverter between
-the wires <span class="code">a</span> and <span class="code">b</span>. It turns out
+For instance, an invocation of <pre class="code">inverter(a,</pre>&nbsp;<pre class="code">b)</pre> places an inverter between
+the wires <pre class="code">a</pre> and <pre class="code">b</pre>. It turns out
 that this side-effecting construction makes it easier to construct
 complicated circuits gradually. Also, although methods most often have verb names, these have
 noun names that indicate which gate they are making. 
@@ -444,9 +444,9 @@ actions of making one.</p>
 
 <p>More complicated function boxes can be built from the basic gates.
 For instance, the method shown in <a href="mutable-objects.html#lst-half-adder">Listing 18.6</a> constructs a half-adder. 
-The <span class="code">halfAdder</span> method takes two inputs, <span class="code">a</span> and <span class="code">b</span>, and produces a sum, <span class="code">s</span>,
-defined by "<span class="code">s</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code">(a</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">b)</span>&nbsp;<span class="code"><span class="texttt">%</span></span>&nbsp;<span class="code">2</span>" and a carry, <span class="code">c</span>, defined by 
-"<span class="code">c</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code">(a</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">b)</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">2</span>".
+The <pre class="code">halfAdder</pre> method takes two inputs, <pre class="code">a</pre> and <pre class="code">b</pre>, and produces a sum, <pre class="code">s</pre>,
+defined by "<pre class="code">s</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code">(a</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">b)</pre>&nbsp;<span class="code"><span class="texttt">%</span></span>&nbsp;<pre class="code">2</pre>" and a carry, <pre class="code">c</pre>, defined by 
+"<pre class="code">c</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code">(a</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">b)</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">2</pre>".
 A diagram of the half-adder is shown in <a href="mutable-objects.html#fig-half-adder">Figure 18.2</a>.</p>
 
 <p><a id="lst-half-adder"/></p>
@@ -462,7 +462,7 @@ A diagram of the half-adder is shown in <a href="mutable-objects.html#fig-half-a
 </pre>
 
 
-<h5>Listing 18.6 - The <span class="code">halfAdder</span> method.</h5>
+<h5>Listing 18.6 - The <pre class="code">halfAdder</pre> method.</h5>
 
 
 <div class="figure"><a id="fig-half-adder"/>
@@ -474,14 +474,14 @@ A diagram of the half-adder is shown in <a href="mutable-objects.html#fig-half-a
 <h5> Figure 18.2 - A half-adder circuit.</h5>
 
 
-<p>Note that <span class="code">halfAdder</span> is a parameterized function box just like the
-three methods that construct the primitive gates. You can use the <span class="code">halfAdder</span> method to
+<p>Note that <pre class="code">halfAdder</pre> is a parameterized function box just like the
+three methods that construct the primitive gates. You can use the <pre class="code">halfAdder</pre> method to
 construct more complicated circuits. For instance, 
 <a href="mutable-objects.html#lst-full-adder">Listing 18.7</a> defines a full, one-bit adder, shown in
-<a href="mutable-objects.html#fig-full-adder">Figure 18.3</a>, which takes two inputs, <span class="code">a</span> and <span class="code">b</span>, as well as a
-carry-in, <span class="code">cin</span>, and which produces a sum output defined by 
-"<span class="code">sum</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code">(a</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">b</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">cin)</span>&nbsp;<span class="code"><span class="texttt">%</span></span>&nbsp;<span class="code">2</span>" and a carry-out output defined by 
-"<span class="code">cout</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code">(a</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">b</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">cin)</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">2</span>".</p>
+<a href="mutable-objects.html#fig-full-adder">Figure 18.3</a>, which takes two inputs, <pre class="code">a</pre> and <pre class="code">b</pre>, as well as a
+carry-in, <pre class="code">cin</pre>, and which produces a sum output defined by 
+"<pre class="code">sum</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code">(a</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">b</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">cin)</pre>&nbsp;<span class="code"><span class="texttt">%</span></span>&nbsp;<pre class="code">2</pre>" and a carry-out output defined by 
+"<pre class="code">cout</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code">(a</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">b</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">cin)</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">2</pre>".</p>
 
 <p><a id="lst-full-adder"/></p>
 
@@ -496,11 +496,11 @@ carry-in, <span class="code">cin</span>, and which produces a sum output defined
 </pre>
 
 
-<h5>Listing 18.7 - The <span class="code">fullAdder</span> method.</h5>
+<h5>Listing 18.7 - The <pre class="code">fullAdder</pre> method.</h5>
 
 
-<p>Class <span class="code">Wire</span> and functions <span class="code">inverter</span>, <span class="code">andGate</span>, and
-<span class="code">orGate</span> represent a little language with which users can
+<p>Class <pre class="code">Wire</pre> and functions <pre class="code">inverter</pre>, <pre class="code">andGate</pre>, and
+<pre class="code">orGate</pre> represent a little language with which users can
 define digital circuits.  It's a good example of an <em>internal</em> DSL, a domain-specific language defined as a library in a host language instead of being implemented on its own.</p>
 
 <div class="figure"><a id="fig-full-adder"/>
@@ -518,13 +518,13 @@ it makes sense to base the DSL implementation on a general API for
 discrete event simulation. The next two sections will present first the 
 simulation API and then the implementation of the circuit DSL on top of it.</p>
 
-<h3>18.5 The <span class="code">Simulation</span> API</h3>
+<h3>18.5 The <pre class="code">Simulation</pre> API</h3>
 
 
 <p>The simulation API is shown in <a href="mutable-objects.html#lst-simulation">Listing 18.8</a>. It
-consists of class <span class="code">Simulation</span> in package <span class="code">org.stairwaybook.simulation</span>. Concrete
+consists of class <pre class="code">Simulation</pre> in package <pre class="code">org.stairwaybook.simulation</pre>. Concrete
 simulation libraries inherit this class and augment it with
-domain-specific functionality. The elements of the <span class="code">Simulation</span> class
+domain-specific functionality. The elements of the <pre class="code">Simulation</pre> class
 are presented in this section.</p>
 
 <p><a id="lst-simulation"/></p>
@@ -564,7 +564,7 @@ are presented in this section.</p>
 </pre>
 
 
-<h5>Listing 18.8 - The <span class="code">Simulation</span> class.</h5>
+<h5>Listing 18.8 - The <pre class="code">Simulation</pre> class.</h5>
 
 
 <p>A discrete event simulation performs user-defined <span style="font-style:italic">actions</span> at
@@ -577,10 +577,10 @@ all share a common type:</p>
 </pre>
 
 
-<p>This statement defines <span class="code">Action</span> to be an alias of the type of procedure
+<p>This statement defines <pre class="code">Action</pre> to be an alias of the type of procedure
 that takes an empty parameter list and
-returns <span class="code">Unit</span>. <span class="code">Action</span> is a <em>type member</em> of class <span class="code">Simulation</span>. You can
-think of it as a more readable name for type <span class="code">()</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Unit</span>. Type members will be described in detail in 
+returns <pre class="code">Unit</pre>. <pre class="code">Action</pre> is a <em>type member</em> of class <pre class="code">Simulation</pre>. You can
+think of it as a more readable name for type <pre class="code">()</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">Unit</pre>. Type members will be described in detail in 
 <a href="abstract-members.html#sec-abstract-types">Section 20.6</a>.</p>
 
 <p>The time at which an action is performed is simulated time; 
@@ -602,7 +602,7 @@ The current simulated time is kept in a private variable:</p>
 
 <p>This combination of private variable with public accessor
 is used to make sure that the current time cannot be modified outside the
-<span class="code">Simulation</span> class. After all, you don't usually want your simulation objects
+<pre class="code">Simulation</pre> class. After all, you don't usually want your simulation objects
 to manipulate the current time, except possibly if your simulation models time travel.</p>
 
 <p>An action that needs to be executed at a specified time
@@ -613,15 +613,15 @@ is called a <span style="font-style:italic">work item</span>. Work items are imp
 </pre>
 
 
-<p>We made the <span class="code">WorkItem</span> class a case class because of the syntactic 
-conveniences this entails: You can use the factory method, <span class="code">WorkItem</span>,
+<p>We made the <pre class="code">WorkItem</pre> class a case class because of the syntactic 
+conveniences this entails: You can use the factory method, <pre class="code">WorkItem</pre>,
 to create instances of the class, and you get accessors for the constructor
-parameters <span class="code">time</span> and <span class="code">action</span> for free. Note also that class 
-<span class="code">WorkItem</span> is nested inside class <span class="code">Simulation</span>. Nested classes in Scala are
+parameters <pre class="code">time</pre> and <pre class="code">action</pre> for free. Note also that class 
+<pre class="code">WorkItem</pre> is nested inside class <pre class="code">Simulation</pre>. Nested classes in Scala are
 treated similarly to Java. <a href="abstract-members.html#sec-path-dependent-types">Section 20.7</a>
 will give more details.</p>
 
-<p>The <span class="code">Simulation</span> class keeps an <span style="font-style:italic">agenda</span> of all remaining
+<p>The <pre class="code">Simulation</pre> class keeps an <span style="font-style:italic">agenda</span> of all remaining
 work items that have not yet been executed. The work items are sorted by the
 simulated time at which they have to be run:</p>
 
@@ -630,8 +630,8 @@ simulated time at which they have to be run:</p>
 </pre>
 
 
-<p>The <span class="code">agenda</span> list will be kept in the proper sorted order by the <span class="code">insert</span> method, which updates it. You can see
-<span class="code">insert</span> being called from <span class="code">afterDelay</span>, which is the
+<p>The <pre class="code">agenda</pre> list will be kept in the proper sorted order by the <pre class="code">insert</pre> method, which updates it. You can see
+<pre class="code">insert</pre> being called from <pre class="code">afterDelay</pre>, which is the
 only way to add a work item to the agenda:</p>
 
 <pre>
@@ -642,11 +642,11 @@ only way to add a work item to the agenda:</p>
 </pre>
 
 
-<p>As the name implies, this method inserts an action (given by <span class="code">block</span>) 
-into the agenda so that it is scheduled for execution <span class="code">delay</span> time units
+<p>As the name implies, this method inserts an action (given by <pre class="code">block</pre>) 
+into the agenda so that it is scheduled for execution <pre class="code">delay</pre> time units
 after the current simulation time. 
 For instance, the following invocation would
-create a new work item to be executed at the simulated time, <span class="code">currentTime</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">delay</span>:</p>
+create a new work item to be executed at the simulated time, <pre class="code">currentTime</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">delay</pre>:</p>
 
 <pre>
   afterDelay(delay)&nbsp;{&nbsp;count&nbsp;+=&nbsp;<code class="literal">1</code>&nbsp;}
@@ -654,16 +654,16 @@ create a new work item to be executed at the simulated time, <span class="code">
 
 
 <p>The code to be executed is contained in the method's second
-argument. The formal parameter for this argument has type "<span class="code">=&gt;</span>&nbsp;<span class="code">Unit</span>" (<i>i.e.</i>, it is a computation of type <span class="code">Unit</span> which is passed
+argument. The formal parameter for this argument has type "<pre class="code">=&gt;</pre>&nbsp;<pre class="code">Unit</pre>" (<i>i.e.</i>, it is a computation of type <pre class="code">Unit</pre> which is passed
 by name). Recall that by-name parameters<a id="i-1931276111-2"/><a id="i-2031769303-2"/> are not evaluated when
-passed to a method.  So in the call above, <span class="code">count</span> would be
+passed to a method.  So in the call above, <pre class="code">count</pre> would be
 incremented only when the simulation framework calls the action
 stored in the work item.
-Note that <span class="code">afterDelay</span> is a curried function. It's a good example
+Note that <pre class="code">afterDelay</pre> is a curried function. It's a good example
 of the principle set forward in <a href="control-abstraction.html#sec-by-name-parameters">Section 9.5</a>
 that currying can be used to make method calls look more like built-in syntax.
 The created work item still needs to be inserted into the agenda.  
-This is done by the <span class="code">insert</span>
+This is done by the <pre class="code">insert</pre>
 method, which maintains the invariant that the agenda is time-sorted:</p>
 
 <pre>
@@ -675,7 +675,7 @@ method, which maintains the invariant that the agenda is time-sorted:</p>
 </pre>
 
 
-<p>The core of the <span class="code">Simulation</span> class is defined by the <span class="code">run</span> method:</p>
+<p>The core of the <pre class="code">Simulation</pre> class is defined by the <pre class="code">run</pre> method:</p>
 
 <pre>
   <code class="vem">def</code>&nbsp;run()&nbsp;=&nbsp;{
@@ -692,7 +692,7 @@ method, which maintains the invariant that the agenda is time-sorted:</p>
 the first item in the agenda, removes it from the agenda and executes it.
 It does this 
 until there are no more items left in the agenda to execute.
-Each step is performed by calling the <span class="code">next</span> method, 
+Each step is performed by calling the <pre class="code">next</pre> method, 
 which is defined as follows:</p>
 
 <pre>
@@ -707,15 +707,15 @@ which is defined as follows:</p>
 </pre>
 
 
-<p>The <span class="code">next</span> method decomposes the current agenda with a pattern match into
-a front item, <span class="code">item</span>, and a remaining list of work items, <span class="code">rest</span>. 
+<p>The <pre class="code">next</pre> method decomposes the current agenda with a pattern match into
+a front item, <pre class="code">item</pre>, and a remaining list of work items, <pre class="code">rest</pre>. 
 It removes the front item from the current agenda, 
-sets the simulated time <span class="code">curtime</span> to the work item's time, 
+sets the simulated time <pre class="code">curtime</pre> to the work item's time, 
 and executes the work item's action.<a id="i1154860961-1"/></p>
 
-<p>Note that <span class="code">next</span> can be called only if the agenda is
+<p>Note that <pre class="code">next</pre> can be called only if the agenda is
 non-empty. There's no case for an empty list, so you would get a
-<span class="code">MatchError</span> exception if you tried to run <span class="code">next</span> on an empty agenda.</p>
+<pre class="code">MatchError</pre> exception if you tried to run <pre class="code">next</pre> on an empty agenda.</p>
 
 <p>In fact, the Scala compiler would normally warn you that you missed 
 one of the possible patterns for a list:<a id="i-160448460-2"/></p>
@@ -731,12 +731,12 @@ one of the possible patterns for a list:<a id="i-160448460-2"/></p>
 
 
 <p>In this case, the missing case is not a problem because you know 
-that <span class="code">next</span> is called only on a non-empty agenda. Therefore, you might 
+that <pre class="code">next</pre> is called only on a non-empty agenda. Therefore, you might 
 want to disable the warning. You saw in 
 <a href="case-classes-and-pattern-matching.html#sec-sealed-classes">Section 15.5</a> that this can be done
-by adding an <span class="code">@unchecked</span><a id="i-2035290207-2"/><a id="i-815574504-2"/> annotation to
-the selector expression of the pattern match. That's why the <span class="code">Simulation</span> code uses "<span class="code">(agenda:</span> <span class="code">@unchecked)</span> <span class="code">match</span>",
-not "<span class="code">agenda</span>&nbsp;<span class="code">match</span>".
+by adding an <pre class="code">@unchecked</pre><a id="i-2035290207-2"/><a id="i-815574504-2"/> annotation to
+the selector expression of the pattern match. That's why the <pre class="code">Simulation</pre> code uses "<pre class="code">(agenda:</pre> <pre class="code">@unchecked)</pre> <pre class="code">match</pre>",
+not "<pre class="code">agenda</pre>&nbsp;<pre class="code">match</pre>".
 That's it.  This might look like surprisingly little code for a simulation
 framework.  You might wonder how this framework could possibly support
 interesting simulations, if all it does is execute a list of work
@@ -752,7 +752,7 @@ beginnings.</p>
 <p>The next step is to use the simulation framework to implement the
 domain-specific language for circuits shown in <a href="mutable-objects.html#sec-language-circuits">Section 18.4</a>. Recall that the circuit DSL consists
 of a class for wires and methods that create and-gates, or-gates, and
-inverters. These are all contained in a <span class="code">BasicCircuitSimulation</span> class, which extends the simulation framework. This class is shown in <a href="mutable-objects.html#lst-top-basic-circuit-simulation">Listings 18.9</a>
+inverters. These are all contained in a <pre class="code">BasicCircuitSimulation</pre> class, which extends the simulation framework. This class is shown in <a href="mutable-objects.html#lst-top-basic-circuit-simulation">Listings 18.9</a>
 <a href="mutable-objects.html#lst-bottom-basic-circuit-simulation">and 18.10</a>.</p>
 
 <p><a id="lst-top-basic-circuit-simulation"/></p>
@@ -790,7 +790,7 @@ inverters. These are all contained in a <span class="code">BasicCircuitSimulatio
 </pre>
 
 
-<h5>Listing 18.9 - The first half of the <span class="code">BasicCircuitSimulation</span> class.</h5>
+<h5>Listing 18.9 - The first half of the <pre class="code">BasicCircuitSimulation</pre> class.</h5>
 
 
 <p><a id="lst-bottom-basic-circuit-simulation"/></p>
@@ -830,20 +830,20 @@ inverters. These are all contained in a <span class="code">BasicCircuitSimulatio
 </pre>
 
 
-<h5>Listing 18.10 - The second half of the <span class="code">BasicCircuitSimulation</span> class.</h5>
+<h5>Listing 18.10 - The second half of the <pre class="code">BasicCircuitSimulation</pre> class.</h5>
 
 
-<p>Class <span class="code">BasicCircuitSimulation</span> declares three abstract methods that represent the delays of
-the basic gates: <span class="code">InverterDelay</span>, 
-<span class="code">AndGateDelay</span>, and <span class="code">OrGateDelay</span>. The actual delays are not known 
+<p>Class <pre class="code">BasicCircuitSimulation</pre> declares three abstract methods that represent the delays of
+the basic gates: <pre class="code">InverterDelay</pre>, 
+<pre class="code">AndGateDelay</pre>, and <pre class="code">OrGateDelay</pre>. The actual delays are not known 
 at the level of this class because they depend on the technology
 of circuits that are simulated. That's why the delays are left abstract in
-class <span class="code">BasicCircuitSimulation</span>, so that their concrete definition is delegated to
+class <pre class="code">BasicCircuitSimulation</pre>, so that their concrete definition is delegated to
 a subclass.<a href="mutable-objects.html#footnotemain18-2">[2]</a>
-The implementation of class <span class="code">BasicCircuitSimulation</span>'s other members 
+The implementation of class <pre class="code">BasicCircuitSimulation</pre>'s other members 
 is described next.</p>
 
-<h4>The <span class="code">Wire</span> class</h4>
+<h4>The <pre class="code">Wire</pre> class</h4>
 
 
 <p>A wire needs to support three basic actions:</p>
@@ -852,18 +852,18 @@ is described next.</p>
 
 
 <li><b></b>
-<span class="code">getSignal:</span>&nbsp;<span class="code">Boolean</span>: returns the current signal on the wire.
+<pre class="code">getSignal:</pre>&nbsp;<pre class="code">Boolean</pre>: returns the current signal on the wire.
 
 
 </li>
 <li><b></b>
-<span class="code">setSignal(sig:</span>&nbsp;<span class="code">Boolean)</span>: sets the wire's signal to <span class="code">sig</span>.
+<pre class="code">setSignal(sig:</pre>&nbsp;<pre class="code">Boolean)</pre>: sets the wire's signal to <pre class="code">sig</pre>.
 
 
 </li>
 <li><b></b>
-<span class="code">addAction(p:</span>&nbsp;<span class="code">Action)</span>: attaches the specified procedure
-<span class="code">p</span> to the <span style="font-style:italic">actions</span> of the wire. The idea is that all action
+<pre class="code">addAction(p:</pre>&nbsp;<pre class="code">Action)</pre>: attaches the specified procedure
+<pre class="code">p</pre> to the <span style="font-style:italic">actions</span> of the wire. The idea is that all action
 procedures attached to some wire will be executed every time the signal of the wire changes.
 Typically actions are added to a wire by components connected to the wire. 
 An attached action is executed once at the time it is added to a wire,
@@ -873,7 +873,7 @@ and after that, every time the signal of the wire changes.
 </li></ul>
 
 
-<p>Here is the implementation of the <span class="code">Wire</span> class:</p>
+<p>Here is the implementation of the <pre class="code">Wire</pre> class:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Wire</code>&nbsp;{
@@ -894,20 +894,20 @@ and after that, every time the signal of the wire changes.
 
 
 <p>Two private variables make up the state of a wire.  The variable
-<span class="code">sigVal</span> represents the current signal, and the variable
-<span class="code">actions</span> represents the action procedures currently attached to
+<pre class="code">sigVal</pre> represents the current signal, and the variable
+<pre class="code">actions</pre> represents the action procedures currently attached to
 the wire. 
-The only interesting method implementation is the one for <span class="code">setSignal</span>:
+The only interesting method implementation is the one for <pre class="code">setSignal</pre>:
 When the signal of a wire changes, the new value is stored in the 
-variable <span class="code">sigVal</span>. Furthermore, all actions attached to a wire are executed.
-Note the shorthand syntax for doing this: "<span class="code">actions</span>&nbsp;<span class="code">foreach</span>&nbsp;<span class="code">(_</span>&nbsp;<span class="code">())</span>" applies
-the function, "<span class="code">_</span>&nbsp;<span class="code">()</span>", to each element in the <span class="code">actions</span> list. 
+variable <pre class="code">sigVal</pre>. Furthermore, all actions attached to a wire are executed.
+Note the shorthand syntax for doing this: "<pre class="code">actions</pre>&nbsp;<pre class="code">foreach</pre>&nbsp;<pre class="code">(_</pre>&nbsp;<pre class="code">())</pre>" applies
+the function, "<pre class="code">_</pre>&nbsp;<pre class="code">()</pre>", to each element in the <pre class="code">actions</pre> list. 
 As described in <a href="functions-and-closures.html#sec-placeholder-syntax">Section 8.5</a>,
-the function "<span class="code">_</span>&nbsp;<span class="code">()</span>" is
-a shorthand for "<span class="code">f</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">f</span>&nbsp;<span class="code">()</span>"&mdash;<i>i.e.</i>, it takes a function (we'll call it <span class="code">f</span>) and applies it to the
+the function "<pre class="code">_</pre>&nbsp;<pre class="code">()</pre>" is
+a shorthand for "<pre class="code">f</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">f</pre>&nbsp;<pre class="code">()</pre>"&mdash;<i>i.e.</i>, it takes a function (we'll call it <pre class="code">f</pre>) and applies it to the
 empty parameter list.</p>
 
-<h4>The <span class="code">inverter</span> method</h4>
+<h4>The <pre class="code">inverter</pre> method</h4>
 
 
 <p>The only effect of creating an inverter is that an action is installed
@@ -915,9 +915,9 @@ on its input wire. This action is invoked once at the time the action is install
 and thereafter every time the signal on the
 input changes. The effect of the action is that the 
 value of the inverter's output
-value is set (via <span class="code">setSignal</span>) to the inverse of its input
+value is set (via <pre class="code">setSignal</pre>) to the inverse of its input
 value. Since inverter gates have delays, this change should
-take effect only <span class="code">InverterDelay</span> units of simulated time after the
+take effect only <pre class="code">InverterDelay</pre> units of simulated time after the
 input value has changed and the action was executed.
 This suggests the following implementation:</p>
 
@@ -934,22 +934,22 @@ This suggests the following implementation:</p>
 </pre>
 
 
-<p>The effect of the <span class="code">inverter</span> method is to add
-<span class="code">invertAction</span> to the <span class="code">input</span> wire. This action, when invoked, gets
+<p>The effect of the <pre class="code">inverter</pre> method is to add
+<pre class="code">invertAction</pre> to the <pre class="code">input</pre> wire. This action, when invoked, gets
 the input signal and installs another action that inverts the
-<span class="code">output</span> signal into the simulation agenda. This other action is to
-be executed after <span class="code">InverterDelay</span> units of simulated time.  Note how
-the method uses the <span class="code">afterDelay</span> method of the simulation
+<pre class="code">output</pre> signal into the simulation agenda. This other action is to
+be executed after <pre class="code">InverterDelay</pre> units of simulated time.  Note how
+the method uses the <pre class="code">afterDelay</pre> method of the simulation
 framework to create a new work item that's going to be executed in the
 future.</p>
 
-<h4>The <span class="code">andGate</span> and <span class="code">orGate</span> methods</h4>
+<h4>The <pre class="code">andGate</pre> and <pre class="code">orGate</pre> methods</h4>
 
 
 <p>The  implementation of and-gates is analogous to the implementation of 
 inverters.  The purpose of an and-gate is to output the 
 conjunction of its input signals.
-This should happen at <span class="code">AndGateDelay</span> simulated time units after
+This should happen at <pre class="code">AndGateDelay</pre> simulated time units after
 any one of its two inputs changes. Hence, the following implementation:</p>
 
 <pre>
@@ -967,14 +967,14 @@ any one of its two inputs changes. Hence, the following implementation:</p>
 </pre>
 
 
-<p>The effect of the <span class="code">andGate</span> method is to add <span class="code">andAction</span> to both of
-its input wires <span class="code">a1</span> and <span class="code">a2</span>.  This action, when invoked, gets both
-input signals and installs another action that sets the <span class="code">output</span>
+<p>The effect of the <pre class="code">andGate</pre> method is to add <pre class="code">andAction</pre> to both of
+its input wires <pre class="code">a1</pre> and <pre class="code">a2</pre>.  This action, when invoked, gets both
+input signals and installs another action that sets the <pre class="code">output</pre>
 signal to the conjunction of both input signals. This other action is
-to be executed after <span class="code">AndGateDelay</span> units of simulated time.  Note
+to be executed after <pre class="code">AndGateDelay</pre> units of simulated time.  Note
 that the output has to be recomputed if either of the input wires
-changes. That's why the same <span class="code">andAction</span> is installed on each of the
-two input wires <span class="code">a1</span> and <span class="code">a2</span>. The <span class="code">orGate</span> method is implemented
+changes. That's why the same <pre class="code">andAction</pre> is installed on each of the
+two input wires <pre class="code">a1</pre> and <pre class="code">a2</pre>. The <pre class="code">orGate</pre> method is implemented
 similarly, except it performs a logical-or instead of a logical-and.</p>
 
 <h4>Simulation output</h4>
@@ -994,10 +994,10 @@ signals on wires. To accomplish this, you can simulate the action of putting a p
 </pre>
 
 
-<p>The effect of the <span class="code">probe</span> procedure is to install a <span class="code">probeAction</span> on
+<p>The effect of the <pre class="code">probe</pre> procedure is to install a <pre class="code">probeAction</pre> on
 a given wire.  As usual, the installed action is executed every time the
 wire's signal changes. In this case it simply prints the name of the
-wire (which is passed as first parameter to <span class="code">probe</span>), as well as the current
+wire (which is passed as first parameter to <pre class="code">probe</pre>), as well as the current
 simulated time and the wire's new value.</p>
 
 <h4>Running the simulator</h4>
@@ -1006,9 +1006,9 @@ simulated time and the wire's new value.</p>
 <p>After all these preparations, it's time to see the simulator in action.  To
 define a concrete simulation, you need to inherit from a simulation
 framework class. To see something interesting, we'll create an 
-abstract simulation class that extends <span class="code">BasicCircuitSimulation</span> and
+abstract simulation class that extends <pre class="code">BasicCircuitSimulation</pre> and
 contains method definitions for half-adders and full-adders as they were
-presented earlier in this chapter in <a href="mutable-objects.html#lst-half-adder">Listings 18.6</a> <a href="mutable-objects.html#lst-full-adder">and 18.7</a>, respectively. This class, which we'll call <span class="code">CircuitSimulation</span>, is shown in <a href="mutable-objects.html#lst-circuit-simulation">Listing 18.11</a>.</p>
+presented earlier in this chapter in <a href="mutable-objects.html#lst-half-adder">Listings 18.6</a> <a href="mutable-objects.html#lst-full-adder">and 18.7</a>, respectively. This class, which we'll call <pre class="code">CircuitSimulation</pre>, is shown in <a href="mutable-objects.html#lst-circuit-simulation">Listing 18.11</a>.</p>
 
 <p><a id="lst-circuit-simulation"/></p>
 
@@ -1034,11 +1034,11 @@ presented earlier in this chapter in <a href="mutable-objects.html#lst-half-adde
 </pre>
 
 
-<h5>Listing 18.11 - The <span class="code">CircuitSimulation</span> class.</h5>
+<h5>Listing 18.11 - The <pre class="code">CircuitSimulation</pre> class.</h5>
 
 
 <p>A concrete circuit simulation will
-be an object that inherits from class <span class="code">CircuitSimulation</span>. 
+be an object that inherits from class <pre class="code">CircuitSimulation</pre>. 
 The object still needs to fix
 the gate delays according to the circuit implementation technology
 that's simulated.  Finally, you will also need to define the concrete
@@ -1053,7 +1053,7 @@ interactively in the Scala interpreter:</p>
 </pre>
 
 
-<p>First, the gate delays. Define an object (call it <span class="code">MySimulation</span>) that
+<p>First, the gate delays. Define an object (call it <pre class="code">MySimulation</pre>) that
 provides some numbers:</p>
 
 <pre>
@@ -1066,7 +1066,7 @@ provides some numbers:</p>
 </pre>
 
 
-<p>Because you are going to access the members of the <span class="code">MySimulation</span> object
+<p>Because you are going to access the members of the <pre class="code">MySimulation</pre> object
 repeatedly, an import of the object keeps the subsequent code shorter:</p>
 
 <pre>
@@ -1105,7 +1105,7 @@ every action installed on a wire is executed a first time when the action is ins
 </pre>
 
 
-<p>Finally, set the signals, one after another, on the two input wires to <span class="code">true</span> and run the simulation:</p>
+<p>Finally, set the signals, one after another, on the two input wires to <pre class="code">true</pre> and run the simulation:</p>
 
 <pre>
   scala&gt;&nbsp;input1&nbsp;setSignal&nbsp;<code class="vem">true</code>
@@ -1148,7 +1148,7 @@ will be explained in <a href="abstract-members.html">Chapter 20</a>.</p>
 
 <p><a id="footnotemain18-2"/>[2] The names of these "delay" methods start with a capital letter because they represent
 constants. They are methods so they can be overridden in subclasses. You'll find out how to do the same thing
-with <span class="code">val</span>s in <a href="abstract-members.html#sec-abstract-vals">Section 20.3</a>.</p>
+with <pre class="code">val</pre>s in <a href="abstract-members.html#sec-abstract-vals">Section 20.3</a>.</p>
 
 <div style="page-break-after:always"/>
 

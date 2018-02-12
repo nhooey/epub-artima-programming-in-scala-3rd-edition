@@ -25,38 +25,38 @@ when you design your own equality tests.</p>
 <p>As mentioned in <a href="scalas-hierarchy.html#sec-impl-primitives">Section 11.2</a>,
 the definition of equality is different in Scala and
 Java.  Java has
-two equality comparisons: the <span class="code">==</span>
+two equality comparisons: the <pre class="code">==</pre>
 operator,<a id="i-2046772853-1"/><a id="i-1785676493-1"/> which is the natural equality for value
-types and object identity for reference types, and the <span class="code">equals</span> method, which is
+types and object identity for reference types, and the <pre class="code">equals</pre> method, which is
 (user-defined) canonical equality for reference
 types.<a id="i-342464093-2"/> This convention
-is problematic because the more natural symbol, <span class="code">==</span>, does not
+is problematic because the more natural symbol, <pre class="code">==</pre>, does not
 always correspond to the natural notion of equality. When programming
 in Java, a common pitfall for beginners is to compare
-objects with <span class="code">==</span> when they should be compared with
-<span class="code">equals</span>.  For instance, comparing two strings <span class="code">x</span> and <span class="code">y</span> using
-"<span class="code">x</span>&nbsp;<span class="code">==</span>&nbsp;<span class="code">y</span>" might yield <span class="code">false</span> in Java, even if <span class="code">x</span> and <span class="code">y</span>
+objects with <pre class="code">==</pre> when they should be compared with
+<pre class="code">equals</pre>.  For instance, comparing two strings <pre class="code">x</pre> and <pre class="code">y</pre> using
+"<pre class="code">x</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">y</pre>" might yield <pre class="code">false</pre> in Java, even if <pre class="code">x</pre> and <pre class="code">y</pre>
 have exactly the same characters in
 the same order.</p>
 
 <p>Scala also has an equality method signifying object identity, but it is not used
-much.  That kind of equality, written "<span class="code">x</span>&nbsp;<span class="code">eq</span>&nbsp;<span class="code">y</span>", is 
-true if <span class="code">x</span> and <span class="code">y</span> reference the same object.<a id="i-795280463-3"/><a id="i2030434891-3"/><a id="i1544052809-3"/><a id="i-644344128-1"/>
-The <span class="code">==</span> equality<a id="i-1583721442-3"/><a id="i1095465388-3"/>
+much.  That kind of equality, written "<pre class="code">x</pre>&nbsp;<pre class="code">eq</pre>&nbsp;<pre class="code">y</pre>", is 
+true if <pre class="code">x</pre> and <pre class="code">y</pre> reference the same object.<a id="i-795280463-3"/><a id="i2030434891-3"/><a id="i1544052809-3"/><a id="i-644344128-1"/>
+The <pre class="code">==</pre> equality<a id="i-1583721442-3"/><a id="i1095465388-3"/>
 is reserved in Scala for the "natural" equality of each type.  For
-value types, <span class="code">==</span> is value comparison, just like in Java.
-For reference types, <span class="code">==</span> is
-the same as <span class="code">equals</span> in Scala.
-You can redefine the behavior of <span class="code">==</span> for new
-types by overriding the <span class="code">equals</span> method, which is always inherited
-from class <span class="code">Any</span>. The inherited <span class="code">equals</span>, which takes effect unless
-overridden, is object identity, as is the case in Java.  So <span class="code">equals</span>
-(and with it, <span class="code">==</span>) is by default the same as <span class="code">eq</span>, but you can
-change its behavior by overriding the <span class="code">equals</span> method in the classes
-you define.  It is not possible to override <span class="code">==</span> directly, as it is
-defined as a final method in class <span class="code">Any</span>.
+value types, <pre class="code">==</pre> is value comparison, just like in Java.
+For reference types, <pre class="code">==</pre> is
+the same as <pre class="code">equals</pre> in Scala.
+You can redefine the behavior of <pre class="code">==</pre> for new
+types by overriding the <pre class="code">equals</pre> method, which is always inherited
+from class <pre class="code">Any</pre>. The inherited <pre class="code">equals</pre>, which takes effect unless
+overridden, is object identity, as is the case in Java.  So <pre class="code">equals</pre>
+(and with it, <pre class="code">==</pre>) is by default the same as <pre class="code">eq</pre>, but you can
+change its behavior by overriding the <pre class="code">equals</pre> method in the classes
+you define.  It is not possible to override <pre class="code">==</pre> directly, as it is
+defined as a final method in class <pre class="code">Any</pre>.
  That is, Scala treats
-<span class="code">==</span> as if it were defined as follows in class <span class="code">Any</span>:</p>
+<pre class="code">==</pre> as if it were defined as follows in class <pre class="code">Any</pre>:</p>
 
 <pre>
   <code class="vem">final</code>&nbsp;<code class="vem">def</code>&nbsp;==&nbsp;(that:&nbsp;<code class="typename">Any</code>):&nbsp;<code class="typename">Boolean</code>&nbsp;=&nbsp;
@@ -67,17 +67,17 @@ defined as a final method in class <span class="code">Any</span>.
 <h3 id="sec-writing-an-equality-method">30.2 Writing an equality method</h3>
 
 
-<p>How should the <span class="code">equals</span> method be defined? It turns out that writing
+<p>How should the <pre class="code">equals</pre> method be defined? It turns out that writing
 a correct equality method is surprisingly difficult in object-oriented
 languages. In fact, after studying a large body of Java code, the authors of a 2007 paper concluded that
-almost all implementations of <span class="code">equals</span> methods are faulty.<a href="object-equality.html#footnotemain30-1">[1]</a> This is problematic because equality is at the basis of many other
-things. For one, a faulty equality method for a type <span class="code">C</span> might mean
-that you cannot reliably put an object of type <span class="code">C</span> in a
+almost all implementations of <pre class="code">equals</pre> methods are faulty.<a href="object-equality.html#footnotemain30-1">[1]</a> This is problematic because equality is at the basis of many other
+things. For one, a faulty equality method for a type <pre class="code">C</pre> might mean
+that you cannot reliably put an object of type <pre class="code">C</pre> in a
 collection.</p>
 
-<p>For example, you might have two elements, <span class="code">elem1</span> and <span class="code">elem2</span>, of type
-<span class="code">C</span> which are equal (<i>i.e.</i>, "<span class="code">elem1</span>&nbsp;<span class="code">equals</span>&nbsp;<span class="code">elem2</span>" yields <span class="code">true</span>).  Nevertheless,
-with commonly occurring faulty implementations of the <span class="code">equals</span> method,
+<p>For example, you might have two elements, <pre class="code">elem1</pre> and <pre class="code">elem2</pre>, of type
+<pre class="code">C</pre> which are equal (<i>i.e.</i>, "<pre class="code">elem1</pre>&nbsp;<pre class="code">equals</pre>&nbsp;<pre class="code">elem2</pre>" yields <pre class="code">true</pre>).  Nevertheless,
+with commonly occurring faulty implementations of the <pre class="code">equals</pre> method,
 you could still see behavior like the following:</p>
 
 <pre>
@@ -88,24 +88,24 @@ you could still see behavior like the following:</p>
 
 
 <p>Here are four common pitfalls<a href="object-equality.html#footnotemain30-2">[2]</a>
-that can cause inconsistent behavior when overriding <span class="code">equals</span>:</p>
+that can cause inconsistent behavior when overriding <pre class="code">equals</pre>:</p>
 
 <ol>
 
 
-<li>Defining <span class="code">equals</span> with the wrong signature.
+<li>Defining <pre class="code">equals</pre> with the wrong signature.
 
 
 </li>
-<li>Changing <span class="code">equals</span> without also changing <span class="code">hashCode</span>.
+<li>Changing <pre class="code">equals</pre> without also changing <pre class="code">hashCode</pre>.
 
 
 </li>
-<li>Defining <span class="code">equals</span> in terms of mutable fields.
+<li>Defining <pre class="code">equals</pre> in terms of mutable fields.
 
 
 </li>
-<li>Failing to define <span class="code">equals</span> as an equivalence relation.
+<li>Failing to define <pre class="code">equals</pre> as an equivalence relation.
 
 
 </li></ol>
@@ -114,7 +114,7 @@ that can cause inconsistent behavior when overriding <span class="code">equals</
 <p>These four pitfalls
 are discussed in the remainder of this section.</p>
 
-<h4>Pitfall #1: Defining <span class="code">equals</span> with the wrong signature</h4>
+<h4>Pitfall #1: Defining <pre class="code">equals</pre> with the wrong signature</h4>
 
 
 <p>Consider adding an equality method to the following class of simple points:</p>
@@ -161,9 +161,9 @@ are discussed in the remainder of this section.</p>
 </pre>
 
 
-<p>How to explain that <span class="code">coll</span> does not contain <span class="code">p2</span>, even though <span class="code">p1</span> was added to
-it, and <span class="code">p1</span> and <span class="code">p2</span> are equal objects? The reason becomes clear
-in the following interaction, where the precise type of one of the compared points is masked. Define <span class="code">p2a</span> as an alias of <span class="code">p2</span>, but with type <span class="code">Any</span> instead of <span class="code">Point</span>:</p>
+<p>How to explain that <pre class="code">coll</pre> does not contain <pre class="code">p2</pre>, even though <pre class="code">p1</pre> was added to
+it, and <pre class="code">p1</pre> and <pre class="code">p2</pre> are equal objects? The reason becomes clear
+in the following interaction, where the precise type of one of the compared points is masked. Define <pre class="code">p2a</pre> as an alias of <pre class="code">p2</pre>, but with type <pre class="code">Any</pre> instead of <pre class="code">Point</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;p2a:&nbsp;<code class="typename">Any</code>&nbsp;=&nbsp;p2
@@ -171,7 +171,7 @@ in the following interaction, where the precise type of one of the compared poin
 </pre>
 
 
-<p>Now, were you to repeat the first comparison, but with the alias <span class="code">p2a</span> instead of <span class="code">p2</span>, you would get:</p>
+<p>Now, were you to repeat the first comparison, but with the alias <pre class="code">p2a</pre> instead of <pre class="code">p2</pre>, you would get:</p>
 
 <pre>
   scala&gt;&nbsp;p1&nbsp;equals&nbsp;p2a
@@ -179,31 +179,31 @@ in the following interaction, where the precise type of one of the compared poin
 </pre>
 
 
-<p>What went wrong? The version of <span class="code">equals</span> given previously does not override
-the standard method <span class="code">equals</span> because its type is different. Here is the 
-type of the <span class="code">equals</span> method as it is defined in the root class
-<span class="code">Any</span>:<a href="object-equality.html#footnotemain30-3">[3]</a></p>
+<p>What went wrong? The version of <pre class="code">equals</pre> given previously does not override
+the standard method <pre class="code">equals</pre> because its type is different. Here is the 
+type of the <pre class="code">equals</pre> method as it is defined in the root class
+<pre class="code">Any</pre>:<a href="object-equality.html#footnotemain30-3">[3]</a></p>
 
 <pre>
   <code class="vem">def</code>&nbsp;equals(other:&nbsp;<code class="typename">Any</code>):&nbsp;<code class="typename">Boolean</code>
 </pre>
 
 
-<p>Because the <span class="code">equals</span> method in <span class="code">Point</span> takes a <span class="code">Point</span> instead of
-an <span class="code">Any</span> as an argument, it does not override <span class="code">equals</span> in
-<span class="code">Any</span>.<a id="i1623576437-1"/> Instead, it is just an overloaded alternative. Now,
+<p>Because the <pre class="code">equals</pre> method in <pre class="code">Point</pre> takes a <pre class="code">Point</pre> instead of
+an <pre class="code">Any</pre> as an argument, it does not override <pre class="code">equals</pre> in
+<pre class="code">Any</pre>.<a id="i1623576437-1"/> Instead, it is just an overloaded alternative. Now,
 overloading in Scala and in Java is resolved by the static type of the
 argument, not the run-time type. So as long as the static type of the
-argument is <span class="code">Point</span>, the <span class="code">equals</span> method in <span class="code">Point</span> is
-called. However, once the static argument is of type <span class="code">Any</span>, the
-<span class="code">equals</span> method in <span class="code">Any</span> is called instead.  This method has
+argument is <pre class="code">Point</pre>, the <pre class="code">equals</pre> method in <pre class="code">Point</pre> is
+called. However, once the static argument is of type <pre class="code">Any</pre>, the
+<pre class="code">equals</pre> method in <pre class="code">Any</pre> is called instead.  This method has
 not been overridden, so it is still implemented by comparing object identity.</p>
 
 <p>That's why the
-comparison "<span class="code">p1</span>&nbsp;<span class="code">equals</span>&nbsp;<span class="code">p2a</span>" yields <span class="code">false</span> even though points <span class="code">p1</span>
-and <span class="code">p2a</span> have the same <span class="code">x</span> and <span class="code">y</span> values. That's also why the <span class="code">contains</span> method
-in <span class="code">HashSet</span> returned <span class="code">false</span>. Since that method operates on generic sets, it calls
-the generic <span class="code">equals</span> method in <span class="code">Object</span> instead of the overloaded variant in <span class="code">Point</span>. Here's a better <span class="code">equals</span> method:</p>
+comparison "<pre class="code">p1</pre>&nbsp;<pre class="code">equals</pre>&nbsp;<pre class="code">p2a</pre>" yields <pre class="code">false</pre> even though points <pre class="code">p1</pre>
+and <pre class="code">p2a</pre> have the same <pre class="code">x</pre> and <pre class="code">y</pre> values. That's also why the <pre class="code">contains</pre> method
+in <pre class="code">HashSet</pre> returned <pre class="code">false</pre>. Since that method operates on generic sets, it calls
+the generic <pre class="code">equals</pre> method in <pre class="code">Object</pre> instead of the overloaded variant in <pre class="code">Point</pre>. Here's a better <pre class="code">equals</pre> method:</p>
 
 <pre>
   <code class="comment">//&nbsp;A&nbsp;better&nbsp;definition,&nbsp;but&nbsp;still&nbsp;not&nbsp;perfect</code>
@@ -214,21 +214,21 @@ the generic <span class="code">equals</span> method in <span class="code">Object
 </pre>
 
 
-<p>Now <span class="code">equals</span> has the correct type.  It takes a value of type <span class="code">Any</span>
-as parameter and it yields a <span class="code">Boolean</span> result. The implementation of
-this method uses a pattern match.<a id="i-1742228676-1"/>  It first tests whether the <span class="code">other</span>
-object is also of type <span class="code">Point</span>. If it is, it compares the
-coordinates of the two points and returns the result. Otherwise the result is <span class="code">false</span>.</p>
+<p>Now <pre class="code">equals</pre> has the correct type.  It takes a value of type <pre class="code">Any</pre>
+as parameter and it yields a <pre class="code">Boolean</pre> result. The implementation of
+this method uses a pattern match.<a id="i-1742228676-1"/>  It first tests whether the <pre class="code">other</pre>
+object is also of type <pre class="code">Point</pre>. If it is, it compares the
+coordinates of the two points and returns the result. Otherwise the result is <pre class="code">false</pre>.</p>
 
-<p>A related pitfall is to define <span class="code">==</span> with a wrong
+<p>A related pitfall is to define <pre class="code">==</pre> with a wrong
 signature. Normally, 
-if you try to redefine <span class="code">==</span> with the correct signature, which 
-takes an argument of type <span class="code">Any</span>, the compiler will 
-give you an error because you try to override a <span class="code">final</span> method of type
-<span class="code">Any</span>.</p>
+if you try to redefine <pre class="code">==</pre> with the correct signature, which 
+takes an argument of type <pre class="code">Any</pre>, the compiler will 
+give you an error because you try to override a <pre class="code">final</pre> method of type
+<pre class="code">Any</pre>.</p>
 
 <p>Newcomers to Scala sometimes make two errors at once:
-They try to override <span class="code">==</span> <span style="font-style:italic">and</span> 
+They try to override <pre class="code">==</pre> <span style="font-style:italic">and</span> 
 they give it the wrong signature. For instance:</p>
 
 <pre>
@@ -236,19 +236,19 @@ they give it the wrong signature. For instance:</p>
 </pre>
 
 
-<p>In this case, the user-defined <span class="code">==</span> method is treated as 
-an overloaded variant of the same-named method class <span class="code">Any</span> and the program compiles.
+<p>In this case, the user-defined <pre class="code">==</pre> method is treated as 
+an overloaded variant of the same-named method class <pre class="code">Any</pre> and the program compiles.
 However, the behavior of the program would be just as dubious as if you had 
-defined <span class="code">equals</span> with the wrong signature.</p>
+defined <pre class="code">equals</pre> with the wrong signature.</p>
 
-<h4>Pitfall #2: Changing <span class="code">equals</span> without also changing <span class="code">hashCode</span></h4>
+<h4>Pitfall #2: Changing <pre class="code">equals</pre> without also changing <pre class="code">hashCode</pre></h4>
 
 
-<p>We'll continue to use the example from pitfall #1. If you repeat the comparison of <span class="code">p1</span> and <span class="code">p2a</span> with the latest
-definition of <span class="code">Point</span>, you will get <span class="code">true</span>, as
+<p>We'll continue to use the example from pitfall #1. If you repeat the comparison of <pre class="code">p1</pre> and <pre class="code">p2a</pre> with the latest
+definition of <pre class="code">Point</pre>, you will get <pre class="code">true</pre>, as
 expected.<a id="i-579193195-1"/>
 However, if you repeat
-the <span class="code">HashSet.contains</span> test, you will probably still get <span class="code">false</span>:</p>
+the <pre class="code">HashSet.contains</pre> test, you will probably still get <pre class="code">false</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;p1,&nbsp;p2&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Point</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)
@@ -260,39 +260,39 @@ the <span class="code">HashSet.contains</span> test, you will probably still get
 
 
 <p>But this outcome is not 100% certain.
-You might also get <span class="code">true</span> from the experiment. If you do,
+You might also get <pre class="code">true</pre> from the experiment. If you do,
 you can try with some other points with coordinates 1 and
 2. Eventually, you'll get one that is not contained in the set.
-What goes wrong here is that <span class="code">Point</span> redefined <span class="code">equals</span> without 
-also redefining <span class="code">hashCode</span>.</p>
+What goes wrong here is that <pre class="code">Point</pre> redefined <pre class="code">equals</pre> without 
+also redefining <pre class="code">hashCode</pre>.</p>
 
-<p>Note that the collection in the example here is a <span class="code">HashSet</span>. This
+<p>Note that the collection in the example here is a <pre class="code">HashSet</pre>. This
 means elements of the collection are put in "hash buckets"
-determined by their hash code.  The <span class="code">contains</span> test first determines
+determined by their hash code.  The <pre class="code">contains</pre> test first determines
 a hash bucket to look in and then compares the given elements with all
-elements in that bucket. Now, the last version of class <span class="code">Point</span>
-did redefine <span class="code">equals</span>, but it did not redefine
-<span class="code">hashCode</span> at the same time. So <span class="code">hashCode</span> is still what it was in its version in
-class <span class="code">AnyRef</span>: some transformation of the address of the allocated object.</p>
+elements in that bucket. Now, the last version of class <pre class="code">Point</pre>
+did redefine <pre class="code">equals</pre>, but it did not redefine
+<pre class="code">hashCode</pre> at the same time. So <pre class="code">hashCode</pre> is still what it was in its version in
+class <pre class="code">AnyRef</pre>: some transformation of the address of the allocated object.</p>
 
-<p>The hash codes of <span class="code">p1</span> and <span class="code">p2</span> are almost certainly different, even
+<p>The hash codes of <pre class="code">p1</pre> and <pre class="code">p2</pre> are almost certainly different, even
 though the fields of both points are the same. Different hash codes
 mean, with high probability, different hash buckets in the set.  The
-<span class="code">contains</span> test will look for a matching element in the bucket which
-corresponds to <span class="code">p2</span>'s hash code. In most cases, point <span class="code">p1</span> will be
-in another bucket, so it will never be found. <span class="code">p1</span> and <span class="code">p2</span> might
+<pre class="code">contains</pre> test will look for a matching element in the bucket which
+corresponds to <pre class="code">p2</pre>'s hash code. In most cases, point <pre class="code">p1</pre> will be
+in another bucket, so it will never be found. <pre class="code">p1</pre> and <pre class="code">p2</pre> might
 also end up by chance in the same hash bucket. In that case the test
-would return <span class="code">true</span>. The problem is that the last implementation of <span class="code">Point</span><a id="i668953714-1"/>
-violated the contract on <span class="code">hashCode</span> as defined for class <span class="code">Any</span>:<a href="object-equality.html#footnotemain30-4">[4]</a></p>
+would return <pre class="code">true</pre>. The problem is that the last implementation of <pre class="code">Point</pre><a id="i668953714-1"/>
+violated the contract on <pre class="code">hashCode</pre> as defined for class <pre class="code">Any</pre>:<a href="object-equality.html#footnotemain30-4">[4]</a></p>
 
-<p><span style="font-style:italic">If two objects are equal according to the <span class="code">equals</span>  method, 
-then calling the <span class="code">hashCode</span> method on each of the two objects must 
+<p><span style="font-style:italic">If two objects are equal according to the <pre class="code">equals</pre>  method, 
+then calling the <pre class="code">hashCode</pre> method on each of the two objects must 
 produce the same integer result.</span></p>
 
-<p>In fact, it's well known in Java that <span class="code">hashCode</span> and <span class="code">equals</span> should always
-be redefined together. Furthermore, <span class="code">hashCode</span> may only depend on fields that
-<span class="code">equals</span> depends on. For the <span class="code">Point</span> class, the following would be a suitable
-definition of <span class="code">hashCode</span>:</p>
+<p>In fact, it's well known in Java that <pre class="code">hashCode</pre> and <pre class="code">equals</pre> should always
+be redefined together. Furthermore, <pre class="code">hashCode</pre> may only depend on fields that
+<pre class="code">equals</pre> depends on. For the <pre class="code">Point</pre> class, the following would be a suitable
+definition of <pre class="code">hashCode</pre>:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Point</code>(<code class="vem">val</code>&nbsp;x:&nbsp;<code class="typename">Int</code>,&nbsp;<code class="vem">val</code>&nbsp;y:&nbsp;<code class="typename">Int</code>)&nbsp;{
@@ -306,19 +306,19 @@ definition of <span class="code">hashCode</span>:</p>
 
 
 <p>This is just one of many possible implementations of
-<span class="code">hashCode</span>. Recall that the <span class="code">##</span> method is a shorthand for computing
+<pre class="code">hashCode</pre>. Recall that the <pre class="code">##</pre> method is a shorthand for computing
 hash codes that works for primitive values, reference types, and
-<span class="code">null</span>. When invoked on a collection or a tuple, it computes a mixed hash that is
+<pre class="code">null</pre>. When invoked on a collection or a tuple, it computes a mixed hash that is
 sensitive to the hash codes of all the elements in the collection.
 We'll
-provide more guidance on writing <span class="code">hashCode</span> later in this chapter.</p>
+provide more guidance on writing <pre class="code">hashCode</pre> later in this chapter.</p>
 
-<p>Adding <span class="code">hashCode</span> fixes the problems of equality when defining classes like <span class="code">Point</span>; however, there are other trouble spots to watch out for.</p>
+<p>Adding <pre class="code">hashCode</pre> fixes the problems of equality when defining classes like <pre class="code">Point</pre>; however, there are other trouble spots to watch out for.</p>
 
-<h4>Pitfall #3: Defining <span class="code">equals</span> in terms of mutable fields</h4>
+<h4>Pitfall #3: Defining <pre class="code">equals</pre> in terms of mutable fields</h4>
 
 
-<p>Consider the following slight variation of class <span class="code">Point</span>:</p>
+<p>Consider the following slight variation of class <pre class="code">Point</pre>:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Point</code>(<code class="vem">var</code>&nbsp;x:&nbsp;<code class="typename">Int</code>,&nbsp;<code class="vem">var</code>&nbsp;y:&nbsp;<code class="typename">Int</code>)&nbsp;{&nbsp;<code class="comment">//&nbsp;Problematic</code>
@@ -331,9 +331,9 @@ provide more guidance on writing <span class="code">hashCode</span> later in thi
 </pre>
 
 
-<p>The only difference is that the fields <span class="code">x</span> and <span class="code">y</span> are now <span class="code">var</span>s
-instead of <span class="code">val</span>s.<a id="i-1325523688-1"/>
-The <span class="code">equals</span> and <span class="code">hashCode</span> methods are now defined 
+<p>The only difference is that the fields <pre class="code">x</pre> and <pre class="code">y</pre> are now <pre class="code">var</pre>s
+instead of <pre class="code">val</pre>s.<a id="i-1325523688-1"/>
+The <pre class="code">equals</pre> and <pre class="code">hashCode</pre> methods are now defined 
 in terms of these mutable fields, so their results change when the fields change.
 This can have strange effects once you put points in collections:</p>
 
@@ -348,7 +348,7 @@ This can have strange effects once you put points in collections:</p>
 </pre>
 
 
-<p>Now, if you change a field in point <span class="code">p</span>, does the collection
+<p>Now, if you change a field in point <pre class="code">p</pre>, does the collection
 still contain the point? We'll try it:</p>
 
 <pre>
@@ -358,8 +358,8 @@ still contain the point? We'll try it:</p>
 </pre>
 
 
-<p>This looks strange. Where did <span class="code">p</span> go? More strangeness results if you check whether the 
-iterator of the set contains <span class="code">p</span>:</p>
+<p>This looks strange. Where did <pre class="code">p</pre> go? More strangeness results if you check whether the 
+iterator of the set contains <pre class="code">p</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;coll.iterator&nbsp;contains&nbsp;p
@@ -367,33 +367,33 @@ iterator of the set contains <span class="code">p</span>:</p>
 </pre>
 
 
-<p>So here's a set that does not contain <span class="code">p</span>, yet <span class="code">p</span> is among the elements of the set!
-What happened is that after the change to the <span class="code">x</span> field, the point <span class="code">p</span> ended
-up in the wrong hash bucket of the set <span class="code">coll</span>. That is, its original hash bucket
+<p>So here's a set that does not contain <pre class="code">p</pre>, yet <pre class="code">p</pre> is among the elements of the set!
+What happened is that after the change to the <pre class="code">x</pre> field, the point <pre class="code">p</pre> ended
+up in the wrong hash bucket of the set <pre class="code">coll</pre>. That is, its original hash bucket
 no longer corresponded to the new value of its hash code. 
-In a manner of speaking, point <span class="code">p</span> "dropped out of sight" 
-in the set <span class="code">coll</span> even though it still belonged to its elements.</p>
+In a manner of speaking, point <pre class="code">p</pre> "dropped out of sight" 
+in the set <pre class="code">coll</pre> even though it still belonged to its elements.</p>
 
-<p>The lesson to be drawn from this example is that when <span class="code">equals</span> and
-<span class="code">hashCode</span> depend on mutable state, it causes problems for
+<p>The lesson to be drawn from this example is that when <pre class="code">equals</pre> and
+<pre class="code">hashCode</pre> depend on mutable state, it causes problems for
 potential users.  If you put such objects into collections, you have to be careful to never modify the depended-on state, and this is tricky.
 If
 you need a comparison that takes the current state of an object into
-account, you should usually name it something else, not <span class="code">equals</span>.</p>
+account, you should usually name it something else, not <pre class="code">equals</pre>.</p>
 
-<p>Considering the last definition of <span class="code">Point</span>, it would have been
-preferable to omit a redefinition of <span class="code">hashCode</span> and name the
-comparison method <span class="code">equalContents</span> or some other name different from
-<span class="code">equals</span>.  <span class="code">Point</span> would then have inherited the default
-implementation of <span class="code">equals</span> and <span class="code">hashCode</span>; <span class="code">p</span> would have stayed
-locatable in <span class="code">coll</span> even after the modification to its <span class="code">x</span>
+<p>Considering the last definition of <pre class="code">Point</pre>, it would have been
+preferable to omit a redefinition of <pre class="code">hashCode</pre> and name the
+comparison method <pre class="code">equalContents</pre> or some other name different from
+<pre class="code">equals</pre>.  <pre class="code">Point</pre> would then have inherited the default
+implementation of <pre class="code">equals</pre> and <pre class="code">hashCode</pre>; <pre class="code">p</pre> would have stayed
+locatable in <pre class="code">coll</pre> even after the modification to its <pre class="code">x</pre>
 field.</p>
 
-<h4>Pitfall #4: Failing to define <span class="code">equals</span> as an equivalence relation</h4>
+<h4>Pitfall #4: Failing to define <pre class="code">equals</pre> as an equivalence relation</h4>
 
 
-<p>The contract of the <span class="code">equals</span> method in <span class="code">scala.Any</span> specifies that <span class="code">equals</span> must<a id="i358320206-1"/>
-implement an equivalence relation on non-<span class="code">null</span> objects:<a href="object-equality.html#footnotemain30-5">[5]</a></p>
+<p>The contract of the <pre class="code">equals</pre> method in <pre class="code">scala.Any</pre> specifies that <pre class="code">equals</pre> must<a id="i358320206-1"/>
+implement an equivalence relation on non-<pre class="code">null</pre> objects:<a href="object-equality.html#footnotemain30-5">[5]</a></p>
 
 <div style="font-style:italic">
 
@@ -401,30 +401,30 @@ implement an equivalence relation on non-<span class="code">null</span> objects:
 <ul>
 
 
-<li>It is <span style="font-style:italic">reflexive</span>: For any non-null value <span class="code">x</span> , the
-expression <span class="code">x.equals(x)</span> should return <span class="code">true</span>.
+<li>It is <span style="font-style:italic">reflexive</span>: For any non-null value <pre class="code">x</pre> , the
+expression <pre class="code">x.equals(x)</pre> should return <pre class="code">true</pre>.
 
 
 </li>
-<li>It is <span style="font-style:italic">symmetric</span>: For any non-null values <span class="code">x</span> and
-<span class="code">y</span>, <span class="code">x.equals(y)</span> should return <span class="code">true</span> if and only if
-<span class="code">y.equals(x)</span> returns <span class="code">true</span>.
+<li>It is <span style="font-style:italic">symmetric</span>: For any non-null values <pre class="code">x</pre> and
+<pre class="code">y</pre>, <pre class="code">x.equals(y)</pre> should return <pre class="code">true</pre> if and only if
+<pre class="code">y.equals(x)</pre> returns <pre class="code">true</pre>.
 
 
 </li>
-<li>It is <span style="font-style:italic">transitive</span>: For any non-null values <span class="code">x</span>, <span class="code">y</span>, and
-<span class="code">z</span>, if <span class="code">x.equals(y)</span> returns <span class="code">true</span> and <span class="code">y.equals(z)</span>
-returns <span class="code">true</span>, then <span class="code">x.equals(z)</span> should return
-<span class="code">true</span>.
+<li>It is <span style="font-style:italic">transitive</span>: For any non-null values <pre class="code">x</pre>, <pre class="code">y</pre>, and
+<pre class="code">z</pre>, if <pre class="code">x.equals(y)</pre> returns <pre class="code">true</pre> and <pre class="code">y.equals(z)</pre>
+returns <pre class="code">true</pre>, then <pre class="code">x.equals(z)</pre> should return
+<pre class="code">true</pre>.
 
 
 </li>
-<li>It is <span style="font-style:italic">consistent</span>: For any non-null values <span class="code">x</span> and <span class="code">y</span>, multiple invocations of <span class="code">x.equals(y)</span> should consistently return <span class="code">true</span> or consistently return <span class="code">false</span>, provided no information used in equals comparisons on the objects is modified.
+<li>It is <span style="font-style:italic">consistent</span>: For any non-null values <pre class="code">x</pre> and <pre class="code">y</pre>, multiple invocations of <pre class="code">x.equals(y)</pre> should consistently return <pre class="code">true</pre> or consistently return <pre class="code">false</pre>, provided no information used in equals comparisons on the objects is modified.
 
 
 </li>
-<li>For any non-null value <span class="code">x</span>, <span class="code">x.equals(null)</span> should return
-<span class="code">false</span>.<a id="i-677123658-1"/> 
+<li>For any non-null value <pre class="code">x</pre>, <pre class="code">x.equals(null)</pre> should return
+<pre class="code">false</pre>.<a id="i-677123658-1"/> 
 
 
 </li></ul>
@@ -433,11 +433,11 @@ returns <span class="code">true</span>, then <span class="code">x.equals(z)</spa
 </div>
 
 
-<p>The definition of <span class="code">equals</span> developed for class <span class="code">Point</span> up to now satisfies
-the contract for <span class="code">equals</span>. However, things become more complicated once
-subclasses are considered. Say there is a subclass <span class="code">ColoredPoint</span> of
-<span class="code">Point</span> that adds a field <span class="code">color</span> of type <span class="code">Color</span>. 
-Assume <span class="code">Color</span> is defined as an enumeration, as presented in 
+<p>The definition of <pre class="code">equals</pre> developed for class <pre class="code">Point</pre> up to now satisfies
+the contract for <pre class="code">equals</pre>. However, things become more complicated once
+subclasses are considered. Say there is a subclass <pre class="code">ColoredPoint</pre> of
+<pre class="code">Point</pre> that adds a field <pre class="code">color</pre> of type <pre class="code">Color</pre>. 
+Assume <pre class="code">Color</pre> is defined as an enumeration, as presented in 
 <a href="abstract-members.html#sec-enums">Section 20.9</a>:</p>
 
 <pre>
@@ -447,7 +447,7 @@ Assume <span class="code">Color</span> is defined as an enumeration, as presente
 </pre>
 
 
-<p><span class="code">ColoredPoint</span> overrides <span class="code">equals</span> to take the new <span class="code">color</span> field into account:</p>
+<p><pre class="code">ColoredPoint</pre> overrides <pre class="code">equals</pre> to take the new <pre class="code">color</pre> field into account:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">ColoredPoint</code>(x:&nbsp;<code class="typename">Int</code>,&nbsp;y:&nbsp;<code class="typename">Int</code>,&nbsp;<code class="vem">val</code>&nbsp;color:&nbsp;<code class="typename">Color.Value</code>)&nbsp;
@@ -462,15 +462,15 @@ Assume <span class="code">Color</span> is defined as an enumeration, as presente
 
 
 <p>This is what many programmers would likely write.<a id="i-591223748-1"/> Note that in this case,
-class <span class="code">ColoredPoint</span> 
-need not override <span class="code">hashCode</span>. Because the new definition of <span class="code">equals</span> 
-on <span class="code">ColoredPoint</span>
-is stricter than the overridden definition in <span class="code">Point</span> (meaning it equates fewer pairs of objects), the contract for <span class="code">hashCode</span> stays 
+class <pre class="code">ColoredPoint</pre> 
+need not override <pre class="code">hashCode</pre>. Because the new definition of <pre class="code">equals</pre> 
+on <pre class="code">ColoredPoint</pre>
+is stricter than the overridden definition in <pre class="code">Point</pre> (meaning it equates fewer pairs of objects), the contract for <pre class="code">hashCode</pre> stays 
 valid. If two colored points are equal, they must have the same coordinates, so their hash codes are guaranteed to be equal as well.</p>
 
-<p>Taking the class <span class="code">ColoredPoint</span> by itself, its definition of <span class="code">equals</span> looks OK. 
+<p>Taking the class <pre class="code">ColoredPoint</pre> by itself, its definition of <pre class="code">equals</pre> looks OK. 
 However, the contract for
-<span class="code">equals</span> is broken once points and colored points are mixed. Consider:</p>
+<pre class="code">equals</pre> is broken once points and colored points are mixed. Consider:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;p&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Point</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)
@@ -484,13 +484,13 @@ However, the contract for
 </pre>
 
 
-<p>The comparison "<span class="code">p</span>&nbsp;<span class="code">equals</span>&nbsp;<span class="code">cp</span>" invokes <span class="code">p</span>'s <span class="code">equals</span> method, which
-is defined in class <span class="code">Point</span>. This method only takes into account the
+<p>The comparison "<pre class="code">p</pre>&nbsp;<pre class="code">equals</pre>&nbsp;<pre class="code">cp</pre>" invokes <pre class="code">p</pre>'s <pre class="code">equals</pre> method, which
+is defined in class <pre class="code">Point</pre>. This method only takes into account the
 coordinates of the two points. Consequently, the comparison yields
-<span class="code">true</span>. On the other hand, the comparison "<span class="code">cp</span>&nbsp;<span class="code">equals</span>&nbsp;<span class="code">p</span>" invokes
-<span class="code">cp</span>'s <span class="code">equals</span> method, which is defined in class
-<span class="code">ColoredPoint</span>. This method returns <span class="code">false</span> because <span class="code">p</span> is not a
-<span class="code">ColoredPoint</span>. So the relation defined by <span class="code">equals</span> is not
+<pre class="code">true</pre>. On the other hand, the comparison "<pre class="code">cp</pre>&nbsp;<pre class="code">equals</pre>&nbsp;<pre class="code">p</pre>" invokes
+<pre class="code">cp</pre>'s <pre class="code">equals</pre> method, which is defined in class
+<pre class="code">ColoredPoint</pre>. This method returns <pre class="code">false</pre> because <pre class="code">p</pre> is not a
+<pre class="code">ColoredPoint</pre>. So the relation defined by <pre class="code">equals</pre> is not
 symmetric.</p>
 
 <p>The loss in symmetry can have unexpected consequences for collections.
@@ -504,14 +504,14 @@ Here's an example:</p>
 </pre>
 
 
-<p>Even though <span class="code">p</span> and <span class="code">cp</span> are equal, one <span class="code">contains</span> test succeeds 
+<p>Even though <pre class="code">p</pre> and <pre class="code">cp</pre> are equal, one <pre class="code">contains</pre> test succeeds 
 whereas the other one fails:</p>
 
-<p>How can you change the definition of <span class="code">equals</span> so that it becomes symmetric?
+<p>How can you change the definition of <pre class="code">equals</pre> so that it becomes symmetric?
 Essentially there are two ways. You can either make the relation more general or 
-more strict. Making it more general means that a pair of two objects, <span class="code">x</span> and <span class="code">y</span>,
-is taken to be equal if either comparing <span class="code">x</span> with <span class="code">y</span> or comparing <span class="code">y</span> with <span class="code">x</span> 
-yields <span class="code">true</span>. Here's code that does this:</p>
+more strict. Making it more general means that a pair of two objects, <pre class="code">x</pre> and <pre class="code">y</pre>,
+is taken to be equal if either comparing <pre class="code">x</pre> with <pre class="code">y</pre> or comparing <pre class="code">y</pre> with <pre class="code">x</pre> 
+yields <pre class="code">true</pre>. Here's code that does this:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">ColoredPoint</code>(x:&nbsp;<code class="typename">Int</code>,&nbsp;y:&nbsp;<code class="typename">Int</code>,&nbsp;<code class="vem">val</code>&nbsp;color:&nbsp;<code class="typename">Color.Value</code>)&nbsp;
@@ -528,12 +528,12 @@ yields <span class="code">true</span>. Here's code that does this:</p>
 </pre>
 
 
-<p>The new definition of <span class="code">equals</span> in <span class="code">ColoredPoint</span> has one more case than the old one: 
-If the <span class="code">other</span> object is
-a <span class="code">Point</span> but not a <span class="code">ColoredPoint</span>, the method forwards to the <span class="code">equals</span> method
-of <span class="code">Point</span>. This has the desired effect of making <span class="code">equals</span> symmetric. Now, 
-both "<span class="code">cp</span>&nbsp;<span class="code">equals</span>&nbsp;<span class="code">p</span>" and "<span class="code">p</span>&nbsp;<span class="code">equals</span>&nbsp;<span class="code">cp</span>" result in <span class="code">true</span>.
-However, the contract for <span class="code">equals</span> is still broken. The problem is that
+<p>The new definition of <pre class="code">equals</pre> in <pre class="code">ColoredPoint</pre> has one more case than the old one: 
+If the <pre class="code">other</pre> object is
+a <pre class="code">Point</pre> but not a <pre class="code">ColoredPoint</pre>, the method forwards to the <pre class="code">equals</pre> method
+of <pre class="code">Point</pre>. This has the desired effect of making <pre class="code">equals</pre> symmetric. Now, 
+both "<pre class="code">cp</pre>&nbsp;<pre class="code">equals</pre>&nbsp;<pre class="code">p</pre>" and "<pre class="code">p</pre>&nbsp;<pre class="code">equals</pre>&nbsp;<pre class="code">cp</pre>" result in <pre class="code">true</pre>.
+However, the contract for <pre class="code">equals</pre> is still broken. The problem is that
 the new relation is no longer transitive!</p>
 
 <p>Here's a sequence of statements
@@ -547,7 +547,7 @@ that demonstrates this. Define a point and two colored points of different color
 </pre>
 
 
-<p>Taken individually, <span class="code">redp</span> is equal to <span class="code">p</span> and <span class="code">p</span> is equal to <span class="code">bluep</span>:</p>
+<p>Taken individually, <pre class="code">redp</pre> is equal to <pre class="code">p</pre> and <pre class="code">p</pre> is equal to <pre class="code">bluep</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;redp&nbsp;==&nbsp;p
@@ -557,7 +557,7 @@ that demonstrates this. Define a point and two colored points of different color
 </pre>
 
 
-<p>However, comparing <span class="code">redp</span> and <span class="code">bluep</span> yields <span class="code">false</span>:</p>
+<p>However, comparing <pre class="code">redp</pre> and <pre class="code">bluep</pre> yields <pre class="code">false</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;redp&nbsp;==&nbsp;bluep
@@ -565,14 +565,14 @@ that demonstrates this. Define a point and two colored points of different color
 </pre>
 
 
-<p>Hence, the transitivity clause of the <span class="code">equals</span>'s contract is violated.</p>
+<p>Hence, the transitivity clause of the <pre class="code">equals</pre>'s contract is violated.</p>
 
-<p>Making the <span class="code">equals</span> relation more general seems to lead to a dead end. We'll try to make it stricter instead. One way to make <span class="code">equals</span> stricter is 
+<p>Making the <pre class="code">equals</pre> relation more general seems to lead to a dead end. We'll try to make it stricter instead. One way to make <pre class="code">equals</pre> stricter is 
 to always treat objects of different classes as different. This could be achieved by
-modifying the <span class="code">equals</span> methods in classes <span class="code">Point</span> and <span class="code">ColoredPoint</span>. 
-In class <span class="code">Point</span>, you
-could add an extra comparison that checks whether the run-time class of the other <span class="code">Point</span> is exactly the same
-as this <span class="code">Point</span>'s class:</p>
+modifying the <pre class="code">equals</pre> methods in classes <pre class="code">Point</pre> and <pre class="code">ColoredPoint</pre>. 
+In class <pre class="code">Point</pre>, you
+could add an extra comparison that checks whether the run-time class of the other <pre class="code">Point</pre> is exactly the same
+as this <pre class="code">Point</pre>'s class:</p>
 
 <pre>
   <code class="comment">//&nbsp;A&nbsp;technically&nbsp;valid,&nbsp;but&nbsp;unsatisfying,&nbsp;equals&nbsp;method</code>
@@ -588,7 +588,7 @@ as this <span class="code">Point</span>'s class:</p>
 </pre>
 
 
-<p>You can then revert class <span class="code">ColoredPoint</span>'s implementation back to the version that previously had violated the
+<p>You can then revert class <pre class="code">ColoredPoint</pre>'s implementation back to the version that previously had violated the
 symmetry requirement:<a href="object-equality.html#footnotemain30-6">[6]</a></p>
 
 <pre>
@@ -603,18 +603,18 @@ symmetry requirement:<a href="object-equality.html#footnotemain30-6">[6]</a></p>
 </pre>
 
 
-<p>Here, an instance of class <span class="code">Point</span> 
+<p>Here, an instance of class <pre class="code">Point</pre> 
 is considered to be equal to some other instance of the same class, only if
 the objects have the same coordinates and they have the same run-time class, 
-meaning <span class="code">getClass</span> on either object returns the same value.
+meaning <pre class="code">getClass</pre> on either object returns the same value.
 The new definitions satisfy symmetry and transitivity because now every
 comparison between objects of different classes yields
-<span class="code">false</span>. So a colored point can never be equal to a point. This
+<pre class="code">false</pre>. So a colored point can never be equal to a point. This
 convention looks reasonable, but one could argue that the new
 definition is too strict.</p>
 
 <p>Consider the following slightly roundabout way to define 
-a point at coordinates <span class="code">(1,</span>&nbsp;<span class="code">2)</span>:</p>
+a point at coordinates <pre class="code">(1,</pre>&nbsp;<pre class="code">2)</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;pAnon&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Point</code>(<code class="literal">1</code>,&nbsp;<code class="literal">1</code>)&nbsp;{&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">val</code>&nbsp;y&nbsp;=&nbsp;<code class="literal">2</code>&nbsp;}
@@ -622,21 +622,21 @@ a point at coordinates <span class="code">(1,</span>&nbsp;<span class="code">2)<
 </pre>
 
 
-<p>Is <span class="code">pAnon</span> equal to <span class="code">p</span>?
-The answer is no because the <span class="code">java.lang.Class</span> objects associated with <span class="code">p</span> and
-<span class="code">pAnon</span> are different. For <span class="code">p</span> it is <span class="code">Point</span>, whereas for <span class="code">pAnon</span> it
-is an anonymous subclass of <span class="code">Point</span>.<a id="i-8484895-1"/> But clearly, <span class="code">pAnon</span> is just
-another point at coordinates <span class="code">(1,</span>&nbsp;<span class="code">2)</span>. It does not seem reasonable
-to treat it as being different from <span class="code">p</span>.</p>
+<p>Is <pre class="code">pAnon</pre> equal to <pre class="code">p</pre>?
+The answer is no because the <pre class="code">java.lang.Class</pre> objects associated with <pre class="code">p</pre> and
+<pre class="code">pAnon</pre> are different. For <pre class="code">p</pre> it is <pre class="code">Point</pre>, whereas for <pre class="code">pAnon</pre> it
+is an anonymous subclass of <pre class="code">Point</pre>.<a id="i-8484895-1"/> But clearly, <pre class="code">pAnon</pre> is just
+another point at coordinates <pre class="code">(1,</pre>&nbsp;<pre class="code">2)</pre>. It does not seem reasonable
+to treat it as being different from <pre class="code">p</pre>.</p>
 
 <p>So it seems we are stuck. Is there a sane way to redefine equality on
 several levels of the class hierarchy while keeping its contract?  In
 fact, there is such a way, but it requires one more method to redefine
-together with <span class="code">equals</span> and <span class="code">hashCode</span>. The idea is that as soon as a
-class redefines <span class="code">equals</span> (and <span class="code">hashCode</span>), it should also explicitly
+together with <pre class="code">equals</pre> and <pre class="code">hashCode</pre>. The idea is that as soon as a
+class redefines <pre class="code">equals</pre> (and <pre class="code">hashCode</pre>), it should also explicitly
 state that objects of this class are never equal to objects of some
 superclass that implement a different equality method. This is
-achieved by adding a method <span class="code">canEqual</span> to every class that redefines <span class="code">equals</span>. 
+achieved by adding a method <pre class="code">canEqual</pre> to every class that redefines <pre class="code">equals</pre>. 
 Here's the method's signature:</p>
 
 <pre>
@@ -644,11 +644,11 @@ Here's the method's signature:</p>
 </pre>
 
 
-<p>The method should return <span class="code">true</span> if the 
-<span class="code">other</span> object is an instance of the class in which <span class="code">canEqual</span> is (re)defined,
-<span class="code">false</span> otherwise. It is called from <span class="code">equals</span> to make sure
+<p>The method should return <pre class="code">true</pre> if the 
+<pre class="code">other</pre> object is an instance of the class in which <pre class="code">canEqual</pre> is (re)defined,
+<pre class="code">false</pre> otherwise. It is called from <pre class="code">equals</pre> to make sure
 that the objects are comparable both ways. <a href="object-equality.html#lst-satisfying-equals">Listing 30.1</a> shows a new (and final) implementation of class
-<span class="code">Point</span> along these lines:
+<pre class="code">Point</pre> along these lines:
 <a id="lst-satisfying-equals"/></p>
 
 <pre>
@@ -666,17 +666,17 @@ that the objects are comparable both ways. <a href="object-equality.html#lst-sat
 </pre>
 
 
-<h5>Listing 30.1 - A superclass <span class="code">equals</span> method that calls <span class="code">canEqual</span>.</h5>
+<h5>Listing 30.1 - A superclass <pre class="code">equals</pre> method that calls <pre class="code">canEqual</pre>.</h5>
 
 
-<p>The <span class="code">equals</span> method in this version of class <span class="code">Point</span> contains the 
+<p>The <pre class="code">equals</pre> method in this version of class <pre class="code">Point</pre> contains the 
 additional requirement that 
 the other object <em>can equal</em> this one, as determined by
-the <span class="code">canEqual</span> method. The implementation of <span class="code">canEqual</span> in 
-<span class="code">Point</span> states that all instances of <span class="code">Point</span> can be equal.</p>
+the <pre class="code">canEqual</pre> method. The implementation of <pre class="code">canEqual</pre> in 
+<pre class="code">Point</pre> states that all instances of <pre class="code">Point</pre> can be equal.</p>
 
 <p><a href="object-equality.html#lst-subclass-can-equal">Listing 30.2</a> shows the
-corresponding implementation of <span class="code">ColoredPoint</span>.
+corresponding implementation of <pre class="code">ColoredPoint</pre>.
 <a id="lst-subclass-can-equal"/></p>
 
 <pre>
@@ -696,22 +696,22 @@ corresponding implementation of <span class="code">ColoredPoint</span>.
 </pre>
 
 
-<h5>Listing 30.2 - A subclass <span class="code">equals</span> method that calls <span class="code">canEqual</span>.</h5>
+<h5>Listing 30.2 - A subclass <pre class="code">equals</pre> method that calls <pre class="code">canEqual</pre>.</h5>
 
 
-<p>It can be shown that the new definition of <span class="code">Point</span> and
-<span class="code">ColoredPoint</span> keeps the contract of <span class="code">equals</span>. Equality is symmetric
-and transitive.  Comparing a <span class="code">Point</span> to a <span class="code">ColoredPoint</span> always
-yields <span class="code">false</span>.  Indeed, for any point <span class="code">p</span> and colored point <span class="code">cp</span>,
-"<span class="code">p</span>&nbsp;<span class="code">equals</span>&nbsp;<span class="code">cp</span>" will return <span class="code">false</span> because 
-"<span class="code">cp</span>&nbsp;<span class="code">canEqual</span>&nbsp;<span class="code">p</span>" will return <span class="code">false</span>.  The reverse comparison, "<span class="code">cp</span>&nbsp;<span class="code">equals</span>&nbsp;<span class="code">p</span>",
-will also return <span class="code">false</span> because <span class="code">p</span> is not a <span class="code">ColoredPoint</span>, so
-the first pattern match in the body of <span class="code">equals</span> in <span class="code">ColoredPoint</span> will fail.</p>
+<p>It can be shown that the new definition of <pre class="code">Point</pre> and
+<pre class="code">ColoredPoint</pre> keeps the contract of <pre class="code">equals</pre>. Equality is symmetric
+and transitive.  Comparing a <pre class="code">Point</pre> to a <pre class="code">ColoredPoint</pre> always
+yields <pre class="code">false</pre>.  Indeed, for any point <pre class="code">p</pre> and colored point <pre class="code">cp</pre>,
+"<pre class="code">p</pre>&nbsp;<pre class="code">equals</pre>&nbsp;<pre class="code">cp</pre>" will return <pre class="code">false</pre> because 
+"<pre class="code">cp</pre>&nbsp;<pre class="code">canEqual</pre>&nbsp;<pre class="code">p</pre>" will return <pre class="code">false</pre>.  The reverse comparison, "<pre class="code">cp</pre>&nbsp;<pre class="code">equals</pre>&nbsp;<pre class="code">p</pre>",
+will also return <pre class="code">false</pre> because <pre class="code">p</pre> is not a <pre class="code">ColoredPoint</pre>, so
+the first pattern match in the body of <pre class="code">equals</pre> in <pre class="code">ColoredPoint</pre> will fail.</p>
 
-<p>On the other hand, instances of different subclasses of <span class="code">Point</span> can
+<p>On the other hand, instances of different subclasses of <pre class="code">Point</pre> can
 be equal, as long as none of the classes redefines the equality
 method. For instance, with the new class definitions, the comparison of 
-<span class="code">p</span> and <span class="code">pAnon</span> would yield true. Here are some examples:</p>
+<pre class="code">p</pre> and <pre class="code">pAnon</pre> would yield true. Here are some examples:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;p&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Point</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)
@@ -731,52 +731,52 @@ method. For instance, with the new class definitions, the comparison of
 </pre>
 
 
-<p>These examples demonstrate that if a superclass <span class="code">equals</span> implementation defines and calls <span class="code">canEqual</span>, then programmers
+<p>These examples demonstrate that if a superclass <pre class="code">equals</pre> implementation defines and calls <pre class="code">canEqual</pre>, then programmers
 who implement subclasses can decide whether or not their subclasses may be equal to instances of the superclass.
-Because <span class="code">ColoredPoint</span> overrides <span class="code">canEqual</span>, for example, a colored point may never be equal to a plain-old point. But because
-the anonymous subclass referenced from <span class="code">pAnon</span> does not override <span class="code">canEqual</span>, its instance can be
-equal to a <span class="code">Point</span> instance.</p>
+Because <pre class="code">ColoredPoint</pre> overrides <pre class="code">canEqual</pre>, for example, a colored point may never be equal to a plain-old point. But because
+the anonymous subclass referenced from <pre class="code">pAnon</pre> does not override <pre class="code">canEqual</pre>, its instance can be
+equal to a <pre class="code">Point</pre> instance.</p>
 
-<p>One potential criticism of the <span class="code">canEqual</span> approach is that it violates the Liskov Substitution 
-Principle<a id="i1527452340-1"/>. For example, the technique of implementing <span class="code">equals</span> by comparing run-time classes, which
+<p>One potential criticism of the <pre class="code">canEqual</pre> approach is that it violates the Liskov Substitution 
+Principle<a id="i1527452340-1"/>. For example, the technique of implementing <pre class="code">equals</pre> by comparing run-time classes, which
 led to the inability
 to define a subclass whose instances can equal instances of the superclass, 
 has been described as a violation of the LSP.<a href="object-equality.html#footnotemain30-7">[7]</a> The LSP states you should be able to use (substitute) a
 subclass instance where a superclass instance is required.</p>
 
 <p>In the previous example, however,
-"coll contains cp" returned <span class="code">false</span> even though <span class="code">cp</span>'s <span class="code">x</span> and <span class="code">y</span> values matched those of
+"coll contains cp" returned <pre class="code">false</pre> even though <pre class="code">cp</pre>'s <pre class="code">x</pre> and <pre class="code">y</pre> values matched those of
 the point in the collection. Thus, it may seem like a violation of the LSP because
-you can't use a <span class="code">ColoredPoint</span> here where a <span class="code">Point</span> is expected. We believe this is the wrong interpretation, because the LSP doesn't require that a subclass behaves identically to its superclass, just that it
+you can't use a <pre class="code">ColoredPoint</pre> here where a <pre class="code">Point</pre> is expected. We believe this is the wrong interpretation, because the LSP doesn't require that a subclass behaves identically to its superclass, just that it
 behaves in a way that fulfills the contract of its superclass.</p>
 
-<p>The problem with writing an <span class="code">equals</span> method that compares run-time classes is not that it violates the LSP, but
+<p>The problem with writing an <pre class="code">equals</pre> method that compares run-time classes is not that it violates the LSP, but
 that it doesn't give you a way to create a subclass whose
 instances can equal superclass instances.
-For example, had we used the run-time class technique in the previous example, "<span class="code">coll</span>&nbsp;<span class="code">contains</span>&nbsp;<span class="code">pAnon</span>" would have 
-returned <span class="code">false</span>, and that's not what we wanted. By contrast, we really did want "<span class="code">coll</span>&nbsp;<span class="code">contains</span>&nbsp;<span class="code">cp</span>" to
-return <span class="code">false</span>, because by overriding <span class="code">equals</span> in <span class="code">ColoredPoint</span>, we were basically saying that an indigo-colored
+For example, had we used the run-time class technique in the previous example, "<pre class="code">coll</pre>&nbsp;<pre class="code">contains</pre>&nbsp;<pre class="code">pAnon</pre>" would have 
+returned <pre class="code">false</pre>, and that's not what we wanted. By contrast, we really did want "<pre class="code">coll</pre>&nbsp;<pre class="code">contains</pre>&nbsp;<pre class="code">cp</pre>" to
+return <pre class="code">false</pre>, because by overriding <pre class="code">equals</pre> in <pre class="code">ColoredPoint</pre>, we were basically saying that an indigo-colored
 point at coordinates (1, 2) is <em>not the same thing</em> as an uncolored point at (1, 2). Thus, in the
 previous example we
-were able to pass two different <span class="code">Point</span> subclass instances to the collection's <span class="code">contains</span> method, and we got
+were able to pass two different <pre class="code">Point</pre> subclass instances to the collection's <pre class="code">contains</pre> method, and we got
 back two different answers, both correct.</p>
 
 <h3>30.3 Defining equality for parameterized types</h3>
 
 
-<p>The <span class="code">equals</span> methods in the previous examples all started with a
+<p>The <pre class="code">equals</pre> methods in the previous examples all started with a
 pattern match that tested whether the type of the operand conformed to
-the type of the class containing the <span class="code">equals</span>
+the type of the class containing the <pre class="code">equals</pre>
 method.<a id="i511396682-1"/> When classes
 are parameterized, this scheme needs to be adapted a little bit.</p>
 
 <p>As an
 example, consider binary trees. The class hierarchy shown in <a href="object-equality.html#lst-binary-tree">Listing 30.3</a> defines an
-abstract class <span class="code">Tree</span> for a binary tree, with two alternative
-implementations: an <span class="code">EmptyTree</span> object and a <span class="code">Branch</span> class
+abstract class <pre class="code">Tree</pre> for a binary tree, with two alternative
+implementations: an <pre class="code">EmptyTree</pre> object and a <pre class="code">Branch</pre> class
 representing non-empty trees. A non-empty tree is made up of some
-element <span class="code">elem</span>, and a <span class="code">left</span> and <span class="code">right</span> child tree. The type of its element 
-is given by a type parameter <span class="code">T</span>.</p>
+element <pre class="code">elem</pre>, and a <pre class="code">left</pre> and <pre class="code">right</pre> child tree. The type of its element 
+is given by a type parameter <pre class="code">T</pre>.</p>
 
 <p><a id="lst-binary-tree"/></p>
 
@@ -805,19 +805,19 @@ is given by a type parameter <span class="code">T</span>.</p>
 <h5>Listing 30.3 - Hierarchy for binary trees.</h5>
 
 
-<p>We'll now add <span class="code">equals</span> and <span class="code">hashCode</span> methods to these classes.  For
-class <span class="code">Tree</span> itself there's nothing to do because we assume that
+<p>We'll now add <pre class="code">equals</pre> and <pre class="code">hashCode</pre> methods to these classes.  For
+class <pre class="code">Tree</pre> itself there's nothing to do because we assume that
 these methods are implemented separately for each implementation of
-the abstract class. For object <span class="code">EmptyTree</span>, there's still nothing to
-do because the default implementations of <span class="code">equals</span> and <span class="code">hashCode</span>
-that <span class="code">EmptyTree</span> inherits from <span class="code">AnyRef</span> work just fine. After all,
-an <span class="code">EmptyTree</span> is only equal to itself, so equality should be
-reference equality, which is what's inherited from <span class="code">AnyRef</span>.</p>
+the abstract class. For object <pre class="code">EmptyTree</pre>, there's still nothing to
+do because the default implementations of <pre class="code">equals</pre> and <pre class="code">hashCode</pre>
+that <pre class="code">EmptyTree</pre> inherits from <pre class="code">AnyRef</pre> work just fine. After all,
+an <pre class="code">EmptyTree</pre> is only equal to itself, so equality should be
+reference equality, which is what's inherited from <pre class="code">AnyRef</pre>.</p>
 
-<p>But adding <span class="code">equals</span> and <span class="code">hashCode</span> to <span class="code">Branch</span> requires some work. 
-A <span class="code">Branch</span> value should only be equal to other <span class="code">Branch</span> values, 
-and only if the two values have equal <span class="code">elem</span>, <span class="code">left</span> and <span class="code">right</span> fields.
-It's natural to apply the schema for <span class="code">equals</span> that was developed in the 
+<p>But adding <pre class="code">equals</pre> and <pre class="code">hashCode</pre> to <pre class="code">Branch</pre> requires some work. 
+A <pre class="code">Branch</pre> value should only be equal to other <pre class="code">Branch</pre> values, 
+and only if the two values have equal <pre class="code">elem</pre>, <pre class="code">left</pre> and <pre class="code">right</pre> fields.
+It's natural to apply the schema for <pre class="code">equals</pre> that was developed in the 
 previous sections of this chapter. This would give you:</p>
 
 <pre>
@@ -837,8 +837,8 @@ previous sections of this chapter. This would give you:</p>
 
 
 <p>Compiling this example, however, gives an indication that
-"<span class="code">unchecked</span>" warnings occurred. Compiling again with the
-<span class="code">-unchecked</span> option reveals the following problem:<a id="i-1285804133-1"/></p>
+"<pre class="code">unchecked</pre>" warnings occurred. Compiling again with the
+<pre class="code">-unchecked</pre> option reveals the following problem:<a id="i-1285804133-1"/></p>
 
 <pre>
   &nbsp;$&nbsp;fsc&nbsp;-unchecked&nbsp;Tree.scala
@@ -849,20 +849,20 @@ previous sections of this chapter. This would give you:</p>
 </pre>
 
 
-<p>As the warning says, there is a pattern match against a <span class="code">Branch[T]</span> type,
-yet the system can only check that the <span class="code">other</span> reference is (some
-kind of) <span class="code">Branch</span>; it cannot check that the element type of the tree
-is <span class="code">T</span>.  You encountered in <a href="type-parameterization.html">Chapter 19</a> the 
+<p>As the warning says, there is a pattern match against a <pre class="code">Branch[T]</pre> type,
+yet the system can only check that the <pre class="code">other</pre> reference is (some
+kind of) <pre class="code">Branch</pre>; it cannot check that the element type of the tree
+is <pre class="code">T</pre>.  You encountered in <a href="type-parameterization.html">Chapter 19</a> the 
 reason for this: Element types of parameterized types are eliminated 
 by the compiler's erasure phase; they are not available to be inspected 
 at run-time.<a id="i-237149939-1"/><a id="i101369192-1"/><a id="i-735891161-1"/></p>
 
 <p>So what can you do? Fortunately, it turns out that you need not necessarily check
-that two <span class="code">Branch</span>es have the same element types when comparing them. It's
-quite possible that two <span class="code">Branch</span>es with different element types are
+that two <pre class="code">Branch</pre>es have the same element types when comparing them. It's
+quite possible that two <pre class="code">Branch</pre>es with different element types are
 equal, as long as their fields are the same. A simple example 
-of this would be the <span class="code">Branch</span> that consists of a single <span class="code">Nil</span> element
-and two empty subtrees. It's plausible to consider any two such <span class="code">Branch</span>es
+of this would be the <pre class="code">Branch</pre> that consists of a single <pre class="code">Nil</pre> element
+and two empty subtrees. It's plausible to consider any two such <pre class="code">Branch</pre>es
 to be equal, no matter what static types they have:</p>
 
 <pre>
@@ -877,24 +877,24 @@ to be equal, no matter what static types they have:</p>
 </pre>
 
 
-<p>The positive result of the comparison above was obtained with the implementation of <span class="code">equals</span> on <span class="code">Branch</span> shown
+<p>The positive result of the comparison above was obtained with the implementation of <pre class="code">equals</pre> on <pre class="code">Branch</pre> shown
 previously. This demonstrates that
-the element type of the <span class="code">Branch</span> was not checked&mdash;if it had been
-checked, the result would have been <span class="code">false</span>.</p>
+the element type of the <pre class="code">Branch</pre> was not checked&mdash;if it had been
+checked, the result would have been <pre class="code">false</pre>.</p>
 
 <p>We can disagree on which of the two possible outcomes of the
 comparison would be more natural. In the end, this depends on the
 mental model of how classes are represented. In a model where
 type-parameters are present only at compile-time, it's natural to
-consider the two <span class="code">Branch</span> values <span class="code">b1</span> and <span class="code">b2</span> to be equal. In
+consider the two <pre class="code">Branch</pre> values <pre class="code">b1</pre> and <pre class="code">b2</pre> to be equal. In
 an alternative model where a type parameter forms part of an object's
 value, it's equally natural to consider them different. Since Scala
 adopts the type erasure model, type parameters are not preserved at
-run time, so that <span class="code">b1</span> and <span class="code">b2</span> are naturally considered to be equal.</p>
+run time, so that <pre class="code">b1</pre> and <pre class="code">b2</pre> are naturally considered to be equal.</p>
 
-<p>There's only a tiny change needed to formulate an <span class="code">equals</span> method
-that does not produce an <span class="code">unchecked</span> warning. Instead of 
-an element type <span class="code">T</span>, use a lower case letter, such as <span class="code">t</span>:</p>
+<p>There's only a tiny change needed to formulate an <pre class="code">equals</pre> method
+that does not produce an <pre class="code">unchecked</pre> warning. Instead of 
+an element type <pre class="code">T</pre>, use a lower case letter, such as <pre class="code">t</pre>:</p>
 
 <pre>
   <code class="vem">case</code>&nbsp;that:&nbsp;<code class="typename">Branch[t]</code>&nbsp;=&gt;&nbsp;<code class="vem">this</code>.elem&nbsp;==&nbsp;that.elem&nbsp;&amp;&amp;&nbsp;
@@ -912,8 +912,8 @@ represents an unknown type. Now the pattern match:</p>
 </pre>
 
 
-<p>will succeed for <span class="code">Branch</span> values of any type. The type parameter <span class="code">t</span>
-represents the unknown element type of the <span class="code">Branch</span>. It can also be replaced
+<p>will succeed for <pre class="code">Branch</pre> values of any type. The type parameter <pre class="code">t</pre>
+represents the unknown element type of the <pre class="code">Branch</pre>. It can also be replaced
 by an underscore, as in the following case, which is equivalent 
 to the previous one:</p>
 
@@ -923,9 +923,9 @@ to the previous one:</p>
 
 
 <p>The only thing that remains is
-to define for class <span class="code">Branch</span> 
-the other two methods, <span class="code">hashCode</span> and <span class="code">canEqual</span>, which go with <span class="code">equals</span>.
-Here's a possible implementation of <span class="code">hashCode</span>:</p>
+to define for class <pre class="code">Branch</pre> 
+the other two methods, <pre class="code">hashCode</pre> and <pre class="code">canEqual</pre>, which go with <pre class="code">equals</pre>.
+Here's a possible implementation of <pre class="code">hashCode</pre>:</p>
 
 <pre>
   <code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;hashCode:&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;(elem,&nbsp;left,&nbsp;right).##
@@ -933,8 +933,8 @@ Here's a possible implementation of <span class="code">hashCode</span>:</p>
 
 
 <p>This is only one of many possible implementations. As shown previously,
-the principle is to take <span class="code">hashCode</span> values of all fields and combine them.
-Here's an implementation of method <span class="code">canEqual</span> in class <span class="code">Branch</span>:</p>
+the principle is to take <pre class="code">hashCode</pre> values of all fields and combine them.
+Here's an implementation of method <pre class="code">canEqual</pre> in class <pre class="code">Branch</pre>:</p>
 
 <pre>
   <code class="vem">def</code>&nbsp;canEqual(other:&nbsp;<code class="typename">Any</code>)&nbsp;=&nbsp;other&nbsp;<code class="vem">match</code>&nbsp;{
@@ -944,8 +944,8 @@ Here's an implementation of method <span class="code">canEqual</span> in class <
 </pre>
 
 
-<p>The implementation of the <span class="code">canEqual</span> method used a typed pattern match.
-It would also be possible to formulate it with <span class="code">isInstanceOf</span>:</p>
+<p>The implementation of the <pre class="code">canEqual</pre> method used a typed pattern match.
+It would also be possible to formulate it with <pre class="code">isInstanceOf</pre>:</p>
 
 <pre>
   <code class="vem">def</code>&nbsp;canEqual(other:&nbsp;<code class="typename">Any</code>)&nbsp;=&nbsp;other.isInstanceOf[<code class="typename">Branch[_]</code>]
@@ -953,18 +953,18 @@ It would also be possible to formulate it with <span class="code">isInstanceOf</
 
 
 <p>If you feel like nit-picking&mdash;and we encourage you to do so!&mdash;you might wonder what the occurrence of
-the underscore in the type above signifies. After all, <span class="code">Branch[_]</span> is
+the underscore in the type above signifies. After all, <pre class="code">Branch[_]</pre> is
 technically a type parameter of a method, not a type pattern. So how
 is it possible to leave some parts of it undefined?<a id="i1628802775-1"/></p>
 
 <p>The answer to
-this question is discussed in the next chapter. <span class="code">Branch[_]</span> is shorthand for a so-called <span style="font-style:italic">wildcard
+this question is discussed in the next chapter. <pre class="code">Branch[_]</pre> is shorthand for a so-called <span style="font-style:italic">wildcard
 type</span>,<a id="i1056209851-1"/><a id="i165566131-1"/> which is, roughly speaking, 
 a type with some unknown parts in it. So even though technically the 
 underscore stands for two different things in a pattern match 
 and in a type parameter of a method call, in essence, the meaning
 is the same: It lets you label something that is unknown. The final version
-of <span class="code">Branch</span> is shown in <a href="object-equality.html#lst-a-good-branch">Listing 30.4</a>.</p>
+of <pre class="code">Branch</pre> is shown in <a href="object-equality.html#lst-a-good-branch">Listing 30.4</a>.</p>
 
 <p><a id="lst-a-good-branch"/></p>
 
@@ -987,38 +987,38 @@ of <span class="code">Branch</span> is shown in <a href="object-equality.html#ls
 </pre>
 
 
-<h5>Listing 30.4 - A parameterized type with <span class="code">equals</span> and <span class="code">hashCode</span>.</h5>
+<h5>Listing 30.4 - A parameterized type with <pre class="code">equals</pre> and <pre class="code">hashCode</pre>.</h5>
 
 
-<h3>30.4 Recipes for <span class="code">equals</span> and <span class="code">hashCode</span></h3>
+<h3>30.4 Recipes for <pre class="code">equals</pre> and <pre class="code">hashCode</pre></h3>
 
 
-<p>In this section, we'll provide step-by-step recipes for creating <span class="code">equals</span> and <span class="code">hashCode</span> methods that
+<p>In this section, we'll provide step-by-step recipes for creating <pre class="code">equals</pre> and <pre class="code">hashCode</pre> methods that
 should suffice for most situations.  As an illustration, we'll use the methods of
-class <span class="code">Rational</span>, shown in <a href="object-equality.html#lst-rational-equals-hashcode">Listing 30.5</a>.</p>
+class <pre class="code">Rational</pre>, shown in <a href="object-equality.html#lst-rational-equals-hashcode">Listing 30.5</a>.</p>
 
 <p>To create this class, we removed the mathematical operator methods from the version
-of class <span class="code">Rational</span> shown in <a href="functional-objects.html#lst-overloaded-methods">Listing 6.5</a>  <a href="functional-objects.html#lst-overloaded-methods">here</a>.
-We also made a minor enhancement to <span class="code">toString</span>, and modified the initializers of <span class="code">numer</span> and <span class="code">denom</span> to normalize all
+of class <pre class="code">Rational</pre> shown in <a href="functional-objects.html#lst-overloaded-methods">Listing 6.5</a>  <a href="functional-objects.html#lst-overloaded-methods">here</a>.
+We also made a minor enhancement to <pre class="code">toString</pre>, and modified the initializers of <pre class="code">numer</pre> and <pre class="code">denom</pre> to normalize all
 fractions to have a positive denominator (<i>i.e.</i>, to transform <sup>1</sup>/<sub>-2</sub> to <sup>-1</sup>/<sub>2</sub>).</p>
 
-<h4>Recipe for <span class="code">equals</span></h4>
+<h4>Recipe for <pre class="code">equals</pre></h4>
 
 
-<p>Here's the recipe for overriding <span class="code">equals</span>:<a id="i-145701109-1"/></p>
+<p>Here's the recipe for overriding <pre class="code">equals</pre>:<a id="i-145701109-1"/></p>
 
 <ol>
 
 
-<li>To override <span class="code">equals</span> in a non-final class, create a <span class="code">canEqual</span> method.
-If the inherited definition of <span class="code">equals</span> is from <span class="code">AnyRef</span> (that is,
-<span class="code">equals</span> was not redefined higher up in the class hierarchy), the
-definition of <span class="code">canEqual</span> should be new; otherwise, it will override a
+<li>To override <pre class="code">equals</pre> in a non-final class, create a <pre class="code">canEqual</pre> method.
+If the inherited definition of <pre class="code">equals</pre> is from <pre class="code">AnyRef</pre> (that is,
+<pre class="code">equals</pre> was not redefined higher up in the class hierarchy), the
+definition of <pre class="code">canEqual</pre> should be new; otherwise, it will override a
 previous definition of a method with the same name.
 The only exception to this requirement is for final classes that redefine 
-the <span class="code">equals</span> method inherited from <span class="code">AnyRef</span>. For them the subclass
+the <pre class="code">equals</pre> method inherited from <pre class="code">AnyRef</pre>. For them the subclass
 anomalies described in <a href="object-equality.html#sec-writing-an-equality-method">Section 30.2</a> cannot arise; consequently
-they need not define <span class="code">canEqual</span>. The type of object passed to <span class="code">canEqual</span> should be <span class="code">Any</span>:
+they need not define <pre class="code">canEqual</pre>. The type of object passed to <pre class="code">canEqual</pre> should be <pre class="code">Any</pre>:
 
 
 <pre>
@@ -1028,8 +1028,8 @@ they need not define <span class="code">canEqual</span>. The type of object pass
 
 </li>
 <li>
-The <span class="code">canEqual</span> method should yield <span class="code">true</span> if the argument object is an instance
-of the current class (<i>i.e.</i>, the class in which <span class="code">canEqual</span> is defined), and <span class="code">false</span> otherwise:
+The <pre class="code">canEqual</pre> method should yield <pre class="code">true</pre> if the argument object is an instance
+of the current class (<i>i.e.</i>, the class in which <pre class="code">canEqual</pre> is defined), and <pre class="code">false</pre> otherwise:
 
 
 <pre>
@@ -1038,7 +1038,7 @@ of the current class (<i>i.e.</i>, the class in which <span class="code">canEqua
 
 
 </li>
-<li>In the <span class="code">equals</span> method, make sure you declare the type of the object passed as an <span class="code">Any</span>:
+<li>In the <pre class="code">equals</pre> method, make sure you declare the type of the object passed as an <pre class="code">Any</pre>:
 
 
 <pre>
@@ -1048,8 +1048,8 @@ of the current class (<i>i.e.</i>, the class in which <span class="code">canEqua
 
 </li>
 <li>
-Write the body of the <span class="code">equals</span> method as a single <span class="code">match</span> expression. The selector of the <span class="code">match</span> should be the
-object passed to <span class="code">equals</span>:
+Write the body of the <pre class="code">equals</pre> method as a single <pre class="code">match</pre> expression. The selector of the <pre class="code">match</pre> should be the
+object passed to <pre class="code">equals</pre>:
 
 
 <pre>
@@ -1061,8 +1061,8 @@ object passed to <span class="code">equals</span>:
 
 </li>
 <li>
-The <span class="code">match</span> expression should have two cases. The first case should declare a typed pattern for the type
-of the class on which you're defining the <span class="code">equals</span> method:
+The <pre class="code">match</pre> expression should have two cases. The first case should declare a typed pattern for the type
+of the class on which you're defining the <pre class="code">equals</pre> method:
 
 
 <pre>
@@ -1073,8 +1073,8 @@ of the class on which you're defining the <span class="code">equals</span> metho
 </li>
 <li>
 In the body of this case, write an expression that logical-ands together the individual expressions that must be true
-for the objects to be equal. If the <span class="code">equals</span> method you are overriding is not that of <span class="code">AnyRef</span>, you will most likely
-want to include an invocation of the superclass's <span class="code">equals</span> method:
+for the objects to be equal. If the <pre class="code">equals</pre> method you are overriding is not that of <pre class="code">AnyRef</pre>, you will most likely
+want to include an invocation of the superclass's <pre class="code">equals</pre> method:
 
 
 <pre>
@@ -1082,16 +1082,16 @@ want to include an invocation of the superclass's <span class="code">equals</spa
 </pre>
 
 
-<p>If you are defining <span class="code">equals</span> for a class that first introduced <span class="code">canEqual</span>, you should invoke <span class="code">canEqual</span> on the
-argument to the equality method, passing <span class="code">this</span> as the argument:</p>
+<p>If you are defining <pre class="code">equals</pre> for a class that first introduced <pre class="code">canEqual</pre>, you should invoke <pre class="code">canEqual</pre> on the
+argument to the equality method, passing <pre class="code">this</pre> as the argument:</p>
 
 <pre>
   (that&nbsp;canEqual&nbsp;<code class="vem">this</code>)&nbsp;&amp;&amp;
 </pre>
 
 
-<p>Overriding redefinitions of <span class="code">equals</span> should also include the <span class="code">canEqual</span> invocation, unless they contain 
-a call to <span class="code">super.equals</span>. In the latter case, the <span class="code">canEqual</span> test will already be
+<p>Overriding redefinitions of <pre class="code">equals</pre> should also include the <pre class="code">canEqual</pre> invocation, unless they contain 
+a call to <pre class="code">super.equals</pre>. In the latter case, the <pre class="code">canEqual</pre> test will already be
 done by the superclass call.
 Lastly, for each field relevant to equality, verify that the field in this object is equal to the corresponding field in the passed object:</p>
 
@@ -1114,8 +1114,8 @@ For the second case, use a wildcard pattern that yields false:
 </li></ol>
 
 
-<p>If you adhere to this recipe for <span class="code">equals</span>, equality is guaranteed to be an equivalence relation, as
-is required by the <span class="code">equals</span> contract.</p>
+<p>If you adhere to this recipe for <pre class="code">equals</pre>, equality is guaranteed to be an equivalence relation, as
+is required by the <pre class="code">equals</pre> contract.</p>
 
 <p><a id="lst-rational-equals-hashcode"/></p>
 
@@ -1144,26 +1144,26 @@ is required by the <span class="code">equals</span> contract.</p>
 </pre>
 
 
-<h5>Listing 30.5 - Class <span class="code">Rational</span> with <span class="code">equals</span> and <span class="code">hashCode</span>.</h5>
+<h5>Listing 30.5 - Class <pre class="code">Rational</pre> with <pre class="code">equals</pre> and <pre class="code">hashCode</pre>.</h5>
 
 
-<h4>Recipe for <span class="code">hashCode</span></h4>
+<h4>Recipe for <pre class="code">hashCode</pre></h4>
 
 
-<p>For <span class="code">hashCode</span>, you can usually achieve satisfactory results if you use the following recipe, which<a id="i-1457981337-1"/>
+<p>For <pre class="code">hashCode</pre>, you can usually achieve satisfactory results if you use the following recipe, which<a id="i-1457981337-1"/>
 is similar to a recipe recommended for Java classes in <em>Effective Java</em>.<a href="object-equality.html#footnotemain30-8">[8]</a>
-Include in the calculation each field in your object that is used to determine equality in the <span class="code">equals</span> method (the "relevant" fields).
-Make a tuple containing the values of all those fields. Then, invoke <span class="code">##</span> on the resulting tuple.</p>
+Include in the calculation each field in your object that is used to determine equality in the <pre class="code">equals</pre> method (the "relevant" fields).
+Make a tuple containing the values of all those fields. Then, invoke <pre class="code">##</pre> on the resulting tuple.</p>
 
-<p>For example, to implement the hash code for an object that has five relevant fields named <span class="code">a</span>, <span class="code">b</span>, <span class="code">c</span>, <span class="code">d</span>, and <span class="code">e</span>, you would write:</p>
+<p>For example, to implement the hash code for an object that has five relevant fields named <pre class="code">a</pre>, <pre class="code">b</pre>, <pre class="code">c</pre>, <pre class="code">d</pre>, and <pre class="code">e</pre>, you would write:</p>
 
 <pre>
   <code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;hashCode:&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;(a,&nbsp;b,&nbsp;c,&nbsp;d,&nbsp;e).##
 </pre>
 
 
-<p>If the <span class="code">equals</span> method invokes <span class="code">super.equals(that)</span> as part of its calculation, you should start your <span class="code">hashCode</span> calculation with 
-an invocation of <span class="code">super.hashCode</span>. For example, had <span class="code">Rational</span>'s <span class="code">equals</span> method invoked <span class="code">super.equals(that)</span>, its <span class="code">hashCode</span> would
+<p>If the <pre class="code">equals</pre> method invokes <pre class="code">super.equals(that)</pre> as part of its calculation, you should start your <pre class="code">hashCode</pre> calculation with 
+an invocation of <pre class="code">super.hashCode</pre>. For example, had <pre class="code">Rational</pre>'s <pre class="code">equals</pre> method invoked <pre class="code">super.equals(that)</pre>, its <pre class="code">hashCode</pre> would
 have been:</p>
 
 <pre>
@@ -1171,22 +1171,22 @@ have been:</p>
 </pre>
 
 
-<p>One thing to keep in mind as you write <span class="code">hashCode</span> methods using this approach is that your hash code will
-only be as good as the hash codes you build out of it, namely the hash codes you obtain by calling <span class="code">hashCode</span> on
-the relevant fields of your object. Sometimes you may need to do something extra besides just calling <span class="code">hashCode</span>
+<p>One thing to keep in mind as you write <pre class="code">hashCode</pre> methods using this approach is that your hash code will
+only be as good as the hash codes you build out of it, namely the hash codes you obtain by calling <pre class="code">hashCode</pre> on
+the relevant fields of your object. Sometimes you may need to do something extra besides just calling <pre class="code">hashCode</pre>
 on the field to get a useful hash code for that field. For example, if one of your fields is a collection, you
 probably want a hash code for that field that is based on all the elements contained in the collection.
 If the
-field is a <span class="code">Vector</span>, <span class="code">List</span>, <span class="code">Set</span>, <span class="code">Map</span>, or tuple, you can simply include it in the list of items you are hashing
-over, because <span class="code">equals</span> and <span class="code">hashCode</span>
-are overridden in those classes to take into account the contained elements. However the same is not true for <span class="code">Array</span>s, which
+field is a <pre class="code">Vector</pre>, <pre class="code">List</pre>, <pre class="code">Set</pre>, <pre class="code">Map</pre>, or tuple, you can simply include it in the list of items you are hashing
+over, because <pre class="code">equals</pre> and <pre class="code">hashCode</pre>
+are overridden in those classes to take into account the contained elements. However the same is not true for <pre class="code">Array</pre>s, which
 do not take elements into account when calculating a hash code. Thus for an array, you should treat each element of the
-array like an individual field of your object, calling <span class="code">##</span> on each element explicitly or passing the array to
-one of the <span class="code">hashCode</span> methods in singleton object <span class="code">java.util.Arrays</span>.</p>
+array like an individual field of your object, calling <pre class="code">##</pre> on each element explicitly or passing the array to
+one of the <pre class="code">hashCode</pre> methods in singleton object <pre class="code">java.util.Arrays</pre>.</p>
 
 <p>Lastly, if you find that a particular hash code calculation is harming the performance of your program, consider caching the hash code. If the object is immutable, you can calculate the hash
-code when the object is created and store it in a field. You can do this by simply overriding <span class="code">hashCode</span> with a <span class="code">val</span>
-instead of a <span class="code">def</span>, like this:<a id="i1757872331-1"/></p>
+code when the object is created and store it in a field. You can do this by simply overriding <pre class="code">hashCode</pre> with a <pre class="code">val</pre>
+instead of a <pre class="code">def</pre>, like this:<a id="i1757872331-1"/></p>
 
 <pre>
   <code class="vem">override</code>&nbsp;<code class="vem">val</code>&nbsp;hashCode:&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;(numer,&nbsp;denom).##
@@ -1199,17 +1199,17 @@ more field to hold the cached hash code value.</p>
 <h3>30.5 Conclusion</h3>
 
 
-<p>In retrospect, defining a correct implementation of <span class="code">equals</span> has been
+<p>In retrospect, defining a correct implementation of <pre class="code">equals</pre> has been
 surprisingly subtle.  You must be careful about the type signature;
-you must override <span class="code">hashCode</span>; you should avoid dependencies on
-mutable state; and you should implement and use a <span class="code">canEqual</span>
+you must override <pre class="code">hashCode</pre>; you should avoid dependencies on
+mutable state; and you should implement and use a <pre class="code">canEqual</pre>
 method if your class is non-final.</p>
 
 <p>Given how difficult it is to
 implement a correct equality method, you might prefer to define your
 classes of comparable objects as case classes.
 That way, the Scala
-compiler will add <span class="code">equals</span> and <span class="code">hashCode</span> methods with the right properties
+compiler will add <pre class="code">equals</pre> and <pre class="code">hashCode</pre> methods with the right properties
 automatically.</p>
 
 <hr/>
@@ -1223,17 +1223,17 @@ the book, <em>Effective Java Second Edition</em>, by Joshua
 Bloch.<a id="i-64318620-1"/><a id="i186753339-1"/>  <a href="bibliography.html#bloch-effective-java">[Blo08]</a></p>
 
 <p><a id="footnotemain30-3"/>[3] If you write a lot of Java, you might expect
-the argument to this method to be type <span class="code">Object</span> instead of type
-<span class="code">Any</span>.  Don't worry about it; it is the same <span class="code">equals</span>
-method.  The compiler simply makes it appear to have type <span class="code">Any</span>.</p>
+the argument to this method to be type <pre class="code">Object</pre> instead of type
+<pre class="code">Any</pre>.  Don't worry about it; it is the same <pre class="code">equals</pre>
+method.  The compiler simply makes it appear to have type <pre class="code">Any</pre>.</p>
 
-<p><a id="footnotemain30-4"/>[4] The text of <span class="code">Any</span>'s <span class="code">hashCode</span>
-contract is inspired by the Javadoc documentation of class <span class="code">java.lang.Object</span>.</p>
+<p><a id="footnotemain30-4"/>[4] The text of <pre class="code">Any</pre>'s <pre class="code">hashCode</pre>
+contract is inspired by the Javadoc documentation of class <pre class="code">java.lang.Object</pre>.</p>
 
-<p><a id="footnotemain30-5"/>[5] As with <span class="code">hashCode</span>,
-<span class="code">Any</span>'s <span class="code">equals</span> method contract is based on <span class="code">java.lang.Object</span>'s <span class="code">equals</span> method contract.</p>
+<p><a id="footnotemain30-5"/>[5] As with <pre class="code">hashCode</pre>,
+<pre class="code">Any</pre>'s <pre class="code">equals</pre> method contract is based on <pre class="code">java.lang.Object</pre>'s <pre class="code">equals</pre> method contract.</p>
 
-<p><a id="footnotemain30-6"/>[6] Given the new implementation of <span class="code">equals</span> in <span class="code">Point</span>, this version of <span class="code">ColoredPoint</span> no longer violates the symmetry requirement.</p>
+<p><a id="footnotemain30-6"/>[6] Given the new implementation of <pre class="code">equals</pre> in <pre class="code">Point</pre>, this version of <pre class="code">ColoredPoint</pre> no longer violates the symmetry requirement.</p>
 
 <p><a id="footnotemain30-7"/>[7] Bloch, <em>Effective Java Second Edition</em>,
 p. 39  <a href="bibliography.html#bloch-effective-java">[Blo08]</a><a id="i-64318620-2"/><a id="i166435877-1"/></p>

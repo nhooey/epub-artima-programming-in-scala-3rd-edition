@@ -40,9 +40,9 @@ they support.</p>
 
 
 <p>Almost all collection operations are implemented in terms of <span style="font-style:italic">traversals</span> and
-<span style="font-style:italic">builders</span>. Traversals are handled by <span class="code">Traversable</span>'s <span class="code">foreach</span> method,
+<span style="font-style:italic">builders</span>. Traversals are handled by <pre class="code">Traversable</pre>'s <pre class="code">foreach</pre> method,
 and building new collections is handled by instances of class
-<span class="code">Builder</span>. <a href="the-architecture-of-scala-collections.html#lst-builder">Listing 25.1</a> presents a slightly abbreviated outline 
+<pre class="code">Builder</pre>. <a href="the-architecture-of-scala-collections.html#lst-builder">Listing 25.1</a> presents a slightly abbreviated outline 
 of this class.</p>
 
 <p><a id="lst-builder"/></p>
@@ -59,27 +59,27 @@ of this class.</p>
 </pre>
 
 
-<h5>Listing 25.1 - An outline of the <span class="code">Builder</span> class.</h5>
+<h5>Listing 25.1 - An outline of the <pre class="code">Builder</pre> class.</h5>
 
 
-<p>You can add an element <span class="code">x</span> to a builder <span class="code">b</span> with <span class="code">b</span>&nbsp;<span class="code">+=</span>&nbsp;<span class="code">x</span>. 
+<p>You can add an element <pre class="code">x</pre> to a builder <pre class="code">b</pre> with <pre class="code">b</pre>&nbsp;<pre class="code">+=</pre>&nbsp;<pre class="code">x</pre>. 
 There's also syntax to add more than one element at once: For
-instance, <span class="code">b</span>&nbsp;<span class="code">+=</span>&nbsp;<span class="code">(x,</span>&nbsp;<span class="code">y)</span> and <span class="code">b</span>&nbsp;<span class="code">++=</span>&nbsp;<span class="code">xs</span> work as for buffers. (In fact, 
+instance, <pre class="code">b</pre>&nbsp;<pre class="code">+=</pre>&nbsp;<pre class="code">(x,</pre>&nbsp;<pre class="code">y)</pre> and <pre class="code">b</pre>&nbsp;<pre class="code">++=</pre>&nbsp;<pre class="code">xs</pre> work as for buffers. (In fact, 
 buffers are an enriched version of builders.)
-The <span class="code">result()</span> method returns a collection from a builder.
+The <pre class="code">result()</pre> method returns a collection from a builder.
 The state of the builder is undefined after taking its result, but it
-can be reset into a new empty state using <span class="code">clear()</span>.
-Builders are generic in both the element type, <span class="code">Elem</span>, and in the type, <span class="code">To</span>,
+can be reset into a new empty state using <pre class="code">clear()</pre>.
+Builders are generic in both the element type, <pre class="code">Elem</pre>, and in the type, <pre class="code">To</pre>,
 of collections they return.</p>
 
 <p>Often, a builder can refer to some other builder for assembling the
 elements of a collection, but then would like to transform the result
 of the other builder&mdash;for example, to give it a different type. This task is
-simplified by method <span class="code">mapResult</span> in class <span class="code">Builder</span>. Suppose for
-instance you have an array buffer <span class="code">buf</span>. Array buffers are builders
-for themselves, so taking the <span class="code">result()</span> of an array buffer will
+simplified by method <pre class="code">mapResult</pre> in class <pre class="code">Builder</pre>. Suppose for
+instance you have an array buffer <pre class="code">buf</pre>. Array buffers are builders
+for themselves, so taking the <pre class="code">result()</pre> of an array buffer will
 return the same buffer. If you want to use this buffer to produce a
-builder that builds arrays, you can use <span class="code">mapResult</span>:</p>
+builder that builds arrays, you can use <pre class="code">mapResult</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;buf&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">ArrayBuffer[Int]</code>
@@ -90,11 +90,11 @@ builder that builds arrays, you can use <span class="code">mapResult</span>:</p>
 </pre>
 
 
-<p>The result value, <span class="code">bldr</span>, is a builder that uses the array buffer,
-<span class="code">buf</span>, to collect elements. When a result is demanded from <span class="code">bldr</span>, the result of <span class="code">buf</span> 
-is computed, which yields the array buffer <span class="code">buf</span> itself. This array buffer is then
-mapped with <span class="code">_.toArray</span> to an array. So the end result is that 
-<span class="code">bldr</span> is a builder for arrays.</p>
+<p>The result value, <pre class="code">bldr</pre>, is a builder that uses the array buffer,
+<pre class="code">buf</pre>, to collect elements. When a result is demanded from <pre class="code">bldr</pre>, the result of <pre class="code">buf</pre> 
+is computed, which yields the array buffer <pre class="code">buf</pre> itself. This array buffer is then
+mapped with <pre class="code">_.toArray</pre> to an array. So the end result is that 
+<pre class="code">bldr</pre> is a builder for arrays.</p>
 
 <h3 id="sec-factoring">25.2 Factoring out common operations</h3>
 
@@ -103,10 +103,10 @@ mapped with <span class="code">_.toArray</span> to an array. So the end result i
 have, at the same time, natural types and maximal sharing of implementation code. In
 particular, Scala's collections follow the "same-result-type"
 principle: Wherever possible, a transformation method on a collection
-will yield a collection of the same type. For instance, the <span class="code">filter</span>
+will yield a collection of the same type. For instance, the <pre class="code">filter</pre>
 operation should yield, on every collection type, an instance of the
-same collection type. Applying <span class="code">filter</span> on a <span class="code">List</span> should give a <span class="code">List</span>; 
-applying it on a <span class="code">Map</span> should give a <span class="code">Map</span>; and so on.
+same collection type. Applying <pre class="code">filter</pre> on a <pre class="code">List</pre> should give a <pre class="code">List</pre>; 
+applying it on a <pre class="code">Map</pre> should give a <pre class="code">Map</pre>; and so on.
 In the rest of this section,
 you will find out how this is achieved.</p>
 
@@ -127,31 +127,31 @@ classes in the framework.</p>
 <p>The Scala collection library avoids code duplication and achieves the
 "same-result-type" principle by using generic builders and
 traversals over collections in so-called <em>implementation traits</em>.<a id="i173047719-1"/><a id="i247652435-1"/> These
-traits are named with a <span class="code">Like</span> suffix; for instance,
-<span class="code">IndexedSeqLike</span> is the implementation trait for <span class="code">IndexedSeq</span>,<a id="i1408079579-1"/> and similarly,
-<span class="code">TraversableLike</span> is the implementation trait for
-<span class="code">Traversable</span>.<a id="i1464143996-1"/> Collection classes such as <span class="code">Traversable</span> or
-<span class="code">IndexedSeq</span> inherit all their concrete method implementations from
+traits are named with a <pre class="code">Like</pre> suffix; for instance,
+<pre class="code">IndexedSeqLike</pre> is the implementation trait for <pre class="code">IndexedSeq</pre>,<a id="i1408079579-1"/> and similarly,
+<pre class="code">TraversableLike</pre> is the implementation trait for
+<pre class="code">Traversable</pre>.<a id="i1464143996-1"/> Collection classes such as <pre class="code">Traversable</pre> or
+<pre class="code">IndexedSeq</pre> inherit all their concrete method implementations from
 these traits.  Implementation traits have two type parameters instead
 of one for normal collections.  They parameterize not only over the
 collection's element type, but also over the 
 collection's <span style="font-style:italic">representation type</span> (<i>i.e.</i>,
-the type of the underlying collection), such as <span class="code">Seq[I]</span> or <span class="code">List[T]</span>.</p>
+the type of the underlying collection), such as <pre class="code">Seq[I]</pre> or <pre class="code">List[T]</pre>.</p>
 
 <p>For instance, here is the header of trait
-<span class="code">TraversableLike</span>:</p>
+<pre class="code">TraversableLike</pre>:</p>
 
 <pre>
   <code class="vem">trait</code>&nbsp;<code class="typename">TraversableLike[+Elem,&nbsp;+Repr]</code>&nbsp;{&nbsp;...&nbsp;}
 </pre>
 
 
-<p>The type parameter, <span class="code">Elem</span>, stands for the element type of the
-traversable whereas the type parameter <span class="code">Repr</span> stands for its
-representation. There are no constraints on <span class="code">Repr</span>. In particular
-<span class="code">Repr</span> might be instantiated to a type that is itself not a subtype
-of <span class="code">Traversable</span>. That way, classes outside the collections hierarchy,
-such as <span class="code">String</span> and <span class="code">Array</span>, can still make use of all operations
+<p>The type parameter, <pre class="code">Elem</pre>, stands for the element type of the
+traversable whereas the type parameter <pre class="code">Repr</pre> stands for its
+representation. There are no constraints on <pre class="code">Repr</pre>. In particular
+<pre class="code">Repr</pre> might be instantiated to a type that is itself not a subtype
+of <pre class="code">Traversable</pre>. That way, classes outside the collections hierarchy,
+such as <pre class="code">String</pre> and <pre class="code">Array</pre>, can still make use of all operations
 defined in a collection implementation trait.</p>
 
 <p><a id="lst-TraversableLike"/></p>
@@ -171,37 +171,37 @@ defined in a collection implementation trait.</p>
 </pre>
 
 
-<h5>Listing 25.2 - Implementation of <span class="code">filter</span> in <span class="code">TraversableLike</span>.</h5>
+<h5>Listing 25.2 - Implementation of <pre class="code">filter</pre> in <pre class="code">TraversableLike</pre>.</h5>
 
 
-<p>Taking <span class="code">filter</span> as an example, this operation is defined once for all
-collection classes in the trait <span class="code">TraversableLike</span>. An outline of the
+<p>Taking <pre class="code">filter</pre> as an example, this operation is defined once for all
+collection classes in the trait <pre class="code">TraversableLike</pre>. An outline of the
 relevant code is shown in <a href="the-architecture-of-scala-collections.html#lst-TraversableLike">Listing 25.2</a>. The
-trait declares two abstract methods, <span class="code">newBuilder</span> and <span class="code">foreach</span>,
-which are implemented in concrete collection classes. The <span class="code">filter</span>
+trait declares two abstract methods, <pre class="code">newBuilder</pre> and <pre class="code">foreach</pre>,
+which are implemented in concrete collection classes. The <pre class="code">filter</pre>
 operation is implemented in the same way for all collections using
 these methods. It first constructs a new builder for the
-representation type <span class="code">Repr</span>, using <span class="code">newBuilder</span>. It then traverses
-all elements of the current collection, using <span class="code">foreach</span>. If an
-element <span class="code">x</span> satisfies the given predicate <span class="code">p</span>&mdash;<i>i.e.</i>, <span class="code">p(x)</span> is
-<span class="code">true</span>&mdash;it is added with the builder.  Finally, the elements
-collected in the builder are returned as an instance of the <span class="code">Repr</span>
-collection type by calling the builder's <span class="code">result</span> method.</p>
+representation type <pre class="code">Repr</pre>, using <pre class="code">newBuilder</pre>. It then traverses
+all elements of the current collection, using <pre class="code">foreach</pre>. If an
+element <pre class="code">x</pre> satisfies the given predicate <pre class="code">p</pre>&mdash;<i>i.e.</i>, <pre class="code">p(x)</pre> is
+<pre class="code">true</pre>&mdash;it is added with the builder.  Finally, the elements
+collected in the builder are returned as an instance of the <pre class="code">Repr</pre>
+collection type by calling the builder's <pre class="code">result</pre> method.</p>
 
-<p>The <span class="code">map</span> operation on collections is a bit more complicated. For
-instance, if <span class="code">f</span> is a function from <span class="code">String</span> to <span class="code">Int</span>, and <span class="code">xs</span> is
-a <span class="code">List[String]</span>, then <span class="code">xs</span>&nbsp;<span class="code">map</span>&nbsp;<span class="code">f</span> should give a
-<span class="code">List[Int]</span>. Likewise, if <span class="code">ys</span> is an <span class="code">Array[String]</span>, then 
-<span class="code">ys</span>&nbsp;<span class="code">map</span>&nbsp;<span class="code">f</span> should give a <span class="code">Array[Int]</span>. But how do you achieve that
-without duplicating the definition of the <span class="code">map</span> method in lists and
+<p>The <pre class="code">map</pre> operation on collections is a bit more complicated. For
+instance, if <pre class="code">f</pre> is a function from <pre class="code">String</pre> to <pre class="code">Int</pre>, and <pre class="code">xs</pre> is
+a <pre class="code">List[String]</pre>, then <pre class="code">xs</pre>&nbsp;<pre class="code">map</pre>&nbsp;<pre class="code">f</pre> should give a
+<pre class="code">List[Int]</pre>. Likewise, if <pre class="code">ys</pre> is an <pre class="code">Array[String]</pre>, then 
+<pre class="code">ys</pre>&nbsp;<pre class="code">map</pre>&nbsp;<pre class="code">f</pre> should give a <pre class="code">Array[Int]</pre>. But how do you achieve that
+without duplicating the definition of the <pre class="code">map</pre> method in lists and
 arrays?</p>
 
-<p>The <span class="code">newBuilder</span>/<span class="code">foreach</span> framework shown in
+<p>The <pre class="code">newBuilder</pre>/<pre class="code">foreach</pre> framework shown in
 <a href="the-architecture-of-scala-collections.html#lst-TraversableLike">Listing 25.2</a> is not sufficient for this
 because it only allows creation of new instances of the same collection
-<span style="font-style:italic">type</span>, whereas <span class="code">map</span> needs an instance of the same collection
+<span style="font-style:italic">type</span>, whereas <pre class="code">map</pre> needs an instance of the same collection
 <span style="font-style:italic">type constructor</span> but possibly with a different element type. What's more, even the result type constructor of a function like
-<span class="code">map</span> might depend, in non-trivial ways, on the other argument
+<pre class="code">map</pre> might depend, in non-trivial ways, on the other argument
 types. Here is an example:</p>
 
 <pre>
@@ -217,18 +217,18 @@ types. Here is an example:</p>
 </pre>
 
 
-<p>If you <span class="code">map</span> the doubling function <span class="code">_</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">2</span> over a bit set you 
-obtain another bit set. However, if you map the function <span class="code">(_.toFloat)</span>
-over the same bit set, the result is a general <span class="code">Set[Float]</span>. Of course, 
-it can't be a bit set because bit sets contain <span class="code">Int</span>s, not <span class="code">Float</span>s.</p>
+<p>If you <pre class="code">map</pre> the doubling function <pre class="code">_</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">2</pre> over a bit set you 
+obtain another bit set. However, if you map the function <pre class="code">(_.toFloat)</pre>
+over the same bit set, the result is a general <pre class="code">Set[Float]</pre>. Of course, 
+it can't be a bit set because bit sets contain <pre class="code">Int</pre>s, not <pre class="code">Float</pre>s.</p>
 
-<p>Note that <span class="code">map</span>'s result type depends on the type of function that's
-passed to it. If the result type of that function argument is again an <span class="code">Int</span>, 
-the result of <span class="code">map</span> is a <span class="code">BitSet</span>. But if the result type of the function argument
-is something else, the result of <span class="code">map</span> is just a <span class="code">Set</span>. 
+<p>Note that <pre class="code">map</pre>'s result type depends on the type of function that's
+passed to it. If the result type of that function argument is again an <pre class="code">Int</pre>, 
+the result of <pre class="code">map</pre> is a <pre class="code">BitSet</pre>. But if the result type of the function argument
+is something else, the result of <pre class="code">map</pre> is just a <pre class="code">Set</pre>. 
 You'll find out soon how this type-flexibility is achieved in Scala.</p>
 
-<p>The problem with <span class="code">BitSet</span> is not an isolated case. Here are two more 
+<p>The problem with <pre class="code">BitSet</pre> is not an isolated case. Here are two more 
 interactions with the interpreter that both map a function over a map:</p>
 
 <pre>
@@ -246,17 +246,17 @@ result of mapping this function is again a map, but now going in the
 other direction. In fact, the first expression yields the inverse of the
 original map, provided it is invertible. The second function, however, 
 maps the key/value pair to an integer, namely its value component.
-In that case, we cannot form a <span class="code">Map</span> from the results, but we still can
-form an <span class="code">Iterable</span>, a supertrait of <span class="code">Map</span>.</p>
+In that case, we cannot form a <pre class="code">Map</pre> from the results, but we still can
+form an <pre class="code">Iterable</pre>, a supertrait of <pre class="code">Map</pre>.</p>
 
-<p>You might ask, Why not restrict <span class="code">map</span> so that it can always return
-the same kind of collection? For instance, on bit sets <span class="code">map</span> could
-accept only <span class="code">Int</span>-to-<span class="code">Int</span> functions and on maps it could only
+<p>You might ask, Why not restrict <pre class="code">map</pre> so that it can always return
+the same kind of collection? For instance, on bit sets <pre class="code">map</pre> could
+accept only <pre class="code">Int</pre>-to-<pre class="code">Int</pre> functions and on maps it could only
 accept pair-to-pair functions. Not only are such restrictions  
 undesirable from an object-oriented modeling point of view, they are
 illegal because they would violate the Liskov Substitution Principle:
-A <span class="code">Map</span> <span style="font-style:italic">is</span> an <span class="code">Iterable</span>. So every operation that's legal on
-an <span class="code">Iterable</span> must also be legal on a <span class="code">Map</span>.</p>
+A <pre class="code">Map</pre> <span style="font-style:italic">is</span> an <pre class="code">Iterable</pre>. So every operation that's legal on
+an <pre class="code">Iterable</pre> must also be legal on a <pre class="code">Map</pre>.</p>
 
 <p>Scala solves this problem instead with overloading: Not the simple form of
 overloading inherited by Java (that would not be flexible enough), but
@@ -275,16 +275,16 @@ parameters.</p>
 </pre>
 
 
-<h5>Listing 25.3 - Implementation of <span class="code">map</span> in <span class="code">TraversableLike</span>.</h5>
+<h5>Listing 25.3 - Implementation of <pre class="code">map</pre> in <pre class="code">TraversableLike</pre>.</h5>
 
 
-<p><a href="the-architecture-of-scala-collections.html#lst-map">Listing 25.3</a> shows trait <span class="code">TraversableLike</span>'s implementation of <span class="code">map</span>.
+<p><a href="the-architecture-of-scala-collections.html#lst-map">Listing 25.3</a> shows trait <pre class="code">TraversableLike</pre>'s implementation of <pre class="code">map</pre>.
 It's quite similar to the implementation of
-<span class="code">filter</span> shown in <a href="the-architecture-of-scala-collections.html#lst-TraversableLike">Listing 25.2</a>. The principal
-difference is that where <span class="code">filter</span> used the <span class="code">newBuilder</span> method, which is
-abstract in class <span class="code">TraversableLike</span>, <span class="code">map</span> uses a <span style="font-style:italic">builder
+<pre class="code">filter</pre> shown in <a href="the-architecture-of-scala-collections.html#lst-TraversableLike">Listing 25.2</a>. The principal
+difference is that where <pre class="code">filter</pre> used the <pre class="code">newBuilder</pre> method, which is
+abstract in class <pre class="code">TraversableLike</pre>, <pre class="code">map</pre> uses a <span style="font-style:italic">builder
 factory</span> that's passed as an additional implicit parameter of type
-<span class="code">CanBuildFrom</span>.</p>
+<pre class="code">CanBuildFrom</pre>.</p>
 
 <p><a id="lst-CanBuildFrom"/></p>
 
@@ -297,26 +297,26 @@ factory</span> that's passed as an additional implicit parameter of type
 </pre>
 
 
-<h5>Listing 25.4 - The <span class="code">CanBuildFrom</span> trait.</h5>
+<h5>Listing 25.4 - The <pre class="code">CanBuildFrom</pre> trait.</h5>
 
 
 <p><a href="the-architecture-of-scala-collections.html#lst-CanBuildFrom">Listing 25.4</a> shows the definition of the trait
-<span class="code">CanBuildFrom</span>,<a id="i815235414-1"/> which represents builder factories.  It
-has three type parameters: <span class="code">Elem</span> indicates the element type of the
-collection to be built, <span class="code">To</span> indicates the type of collection to
-build, and <span class="code">From</span> indicates the type for which this builder factory
+<pre class="code">CanBuildFrom</pre>,<a id="i815235414-1"/> which represents builder factories.  It
+has three type parameters: <pre class="code">Elem</pre> indicates the element type of the
+collection to be built, <pre class="code">To</pre> indicates the type of collection to
+build, and <pre class="code">From</pre> indicates the type for which this builder factory
 applies. By defining the right implicit definitions of builder
 factories, you can tailor the right typing behavior as needed.</p>
 
 <p>Take
-class <span class="code">BitSet</span> as an example. Its companion object would contain
-a builder factory of type <span class="code">CanBuildFrom[BitSet,</span>&nbsp;<span class="code">Int,</span>&nbsp;<span class="code">BitSet]</span>. 
-This means that when operating on a <span class="code">BitSet</span> you can
-construct another <span class="code">BitSet</span>, provided the type of the collection to
-build is <span class="code">Int</span>. If this is not the case, you can always fall back to
+class <pre class="code">BitSet</pre> as an example. Its companion object would contain
+a builder factory of type <pre class="code">CanBuildFrom[BitSet,</pre>&nbsp;<pre class="code">Int,</pre>&nbsp;<pre class="code">BitSet]</pre>. 
+This means that when operating on a <pre class="code">BitSet</pre> you can
+construct another <pre class="code">BitSet</pre>, provided the type of the collection to
+build is <pre class="code">Int</pre>. If this is not the case, you can always fall back to
 a different implicit builder factory, this time implemented in
-<span class="code">mutable.Set</span>'s companion object. The type of this more general builder
-factory, where <span class="code">A</span> is a generic type parameter, is:</p>
+<pre class="code">mutable.Set</pre>'s companion object. The type of this more general builder
+factory, where <pre class="code">A</pre> is a generic type parameter, is:</p>
 
 <pre>
   <code class="typename">CanBuildFrom[Set[_],&nbsp;A,&nbsp;Set[A]]</code>
@@ -324,15 +324,15 @@ factory, where <span class="code">A</span> is a generic type parameter, is:</p>
 
 
 <p>This means that when operating
-on an arbitrary <span class="code">Set</span>, expressed by the wildcard type
-<span class="code">Set[_]</span>, you can build a <span class="code">Set</span> again no matter what the
-element type <span class="code">A</span> is. Given these two implicit instances of 
-<span class="code">CanBuildFrom</span>, you can then rely on Scala's rules for implicit resolution
+on an arbitrary <pre class="code">Set</pre>, expressed by the wildcard type
+<pre class="code">Set[_]</pre>, you can build a <pre class="code">Set</pre> again no matter what the
+element type <pre class="code">A</pre> is. Given these two implicit instances of 
+<pre class="code">CanBuildFrom</pre>, you can then rely on Scala's rules for implicit resolution
 to pick the one that's appropriate and maximally specific.</p>
 
 <p>So implicit resolution<a id="i1108480455-1"/> provides the correct static types for tricky
-collection operations, such as <span class="code">map</span>. But what about the dynamic
-types? Specifically, say you have a list value that has <span class="code">Iterable</span> as its
+collection operations, such as <pre class="code">map</pre>. But what about the dynamic
+types? Specifically, say you have a list value that has <pre class="code">Iterable</pre> as its
 static type, and you map some function over that value:</p>
 
 <pre>
@@ -343,17 +343,17 @@ static type, and you map some function over that value:</p>
 </pre>
 
 
-<p>The static type of <span class="code">ys</span> above is <span class="code">Iterable</span>, as expected. But its
-dynamic type is (and should be) still <span class="code">List</span>! This behavior is
-achieved by one more indirection. The <span class="code">apply</span> method in
-<span class="code">CanBuildFrom</span> is passed the source collection as argument. Most
+<p>The static type of <pre class="code">ys</pre> above is <pre class="code">Iterable</pre>, as expected. But its
+dynamic type is (and should be) still <pre class="code">List</pre>! This behavior is
+achieved by one more indirection. The <pre class="code">apply</pre> method in
+<pre class="code">CanBuildFrom</pre> is passed the source collection as argument. Most
 builder factories for generic traversables (in fact all except 
 builder factories for leaf classes) forward the call to a 
-method <span class="code">genericBuilder</span> of a collection.
-The <span class="code">genericBuilder</span> method in turn calls the builder
+method <pre class="code">genericBuilder</pre> of a collection.
+The <pre class="code">genericBuilder</pre> method in turn calls the builder
 that belongs to the collection in which it is defined. So Scala uses
 static implicit resolution to resolve constraints on the types of
-<span class="code">map</span>, and virtual dispatch to pick the best dynamic type that
+<pre class="code">map</pre>, and virtual dispatch to pick the best dynamic type that
 corresponds to these constraints.</p>
 
 <h3 id="sec-integrating">25.3 Integrating new collections</h3>
@@ -373,31 +373,31 @@ and U (uracil).  The definitions for bases are easily set up as shown
 in <a href="the-architecture-of-scala-collections.html#lst-bases">Listing 25.5</a>.</p>
 
 <p>Every base is defined as a case object that inherits from a common
-abstract class <span class="code">Base</span>.  The <span class="code">Base</span> class has a companion object
+abstract class <pre class="code">Base</pre>.  The <pre class="code">Base</pre> class has a companion object
 that defines two functions that map between bases and the integers 0
 to 3. You can see in the examples two different ways to use
-collections to implement these functions.  The <span class="code">toInt</span> function is
-implemented as a <span class="code">Map</span> from <span class="code">Base</span> values to integers.  The reverse
-function, <span class="code">fromInt</span>, is implemented as an array. This makes use of the
+collections to implement these functions.  The <pre class="code">toInt</pre> function is
+implemented as a <pre class="code">Map</pre> from <pre class="code">Base</pre> values to integers.  The reverse
+function, <pre class="code">fromInt</pre>, is implemented as an array. This makes use of the
 fact that both maps and arrays <span style="font-style:italic">are</span> functions because they inherit from
-the <span class="code">Function1</span> trait.</p>
+the <pre class="code">Function1</pre> trait.</p>
 
 <p>The next task is to define a class for strands of RNA. Conceptually, a
-strand of RNA is simply a <span class="code">Seq[Base]</span>. However, RNA strands can get
+strand of RNA is simply a <pre class="code">Seq[Base]</pre>. However, RNA strands can get
 quite long, so it makes sense to invest some work in a compact
 representation. Because there are only four bases, a base can be
 identified with two bits, and you can therefore store sixteen bases as two-bit values
 in an integer. The idea, then, is to construct a specialized subclass
-of <span class="code">Seq[Base]</span>, which uses this packed representation.</p>
+of <pre class="code">Seq[Base]</pre>, which uses this packed representation.</p>
 
-<p><a href="the-architecture-of-scala-collections.html#lst-rna1">Listing 25.6</a> presents the first version of this class; it will be refined later. The class <span class="code">RNA1</span> has a constructor that
-takes an array of <span class="code">Int</span>s as its first argument. This array contains the
+<p><a href="the-architecture-of-scala-collections.html#lst-rna1">Listing 25.6</a> presents the first version of this class; it will be refined later. The class <pre class="code">RNA1</pre> has a constructor that
+takes an array of <pre class="code">Int</pre>s as its first argument. This array contains the
 packed RNA data, with sixteen bases in each element, except for the last
 array element, which might be partially filled. The second
-argument, <span class="code">length</span>, specifies the total number of bases on the array (and in the
-sequence). Class <span class="code">RNA1</span> extends <span class="code">IndexedSeq[Base]</span>. Trait <span class="code">IndexedSeq</span>, which comes
-from package <span class="code">scala.collection.immutable</span>, defines two abstract methods,
-<span class="code">length</span> and <span class="code">apply</span>.</p>
+argument, <pre class="code">length</pre>, specifies the total number of bases on the array (and in the
+sequence). Class <pre class="code">RNA1</pre> extends <pre class="code">IndexedSeq[Base]</pre>. Trait <pre class="code">IndexedSeq</pre>, which comes
+from package <pre class="code">scala.collection.immutable</pre>, defines two abstract methods,
+<pre class="code">length</pre> and <pre class="code">apply</pre>.</p>
 
 <p><a id="lst-bases"/></p>
 
@@ -418,34 +418,34 @@ from package <span class="code">scala.collection.immutable</span>, defines two a
 
 
 <p>These need to be implemented in concrete subclasses.
-Class <span class="code">RNA1</span> implements <span class="code">length</span> automatically by defining a
+Class <pre class="code">RNA1</pre> implements <pre class="code">length</pre> automatically by defining a
 parametric field (described in <a href="composition-and-inheritance.html#sec-parametric-fields">Section 10.6</a>)
-of the same name. It implements the indexing method <span class="code">apply</span>
-with the code given in <a href="the-architecture-of-scala-collections.html#lst-rna1">Listing 25.6</a>. Essentially, <span class="code">apply</span>
-first extracts an integer value from the <span class="code">groups</span> array, then extracts
+of the same name. It implements the indexing method <pre class="code">apply</pre>
+with the code given in <a href="the-architecture-of-scala-collections.html#lst-rna1">Listing 25.6</a>. Essentially, <pre class="code">apply</pre>
+first extracts an integer value from the <pre class="code">groups</pre> array, then extracts
 the correct two-bit number from that integer using 
-right shift (<span class="code">&gt;&gt;</span>) and mask (<span class="code">&amp;</span>). The private constants <span class="code">S</span>, <span class="code">N</span>, and <span class="code">M</span> come from the <span class="code">RNA1</span> companion object. <span class="code">S</span> specifies the size of each packet (<i>i.e.</i>, two); <span class="code">N</span> specifies the number of two-bit 
-packets per integer; and <span class="code">M</span> is a bit mask that isolates the lowest <span class="code">S</span> bits in a word.</p>
+right shift (<pre class="code">&gt;&gt;</pre>) and mask (<pre class="code">&amp;</pre>). The private constants <pre class="code">S</pre>, <pre class="code">N</pre>, and <pre class="code">M</pre> come from the <pre class="code">RNA1</pre> companion object. <pre class="code">S</pre> specifies the size of each packet (<i>i.e.</i>, two); <pre class="code">N</pre> specifies the number of two-bit 
+packets per integer; and <pre class="code">M</pre> is a bit mask that isolates the lowest <pre class="code">S</pre> bits in a word.</p>
 
-<p>Note that the constructor of class <span class="code">RNA1</span> is <span class="code">private</span>. This means
-that clients cannot create <span class="code">RNA1</span> sequences by calling <span class="code">new</span>, which
-makes sense, because it hides the representation of <span class="code">RNA1</span> sequences
+<p>Note that the constructor of class <pre class="code">RNA1</pre> is <pre class="code">private</pre>. This means
+that clients cannot create <pre class="code">RNA1</pre> sequences by calling <pre class="code">new</pre>, which
+makes sense, because it hides the representation of <pre class="code">RNA1</pre> sequences
 in terms of packed arrays from the user. If clients cannot see what
-the representation details of <span class="code">RNA</span> sequences are, it becomes possible
+the representation details of <pre class="code">RNA</pre> sequences are, it becomes possible
 to change these representation details at any point in the future
 without affecting client code.</p>
 
 <p>In other words, this design achieves a good
 decoupling of the interface of RNA sequences and its implementation.
-However, if constructing an RNA sequence with <span class="code">new</span> is impossible,
+However, if constructing an RNA sequence with <pre class="code">new</pre> is impossible,
 there must be some other way to create new RNA sequences, or else
 the whole class would be rather useless. There are two
 alternatives for RNA sequence creation, both provided by the
-<span class="code">RNA1</span> companion object. The first way is method
-<span class="code">fromSeq</span>, which converts a given sequence of bases (<i>i.e.</i>, a value of type <span class="code">Seq[Base]</span>) 
-into an instance of class <span class="code">RNA1</span>. The <span class="code">fromSeq</span> method does this by packing 
+<pre class="code">RNA1</pre> companion object. The first way is method
+<pre class="code">fromSeq</pre>, which converts a given sequence of bases (<i>i.e.</i>, a value of type <pre class="code">Seq[Base]</pre>) 
+into an instance of class <pre class="code">RNA1</pre>. The <pre class="code">fromSeq</pre> method does this by packing 
 all the bases contained in its argument sequence into an array, then 
-calling <span class="code">RNA1</span>'s private constructor with that array and the length of the 
+calling <pre class="code">RNA1</pre>'s private constructor with that array and the length of the 
 original sequence as arguments. This makes use of the fact that a private 
 constructor of a class is visible in the class's companion object.</p>
 
@@ -485,9 +485,9 @@ constructor of a class is visible in the class's companion object.</p>
 <h5>Listing 25.6 - RNA strands class, first version.</h5>
 
 
-<p>The second way to create an <span class="code">RNA1</span> value is provided by the <span class="code">apply</span> method
-in the <span class="code">RNA1</span> object. It takes a variable number of <span class="code">Base</span> arguments and simply
-forwards them as a sequence to <span class="code">fromSeq</span>.</p>
+<p>The second way to create an <pre class="code">RNA1</pre> value is provided by the <pre class="code">apply</pre> method
+in the <pre class="code">RNA1</pre> object. It takes a variable number of <pre class="code">Base</pre> arguments and simply
+forwards them as a sequence to <pre class="code">fromSeq</pre>.</p>
 
 <p>Here are the two creation schemes
 in action:</p>
@@ -502,10 +502,10 @@ in action:</p>
 </pre>
 
 
-<h5>Adapting the result type of <span class="code">RNA</span> methods</h5>
+<h5>Adapting the result type of <pre class="code">RNA</pre> methods</h5>
 
 
-<p>Here are some more interactions with the <span class="code">RNA1</span> abstraction:</p>
+<p>Here are some more interactions with the <pre class="code">RNA1</pre> abstraction:</p>
 
 <pre>
   scala&gt;&nbsp;rna1.length
@@ -518,50 +518,50 @@ in action:</p>
 
 
 <p>The first two results are as expected, but the last result of taking the first 
-three elements of <span class="code">rna1</span> might not be. In fact, you see an <span class="code">IndexedSeq[Base]</span>
-as static result type and a <span class="code">Vector</span> as the dynamic type of the result value.
-You might have expected to see an <span class="code">RNA1</span> value instead. But this is not possible 
-because all that was done in <a href="the-architecture-of-scala-collections.html#lst-rna1">Listing 25.6</a> was make <span class="code">RNA1</span> extend 
-<span class="code">IndexedSeq</span>. Class <span class="code">IndexedSeq</span>, on the other hand, has a <span class="code">take</span> method that 
-returns an <span class="code">IndexedSeq</span>, and that's implemented in terms of <span class="code">IndexedSeq</span>'s default
-implementation, <span class="code">Vector</span>.<a id="i-793070469-1"/></p>
+three elements of <pre class="code">rna1</pre> might not be. In fact, you see an <pre class="code">IndexedSeq[Base]</pre>
+as static result type and a <pre class="code">Vector</pre> as the dynamic type of the result value.
+You might have expected to see an <pre class="code">RNA1</pre> value instead. But this is not possible 
+because all that was done in <a href="the-architecture-of-scala-collections.html#lst-rna1">Listing 25.6</a> was make <pre class="code">RNA1</pre> extend 
+<pre class="code">IndexedSeq</pre>. Class <pre class="code">IndexedSeq</pre>, on the other hand, has a <pre class="code">take</pre> method that 
+returns an <pre class="code">IndexedSeq</pre>, and that's implemented in terms of <pre class="code">IndexedSeq</pre>'s default
+implementation, <pre class="code">Vector</pre>.<a id="i-793070469-1"/></p>
 
 <p>Now that you understand why things are the way they are, the next
 question should be what needs to be done to change them? One way to do this would be 
-to override the <span class="code">take</span> method in class <span class="code">RNA1</span>, maybe like this:</p>
+to override the <pre class="code">take</pre> method in class <pre class="code">RNA1</pre>, maybe like this:</p>
 
 <pre>
   <code class="vem">def</code>&nbsp;take(count:&nbsp;<code class="typename">Int</code>):&nbsp;RNA1&nbsp;=&nbsp;RNA1.fromSeq(<code class="vem">super</code>.take(count))
 </pre>
 
 
-<p>This would do the job for <span class="code">take</span>. But what about <span class="code">drop</span>, or
-<span class="code">filter</span>, or <span class="code">init</span>?  In fact there are over fifty methods on sequences
+<p>This would do the job for <pre class="code">take</pre>. But what about <pre class="code">drop</pre>, or
+<pre class="code">filter</pre>, or <pre class="code">init</pre>?  In fact there are over fifty methods on sequences
 that return again a sequence. For consistency, all of these would have
 to be overridden. This looks less and less like an attractive
 option.</p>
 
 <p>Fortunately, there is a much easier way to achieve the same effect.
-The RNA class needs to inherit not only from <span class="code">IndexedSeq</span>, but also
-from its implementation trait <span class="code">IndexedSeqLike</span>.
+The RNA class needs to inherit not only from <pre class="code">IndexedSeq</pre>, but also
+from its implementation trait <pre class="code">IndexedSeqLike</pre>.
 This is shown in <a href="the-architecture-of-scala-collections.html#lst-rna2">Listing 25.7</a>.
 The new implementation differs from the previous one 
-in only two aspects. First, class <span class="code">RNA2</span> now also extends from <span class="code">IndexedSeqLike[Base,</span>&nbsp;<span class="code">RNA2]</span>. The <span class="code">IndexedSeqLike</span> trait implements all concrete methods of <span class="code">IndexedSeq</span> 
+in only two aspects. First, class <pre class="code">RNA2</pre> now also extends from <pre class="code">IndexedSeqLike[Base,</pre>&nbsp;<pre class="code">RNA2]</pre>. The <pre class="code">IndexedSeqLike</pre> trait implements all concrete methods of <pre class="code">IndexedSeq</pre> 
 in an extensible way.</p>
 
 <p>For instance, the return type 
-of methods like <span class="code">take</span>, <span class="code">drop</span>, <span class="code">filter</span> or <span class="code">init</span> is the second type parameter
-passed to class <span class="code">IndexedSeqLike</span> (<i>i.e.</i>, <span class="code">RNA2</span> in  <a href="the-architecture-of-scala-collections.html#lst-rna2">Listing 25.7</a>). To do this, <span class="code">IndexedSeqLike</span> bases itself on the
-<span class="code">newBuilder</span> abstraction, which creates a builder of the right
-kind. Subclasses of trait <span class="code">IndexedSeqLike</span> have to override <span class="code">newBuilder</span>
-to return collections of their own kind. In class <span class="code">RNA2</span>, the <span class="code">newBuilder</span> method returns a builder of type
-<span class="code">Builder[Base,</span>&nbsp;<span class="code">RNA2]</span>. To construct this builder, it first creates an <span class="code">ArrayBuffer</span>, which itself is 
-a <span class="code">Builder[Base,</span>&nbsp;<span class="code">ArrayBuffer]</span>. It then transforms the <span class="code">ArrayBuffer</span>  builder
-by calling its <span class="code">mapResult</span> method to an <span class="code">RNA2</span> builder. The <span class="code">mapResult</span> method expects
-a transformation function from <span class="code">ArrayBuffer</span> to <span class="code">RNA2</span> as its parameter.
-The function given is simply <span class="code">RNA2.fromSeq</span>, which converts an arbitrary
-base sequence to an <span class="code">RNA2</span> value (recall that an array buffer is a kind of sequence, so
-<span class="code">RNA2.fromSeq</span> can be applied to it).</p>
+of methods like <pre class="code">take</pre>, <pre class="code">drop</pre>, <pre class="code">filter</pre> or <pre class="code">init</pre> is the second type parameter
+passed to class <pre class="code">IndexedSeqLike</pre> (<i>i.e.</i>, <pre class="code">RNA2</pre> in  <a href="the-architecture-of-scala-collections.html#lst-rna2">Listing 25.7</a>). To do this, <pre class="code">IndexedSeqLike</pre> bases itself on the
+<pre class="code">newBuilder</pre> abstraction, which creates a builder of the right
+kind. Subclasses of trait <pre class="code">IndexedSeqLike</pre> have to override <pre class="code">newBuilder</pre>
+to return collections of their own kind. In class <pre class="code">RNA2</pre>, the <pre class="code">newBuilder</pre> method returns a builder of type
+<pre class="code">Builder[Base,</pre>&nbsp;<pre class="code">RNA2]</pre>. To construct this builder, it first creates an <pre class="code">ArrayBuffer</pre>, which itself is 
+a <pre class="code">Builder[Base,</pre>&nbsp;<pre class="code">ArrayBuffer]</pre>. It then transforms the <pre class="code">ArrayBuffer</pre>  builder
+by calling its <pre class="code">mapResult</pre> method to an <pre class="code">RNA2</pre> builder. The <pre class="code">mapResult</pre> method expects
+a transformation function from <pre class="code">ArrayBuffer</pre> to <pre class="code">RNA2</pre> as its parameter.
+The function given is simply <pre class="code">RNA2.fromSeq</pre>, which converts an arbitrary
+base sequence to an <pre class="code">RNA2</pre> value (recall that an array buffer is a kind of sequence, so
+<pre class="code">RNA2.fromSeq</pre> can be applied to it).</p>
 
 <p><a id="lst-rna2"/></p>
 
@@ -581,7 +581,7 @@ base sequence to an <span class="code">RNA2</span> value (recall that an array b
 <h5>Listing 25.7 - RNA strands class, second version.</h5>
 
 
-<p>If you had left out the <span class="code">newBuilder</span> definition, you would have gotten an error message 
+<p>If you had left out the <pre class="code">newBuilder</pre> definition, you would have gotten an error message 
 like the following:</p>
 
 <pre>
@@ -599,17 +599,17 @@ like the following:</p>
 <p>The error message is quite long and complicated, which reflects the intricate way the 
 collection libraries are put together. It's best to ignore the information about where the
 methods come from, because in this case it detracts more than it helps. What remains
-is that a method <span class="code">newBuilder</span> with result type <span class="code">Builder[Base,</span>&nbsp;<span class="code">RNA2]</span> needed to be defined,
-but a method <span class="code">newBuilder</span> with result type <span class="code">Builder[Base,IndexedSeq[Base]]</span> was found.
+is that a method <pre class="code">newBuilder</pre> with result type <pre class="code">Builder[Base,</pre>&nbsp;<pre class="code">RNA2]</pre> needed to be defined,
+but a method <pre class="code">newBuilder</pre> with result type <pre class="code">Builder[Base,IndexedSeq[Base]]</pre> was found.
 The latter does not override the former.</p>
 
-<p>The first method, whose result type is <span class="code">Builder[Base,</span>&nbsp;<span class="code">RNA2]</span>,
-is an abstract method that got instantiated at this type in <a href="the-architecture-of-scala-collections.html#lst-rna2">Listing 25.7</a> by passing the <span class="code">RNA2</span> type parameter
-to <span class="code">IndexedSeqLike</span>. The second method, of result type <span class="code">Builder[Base,IndexedSeq[Base]]</span>, is what's
-provided by the inherited <span class="code">IndexedSeq</span> class. In other words, the <span class="code">RNA2</span> class is 
-invalid without a definition of <span class="code">newBuilder</span> with the first result type.</p>
+<p>The first method, whose result type is <pre class="code">Builder[Base,</pre>&nbsp;<pre class="code">RNA2]</pre>,
+is an abstract method that got instantiated at this type in <a href="the-architecture-of-scala-collections.html#lst-rna2">Listing 25.7</a> by passing the <pre class="code">RNA2</pre> type parameter
+to <pre class="code">IndexedSeqLike</pre>. The second method, of result type <pre class="code">Builder[Base,IndexedSeq[Base]]</pre>, is what's
+provided by the inherited <pre class="code">IndexedSeq</pre> class. In other words, the <pre class="code">RNA2</pre> class is 
+invalid without a definition of <pre class="code">newBuilder</pre> with the first result type.</p>
 
-<p>With the refined implementation of the RNA class in <a href="the-architecture-of-scala-collections.html#lst-rna2">Listing 25.7</a>, methods like <span class="code">take</span>, <span class="code">drop</span>, or <span class="code">filter</span> 
+<p>With the refined implementation of the RNA class in <a href="the-architecture-of-scala-collections.html#lst-rna2">Listing 25.7</a>, methods like <pre class="code">take</pre>, <pre class="code">drop</pre>, or <pre class="code">filter</pre> 
 work now as expected:</p>
 
 <pre>
@@ -622,22 +622,22 @@ work now as expected:</p>
 </pre>
 
 
-<h5>Dealing with <span class="code">map</span> and friends</h5>
+<h5>Dealing with <pre class="code">map</pre> and friends</h5>
 
 
 <p>There is another class of methods in collections that we haven't dealt with yet.  These methods do not always return the collection
 type exactly. They might return the same kind of collection, but
 with a different element type. The classical example of this is the
-<span class="code">map</span> method.  If <span class="code">s</span> is a <span class="code">Seq[Int]</span>, and <span class="code">f</span> is a function from
-<span class="code">Int</span> to <span class="code">String</span>, then <span class="code">s.map(f)</span> would return a
-<span class="code">Seq[String]</span>. So the element type changes between the receiver and
+<pre class="code">map</pre> method.  If <pre class="code">s</pre> is a <pre class="code">Seq[Int]</pre>, and <pre class="code">f</pre> is a function from
+<pre class="code">Int</pre> to <pre class="code">String</pre>, then <pre class="code">s.map(f)</pre> would return a
+<pre class="code">Seq[String]</pre>. So the element type changes between the receiver and
 the result, but the kind of collection stays the same.</p>
 
-<p>There are a number of other methods that behave like <span class="code">map</span>. For some
-of them you would expect this (<i>e.g.</i>, <span class="code">flatMap</span>, <span class="code">collect</span>), but for
-others you might not.  For instance, the append method, <span class="code">++</span>, also might
+<p>There are a number of other methods that behave like <pre class="code">map</pre>. For some
+of them you would expect this (<i>e.g.</i>, <pre class="code">flatMap</pre>, <pre class="code">collect</pre>), but for
+others you might not.  For instance, the append method, <pre class="code">++</pre>, also might
 return a result whose type differs from that of its arguments&mdash;appending a list of 
-<span class="code">String</span> to a list of <span class="code">Int</span> would give a list of <span class="code">Any</span>. How should these
+<pre class="code">String</pre> to a list of <pre class="code">Int</pre> would give a list of <pre class="code">Any</pre>. How should these
 methods be adapted to RNA strands? Ideally we'd expect that mapping
 bases to bases over an RNA strand would yield again an RNA strand:</p>
 
@@ -649,7 +649,7 @@ bases to bases over an RNA strand would yield again an RNA strand:</p>
 </pre>
 
 
-<p>Likewise, appending two RNA strands with <span class="code">++</span> should yield again another RNA strand:</p>
+<p>Likewise, appending two RNA strands with <pre class="code">++</pre> should yield again another RNA strand:</p>
 
 <pre>
   scala&gt;&nbsp;rna&nbsp;++&nbsp;rna
@@ -660,7 +660,7 @@ bases to bases over an RNA strand would yield again an RNA strand:</p>
 <p>On the other hand, mapping bases to some other type over an RNA strand
 cannot yield another RNA strand because the new elements have the
 wrong type. It has to yield a sequence instead. In the same vein
-appending elements that are not of type <span class="code">Base</span> to an RNA strand can
+appending elements that are not of type <pre class="code">Base</pre> to an RNA strand can
 yield a general sequence, but it cannot yield another RNA strand.</p>
 
 <pre>
@@ -673,7 +673,7 @@ yield a general sequence, but it cannot yield another RNA strand.</p>
 
 
 <p>This is what you'd expect in the ideal case. But this is not what the
-<span class="code">RNA2</span> class as given in <a href="the-architecture-of-scala-collections.html#lst-rna2">Listing 25.7</a> provides. In fact,
+<pre class="code">RNA2</pre> class as given in <a href="the-architecture-of-scala-collections.html#lst-rna2">Listing 25.7</a> provides. In fact,
 if you ran the first two examples above with instances of this class 
 you would obtain:</p>
 
@@ -687,11 +687,11 @@ you would obtain:</p>
 </pre>
 
 
-<p>So the result of <span class="code">map</span> and <span class="code">++</span> is never an RNA strand, even if the 
-element type of the generated collection is a <span class="code">Base</span>.
+<p>So the result of <pre class="code">map</pre> and <pre class="code">++</pre> is never an RNA strand, even if the 
+element type of the generated collection is a <pre class="code">Base</pre>.
 To see how to do better, it pays to have a close look at the signature
-of the <span class="code">map</span> method (or of <span class="code">++</span>, which has a similar signature).
-The <span class="code">map</span> method is originally defined in class <span class="code">scala.collection.TraversableLike</span>
+of the <pre class="code">map</pre> method (or of <pre class="code">++</pre>, which has a similar signature).
+The <pre class="code">map</pre> method is originally defined in class <pre class="code">scala.collection.TraversableLike</pre>
 with the following signature:</p>
 
 <pre>
@@ -700,19 +700,19 @@ with the following signature:</p>
 </pre>
 
 
-<p>Here <span class="code">Elem</span> is the type of elements of the collection, and <span class="code">Repr</span> is the
+<p>Here <pre class="code">Elem</pre> is the type of elements of the collection, and <pre class="code">Repr</pre> is the
 type of the collection itself; that is, the second type parameter that gets
-passed to implementation classes such as <span class="code">TraversableLike</span> and 
-<span class="code">IndexedSeqLike</span>. The <span class="code">map</span> method takes two more type parameters, <span class="code">B</span> and 
-<span class="code">That</span>. The <span class="code">B</span> parameter stands for the result type of the mapping function,
-which is also the element type of the new collection. The <span class="code">That</span>
-appears as the result type of <span class="code">map</span>, so it represents the type of the new collection
+passed to implementation classes such as <pre class="code">TraversableLike</pre> and 
+<pre class="code">IndexedSeqLike</pre>. The <pre class="code">map</pre> method takes two more type parameters, <pre class="code">B</pre> and 
+<pre class="code">That</pre>. The <pre class="code">B</pre> parameter stands for the result type of the mapping function,
+which is also the element type of the new collection. The <pre class="code">That</pre>
+appears as the result type of <pre class="code">map</pre>, so it represents the type of the new collection
 that gets created.</p>
 
-<p>How is the <span class="code">That</span> type determined? It is linked to the other types by an 
-implicit parameter <span class="code">cbf</span>, of type <span class="code">CanBuildFrom[Repr,</span>&nbsp;<span class="code">B,</span>&nbsp;<span class="code">That]</span>.
-These <span class="code">CanBuildFrom</span> implicits are defined by the individual collection classes. In essence, an implicit value of type <span class="code">CanBuildFrom[From,</span>&nbsp;<span class="code">Elem,</span>&nbsp;<span class="code">To]</span> says: "Here is a way, given a collection of type
-<span class="code">From</span>, to build with elements of type <span class="code">Elem</span> a collection of type <span class="code">To</span>."</p>
+<p>How is the <pre class="code">That</pre> type determined? It is linked to the other types by an 
+implicit parameter <pre class="code">cbf</pre>, of type <pre class="code">CanBuildFrom[Repr,</pre>&nbsp;<pre class="code">B,</pre>&nbsp;<pre class="code">That]</pre>.
+These <pre class="code">CanBuildFrom</pre> implicits are defined by the individual collection classes. In essence, an implicit value of type <pre class="code">CanBuildFrom[From,</pre>&nbsp;<pre class="code">Elem,</pre>&nbsp;<pre class="code">To]</pre> says: "Here is a way, given a collection of type
+<pre class="code">From</pre>, to build with elements of type <pre class="code">Elem</pre> a collection of type <pre class="code">To</pre>."</p>
 
 <p><a id="lst-rna"/></p>
 
@@ -747,17 +747,17 @@ These <span class="code">CanBuildFrom</span> implicits are defined by the indivi
 <h5>Listing 25.8 - RNA strands class, final version.</h5>
 
 
-<p>Now the behavior of <span class="code">map</span> and <span class="code">++</span> on <span class="code">RNA2</span> sequences becomes
-clearer.  There is no <span class="code">CanBuildFrom</span> instance that creates <span class="code">RNA2</span>
-sequences, so the next best available <span class="code">CanBuildFrom</span> was found in the
-companion object of the inherited trait <span class="code">IndexedSeq</span>. That implicit creates <span class="code">IndexedSeq</span>s, 
-and that's what you saw when applying <span class="code">map</span> to <span class="code">rna2</span>.</p>
+<p>Now the behavior of <pre class="code">map</pre> and <pre class="code">++</pre> on <pre class="code">RNA2</pre> sequences becomes
+clearer.  There is no <pre class="code">CanBuildFrom</pre> instance that creates <pre class="code">RNA2</pre>
+sequences, so the next best available <pre class="code">CanBuildFrom</pre> was found in the
+companion object of the inherited trait <pre class="code">IndexedSeq</pre>. That implicit creates <pre class="code">IndexedSeq</pre>s, 
+and that's what you saw when applying <pre class="code">map</pre> to <pre class="code">rna2</pre>.</p>
 
 <p>To address this shortcoming, you need to define an implicit instance of
-<span class="code">CanBuildFrom</span> in the companion object of the RNA class.
-That instance should have type <span class="code">CanBuildFrom[RNA,</span>&nbsp;<span class="code">Base,</span>&nbsp;<span class="code">RNA]</span>.
+<pre class="code">CanBuildFrom</pre> in the companion object of the RNA class.
+That instance should have type <pre class="code">CanBuildFrom[RNA,</pre>&nbsp;<pre class="code">Base,</pre>&nbsp;<pre class="code">RNA]</pre>.
 Hence, this instance states that, given an RNA strand and a new
-element type <span class="code">Base</span>, you can build another collection which is again an 
+element type <pre class="code">Base</pre>, you can build another collection which is again an 
 RNA strand. <a href="the-architecture-of-scala-collections.html#lst-rna">Listing 25.8</a> and <a href="the-architecture-of-scala-collections.html#lst-rna-obj">Listing 25.9</a> show the details.</p>
 
 <p><a id="lst-rna-obj"/></p>
@@ -789,29 +789,29 @@ RNA strand. <a href="the-architecture-of-scala-collections.html#lst-rna">Listing
 
 
 <p>Compared to
-class <span class="code">RNA2</span> there are two important differences. First, the <span class="code">newBuilder</span>
+class <pre class="code">RNA2</pre> there are two important differences. First, the <pre class="code">newBuilder</pre>
 implementation has moved from the RNA class to its companion
-object. The <span class="code">newBuilder</span> method in class <span class="code">RNA</span> simply forwards to
-this definition. Second, there is now an implicit <span class="code">CanBuildFrom</span>
-value in object <span class="code">RNA</span>. To create such an object you need to define
-two <span class="code">apply</span> methods in the <span class="code">CanBuildFrom</span> trait.  Both create
-a new builder for an <span class="code">RNA</span> collection, but they differ in their
-argument list. The <span class="code">apply()</span> method simply creates a new builder
-of the right type. By contrast, the <span class="code">apply(from)</span> method 
+object. The <pre class="code">newBuilder</pre> method in class <pre class="code">RNA</pre> simply forwards to
+this definition. Second, there is now an implicit <pre class="code">CanBuildFrom</pre>
+value in object <pre class="code">RNA</pre>. To create such an object you need to define
+two <pre class="code">apply</pre> methods in the <pre class="code">CanBuildFrom</pre> trait.  Both create
+a new builder for an <pre class="code">RNA</pre> collection, but they differ in their
+argument list. The <pre class="code">apply()</pre> method simply creates a new builder
+of the right type. By contrast, the <pre class="code">apply(from)</pre> method 
 takes the original collection as argument.  This can be
 useful to adapt the dynamic type of builder's return type to be the
-same as the dynamic type of the receiver. In the case of <span class="code">RNA</span> this 
-does not come into play because <span class="code">RNA</span> is a final class, so any receiver
-of static type <span class="code">RNA</span> also has <span class="code">RNA</span> as its dynamic type. That's why
-<span class="code">apply(from)</span> also simply calls <span class="code">newBuilder</span>, ignoring its argument.</p>
+same as the dynamic type of the receiver. In the case of <pre class="code">RNA</pre> this 
+does not come into play because <pre class="code">RNA</pre> is a final class, so any receiver
+of static type <pre class="code">RNA</pre> also has <pre class="code">RNA</pre> as its dynamic type. That's why
+<pre class="code">apply(from)</pre> also simply calls <pre class="code">newBuilder</pre>, ignoring its argument.</p>
 
-<p>That is it. The <span class="code">RNA</span> class in <a href="the-architecture-of-scala-collections.html#lst-rna">Listing 25.8</a> implements
+<p>That is it. The <pre class="code">RNA</pre> class in <a href="the-architecture-of-scala-collections.html#lst-rna">Listing 25.8</a> implements
 all collection methods at their natural types. Its implementation
 requires a little bit of protocol. In essence, you need to know where
-to put the <span class="code">newBuilder</span> factories and the <span class="code">canBuildFrom</span> implicits.
+to put the <pre class="code">newBuilder</pre> factories and the <pre class="code">canBuildFrom</pre> implicits.
 On the plus side, with relatively little code you get a large number
 of methods automatically defined. Also, if you don't intend to do bulk
-operations like <span class="code">take</span>, <span class="code">drop</span>, <span class="code">map</span>, or <span class="code">++</span> on your collection,
+operations like <pre class="code">take</pre>, <pre class="code">drop</pre>, <pre class="code">map</pre>, or <pre class="code">++</pre> on your collection,
 you can choose to not go the extra length and stop at the
 implementation shown in <a href="the-architecture-of-scala-collections.html#lst-rna1">Listing 25.6</a>.</p>
 
@@ -819,19 +819,19 @@ implementation shown in <a href="the-architecture-of-scala-collections.html#lst-
 needed to define new sequences with methods that obey certain types.
 But in practice you might also want to add new functionality to your
 sequences or override existing methods for better efficiency.  An
-example of this is the overridden <span class="code">foreach</span> method in class <span class="code">RNA</span>.<a id="i342746476-1"/>
-<span class="code">foreach</span> is an important method in its own right because it
+example of this is the overridden <pre class="code">foreach</pre> method in class <pre class="code">RNA</pre>.<a id="i342746476-1"/>
+<pre class="code">foreach</pre> is an important method in its own right because it
 implements loops over collections. Furthermore, many other collection
-methods are implemented in terms of <span class="code">foreach</span>. So it makes sense to 
+methods are implemented in terms of <pre class="code">foreach</pre>. So it makes sense to 
 invest some effort optimizing the method's implementation.</p>
 
 <p>The standard
-implementation of <span class="code">foreach</span> in <span class="code">IndexedSeq</span> will simply select every
-<span class="code">i</span>'th element of the collection using <span class="code">apply</span>, where <span class="code">i</span> ranges
-from <span class="code">0</span> to the collection's length minus one. So this standard
+implementation of <pre class="code">foreach</pre> in <pre class="code">IndexedSeq</pre> will simply select every
+<pre class="code">i</pre>'th element of the collection using <pre class="code">apply</pre>, where <pre class="code">i</pre> ranges
+from <pre class="code">0</pre> to the collection's length minus one. So this standard
 implementation selects an array element and unpacks a base from it once
-for every element in an RNA strand. The overriding <span class="code">foreach</span> in class
-<span class="code">RNA</span> is smarter than that. For every selected array element it
+for every element in an RNA strand. The overriding <pre class="code">foreach</pre> in class
+<pre class="code">RNA</pre> is smarter than that. For every selected array element it
 immediately applies the given function to all bases contained in
 it.  So the effort for array selection and bit unpacking is much reduced.</p>
 
@@ -840,18 +840,18 @@ it.  So the effort for array selection and bit unpacking is much reduced.</p>
 
 <p>As a second example you'll learn how to integrate a new kind of map
 into the collection framework. The idea is to implement a mutable map
-with <span class="code">String</span> as the type of keys by a "Patricia trie".<a href="the-architecture-of-scala-collections.html#footnotemain25-2">[2]</a> The term <span style="font-style:italic">Patricia</span> is an abbreviation<a id="i732713786-1"/>
+with <pre class="code">String</pre> as the type of keys by a "Patricia trie".<a href="the-architecture-of-scala-collections.html#footnotemain25-2">[2]</a> The term <span style="font-style:italic">Patricia</span> is an abbreviation<a id="i732713786-1"/>
 for "Practical Algorithm to Retrieve Information Coded in
 Alphanumeric." The idea is to store a set or a map as a tree where
 subsequent characters in a search key determines uniquely a descendant
 tree.</p>
 
-<p>For instance, a Patricia trie storing the five strings, "<span class="code">abc</span>",
-"<span class="code">abd</span>", "<span class="code">al</span>", "<span class="code">all</span>", "<span class="code">xy</span>", would look like the tree given in
+<p>For instance, a Patricia trie storing the five strings, "<pre class="code">abc</pre>",
+"<pre class="code">abd</pre>", "<pre class="code">al</pre>", "<pre class="code">all</pre>", "<pre class="code">xy</pre>", would look like the tree given in
 <a href="the-architecture-of-scala-collections.html#fig-patrica">Figure 25.1</a>.  To find the node corresponding to the
-string "abc" in this trie, simply follow the subtree labeled "<span class="code">a</span>",
-proceed from there to the subtree labeled "<span class="code">b</span>" to finally reach its
-subtree labeled "<span class="code">c</span>".  If the Patricia trie is used as a map, the
+string "abc" in this trie, simply follow the subtree labeled "<pre class="code">a</pre>",
+proceed from there to the subtree labeled "<pre class="code">b</pre>" to finally reach its
+subtree labeled "<pre class="code">c</pre>".  If the Patricia trie is used as a map, the
 value that's associated with a key is stored in the nodes that can be
 reached by the key. If it is a set, you simply store a marker saying
 that the node is present in the set.</p>
@@ -910,12 +910,12 @@ that the node is present in the set.</p>
 <p>Patricia tries support very efficient lookups and updates.
 Another nice feature is that they support selecting a subcollection by
 giving a prefix. For instance, in the tree in <a href="the-architecture-of-scala-collections.html#fig-patrica">Figure 25.1</a>
-you can obtain the sub-collection of all keys that start with an "<span class="code">a</span>"
-simply by following the "<span class="code">a</span>" link from the root of the tree.</p>
+you can obtain the sub-collection of all keys that start with an "<pre class="code">a</pre>"
+simply by following the "<pre class="code">a</pre>" link from the root of the tree.</p>
 
 <p>Based on these ideas we will now walk you through the implementation
 of a map that's implemented as a Patricia trie. We call the map a
-<span class="code">PrefixMap</span>, which means that it provides a method <span class="code">withPrefix</span> that
+<pre class="code">PrefixMap</pre>, which means that it provides a method <pre class="code">withPrefix</pre> that
 selects a submap of all keys starting with a given prefix.</p>
 
 <p>We'll first 
@@ -929,7 +929,7 @@ define a prefix map with the keys shown in <a href="the-architecture-of-scala-co
 </pre>
 
 
-<p>Then calling <span class="code">withPrefix</span> on <span class="code">m</span> will yield another prefix map:</p>
+<p>Then calling <pre class="code">withPrefix</pre> on <pre class="code">m</pre> will yield another prefix map:</p>
 
 <pre>
   scala&gt;&nbsp;m&nbsp;withPrefix&nbsp;<code class="quotedstring">"a"</code>
@@ -938,25 +938,25 @@ define a prefix map with the keys shown in <a href="the-architecture-of-scala-co
 
 
 <p><a href="the-architecture-of-scala-collections.html#lst-prefixmap">Listing 25.10</a> shows the definition of 
-<span class="code">PrefixMap</span>. This class is parameterized with the type of associated values <span class="code">T</span>, 
-and extends <span class="code">mutable.Map[String,</span>&nbsp;<span class="code">T]</span> and <span class="code">mutable.MapLike[String,</span>&nbsp;<span class="code">T,</span>&nbsp;<span class="code">PrefixMap[T]]</span>.
+<pre class="code">PrefixMap</pre>. This class is parameterized with the type of associated values <pre class="code">T</pre>, 
+and extends <pre class="code">mutable.Map[String,</pre>&nbsp;<pre class="code">T]</pre> and <pre class="code">mutable.MapLike[String,</pre>&nbsp;<pre class="code">T,</pre>&nbsp;<pre class="code">PrefixMap[T]]</pre>.
 You have seen this pattern already for sequences in the RNA strand example. Then
-as now inheriting an implementation class such as <span class="code">MapLike</span> serves to
-get the right result type for transformations such as <span class="code">filter</span>.</p>
+as now inheriting an implementation class such as <pre class="code">MapLike</pre> serves to
+get the right result type for transformations such as <pre class="code">filter</pre>.</p>
 
-<p>A prefix map node has two mutable fields: <span class="code">suffixes</span> and <span class="code">value</span>.
-The <span class="code">value</span> field contains an optional value that's associated with
-the node.  It is initialized to <span class="code">None</span>. The <span class="code">suffixes</span> field
-contains a map from characters to <span class="code">PrefixMap</span> values. It is
+<p>A prefix map node has two mutable fields: <pre class="code">suffixes</pre> and <pre class="code">value</pre>.
+The <pre class="code">value</pre> field contains an optional value that's associated with
+the node.  It is initialized to <pre class="code">None</pre>. The <pre class="code">suffixes</pre> field
+contains a map from characters to <pre class="code">PrefixMap</pre> values. It is
 initialized to the empty map. You might ask, Why did we pick an immutable map as the implementation
-type for <span class="code">suffixes</span>? Would not a mutable map been more standard since <span class="code">PrefixMap</span> as a whole is also mutable? The answer is that
+type for <pre class="code">suffixes</pre>? Would not a mutable map been more standard since <pre class="code">PrefixMap</pre> as a whole is also mutable? The answer is that
 immutable maps that contain only a few elements are very efficient in
 both space and execution time.</p>
 
 <p>For instance, maps that contain fewer
 than 5 elements are represented as a single object. By contrast, as
 described in <a href="working-with-other-collections.html#sec-sets-and-maps">Section 17.2</a>, the
-standard mutable map is a <span class="code">HashMap</span>, which typically occupies around
+standard mutable map is a <pre class="code">HashMap</pre>, which typically occupies around
 80 bytes, even if it is empty. So if small collections are common,
 it's better to pick immutable over mutable. In the case of Patricia
 tries, we'd expect that most nodes, except the ones at the very top of
@@ -964,49 +964,49 @@ the tree, would contain only a few successors. So storing these
 successors in an immutable map is likely to be more efficient.</p>
 
 <p>Now have a look at the first method that needs to be implemented
-for a map: <span class="code">get</span>. The algorithm is as follows: To get the value
+for a map: <pre class="code">get</pre>. The algorithm is as follows: To get the value
 associated with the empty string in a prefix map, simply select the
-optional <span class="code">value</span> stored in the root of the tree. Otherwise, if the
+optional <pre class="code">value</pre> stored in the root of the tree. Otherwise, if the
 key string is not empty, try to select the submap corresponding to the
 first character of the string. If that yields a map, follow up by
 looking up the remainder of the key string after its first character in
 that map. If the selection fails, the key is not stored in the map, so
-return with <span class="code">None</span>. The combined selection over an option value is
-elegantly expressed using <span class="code">flatMap</span>. When applied to an optional
-value, <span class="code">ov</span>, and a closure, <span class="code">f</span>, which in turn returns an optional
-value, <span class="code">ov</span>&nbsp;<span class="code">flatMap</span>&nbsp;<span class="code">f</span> will succeed if both <span class="code">ov</span> and <span class="code">f</span> return a
-defined value. Otherwise <span class="code">ov</span>&nbsp;<span class="code">flatMap</span>&nbsp;<span class="code">f</span> will return <span class="code">None</span>.</p>
+return with <pre class="code">None</pre>. The combined selection over an option value is
+elegantly expressed using <pre class="code">flatMap</pre>. When applied to an optional
+value, <pre class="code">ov</pre>, and a closure, <pre class="code">f</pre>, which in turn returns an optional
+value, <pre class="code">ov</pre>&nbsp;<pre class="code">flatMap</pre>&nbsp;<pre class="code">f</pre> will succeed if both <pre class="code">ov</pre> and <pre class="code">f</pre> return a
+defined value. Otherwise <pre class="code">ov</pre>&nbsp;<pre class="code">flatMap</pre>&nbsp;<pre class="code">f</pre> will return <pre class="code">None</pre>.</p>
 
-<p>The next two methods to implement for a mutable map are <span class="code">+=</span> and
-<span class="code">-=</span>.  In the implementation of <a href="the-architecture-of-scala-collections.html#lst-prefixmap">Listing 25.10</a>, these are
-defined in terms of two other methods: <span class="code">update</span> and <span class="code">remove</span>. The <span class="code">remove</span> method is very similar to <span class="code">get</span>, except that before
+<p>The next two methods to implement for a mutable map are <pre class="code">+=</pre> and
+<pre class="code">-=</pre>.  In the implementation of <a href="the-architecture-of-scala-collections.html#lst-prefixmap">Listing 25.10</a>, these are
+defined in terms of two other methods: <pre class="code">update</pre> and <pre class="code">remove</pre>. The <pre class="code">remove</pre> method is very similar to <pre class="code">get</pre>, except that before
 returning any associated value, the field containing that value is set
-to <span class="code">None</span>. The <span class="code">update</span> method first calls <span class="code">withPrefix</span> to
+to <pre class="code">None</pre>. The <pre class="code">update</pre> method first calls <pre class="code">withPrefix</pre> to
 navigate to the tree node that needs to be updated, then sets the
-<span class="code">value</span> field of that node to the given value. The <span class="code">withPrefix</span>
+<pre class="code">value</pre> field of that node to the given value. The <pre class="code">withPrefix</pre>
 method navigates through the tree, creating sub-maps as necessary if
 some prefix of characters is not yet contained as a path in the tree.</p>
 
 <p>The last abstract method to implement for a mutable map is
-<span class="code">iterator</span>.<a id="i1062529325-1"/>  This method needs to produce an iterator that yields all
+<pre class="code">iterator</pre>.<a id="i1062529325-1"/>  This method needs to produce an iterator that yields all
 key/value pairs stored in the map. For any given prefix map this
 iterator is composed of the following parts: First, if the map
-contains a defined value, <span class="code">Some(x)</span>, in the <span class="code">value</span> field at its root,
-then <span class="code">("",</span>&nbsp;<span class="code">x)</span> is the first element returned from the iterator.
+contains a defined value, <pre class="code">Some(x)</pre>, in the <pre class="code">value</pre> field at its root,
+then <pre class="code">("",</pre>&nbsp;<pre class="code">x)</pre> is the first element returned from the iterator.
 Furthermore, the iterator needs to traverse the iterators of all submaps
-stored in the <span class="code">suffixes</span> field, but it needs to add a character in front
+stored in the <pre class="code">suffixes</pre> field, but it needs to add a character in front
 of every key string returned by those iterators. More precisely, if 
-<span class="code">m</span> is the submap reached from the root through a character <span class="code">chr</span>,
-and <span class="code">(s,</span>&nbsp;<span class="code">v)</span> is an element returned from <span class="code">m.iterator</span>, then
-the root's iterator will return <span class="code">(chr</span>&nbsp;<span class="code">+:</span>&nbsp;<span class="code">s,</span>&nbsp;<span class="code">v)</span> instead.</p>
+<pre class="code">m</pre> is the submap reached from the root through a character <pre class="code">chr</pre>,
+and <pre class="code">(s,</pre>&nbsp;<pre class="code">v)</pre> is an element returned from <pre class="code">m.iterator</pre>, then
+the root's iterator will return <pre class="code">(chr</pre>&nbsp;<pre class="code">+:</pre>&nbsp;<pre class="code">s,</pre>&nbsp;<pre class="code">v)</pre> instead.</p>
 
 <p>This logic 
-is implemented quite concisely as a concatenation of two <span class="code">for</span> expressions
-in the implementation of the <span class="code">iterator</span> method in <a href="the-architecture-of-scala-collections.html#lst-prefixmap">Listing 25.10</a>. 
-The first <span class="code">for</span> expression iterates over <span class="code">value.iterator</span>. This makes
-use of the fact that <span class="code">Option</span> values define an iterator method that returns
-either no element, if the option value is <span class="code">None</span>,
-or exactly one element <span class="code">x</span>, if the option value is <span class="code">Some(x)</span>.
+is implemented quite concisely as a concatenation of two <pre class="code">for</pre> expressions
+in the implementation of the <pre class="code">iterator</pre> method in <a href="the-architecture-of-scala-collections.html#lst-prefixmap">Listing 25.10</a>. 
+The first <pre class="code">for</pre> expression iterates over <pre class="code">value.iterator</pre>. This makes
+use of the fact that <pre class="code">Option</pre> values define an iterator method that returns
+either no element, if the option value is <pre class="code">None</pre>,
+or exactly one element <pre class="code">x</pre>, if the option value is <pre class="code">Some(x)</pre>.
 <a id="lst-prefix-obj"/></p>
 
 <pre>
@@ -1034,27 +1034,27 @@ or exactly one element <span class="code">x</span>, if the option value is <span
 <h5>Listing 25.11 - The companion object for prefix maps.</h5>
 
 
-<p>Note that there is no <span class="code">newBuilder</span> method defined in
-<span class="code">PrefixMap</span>. There is no need because maps and sets come with
-default builders, which are instances of class <span class="code">MapBuilder</span>. For a mutable map
+<p>Note that there is no <pre class="code">newBuilder</pre> method defined in
+<pre class="code">PrefixMap</pre>. There is no need because maps and sets come with
+default builders, which are instances of class <pre class="code">MapBuilder</pre>. For a mutable map
 the default builder starts with an empty map and then adds successive
-elements using the map's <span class="code">+=</span> method. Mutable sets behave the
-same. The default builders for immutable maps and sets use the non-destructive element addition method <span class="code">+</span>, instead of method <span class="code">+=</span>. However, in all these cases, to build the right kind of set or map, 
+elements using the map's <pre class="code">+=</pre> method. Mutable sets behave the
+same. The default builders for immutable maps and sets use the non-destructive element addition method <pre class="code">+</pre>, instead of method <pre class="code">+=</pre>. However, in all these cases, to build the right kind of set or map, 
 you need to start with an empty set or map of this kind. This is
-provided by the <span class="code">empty</span> method, which is the last method defined in <span class="code">PrefixMap</span>. In
-<a href="the-architecture-of-scala-collections.html#lst-prefixmap">Listing 25.10</a>, this method simply returns a fresh <span class="code">PrefixMap</span>.</p>
+provided by the <pre class="code">empty</pre> method, which is the last method defined in <pre class="code">PrefixMap</pre>. In
+<a href="the-architecture-of-scala-collections.html#lst-prefixmap">Listing 25.10</a>, this method simply returns a fresh <pre class="code">PrefixMap</pre>.</p>
 
-<p>We'll now turn to the companion object <span class="code">PrefixMap</span>, which is shown in
+<p>We'll now turn to the companion object <pre class="code">PrefixMap</pre>, which is shown in
 <a href="the-architecture-of-scala-collections.html#lst-prefix-obj">Listing 25.11</a>. In fact it is not strictly necessary to
-define this companion object, as class <span class="code">PrefixMap</span> can stand well on
-its own.  The main purpose of object <span class="code">PrefixMap</span> is to define some
-convenience factory methods. It also defines a <span class="code">CanBuildFrom</span>
+define this companion object, as class <pre class="code">PrefixMap</pre> can stand well on
+its own.  The main purpose of object <pre class="code">PrefixMap</pre> is to define some
+convenience factory methods. It also defines a <pre class="code">CanBuildFrom</pre>
 implicit to make typing work out better.</p>
 
-<p>The two convenience methods are <span class="code">empty</span> and <span class="code">apply</span>. The same
+<p>The two convenience methods are <pre class="code">empty</pre> and <pre class="code">apply</pre>. The same
 methods are present for all other collections in Scala's collection
 framework so it makes sense to define them here too.  With the two 
-methods, you can write <span class="code">PrefixMap</span> literals like you do for any other
+methods, you can write <pre class="code">PrefixMap</pre> literals like you do for any other
 collection:</p>
 
 <pre>
@@ -1065,13 +1065,13 @@ collection:</p>
 </pre>
 
 
-<p>The other member in object <span class="code">PrefixMap</span> is an implicit <span class="code">CanBuildFrom</span> instance.
-It has the same purpose as the <span class="code">CanBuildFrom</span>
-definition in the last section: to make methods like <span class="code">map</span> return the
-best possible type. For instance, consider <span class="code">map</span>ping a function over the 
-key/value pairs of a <span class="code">PrefixMap</span>. As long as that function produces
+<p>The other member in object <pre class="code">PrefixMap</pre> is an implicit <pre class="code">CanBuildFrom</pre> instance.
+It has the same purpose as the <pre class="code">CanBuildFrom</pre>
+definition in the last section: to make methods like <pre class="code">map</pre> return the
+best possible type. For instance, consider <pre class="code">map</pre>ping a function over the 
+key/value pairs of a <pre class="code">PrefixMap</pre>. As long as that function produces
 pairs of strings and some second type, the result collection will again
-be a <span class="code">PrefixMap</span>. Here's an example:</p>
+be a <pre class="code">PrefixMap</pre>. Here's an example:</p>
 
 <pre>
   scala&gt;&nbsp;res0&nbsp;map&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;(k,&nbsp;v)&nbsp;=&gt;&nbsp;(k&nbsp;+&nbsp;<code class="quotedstring">"!"</code>,&nbsp;<code class="quotedstring">"x"</code>&nbsp;*&nbsp;v)&nbsp;}
@@ -1080,10 +1080,10 @@ be a <span class="code">PrefixMap</span>. Here's an example:</p>
 
 
 <p>The given function argument takes the key/value bindings of the prefix
-map <span class="code">res0</span> and produces pairs of strings. The result of
-the <span class="code">map</span> is a <span class="code">PrefixMap</span>, this time with value type
-<span class="code">String</span> instead of <span class="code">Int</span>. Without the <span class="code">canBuildFrom</span> implicit in
-<span class="code">PrefixMap</span> the result would just have been a general mutable map,
+map <pre class="code">res0</pre> and produces pairs of strings. The result of
+the <pre class="code">map</pre> is a <pre class="code">PrefixMap</pre>, this time with value type
+<pre class="code">String</pre> instead of <pre class="code">Int</pre>. Without the <pre class="code">canBuildFrom</pre> implicit in
+<pre class="code">PrefixMap</pre> the result would just have been a general mutable map,
 not a prefix map.</p>
 
 <h4>Summary</h4>
@@ -1107,8 +1107,8 @@ the framework, you need to pay attention to the following points:</p>
 
 
 </li>
-<li>If you want <span class="code">map</span> and similar operations to return instances of your collection
-  type, provide an implicit <span class="code">CanBuildFrom</span> in your class's companion object.
+<li>If you want <pre class="code">map</pre> and similar operations to return instances of your collection
+  type, provide an implicit <pre class="code">CanBuildFrom</pre> in your class's companion object.
 
 
 </li></ol>

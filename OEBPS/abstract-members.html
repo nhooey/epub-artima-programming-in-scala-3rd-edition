@@ -25,13 +25,13 @@ that and implements the idea in its full generality: Besides methods,
 you can declare abstract fields and even abstract types
 as members of classes and traits.</p>
 
-<p>In this chapter we'll describe all four kinds of abstract member: <span class="code">val</span>s, <span class="code">var</span>s, methods, and types. Along the way we'll discuss
-pre-initialized fields, lazy <span class="code">val</span>s, path-dependent types, and enumerations.</p>
+<p>In this chapter we'll describe all four kinds of abstract member: <pre class="code">val</pre>s, <pre class="code">var</pre>s, methods, and types. Along the way we'll discuss
+pre-initialized fields, lazy <pre class="code">val</pre>s, path-dependent types, and enumerations.</p>
 
 <h3>20.1 A quick tour of abstract members</h3>
 
 
-<p>The following trait declares one of each kind of abstract member: an abstract type (<span class="code">T</span>), method (<span class="code">transform</span>), <span class="code">val</span> (<span class="code">initial</span>), and <span class="code">var</span> (<span class="code">current</span>):<a id="i-1463644999-1"/></p>
+<p>The following trait declares one of each kind of abstract member: an abstract type (<pre class="code">T</pre>), method (<pre class="code">transform</pre>), <pre class="code">val</pre> (<pre class="code">initial</pre>), and <pre class="code">var</pre> (<pre class="code">current</pre>):<a id="i-1463644999-1"/></p>
 
 <pre>
   <code class="vem">trait</code>&nbsp;<code class="typename">Abstract</code>&nbsp;{
@@ -43,7 +43,7 @@ pre-initialized fields, lazy <span class="code">val</span>s, path-dependent type
 </pre>
 
 
-<p>A concrete implementation of <span class="code">Abstract</span> needs to fill in definitions for each of its
+<p>A concrete implementation of <pre class="code">Abstract</pre> needs to fill in definitions for each of its
 abstract members. Here is an example implementation that provides these definitions:</p>
 
 <pre>
@@ -56,10 +56,10 @@ abstract members. Here is an example implementation that provides these definiti
 </pre>
 
 
-<p>The implementation gives a concrete meaning to the type name <span class="code">T</span> by
-defining it as an alias of type <span class="code">String</span>.<a id="i1803174454-1"/><a id="i22781976-1"/> The <span class="code">transform</span> operation
-concatenates a given string with itself, and the <span class="code">initial</span> and
-<span class="code">current</span> values are both set to <span class="code">"hi"</span>.</p>
+<p>The implementation gives a concrete meaning to the type name <pre class="code">T</pre> by
+defining it as an alias of type <pre class="code">String</pre>.<a id="i1803174454-1"/><a id="i22781976-1"/> The <pre class="code">transform</pre> operation
+concatenates a given string with itself, and the <pre class="code">initial</pre> and
+<pre class="code">current</pre> values are both set to <pre class="code">"hi"</pre>.</p>
 
 <p>This example gives you a rough first idea of what kinds of abstract
 members exist in Scala. The remainder of the chapter will present the details and
@@ -69,48 +69,48 @@ explain what the new forms of abstract members, as well as type members in gener
 
 
 <p>As you can see from the example in the previous section, the term <em>abstract type</em> in Scala means a type<a id="i1886198323-1"/>
-declared (with the "<span class="code">type</span>" keyword) to be a member
+declared (with the "<pre class="code">type</pre>" keyword) to be a member
 of a class or trait, without specifying a
 definition.<a id="i475521275-1"/><a id="i-1569140754-2"/> Classes themselves may be abstract, and traits are by definition abstract, but neither of these are what are referred to as <em>abstract
-types</em> in Scala. An abstract type in Scala is always a member of some class or trait, such as type <span class="code">T</span> in trait <span class="code">Abstract</span>.</p>
+types</em> in Scala. An abstract type in Scala is always a member of some class or trait, such as type <pre class="code">T</pre> in trait <pre class="code">Abstract</pre>.</p>
 
 <p>You can think of a non-abstract (or "concrete") type member, such as
-type <span class="code">T</span> in class <span class="code">Concrete</span>, as a way to define a new name, or
+type <pre class="code">T</pre> in class <pre class="code">Concrete</pre>, as a way to define a new name, or
 <em>alias</em>, for a type.<a id="i22781976-2"/><a id="i1803174454-2"/> In class
-<span class="code">Concrete</span>, for example, the type <span class="code">String</span> is given the alias <span class="code">T</span>. As a result, anywhere <span class="code">T</span> appears in the definition of class <span class="code">Concrete</span>, it
-means <span class="code">String</span>. This includes the parameter and result types of <span class="code">transform</span>, <span class="code">initial</span>, and <span class="code">current</span>, which mention <span class="code">T</span> when
-they are declared in supertrait <span class="code">Abstract</span>. Thus, when class <span class="code">Concrete</span> implements these methods, those <span class="code">T</span>s are interpreted to mean <span class="code">String</span>.</p>
+<pre class="code">Concrete</pre>, for example, the type <pre class="code">String</pre> is given the alias <pre class="code">T</pre>. As a result, anywhere <pre class="code">T</pre> appears in the definition of class <pre class="code">Concrete</pre>, it
+means <pre class="code">String</pre>. This includes the parameter and result types of <pre class="code">transform</pre>, <pre class="code">initial</pre>, and <pre class="code">current</pre>, which mention <pre class="code">T</pre> when
+they are declared in supertrait <pre class="code">Abstract</pre>. Thus, when class <pre class="code">Concrete</pre> implements these methods, those <pre class="code">T</pre>s are interpreted to mean <pre class="code">String</pre>.</p>
 
 <p>One reason to use a type member is to define a short, descriptive alias<a id="i22781976-3"/><a id="i1803174454-3"/> for a type whose real name is more verbose, or
 less obvious in meaning, than the alias. Such type members can help clarify the code of a class or trait. The other main use of
 type members is to declare abstract types that must be defined
 in subclasses. This use, which was demonstrated in the previous section, will be described in detail later in this chapter.</p>
 
-<h3 id="sec-abstract-vals">20.3 Abstract <span class="code">val</span>s</h3>
+<h3 id="sec-abstract-vals">20.3 Abstract <pre class="code">val</pre>s</h3>
 
 
-<p>An abstract <span class="code">val</span> declaration has a form like:</p>
+<p>An abstract <pre class="code">val</pre> declaration has a form like:</p>
 
 <pre>
   <code class="vem">val</code>&nbsp;initial:&nbsp;<code class="typename">String</code>
 </pre>
 
 
-<p>It gives a name and type for a <span class="code">val</span>, but not its
+<p>It gives a name and type for a <pre class="code">val</pre>, but not its
 value.<a id="i1727592746-1"/>
-This value has to be provided by a concrete <span class="code">val</span> definition in a subclass.
-For instance, class <span class="code">Concrete</span> implemented the <span class="code">val</span> using:</p>
+This value has to be provided by a concrete <pre class="code">val</pre> definition in a subclass.
+For instance, class <pre class="code">Concrete</pre> implemented the <pre class="code">val</pre> using:</p>
 
 <pre>
   <code class="vem">val</code>&nbsp;initial&nbsp;=&nbsp;<code class="quotedstring">"hi"</code>
 </pre>
 
 
-<p>You use an abstract <span class="code">val</span> declaration in a class when you do not know
+<p>You use an abstract <pre class="code">val</pre> declaration in a class when you do not know
 the correct value in the class, but you do know that the variable will have an 
 unchangeable value in each instance of the class.</p>
 
-<p>An abstract <span class="code">val</span> declaration resembles an abstract parameterless<a id="i1692897037-1"/><a id="i748048051-1"/><a id="i84167179-1"/>
+<p>An abstract <pre class="code">val</pre> declaration resembles an abstract parameterless<a id="i1692897037-1"/><a id="i748048051-1"/><a id="i84167179-1"/>
 method declaration such as:</p>
 
 <pre>
@@ -118,20 +118,20 @@ method declaration such as:</p>
 </pre>
 
 
-<p>Client code would refer to both the <span class="code">val</span> and the method in exactly the
-same way (<i>i.e.</i>, <span class="code">obj.initial</span>). However, if <span class="code">initial</span> is an abstract <span class="code">val</span>,
-the client is guaranteed that <span class="code">obj.initial</span> will yield the
-same value every time it is referenced.  If <span class="code">initial</span> were an abstract
+<p>Client code would refer to both the <pre class="code">val</pre> and the method in exactly the
+same way (<i>i.e.</i>, <pre class="code">obj.initial</pre>). However, if <pre class="code">initial</pre> is an abstract <pre class="code">val</pre>,
+the client is guaranteed that <pre class="code">obj.initial</pre> will yield the
+same value every time it is referenced.  If <pre class="code">initial</pre> were an abstract
 method, that guarantee would not hold because, in that case,
-<span class="code">initial</span> could be implemented by a concrete method that returns a
+<pre class="code">initial</pre> could be implemented by a concrete method that returns a
 different value every time it's called.</p>
 
-<p>In other words, an abstract <span class="code">val</span> constrains its legal implementation:
-Any implementation must be a <span class="code">val</span> definition; it may not be a <span class="code">var</span>
-or a <span class="code">def</span>. Abstract method declarations, on the other hand,
+<p>In other words, an abstract <pre class="code">val</pre> constrains its legal implementation:
+Any implementation must be a <pre class="code">val</pre> definition; it may not be a <pre class="code">var</pre>
+or a <pre class="code">def</pre>. Abstract method declarations, on the other hand,
 may be implemented by both concrete method definitions and concrete
-<span class="code">val</span> definitions.  Given the abstract class <span class="code">Fruit</span> shown in <a href="abstract-members.html#lst-bad-apple">Listing 20.1</a>, class <span class="code">Apple</span>
-would be a legal subclass implementation, but class <span class="code">BadApple</span> would not.
+<pre class="code">val</pre> definitions.  Given the abstract class <pre class="code">Fruit</pre> shown in <a href="abstract-members.html#lst-bad-apple">Listing 20.1</a>, class <pre class="code">Apple</pre>
+would be a legal subclass implementation, but class <pre class="code">BadApple</pre> would not.
 <a id="lst-bad-apple"/></p>
 
 <pre>
@@ -150,16 +150,16 @@ would be a legal subclass implementation, but class <span class="code">BadApple<
 </pre>
 
 
-<h5>Listing 20.1 - Overriding abstract <span class="code">val</span>s and parameterless methods.</h5>
+<h5>Listing 20.1 - Overriding abstract <pre class="code">val</pre>s and parameterless methods.</h5>
 
 
-<h3>20.4 Abstract <span class="code">var</span>s</h3>
+<h3>20.4 Abstract <pre class="code">var</pre>s</h3>
 
 
-<p>Like an abstract <span class="code">val</span>, an abstract <span class="code">var</span> declares just a name and a
+<p>Like an abstract <pre class="code">val</pre>, an abstract <pre class="code">var</pre> declares just a name and a
 type, but not an initial value<a id="i-464180816-1"/>. For instance, <a href="abstract-members.html#lst-abstract-vars">Listing 20.2</a> shows a trait
-<span class="code">AbstractTime</span>, which declares two abstract variables named <span class="code">hour</span> and
-<span class="code">minute</span>:</p>
+<pre class="code">AbstractTime</pre>, which declares two abstract variables named <pre class="code">hour</pre> and
+<pre class="code">minute</pre>:</p>
 
 <p><a id="lst-abstract-vars"/></p>
 
@@ -171,19 +171,19 @@ type, but not an initial value<a id="i-464180816-1"/>. For instance, <a href="ab
 </pre>
 
 
-<h5>Listing 20.2 - Declaring abstract <span class="code">var</span>s.</h5>
+<h5>Listing 20.2 - Declaring abstract <pre class="code">var</pre>s.</h5>
 
 
-<p>What is the meaning of abstract <span class="code">var</span>s
-like <span class="code">hour</span> and
-<span class="code">minute</span>?  You saw in <a href="mutable-objects.html#sec-properties">Section 18.2</a> that
-<span class="code">var</span>s declared as members of classes come equipped with getter and
-setter methods<a id="i553650449-2"/><a id="i-1969580643-3"/>. This holds for abstract <span class="code">var</span>s as well.
-If you declare an abstract <span class="code">var</span> named <span class="code">hour</span>, for example, you implicitly declare an abstract
-getter method, <span class="code">hour</span>, and an abstract setter method, <span class="code">hour_=</span>.
+<p>What is the meaning of abstract <pre class="code">var</pre>s
+like <pre class="code">hour</pre> and
+<pre class="code">minute</pre>?  You saw in <a href="mutable-objects.html#sec-properties">Section 18.2</a> that
+<pre class="code">var</pre>s declared as members of classes come equipped with getter and
+setter methods<a id="i553650449-2"/><a id="i-1969580643-3"/>. This holds for abstract <pre class="code">var</pre>s as well.
+If you declare an abstract <pre class="code">var</pre> named <pre class="code">hour</pre>, for example, you implicitly declare an abstract
+getter method, <pre class="code">hour</pre>, and an abstract setter method, <pre class="code">hour_=</pre>.
 There's no reassignable field to be defined&mdash;that will come in subclasses
-that define the concrete implementation of the abstract <span class="code">var</span>.
-For instance, the definition of <span class="code">AbstractTime</span> shown in <a href="abstract-members.html#lst-abstract-vars">Listing 20.2</a> is
+that define the concrete implementation of the abstract <pre class="code">var</pre>.
+For instance, the definition of <pre class="code">AbstractTime</pre> shown in <a href="abstract-members.html#lst-abstract-vars">Listing 20.2</a> is
 exactly equivalent to the definition shown in <a href="abstract-members.html#lst-abstract-vars-expanded">Listing 20.3</a>.
 <a id="lst-abstract-vars-expanded"/></p>
 
@@ -197,20 +197,20 @@ exactly equivalent to the definition shown in <a href="abstract-members.html#lst
 </pre>
 
 
-<h5>Listing 20.3 - How abstract <span class="code">var</span>s are expanded into getters and setters.</h5>
+<h5>Listing 20.3 - How abstract <pre class="code">var</pre>s are expanded into getters and setters.</h5>
 
 
-<h3 id="sec-val-init">20.5 Initializing abstract <span class="code">val</span>s</h3>
+<h3 id="sec-val-init">20.5 Initializing abstract <pre class="code">val</pre>s</h3>
 
 
-<p>Abstract <span class="code">val</span>s sometimes play a role analogous to superclass
+<p>Abstract <pre class="code">val</pre>s sometimes play a role analogous to superclass
 parameters: they let you provide details in a subclass that are
 missing in a superclass. This is particularly important for traits, because traits don't have a constructor to which you could pass<a id="i-1985442764-1"/><a id="i-280981118-1"/>
 parameters. So the usual notion of parameterizing a trait works via
-abstract <span class="code">val</span>s that are implemented in subclasses.<a id="i1371895904-1"/><a id="i-1767979071-1"/></p>
+abstract <pre class="code">val</pre>s that are implemented in subclasses.<a id="i1371895904-1"/><a id="i-1767979071-1"/></p>
 
 <p>As an example,
-consider a reformulation of class <span class="code">Rational</span> from <a href="functional-objects.html">Chapter 6</a>, as shown in <a href="functional-objects.html#lst-overloaded-methods">Listing 6.5</a>  <a href="functional-objects.html#lst-overloaded-methods">here</a>,
+consider a reformulation of class <pre class="code">Rational</pre> from <a href="functional-objects.html">Chapter 6</a>, as shown in <a href="functional-objects.html#lst-overloaded-methods">Listing 6.5</a>  <a href="functional-objects.html#lst-overloaded-methods">here</a>,
 as a trait:</p>
 
 <pre>
@@ -222,12 +222,12 @@ as a trait:</p>
 
 
 <p>The
-<span class="code">Rational</span> class from <a href="functional-objects.html">Chapter 6</a> had two
-parameters: <span class="code">n</span> for the numerator of the rational number, and <span class="code">d</span>
-for the denominator. The <span class="code">RationalTrait</span> trait given here defines
-instead two abstract <span class="code">val</span>s: <span class="code">numerArg</span> and <span class="code">denomArg</span>.  To
+<pre class="code">Rational</pre> class from <a href="functional-objects.html">Chapter 6</a> had two
+parameters: <pre class="code">n</pre> for the numerator of the rational number, and <pre class="code">d</pre>
+for the denominator. The <pre class="code">RationalTrait</pre> trait given here defines
+instead two abstract <pre class="code">val</pre>s: <pre class="code">numerArg</pre> and <pre class="code">denomArg</pre>.  To
 instantiate a concrete instance of that trait, you need to implement the
-abstract <span class="code">val</span> definitions. Here's an example:</p>
+abstract <pre class="code">val</pre> definitions. Here's an example:</p>
 
 <pre>
   <code class="vem">new</code>&nbsp;<code class="typename">RationalTrait</code>&nbsp;{
@@ -237,11 +237,11 @@ abstract <span class="code">val</span> definitions. Here's an example:</p>
 </pre>
 
 
-<p>Here the keyword <span class="code">new</span> appears in front of a trait name, <span class="code">RationalTrait</span>, which is followed by a class body in curly braces.  This expression
+<p>Here the keyword <pre class="code">new</pre> appears in front of a trait name, <pre class="code">RationalTrait</pre>, which is followed by a class body in curly braces.  This expression
 yields an instance of an <a href="glossary.html#g-113939451"><em>anonymous class</em></a> that mixes in the trait
 and is defined by the body<a id="i-2121626765-1"/><a id="i-899295719-1"/>. 
 This particular anonymous class instantiation
-has an effect analogous to the instance creation <span class="code">new</span>&nbsp;<span class="code">Rational(1,</span>&nbsp;<span class="code">2)</span>.</p>
+has an effect analogous to the instance creation <pre class="code">new</pre>&nbsp;<pre class="code">Rational(1,</pre>&nbsp;<pre class="code">2)</pre>.</p>
 
 <p>The analogy is not perfect, however. There's a subtle difference concerning the 
 order in which expressions are initialized. When you write:</p>
@@ -251,9 +251,9 @@ order in which expressions are initialized. When you write:</p>
 </pre>
 
 
-<p>the two expressions, <span class="code">expr1</span> and <span class="code">expr2</span>, are evaluated before
-class <span class="code">Rational</span> is initialized, so the values of <span class="code">expr1</span> and <span class="code">expr2</span> are 
-available for the initialization of class <span class="code">Rational</span>.</p>
+<p>the two expressions, <pre class="code">expr1</pre> and <pre class="code">expr2</pre>, are evaluated before
+class <pre class="code">Rational</pre> is initialized, so the values of <pre class="code">expr1</pre> and <pre class="code">expr2</pre> are 
+available for the initialization of class <pre class="code">Rational</pre>.</p>
 
 <p>For traits, the situation is the opposite. When you write:</p>
 
@@ -265,12 +265,12 @@ available for the initialization of class <span class="code">Rational</span>.</p
 </pre>
 
 
-<p>the expressions, <span class="code">expr1</span> and <span class="code">expr2</span>, are evaluated as part of the initialization
-of the anonymous class, but the anonymous class is initialized <em>after</em> the <span class="code">RationalTrait</span>. So the values of <span class="code">numerArg</span> and <span class="code">denomArg</span> are not available
-during the initialization of <span class="code">RationalTrait</span> (more precisely, a 
-selection of either value would yield the default value for type <span class="code">Int</span>, 0). For the definition of <span class="code">RationalTrait</span> given previously, this is not a problem, because
-the trait's initialization does not make use of values <span class="code">numerArg</span> or <span class="code">denomArg</span>.
-However, it becomes a problem in the variant of <span class="code">RationalTrait</span> shown in <a href="abstract-members.html#lst-rational-trait">Listing 20.4</a>,
+<p>the expressions, <pre class="code">expr1</pre> and <pre class="code">expr2</pre>, are evaluated as part of the initialization
+of the anonymous class, but the anonymous class is initialized <em>after</em> the <pre class="code">RationalTrait</pre>. So the values of <pre class="code">numerArg</pre> and <pre class="code">denomArg</pre> are not available
+during the initialization of <pre class="code">RationalTrait</pre> (more precisely, a 
+selection of either value would yield the default value for type <pre class="code">Int</pre>, 0). For the definition of <pre class="code">RationalTrait</pre> given previously, this is not a problem, because
+the trait's initialization does not make use of values <pre class="code">numerArg</pre> or <pre class="code">denomArg</pre>.
+However, it becomes a problem in the variant of <pre class="code">RationalTrait</pre> shown in <a href="abstract-members.html#lst-rational-trait">Listing 20.4</a>,
 which defines normalized numerators and denominators.</p>
 
 <p><a id="lst-rational-trait"/></p>
@@ -290,7 +290,7 @@ which defines normalized numerators and denominators.</p>
 </pre>
 
 
-<h5>Listing 20.4 - A trait that uses its abstract <span class="code">val</span>s.</h5>
+<h5>Listing 20.4 - A trait that uses its abstract <pre class="code">val</pre>s.</h5>
 
 
 <p>If you try to instantiate this trait with some numerator and
@@ -310,22 +310,22 @@ denominator expressions that are not simple literals, you'll get an exception:</
 </pre>
 
 
-<p>The exception in this example was thrown because <span class="code">denomArg</span> still had its
-default value of 0 when class <span class="code">RationalTrait</span> was initialized, which caused
-the <span class="code">require</span> invocation to fail.</p>
+<p>The exception in this example was thrown because <pre class="code">denomArg</pre> still had its
+default value of 0 when class <pre class="code">RationalTrait</pre> was initialized, which caused
+the <pre class="code">require</pre> invocation to fail.</p>
 
 <p>This example demonstrates that initialization order is not the same
 for class parameters and abstract fields.<a id="i-1695985614-1"/><a id="i-17530359-1"/><a id="i-1356458045-1"/> A class parameter argument is evaluated <span style="font-style:italic">before</span> it is passed to the class
-constructor (unless the parameter is by-name). An implementing <span class="code">val</span>
+constructor (unless the parameter is by-name). An implementing <pre class="code">val</pre>
 definition in a subclass, by contrast, is evaluated only <span style="font-style:italic">after</span> the
 superclass has been initialized.</p>
 
-<p>Now that you understand why abstract <span class="code">val</span>s behave differently from
+<p>Now that you understand why abstract <pre class="code">val</pre>s behave differently from
 parameters, it would be good to know what can be done about this. Is
-it possible to define a <span class="code">RationalTrait</span> that can be initialized
+it possible to define a <pre class="code">RationalTrait</pre> that can be initialized
 robustly, without fearing errors due to uninitialized fields? In fact,
 Scala offers two alternative solutions to this problem, <span style="font-style:italic">
-pre-initialized fields</span> and <span style="font-style:italic">lazy <span class="code">val</span>s</span>. They are presented in the
+pre-initialized fields</span> and <span style="font-style:italic">lazy <pre class="code">val</pre>s</span>. They are presented in the
 remainder of this section.</p>
 
 <h4>Pre-initialized fields</h4>
@@ -336,10 +336,10 @@ field of a subclass before the superclass is
 called.<a id="i-1387085847-1"/><a id="i483675481-1"/> To do this,
 simply place the field definition in braces before the superclass
 constructor call. As an example, <a href="abstract-members.html#lst-pre-init-anon-class">Listing 20.5</a> shows another attempt to create
-an instance of <span class="code">RationalTrait</span>.
+an instance of <pre class="code">RationalTrait</pre>.
 As you see from this example, the initialization section comes before
-the mention of the supertrait <span class="code">RationalTrait</span>. Both are separated
-by a <span class="code">with</span>.</p>
+the mention of the supertrait <pre class="code">RationalTrait</pre>. Both are separated
+by a <pre class="code">with</pre>.</p>
 
 <p><a id="lst-pre-init-anon-class"/></p>
 
@@ -360,8 +360,8 @@ can also be used in objects or named subclasses. Two
 examples are shown in <a href="abstract-members.html#lst-pre-init-fields-object">Listings 20.6</a>
 <a href="abstract-members.html#lst-pre-init-fields-class">and 20.7</a>.
 As you can see from these examples, the pre-initialization section
-comes in each case after the <span class="code">extends</span> keyword of the defined object or
-class.  Class <span class="code">RationalClass</span>, shown in <a href="abstract-members.html#lst-pre-init-fields-class">Listing 20.7</a>, exemplifies a general schema of how class
+comes in each case after the <pre class="code">extends</pre> keyword of the defined object or
+class.  Class <pre class="code">RationalClass</pre>, shown in <a href="abstract-members.html#lst-pre-init-fields-class">Listing 20.7</a>, exemplifies a general schema of how class
 parameters can be made available for the initialization of a
 supertrait.</p>
 
@@ -399,7 +399,7 @@ supertrait.</p>
 <p>Because pre-initialized fields are initialized before the superclass
 constructor is called, their initializers cannot refer to the object
 that's being constructed. Consequently, if such an initializer refers
-to <span class="code">this</span>, the reference goes to the object containing the class or
+to <pre class="code">this</pre>, the reference goes to the object containing the class or
 object that's being constructed, not the constructed object itself.</p>
 
 <p>Here's an example:<a id="i988779894-2"/></p>
@@ -416,24 +416,24 @@ object that's being constructed, not the constructed object itself.</p>
 </pre>
 
 
-<p>The example did not compile because the reference <span class="code">this.numerArg</span> was
-looking for a <span class="code">numerArg</span> field in the object containing the <span class="code">new</span>
-(which in this case was the synthetic object named <span class="code">$iw</span>, into which
+<p>The example did not compile because the reference <pre class="code">this.numerArg</pre> was
+looking for a <pre class="code">numerArg</pre> field in the object containing the <pre class="code">new</pre>
+(which in this case was the synthetic object named <pre class="code">$iw</pre>, into which
 the interpreter puts user input lines). Once more, pre-initialized fields 
 behave in this respect like class constructor arguments.</p>
 
-<h4>Lazy <span class="code">val</span>s</h4>
+<h4>Lazy <pre class="code">val</pre>s</h4>
 
 
 <p>You can use pre-initialized fields to simulate precisely the
 initialization behavior of class constructor arguments. Sometimes,
 however, you might prefer to let the system itself sort out how things
-should be initialized. This can be achieved by making your <span class="code">val</span>
-definitions <em>lazy</em>. If you prefix a <span class="code">val</span> definition with a <span class="code">lazy</span><a id="i1386009102-1"/>
+should be initialized. This can be achieved by making your <pre class="code">val</pre>
+definitions <em>lazy</em>. If you prefix a <pre class="code">val</pre> definition with a <pre class="code">lazy</pre><a id="i1386009102-1"/>
 modifier, the initializing expression on the right-hand side will only
-be evaluated the first time the <span class="code">val</span> is used.</p>
+be evaluated the first time the <pre class="code">val</pre> is used.</p>
 
-<p>For an example, define an object <span class="code">Demo</span> with a <span class="code">val</span> as follows:</p>
+<p>For an example, define an object <pre class="code">Demo</pre> with a <pre class="code">val</pre> as follows:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Demo</code>&nbsp;{
@@ -443,7 +443,7 @@ be evaluated the first time the <span class="code">val</span> is used.</p>
 </pre>
 
 
-<p>Now, first refer to <span class="code">Demo</span>, then to <span class="code">Demo.x</span>:</p>
+<p>Now, first refer to <pre class="code">Demo</pre>, then to <pre class="code">Demo.x</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="typename">Demo</code>
@@ -454,10 +454,10 @@ be evaluated the first time the <span class="code">val</span> is used.</p>
 </pre>
 
 
-<p>As you can see, the moment you use <span class="code">Demo</span>, its <span class="code">x</span> field becomes
+<p>As you can see, the moment you use <pre class="code">Demo</pre>, its <pre class="code">x</pre> field becomes
 initialized. 
-The initialization of <span class="code">x</span> forms part of the initialization of <span class="code">Demo</span>.
-The situation changes, however, if you define the <span class="code">x</span> field to be <span class="code">lazy</span>:</p>
+The initialization of <pre class="code">x</pre> forms part of the initialization of <pre class="code">Demo</pre>.
+The situation changes, however, if you define the <pre class="code">x</pre> field to be <pre class="code">lazy</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Demo</code>&nbsp;{
@@ -472,29 +472,29 @@ The situation changes, however, if you define the <span class="code">x</span> fi
 </pre>
 
 
-<p>Now, initializing <span class="code">Demo</span> does not involve initializing <span class="code">x</span>. The initialization
-of <span class="code">x</span> will be deferred until the first time <span class="code">x</span> is used. This is similar to the situation where <span class="code">x</span> is defined as a
-parameterless method, using a <span class="code">def</span>. However, unlike a <span class="code">def</span>, a lazy
-<span class="code">val</span> is never evaluated more than
+<p>Now, initializing <pre class="code">Demo</pre> does not involve initializing <pre class="code">x</pre>. The initialization
+of <pre class="code">x</pre> will be deferred until the first time <pre class="code">x</pre> is used. This is similar to the situation where <pre class="code">x</pre> is defined as a
+parameterless method, using a <pre class="code">def</pre>. However, unlike a <pre class="code">def</pre>, a lazy
+<pre class="code">val</pre> is never evaluated more than
 once<a id="i-861970308-1"/><a id="i3314548-1"/>. In fact, after the first
-evaluation of a lazy <span class="code">val</span> the result of the evaluation is stored, to
-be reused when the same <span class="code">val</span> is used subsequently.</p>
+evaluation of a lazy <pre class="code">val</pre> the result of the evaluation is stored, to
+be reused when the same <pre class="code">val</pre> is used subsequently.</p>
 
-<p>Looking at this example, it seems that objects like <span class="code">Demo</span> themselves
-behave like lazy <span class="code">val</span>s, in that they are also initialized on demand, the first time they are used. This is correct. In fact an object
+<p>Looking at this example, it seems that objects like <pre class="code">Demo</pre> themselves
+behave like lazy <pre class="code">val</pre>s, in that they are also initialized on demand, the first time they are used. This is correct. In fact an object
 definition can be seen as a shorthand for the definition of a lazy
-<span class="code">val</span> with an anonymous class that describes the object's contents.</p>
+<pre class="code">val</pre> with an anonymous class that describes the object's contents.</p>
 
-<p>Using lazy <span class="code">val</span>s, you could reformulate <span class="code">RationalTrait</span> as shown in <a href="abstract-members.html#lst-init-trait-lazy-vals">Listing 20.8</a>. In the new trait definition, all concrete fields are defined <span class="code">lazy</span>.
-Another change with respect to the previous definition of <span class="code">RationalTrait</span>, shown
+<p>Using lazy <pre class="code">val</pre>s, you could reformulate <pre class="code">RationalTrait</pre> as shown in <a href="abstract-members.html#lst-init-trait-lazy-vals">Listing 20.8</a>. In the new trait definition, all concrete fields are defined <pre class="code">lazy</pre>.
+Another change with respect to the previous definition of <pre class="code">RationalTrait</pre>, shown
 in <a href="abstract-members.html#lst-rational-trait">Listing 20.4</a>,
-is that the <span class="code">require</span> clause was moved from the body of the trait to the
-initializer of the private field, <span class="code">g</span>, which computes the greatest
-common divisor of <span class="code">numerArg</span> and <span class="code">denomArg</span>.
+is that the <pre class="code">require</pre> clause was moved from the body of the trait to the
+initializer of the private field, <pre class="code">g</pre>, which computes the greatest
+common divisor of <pre class="code">numerArg</pre> and <pre class="code">denomArg</pre>.
 With these changes, there's nothing that remains to be done when  
-<span class="code">LazyRationalTrait</span> is initialized; all initialization code is now
-part of the right-hand side of a lazy <span class="code">val</span>. Thus, it is
-safe to initialize the abstract fields of <span class="code">LazyRationalTrait</span> after
+<pre class="code">LazyRationalTrait</pre> is initialized; all initialization code is now
+part of the right-hand side of a lazy <pre class="code">val</pre>. Thus, it is
+safe to initialize the abstract fields of <pre class="code">LazyRationalTrait</pre> after
 the class is defined.</p>
 
 <p><a id="lst-init-trait-lazy-vals"/></p>
@@ -516,7 +516,7 @@ the class is defined.</p>
 </pre>
 
 
-<h5>Listing 20.8 - Initializing a trait with lazy <span class="code">val</span>s.</h5>
+<h5>Listing 20.8 - Initializing a trait with lazy <pre class="code">val</pre>s.</h5>
 
 
 <p>Here's an example:</p>
@@ -534,78 +534,78 @@ the class is defined.</p>
 
 <p>No pre-initialization is needed.
 It's instructive to trace the sequence of initializations that lead to
-the string <span class="code">1/2</span> to be printed in the code above:</p>
+the string <pre class="code">1/2</pre> to be printed in the code above:</p>
 
 <ol>
 
 
 <li>
-A fresh instance of <span class="code">LazyRationalTrait</span> gets created and 
-the initialization code of <span class="code">LazyRationalTrait</span> is run. 
-This initialization code is empty; none of the fields of <span class="code">LazyRationalTrait</span> is initialized yet.
+A fresh instance of <pre class="code">LazyRationalTrait</pre> gets created and 
+the initialization code of <pre class="code">LazyRationalTrait</pre> is run. 
+This initialization code is empty; none of the fields of <pre class="code">LazyRationalTrait</pre> is initialized yet.
 
 
 </li>
 <li>
 Next, the primary constructor of the anonymous subclass defined by the
-<span class="code">new</span> expression is executed.  This involves the initialization of
-<span class="code">numerArg</span> with <span class="code">2</span> and <span class="code">denomArg</span> with <span class="code">4</span>.
+<pre class="code">new</pre> expression is executed.  This involves the initialization of
+<pre class="code">numerArg</pre> with <pre class="code">2</pre> and <pre class="code">denomArg</pre> with <pre class="code">4</pre>.
 
 
 </li>
 <li>
-Next, the <span class="code">toString</span> method is invoked on the constructed object by the
+Next, the <pre class="code">toString</pre> method is invoked on the constructed object by the
 interpreter, so that the resulting value can be printed.
 
 
 </li>
 <li>
-Next, the <span class="code">numer</span> field is accessed for the first time by the 
-<span class="code">toString</span> method in trait <span class="code">LazyRationalTrait</span>, so its initializer is
+Next, the <pre class="code">numer</pre> field is accessed for the first time by the 
+<pre class="code">toString</pre> method in trait <pre class="code">LazyRationalTrait</pre>, so its initializer is
 evaluated.
 
 
 </li>
 <li>
-The initializer of <span class="code">numer</span> accesses the private field, <span class="code">g</span>, 
-so <span class="code">g</span> is evaluated next. This evaluation accesses <span class="code">numerArg</span> and <span class="code">denomArg</span>, 
+The initializer of <pre class="code">numer</pre> accesses the private field, <pre class="code">g</pre>, 
+so <pre class="code">g</pre> is evaluated next. This evaluation accesses <pre class="code">numerArg</pre> and <pre class="code">denomArg</pre>, 
 which were defined in Step 2.
 
 
 </li>
 <li>
-Next, the <span class="code">toString</span> method accesses the value of <span class="code">denom</span>, which causes
-<span class="code">denom</span>'s evaluation. The evaluation of <span class="code">denom</span> accesses the values of <span class="code">denomArg</span> and <span class="code">g</span>.
-The initializer of the <span class="code">g</span> field is not re-evaluated, because it was already evaluated
+Next, the <pre class="code">toString</pre> method accesses the value of <pre class="code">denom</pre>, which causes
+<pre class="code">denom</pre>'s evaluation. The evaluation of <pre class="code">denom</pre> accesses the values of <pre class="code">denomArg</pre> and <pre class="code">g</pre>.
+The initializer of the <pre class="code">g</pre> field is not re-evaluated, because it was already evaluated
 in Step 5.
 
 
 </li>
 <li>
-Finally, the result string <span class="code">"1/2"</span> is constructed and printed.
+Finally, the result string <pre class="code">"1/2"</pre> is constructed and printed.
 
 
 </li></ol>
 
 
-<p>Note that the definition of <span class="code">g</span> comes textually after the definitions of
-<span class="code">numer</span> and <span class="code">denom</span> in class <span class="code">LazyRationalTrait</span>. Nevertheless,
-because all three values are lazy, <span class="code">g</span> gets initialized before the
-initialization of <span class="code">numer</span> and <span class="code">denom</span> is completed.</p>
+<p>Note that the definition of <pre class="code">g</pre> comes textually after the definitions of
+<pre class="code">numer</pre> and <pre class="code">denom</pre> in class <pre class="code">LazyRationalTrait</pre>. Nevertheless,
+because all three values are lazy, <pre class="code">g</pre> gets initialized before the
+initialization of <pre class="code">numer</pre> and <pre class="code">denom</pre> is completed.</p>
 
 <p>This shows an
-important property of lazy <span class="code">val</span>s: The textual order of their
+important property of lazy <pre class="code">val</pre>s: The textual order of their
 definitions does not matter because values get initialized on
 demand. Thus, lazy vals can free you as a programmer from having
-to think hard how to arrange <span class="code">val</span> definitions to ensure that everything is
+to think hard how to arrange <pre class="code">val</pre> definitions to ensure that everything is
 defined when it is needed.</p>
 
 <p>However, this advantage holds only as long as the initialization of
-lazy <span class="code">val</span>s neither produces side effects nor depends on them.  In
+lazy <pre class="code">val</pre>s neither produces side effects nor depends on them.  In
 the presence of side effects, initialization order starts to
 matter. And then it can be quite difficult to trace in what order
 initialization code is run, as the previous example has
-demonstrated. So lazy <span class="code">val</span>s are an ideal complement to functional
+demonstrated. So lazy <pre class="code">val</pre>s are an ideal complement to functional
 objects, where the order of initializations does not matter, as long
 as everything gets initialized eventually<a id="i-1860042908-1"/>. They are less well suited
 for code that's predominantly imperative.</p>
@@ -624,24 +624,24 @@ member of this class of languages is Haskell
 </div>
 
 
-<h3 id="sec-abstract-types">20.6 Abstract <span class="code">type</span>s</h3>
+<h3 id="sec-abstract-types">20.6 Abstract <pre class="code">type</pre>s</h3>
 
 
-<p>In the beginning of this chapter, you saw, "<span class="code">type</span>&nbsp;<span class="code">T</span>", an abstract type
+<p>In the beginning of this chapter, you saw, "<pre class="code">type</pre>&nbsp;<pre class="code">T</pre>", an abstract type
 declaration<a id="i-332843517-1"/><a id="i669006587-1"/>.
 The rest of this chapter discusses what such an abstract type
 declaration means and what it's good for.
 Like all other abstract declarations, an abstract type declaration 
 is a placeholder for something that will
 be defined concretely in subclasses. In this case, it is a type that
-will be defined further down the class hierarchy. So <span class="code">T</span> above refers
+will be defined further down the class hierarchy. So <pre class="code">T</pre> above refers
 to a type that is as yet unknown at the point where it is declared. 
-Different subclasses can provide different realizations of <span class="code">T</span>.</p>
+Different subclasses can provide different realizations of <pre class="code">T</pre>.</p>
 
 <p>Here is a well-known example where abstract types show up
 naturally. Suppose you are given the task of modeling the eating habits of
-animals. You might start with a class <span class="code">Food</span> and a class <span class="code">Animal</span>
-with an <span class="code">eat</span> method:</p>
+animals. You might start with a class <pre class="code">Food</pre> and a class <pre class="code">Animal</pre>
+with an <pre class="code">eat</pre> method:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Food</code>
@@ -651,8 +651,8 @@ with an <span class="code">eat</span> method:</p>
 </pre>
 
 
-<p>You might then attempt to specialize these two classes to a class of <span class="code">Cow</span>s that eat
-<span class="code">Grass</span>:</p>
+<p>You might then attempt to specialize these two classes to a class of <pre class="code">Cow</pre>s that eat
+<pre class="code">Grass</pre>:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Grass</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>
@@ -676,9 +676,9 @@ with an <span class="code">eat</span> method:</p>
 </pre>
 
 
-<p>What happened is that the <span class="code">eat</span> method in class <span class="code">Cow</span> did not override
-the <span class="code">eat</span> method in class <span class="code">Animal</span> because its parameter type is different: it's
-<span class="code">Grass</span> in class <span class="code">Cow</span> vs. <span class="code">Food</span> in class <span class="code">Animal</span>.</p>
+<p>What happened is that the <pre class="code">eat</pre> method in class <pre class="code">Cow</pre> did not override
+the <pre class="code">eat</pre> method in class <pre class="code">Animal</pre> because its parameter type is different: it's
+<pre class="code">Grass</pre> in class <pre class="code">Cow</pre> vs. <pre class="code">Food</pre> in class <pre class="code">Animal</pre>.</p>
 
 <p>Some people have argued that the type system is unnecessarily strict
 in refusing these classes.  They have said that it should be OK to
@@ -703,11 +703,11 @@ situations very quickly.</p>
 </pre>
 
 
-<p>The program would compile if the restriction were eased, because <span class="code">Cow</span>s are <span class="code">Animal</span>s and <span class="code">Animal</span>s 
-do have an <span class="code">eat</span> method that accepts any kind of <span class="code">Food</span>, including <span class="code">Fish</span>.
+<p>The program would compile if the restriction were eased, because <pre class="code">Cow</pre>s are <pre class="code">Animal</pre>s and <pre class="code">Animal</pre>s 
+do have an <pre class="code">eat</pre> method that accepts any kind of <pre class="code">Food</pre>, including <pre class="code">Fish</pre>.
 But surely it would do a cow no good to eat a fish!</p>
 
-<p>What you need to do instead is apply some more precise modeling. <span class="code">Animal</span>s do eat <span class="code">Food</span>, but what kind of <span class="code">Food</span> each <span class="code">Animal</span> eats depends on the <span class="code">Animal</span>. This can be neatly expressed
+<p>What you need to do instead is apply some more precise modeling. <pre class="code">Animal</pre>s do eat <pre class="code">Food</pre>, but what kind of <pre class="code">Food</pre> each <pre class="code">Animal</pre> eats depends on the <pre class="code">Animal</pre>. This can be neatly expressed
 with an abstract type, as shown in <a href="abstract-members.html#lst-suitablefood-abstract-type">Listing 20.9</a>:</p>
 
 <p><a id="lst-suitablefood-abstract-type"/></p>
@@ -724,18 +724,18 @@ with an abstract type, as shown in <a href="abstract-members.html#lst-suitablefo
 <h5>Listing 20.9 - Modeling suitable food with an abstract type.</h5>
 
 
-<p>With the new class definition, an <span class="code">Animal</span> can eat only food that's
+<p>With the new class definition, an <pre class="code">Animal</pre> can eat only food that's
 suitable.  What food is suitable cannot be determined at the level of
-the <span class="code">Animal</span> class. That's why <span class="code">SuitableFood</span> is modeled as an
-abstract type. The type has an upper bound, <span class="code">Food</span>, which is expressed
-by the "<span class="code">&lt;:</span>&nbsp;<span class="code">Food</span>" clause. This means that any concrete instantiation
-of <span class="code">SuitableFood</span> (in a subclass of <span class="code">Animal</span>) must be a subclass of <span class="code">Food</span>. For example, you
-would not be able to instantiate <span class="code">SuitableFood</span> with class
-<span class="code">IOException</span>.</p>
+the <pre class="code">Animal</pre> class. That's why <pre class="code">SuitableFood</pre> is modeled as an
+abstract type. The type has an upper bound, <pre class="code">Food</pre>, which is expressed
+by the "<pre class="code">&lt;:</pre>&nbsp;<pre class="code">Food</pre>" clause. This means that any concrete instantiation
+of <pre class="code">SuitableFood</pre> (in a subclass of <pre class="code">Animal</pre>) must be a subclass of <pre class="code">Food</pre>. For example, you
+would not be able to instantiate <pre class="code">SuitableFood</pre> with class
+<pre class="code">IOException</pre>.</p>
 
-<p>With <span class="code">Animal</span> defined, you can now progress to cows, as shown in <a href="abstract-members.html#lst-suitable-cow">Listing 20.10</a>.
-Class <span class="code">Cow</span> fixes its <span class="code">SuitableFood</span> to be <span class="code">Grass</span> and also defines
-a concrete <span class="code">eat</span> method for this kind of food.</p>
+<p>With <pre class="code">Animal</pre> defined, you can now progress to cows, as shown in <a href="abstract-members.html#lst-suitable-cow">Listing 20.10</a>.
+Class <pre class="code">Cow</pre> fixes its <pre class="code">SuitableFood</pre> to be <pre class="code">Grass</pre> and also defines
+a concrete <pre class="code">eat</pre> method for this kind of food.</p>
 
 <p><a id="lst-suitable-cow"/></p>
 
@@ -774,23 +774,23 @@ you would get the following compiler error:<a id="i-677980410-4"/></p>
 
 
 <p>Have a look at the last error message again. What's interesting about it is the<a id="i419165808-1"/><a id="i-2033041288-1"/> 
-type required by the <span class="code">eat</span> method: <span class="code">bessy.SuitableFood</span>. This type
-consists of an object reference, <span class="code">bessy</span>, followed by a type
-field, <span class="code">SuitableFood</span>, of the object. So this shows that objects in
-Scala can have types as members. The meaning of <span class="code">bessy.SuitableFood</span> is "the type
-<span class="code">SuitableFood</span> that is a member of the object referenced from <span class="code">bessy</span>" or,
-alternatively, the type of food that's suitable for <span class="code">bessy</span>.</p>
+type required by the <pre class="code">eat</pre> method: <pre class="code">bessy.SuitableFood</pre>. This type
+consists of an object reference, <pre class="code">bessy</pre>, followed by a type
+field, <pre class="code">SuitableFood</pre>, of the object. So this shows that objects in
+Scala can have types as members. The meaning of <pre class="code">bessy.SuitableFood</pre> is "the type
+<pre class="code">SuitableFood</pre> that is a member of the object referenced from <pre class="code">bessy</pre>" or,
+alternatively, the type of food that's suitable for <pre class="code">bessy</pre>.</p>
 
 <p>A type like
-<span class="code">bessy.SuitableFood</span> is called a <span style="font-style:italic">path-dependent
+<pre class="code">bessy.SuitableFood</pre> is called a <span style="font-style:italic">path-dependent
 type</span>.
 The word "path" here means a reference an object. 
-It could be a single name, such as <span class="code">bessy</span>, or a longer access path, such as <span class="code">farm.barn.bessy</span>,
-where each of <span class="code">farm</span>, <span class="code">barn</span>, and <span class="code">bessy</span> are variables (or singleton object names) that refer to objects.</p>
+It could be a single name, such as <pre class="code">bessy</pre>, or a longer access path, such as <pre class="code">farm.barn.bessy</pre>,
+where each of <pre class="code">farm</pre>, <pre class="code">barn</pre>, and <pre class="code">bessy</pre> are variables (or singleton object names) that refer to objects.</p>
 
 <p>As the term "path-dependent type" implies, the type depends on the
 path; in general, different paths give rise to different types. For
-instance, say you defined classes <span class="code">DogFood</span> and <span class="code">Dog</span>, like this:</p>
+instance, say you defined classes <pre class="code">DogFood</pre> and <pre class="code">Dog</pre>, like this:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">DogFood</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>
@@ -817,14 +817,14 @@ instance, say you defined classes <span class="code">DogFood</span> and <span cl
 </pre>
 
 
-<p>The problem here is that the type of the <span class="code">SuitableFood</span> object passed to the <span class="code">eat</span> method, <span class="code">bessy.SuitableFood</span>, is 
-incompatible with the parameter type of <span class="code">eat</span>, <span class="code">lassie.SuitableFood</span>.</p>
+<p>The problem here is that the type of the <pre class="code">SuitableFood</pre> object passed to the <pre class="code">eat</pre> method, <pre class="code">bessy.SuitableFood</pre>, is 
+incompatible with the parameter type of <pre class="code">eat</pre>, <pre class="code">lassie.SuitableFood</pre>.</p>
 
 <p>The case would be different for
-two <span class="code">Dog</span>s. Because <span class="code">Dog</span>'s <span class="code">SuitableFood</span> type is defined to be
-an alias for class <span class="code">DogFood</span>, the <span class="code">SuitableFood</span> types of two <span class="code">Dog</span>s are
-in fact the same. As a result, the <span class="code">Dog</span> instance named <span class="code">lassie</span> could actually eat the
-suitable food of a different <span class="code">Dog</span> instance (which we'll name <span class="code">bootsie</span>):</p>
+two <pre class="code">Dog</pre>s. Because <pre class="code">Dog</pre>'s <pre class="code">SuitableFood</pre> type is defined to be
+an alias for class <pre class="code">DogFood</pre>, the <pre class="code">SuitableFood</pre> types of two <pre class="code">Dog</pre>s are
+in fact the same. As a result, the <pre class="code">Dog</pre> instance named <pre class="code">lassie</pre> could actually eat the
+suitable food of a different <pre class="code">Dog</pre> instance (which we'll name <pre class="code">bootsie</pre>):</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;bootsie&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Dog</code>
@@ -839,7 +839,7 @@ names an outer <span style="font-style:italic">object</span>, whereas an inner c
 type names an
 outer <span style="font-style:italic">class</span>. Java-style inner class types can also be
 expressed in Scala, but they are written differently. 
-Consider these two classes, <span class="code">Outer</span> and <span class="code">Inner</span>:</p>
+Consider these two classes, <pre class="code">Outer</pre> and <pre class="code">Inner</pre>:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Outer</code>&nbsp;{
@@ -848,8 +848,8 @@ Consider these two classes, <span class="code">Outer</span> and <span class="cod
 </pre>
 
 
-<p>In Scala, the inner class is addressed using the expression <span class="code">Outer#Inner</span> 
-instead of Java's <span class="code">Outer.Inner</span>. The `<span class="code">.</span>' syntax is reserved for objects.<a id="i-1229370884-1"/> For example, imagine you instantiate two objects of type <span class="code">Outer</span>, like this:</p>
+<p>In Scala, the inner class is addressed using the expression <pre class="code">Outer#Inner</pre> 
+instead of Java's <pre class="code">Outer.Inner</pre>. The `<pre class="code">.</pre>' syntax is reserved for objects.<a id="i-1229370884-1"/> For example, imagine you instantiate two objects of type <pre class="code">Outer</pre>, like this:</p>
 
 <pre>
   <code class="vem">val</code>&nbsp;o1&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Outer</code>
@@ -857,20 +857,20 @@ instead of Java's <span class="code">Outer.Inner</span>. The `<span class="code"
 </pre>
 
 
-<p>Here <span class="code">o1.Inner</span> and <span class="code">o2.Inner</span> are two path-dependent types<a id="i1286205047-1"/><a id="i-1290990775-1"/>
+<p>Here <pre class="code">o1.Inner</pre> and <pre class="code">o2.Inner</pre> are two path-dependent types<a id="i1286205047-1"/><a id="i-1290990775-1"/>
 (and they are different types). Both of these types conform to (are subtypes of) the
-more general type <span class="code">Outer#Inner</span>, which represents the <span class="code">Inner</span> class 
-with an <em>arbitrary</em> outer object of type <span class="code">Outer</span>. By contrast, type <span class="code">o1.Inner</span> 
-refers to the <span class="code">Inner</span> class with a <em>specific</em> outer object (the one referenced from <span class="code">o1</span>).
-Likewise, type <span class="code">o2.Inner</span> refers to the <span class="code">Inner</span> class with a different, specific outer object (the one referenced from <span class="code">o2</span>).</p>
+more general type <pre class="code">Outer#Inner</pre>, which represents the <pre class="code">Inner</pre> class 
+with an <em>arbitrary</em> outer object of type <pre class="code">Outer</pre>. By contrast, type <pre class="code">o1.Inner</pre> 
+refers to the <pre class="code">Inner</pre> class with a <em>specific</em> outer object (the one referenced from <pre class="code">o1</pre>).
+Likewise, type <pre class="code">o2.Inner</pre> refers to the <pre class="code">Inner</pre> class with a different, specific outer object (the one referenced from <pre class="code">o2</pre>).</p>
 
 <p>In Scala, as in Java, inner class instances hold a reference to an enclosing outer class instance. This allows an
 inner class, for example, to access members of its outer class. Thus you can't instantiate an inner class without
 in some way specifying an outer class instance. One way to do this is to instantiate the inner class inside the body of the
-outer class. In this case, the current outer class instance (referenced from <span class="code">this</span>) will be used.</p>
+outer class. In this case, the current outer class instance (referenced from <pre class="code">this</pre>) will be used.</p>
 
 <p>Another way is to use
-a path-dependent type. For example, because the type, <span class="code">o1.Inner</span>, names a specific outer object, you can instantiate it:</p>
+a path-dependent type. For example, because the type, <pre class="code">o1.Inner</pre>, names a specific outer object, you can instantiate it:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">o1.Inner</code>
@@ -878,8 +878,8 @@ a path-dependent type. For example, because the type, <span class="code">o1.Inne
 </pre>
 
 
-<p>The resulting inner object will contain a reference to its outer object, the object referenced from <span class="code">o1</span>. By contrast, because
-the type <span class="code">Outer#Inner</span> does not name any specific instance of <span class="code">Outer</span>, you can't create an instance of it:<a id="i-480808313-1"/></p>
+<p>The resulting inner object will contain a reference to its outer object, the object referenced from <pre class="code">o1</pre>. By contrast, because
+the type <pre class="code">Outer#Inner</pre> does not name any specific instance of <pre class="code">Outer</pre>, you can't create an instance of it:<a id="i-480808313-1"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Outer</code>#<code class="typename">Inner</code>
@@ -905,21 +905,21 @@ To get structural subtyping in Scala, use Scala's <a href="glossary.html#g126411
 nominal types first with any new design. A name is a single short
 identifier and thus is more concise than an explicit listing of member
 types. Further, structural subtyping is often more flexible than you
-want.  A widget can <span class="code">draw()</span>, and a Western cowboy can <span class="code">draw()</span>, but
+want.  A widget can <pre class="code">draw()</pre>, and a Western cowboy can <pre class="code">draw()</pre>, but
 they aren't really substitutable.  You'd typically prefer to get a
 compilation error if you tried to substitute a cowboy for a widget.</p>
 
 <p>Nonetheless, structural subtyping has its own advantages.  One is that
 sometimes there really is no more to a type than its members.  For
-example, suppose you want to define a <span class="code">Pasture</span> class that can
+example, suppose you want to define a <pre class="code">Pasture</pre> class that can
 contain animals that eat grass. One option would be to define a trait
-<span class="code">AnimalThatEatsGrass</span> and mix it into every class where it applies.
-It would be verbose, however.  Class <span class="code">Cow</span> has already declared that
+<pre class="code">AnimalThatEatsGrass</pre> and mix it into every class where it applies.
+It would be verbose, however.  Class <pre class="code">Cow</pre> has already declared that
 it's an animal and that it eats grass, and now it would have to
 declare that it is also an animal-that-eats-grass.</p>
 
-<p>Instead of defining <span class="code">AnimalThatEatsGrass</span>, you can use a refinement
-type.  Simply write the base type, <span class="code">Animal</span>, followed by a sequence
+<p>Instead of defining <pre class="code">AnimalThatEatsGrass</pre>, you can use a refinement
+type.  Simply write the base type, <pre class="code">Animal</pre>, followed by a sequence
 of members listed in curly braces.  The members in the curly braces
 further specify&mdash;or refine, if you will&mdash;the types of members from
 the base class.</p>
@@ -951,11 +951,11 @@ have enumerations as a built-in language construct to define new types.
 Scala does not need special syntax for
 enumerations<a id="i-469710704-1"/><a id="i1297750808-1"/>. Instead, there's a class
 in its standard library,
-<span class="code">scala.Enumeration</span><a id="i-1102794201-1"/>.</p>
+<pre class="code">scala.Enumeration</pre><a id="i-1102794201-1"/>.</p>
 
 <p>To create a new
 enumeration, you define an object that extends this class, as in the
-following example, which defines a new enumeration of <span class="code">Color</span>s:</p>
+following example, which defines a new enumeration of <pre class="code">Color</pre>s:</p>
 
 <pre>
   <code class="vem">object</code>&nbsp;<code class="typename">Color</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Enumeration</code>&nbsp;{
@@ -966,7 +966,7 @@ following example, which defines a new enumeration of <span class="code">Color</
 </pre>
 
 
-<p>Scala lets you also shorten several successive <span class="code">val</span> or <span class="code">var</span> 
+<p>Scala lets you also shorten several successive <pre class="code">val</pre> or <pre class="code">var</pre> 
 definitions with the same right-hand 
 side. Equivalently to the above you could write:</p>
 
@@ -978,25 +978,25 @@ side. Equivalently to the above you could write:</p>
 
 
 <p>This object definition provides three values:
-<span class="code">Color.Red</span>, <span class="code">Color.Green</span>, and <span class="code">Color.Blue</span>. You could also import
-everything in <span class="code">Color</span> with:</p>
+<pre class="code">Color.Red</pre>, <pre class="code">Color.Green</pre>, and <pre class="code">Color.Blue</pre>. You could also import
+everything in <pre class="code">Color</pre> with:</p>
 
 <pre>
   <code class="vem">import</code>&nbsp;Color._
 </pre>
 
 
-<p>and then just use <span class="code">Red</span>, <span class="code">Green</span>, and <span class="code">Blue</span>. But what is the type
+<p>and then just use <pre class="code">Red</pre>, <pre class="code">Green</pre>, and <pre class="code">Blue</pre>. But what is the type
 of these values?</p>
 
-<p><span class="code">Enumeration</span> defines 
-an inner class named <span class="code">Value</span>, and the same-named 
-parameterless <span class="code">Value</span> method returns a 
+<p><pre class="code">Enumeration</pre> defines 
+an inner class named <pre class="code">Value</pre>, and the same-named 
+parameterless <pre class="code">Value</pre> method returns a 
 fresh instance of that class.<a id="i-1232708119-1"/>
-In other words, a value such as <span class="code">Color.Red</span> is of type
-<span class="code">Color.Value</span>; <span class="code">Color.Value</span> is the type of all enumeration values
-defined in object <span class="code">Color</span>. It's a path-dependent type, with 
-<span class="code">Color</span> being the path and <span class="code">Value</span> being the dependent type. 
+In other words, a value such as <pre class="code">Color.Red</pre> is of type
+<pre class="code">Color.Value</pre>; <pre class="code">Color.Value</pre> is the type of all enumeration values
+defined in object <pre class="code">Color</pre>. It's a path-dependent type, with 
+<pre class="code">Color</pre> being the path and <pre class="code">Value</pre> being the dependent type. 
 What's significant about this is that it is a completely new type, different 
 from all other types.</p>
 
@@ -1009,12 +1009,12 @@ from all other types.</p>
 </pre>
 
 
-<p>then <span class="code">Direction.Value</span> would be different from <span class="code">Color.Value</span> because the path
+<p>then <pre class="code">Direction.Value</pre> would be different from <pre class="code">Color.Value</pre> because the path
 parts of the two types differ.</p>
 
-<p>Scala's <span class="code">Enumeration</span> class also offers many other features found in the enumeration designs of other languages.
+<p>Scala's <pre class="code">Enumeration</pre> class also offers many other features found in the enumeration designs of other languages.
 You can associate names with enumeration values by using a different overloaded
-variant of the <span class="code">Value</span> method:</p>
+variant of the <pre class="code">Value</pre> method:</p>
 
 <pre>
   <code class="vem">object</code>&nbsp;<code class="typename">Direction</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Enumeration</code>&nbsp;{
@@ -1027,7 +1027,7 @@ variant of the <span class="code">Value</span> method:</p>
 
 
 <p>You can iterate over the values of an enumeration via the set returned by the enumeration's
-<span class="code">values</span> method:<a id="i-563805575-1"/></p>
+<pre class="code">values</pre> method:<a id="i-563805575-1"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(d&nbsp;&lt;-&nbsp;Direction.values)&nbsp;print(d&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;"</code>)
@@ -1035,8 +1035,8 @@ variant of the <span class="code">Value</span> method:</p>
 </pre>
 
 
-<p>Values of an enumeration are numbered from <span class="code">0</span>, and you can find out the 
-number of an enumeration value by its <span class="code">id</span> method:</p>
+<p>Values of an enumeration are numbered from <pre class="code">0</pre>, and you can find out the 
+number of an enumeration value by its <pre class="code">id</pre> method:</p>
 
 <pre>
   scala&gt;&nbsp;Direction.East.id
@@ -1045,7 +1045,7 @@ number of an enumeration value by its <span class="code">id</span> method:</p>
 
 
 <p>It's also possible to go the other way, from a non-negative 
-integer number to the value that has this number as <span class="code">id</span> in an enumeration:</p>
+integer number to the value that has this number as <pre class="code">id</pre> in an enumeration:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="typename">Direction</code>(<code class="literal">1</code>)
@@ -1055,14 +1055,14 @@ integer number to the value that has this number as <span class="code">id</span>
 
 <p>This should be enough to get you started with enumerations. 
 You can find more information
-in the Scaladoc comments of class <span class="code">scala.Enumeration</span>.</p>
+in the Scaladoc comments of class <pre class="code">scala.Enumeration</pre>.</p>
 
 <h3 id="sec-currencies">20.10 Case study: Currencies</h3>
 
 
 <p>The rest of this chapter presents a case study that explains how
 abstract types can be used in Scala. The task is to design a class
-<span class="code">Currency</span>. A typical instance of <span class="code">Currency</span> would
+<pre class="code">Currency</pre>. A typical instance of <pre class="code">Currency</pre> would
 represent an amount of money in dollars, euros, yen, or some
 other currency.  It should be
 possible to do some arithmetic on currencies. For instance, you should
@@ -1083,12 +1083,12 @@ to multiply a currency amount by a factor representing an interest rate.</p>
 </pre>
 
 
-<p>The <span class="code">amount</span> of a currency is the number of currency units it represents.
-This is a field of type <span class="code">Long</span> so that very large amounts of money, such as the 
+<p>The <pre class="code">amount</pre> of a currency is the number of currency units it represents.
+This is a field of type <pre class="code">Long</pre> so that very large amounts of money, such as the 
 market capitalization of Google or Apple, can be represented.
 It's left abstract here, waiting to be defined when a subclass talks about concrete amounts of money. 
-The <span class="code">designation</span> of a currency is a string that identifies it. 
-The <span class="code">toString</span> method of class <span class="code">Currency</span> indicates an amount and a designation. 
+The <pre class="code">designation</pre> of a currency is a string that identifies it. 
+The <pre class="code">toString</pre> method of class <pre class="code">Currency</pre> indicates an amount and a designation. 
 It would yield results such as:</p>
 
 <pre>
@@ -1098,9 +1098,9 @@ It would yield results such as:</p>
 </pre>
 
 
-<p>Finally, there are methods <span class="code">+</span> for adding currencies and 
-<span class="code">*</span> for multiplying a currency with a floating-point
-number. You can create a concrete currency value by supplying concrete <span class="code">amount</span> and <span class="code">designation</span> values, like this:</p>
+<p>Finally, there are methods <pre class="code">+</pre> for adding currencies and 
+<pre class="code">*</pre> for multiplying a currency with a floating-point
+number. You can create a concrete currency value by supplying concrete <pre class="code">amount</pre> and <pre class="code">designation</pre> values, like this:</p>
 
 <pre>
   <code class="vem">new</code>&nbsp;<code class="typename">Currency</code>&nbsp;{
@@ -1126,10 +1126,10 @@ as two subclasses of class currency:</p>
 
 
 <p>At first glance this looks reasonable. But it would let you add 
-dollars to euros. The result of such an addition would be of type <span class="code">Currency</span>.
+dollars to euros. The result of such an addition would be of type <pre class="code">Currency</pre>.
 But it would be a funny currency that was made up of a mix of euros and dollars.
-What you want instead is a more specialized version of the <span class="code">+</span> method. When implemented in class <span class="code">Dollar</span>, it should take <span class="code">Dollar</span> arguments and yield a <span class="code">Dollar</span> result; when implemented in class <span class="code">Euro</span>, it should take
-<span class="code">Euro</span> arguments and yield a <span class="code">Euro</span> result. So the type of the addition method
+What you want instead is a more specialized version of the <pre class="code">+</pre> method. When implemented in class <pre class="code">Dollar</pre>, it should take <pre class="code">Dollar</pre> arguments and yield a <pre class="code">Dollar</pre> result; when implemented in class <pre class="code">Euro</pre>, it should take
+<pre class="code">Euro</pre> arguments and yield a <pre class="code">Euro</pre> result. So the type of the addition method
 would change depending on which class you are in. Nonetheless, you would like to 
 write the addition method just once, not each time a new currency is defined.</p>
 
@@ -1140,7 +1140,7 @@ In the case of currencies, the exact argument and result type of the
 addition method are not known, so it is a good candidate for an
 abstract type.</p>
 
-<p>This would lead to the following sketch of class <span class="code">AbstractCurrency</span>:</p>
+<p>This would lead to the following sketch of class <pre class="code">AbstractCurrency</pre>:</p>
 
 <div style="page-break-after:always"/>
 
@@ -1159,12 +1159,12 @@ abstract type.</p>
 
 
 <p>The only differences from the previous situation are that the class is now
-called <span class="code">AbstractCurrency</span>, and that it contains an abstract type
-<span class="code">Currency</span>, which represents the real currency in question.  Each concrete
-subclass of <span class="code">AbstractCurrency</span> would need to fix the <span class="code">Currency</span> type to refer
+called <pre class="code">AbstractCurrency</pre>, and that it contains an abstract type
+<pre class="code">Currency</pre>, which represents the real currency in question.  Each concrete
+subclass of <pre class="code">AbstractCurrency</pre> would need to fix the <pre class="code">Currency</pre> type to refer
 to the concrete subclass itself, thereby "tying the knot."</p>
 
-<p>For instance, here is a new version of class <span class="code">Dollar</span>, which now extends class <span class="code">AbstractCurrency</span>:</p>
+<p>For instance, here is a new version of class <pre class="code">Dollar</pre>, which now extends class <pre class="code">AbstractCurrency</pre>:</p>
 
 <pre>
   <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Dollar</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">AbstractCurrency</code>&nbsp;{
@@ -1176,9 +1176,9 @@ to the concrete subclass itself, thereby "tying the knot."</p>
 
 <p>This design is workable, but it is still not perfect. One problem is
 hidden by the ellipses that indicate the missing method definitions of
- <span class="code">+</span> and <span class="code">*</span> in class <span class="code">AbstractCurrency</span>. In particular, how should 
+ <pre class="code">+</pre> and <pre class="code">*</pre> in class <pre class="code">AbstractCurrency</pre>. In particular, how should 
 addition be implemented in this class? It's easy enough to 
-calculate the correct amount of the new currency as <span class="code">this.amount</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">that.amount</span>, 
+calculate the correct amount of the new currency as <pre class="code">this.amount</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">that.amount</pre>, 
 but how would you convert the amount into a currency of the right type?</p>
 
 <p>You might try
@@ -1203,13 +1203,13 @@ something like:<a id="i-1457961297-1"/></p>
 <p>One of the restrictions of Scala's treatment of abstract types is that
 you can neither create an instance of an abstract type nor have an abstract type
 as a supertype of another class.<a href="abstract-members.html#footnotemain20-1">[1]</a>
-So the compiler would refuse the example code here that attempted to instantiate <span class="code">Currency</span>.</p>
+So the compiler would refuse the example code here that attempted to instantiate <pre class="code">Currency</pre>.</p>
 
 <p>However, you can work around this restriction using a <span style="font-style:italic">factory
 method</span>.  Instead of creating an instance of an abstract type
 directly, declare an abstract method that does it. Then, wherever the abstract type
 is fixed to be some concrete type, you also need to give a concrete implementation
-of the factory method.<a id="i-1125093732-2"/> For class <span class="code">AbstractCurrency</span>, this would look as follows:</p>
+of the factory method.<a id="i-1125093732-2"/> For class <pre class="code">AbstractCurrency</pre>, this would look as follows:</p>
 
 <pre>
   <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">AbstractCurrency</code>&nbsp;{
@@ -1221,7 +1221,7 @@ of the factory method.<a id="i-1125093732-2"/> For class <span class="code">Abst
 
 
 <p>A design like this could be made to work, but it looks rather suspicious.
-Why place the factory method <span style="font-style:italic">inside</span> class <span class="code">AbstractCurrency</span>?
+Why place the factory method <span style="font-style:italic">inside</span> class <pre class="code">AbstractCurrency</pre>?
 This looks dubious for at least two reasons. First,
 if you have some amount of currency (say, one dollar), you also hold in your hand
 the ability to make more of the same currency, using code such as:</p>
@@ -1233,17 +1233,17 @@ the ability to make more of the same currency, using code such as:</p>
 
 <p>In the age of color copying this might be a tempting scenario, but
 hopefully not one which you would be able to do for very long without being caught.
-The second problem with this code is that you can make more <span class="code">Currency</span> objects
-if you already have a reference to a <span class="code">Currency</span> object. But how do you get the first object
-of a given <span class="code">Currency</span>? You'd need another creation method, which does essentially
-the same job as <span class="code">make</span>. So you have a case of code duplication, which is a sure
+The second problem with this code is that you can make more <pre class="code">Currency</pre> objects
+if you already have a reference to a <pre class="code">Currency</pre> object. But how do you get the first object
+of a given <pre class="code">Currency</pre>? You'd need another creation method, which does essentially
+the same job as <pre class="code">make</pre>. So you have a case of code duplication, which is a sure
 sign of a code smell.</p>
 
 <p>The solution, of course, is to move the abstract type and the factory method
-outside class <span class="code">AbstractCurrency</span>. You need to create another class that contains
-the <span class="code">AbstractCurrency</span> class, the <span class="code">Currency</span> type, and the <span class="code">make</span> factory method.</p>
+outside class <pre class="code">AbstractCurrency</pre>. You need to create another class that contains
+the <pre class="code">AbstractCurrency</pre> class, the <pre class="code">Currency</pre> type, and the <pre class="code">make</pre> factory method.</p>
 
-<p>We'll call this a <span class="code">CurrencyZone</span>:</p>
+<p>We'll call this a <pre class="code">CurrencyZone</pre>:</p>
 
 <pre>
   <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">CurrencyZone</code>&nbsp;{
@@ -1262,7 +1262,7 @@ the <span class="code">AbstractCurrency</span> class, the <span class="code">Cur
 </pre>
 
 
-<p>An example concrete <span class="code">CurrencyZone</span> is the US, which 
+<p>An example concrete <pre class="code">CurrencyZone</pre> is the US, which 
 could be defined as:</p>
 
 <pre>
@@ -1276,11 +1276,11 @@ could be defined as:</p>
 </pre>
 
 
-<p>Here, <span class="code">US</span> is an object that extends <span class="code">CurrencyZone</span>. It defines a class
-<span class="code">Dollar</span>, which is a subclass of <span class="code">AbstractCurrency</span>. So the type of
-money in this zone is <span class="code">US.Dollar</span>. The <span class="code">US</span> object also fixes
-the type <span class="code">Currency</span> to be an alias for <span class="code">Dollar</span>, and it gives an
-implementation of the <span class="code">make</span> factory method to return a dollar amount.</p>
+<p>Here, <pre class="code">US</pre> is an object that extends <pre class="code">CurrencyZone</pre>. It defines a class
+<pre class="code">Dollar</pre>, which is a subclass of <pre class="code">AbstractCurrency</pre>. So the type of
+money in this zone is <pre class="code">US.Dollar</pre>. The <pre class="code">US</pre> object also fixes
+the type <pre class="code">Currency</pre> to be an alias for <pre class="code">Dollar</pre>, and it gives an
+implementation of the <pre class="code">make</pre> factory method to return a dollar amount.</p>
 
 <p>This is a workable design. 
 There are only a few refinements to be added.
@@ -1288,9 +1288,9 @@ The first refinement concerns subunits. So far, every currency was
 measured in a single unit: dollars, euros, or yen. However, most
 currencies have subunits: For instance, in the US, it's dollars and
 cents. The most straightforward way to model cents is to have the
-<span class="code">amount</span> field in <span class="code">US.Currency</span> represent cents instead of dollars.
-To convert back to dollars, it's useful to introduce a field <span class="code">CurrencyUnit</span>
-into class <span class="code">CurrencyZone</span>, which contains the amount of one
+<pre class="code">amount</pre> field in <pre class="code">US.Currency</pre> represent cents instead of dollars.
+To convert back to dollars, it's useful to introduce a field <pre class="code">CurrencyUnit</pre>
+into class <pre class="code">CurrencyZone</pre>, which contains the amount of one
 standard unit in that currency:</p>
 
 <div style="page-break-after:always"/>
@@ -1305,20 +1305,20 @@ standard unit in that currency:</p>
 
 
 <p>As shown in <a href="abstract-members.html#lst-us-currency-zone">Listing 20.11</a>,
-The <span class="code">US</span> object could define the quantities <span class="code">Cent</span>, <span class="code">Dollar</span>, and <span class="code">CurrencyUnit</span>.
-This definition is just like the previous definition of the <span class="code">US</span> object, except that
-it adds three new fields. The field <span class="code">Cent</span> represents an amount of 1 <span class="code">US.Currency</span>.
-It's an object analogous to a one-cent coin. The field <span class="code">Dollar</span>
-represents an amount of 100 <span class="code">US.Currency</span>. So the <span class="code">US</span> object now defines the 
-name <span class="code">Dollar</span> in two ways. The <span style="font-style:italic">type</span> <span class="code">Dollar</span> (defined by the abstract inner class named <span class="code">Dollar</span>) represents the generic name of the <span class="code">Currency</span> 
-valid in the <span class="code">US</span> currency zone. By contrast, the <span style="font-style:italic">value</span> <span class="code">Dollar</span> (referenced from the <span class="code">val</span> field named <span class="code">Dollar</span>) represents
-a single US dollar, analogous to a one-dollar bill. The third field definition of <span class="code">CurrencyUnit</span>
-specifies that the standard currency unit in the <span class="code">US</span> zone is the <span class="code">Dollar</span> (<i>i.e.</i>, the value <span class="code">Dollar</span>, referenced from the field, not the type
-<span class="code">Dollar</span>).</p>
+The <pre class="code">US</pre> object could define the quantities <pre class="code">Cent</pre>, <pre class="code">Dollar</pre>, and <pre class="code">CurrencyUnit</pre>.
+This definition is just like the previous definition of the <pre class="code">US</pre> object, except that
+it adds three new fields. The field <pre class="code">Cent</pre> represents an amount of 1 <pre class="code">US.Currency</pre>.
+It's an object analogous to a one-cent coin. The field <pre class="code">Dollar</pre>
+represents an amount of 100 <pre class="code">US.Currency</pre>. So the <pre class="code">US</pre> object now defines the 
+name <pre class="code">Dollar</pre> in two ways. The <span style="font-style:italic">type</span> <pre class="code">Dollar</pre> (defined by the abstract inner class named <pre class="code">Dollar</pre>) represents the generic name of the <pre class="code">Currency</pre> 
+valid in the <pre class="code">US</pre> currency zone. By contrast, the <span style="font-style:italic">value</span> <pre class="code">Dollar</pre> (referenced from the <pre class="code">val</pre> field named <pre class="code">Dollar</pre>) represents
+a single US dollar, analogous to a one-dollar bill. The third field definition of <pre class="code">CurrencyUnit</pre>
+specifies that the standard currency unit in the <pre class="code">US</pre> zone is the <pre class="code">Dollar</pre> (<i>i.e.</i>, the value <pre class="code">Dollar</pre>, referenced from the field, not the type
+<pre class="code">Dollar</pre>).</p>
 
-<p>The <span class="code">toString</span> method in class <span class="code">Currency</span> also needs to be adapted to take 
-subunits into account. For instance, the sum of ten dollars and twenty three cents should print as a decimal number: 10.23 USD. To achieve this, you could implement <span class="code">Currency</span>'s 
-<span class="code">toString</span> method as follows:</p>
+<p>The <pre class="code">toString</pre> method in class <pre class="code">Currency</pre> also needs to be adapted to take 
+subunits into account. For instance, the sum of ten dollars and twenty three cents should print as a decimal number: 10.23 USD. To achieve this, you could implement <pre class="code">Currency</pre>'s 
+<pre class="code">toString</pre> method as follows:</p>
 
 <pre>
   <code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;
@@ -1328,14 +1328,14 @@ subunits into account. For instance, the sum of ten dollars and twenty three cen
 </pre>
 
 
-<p>Here, <span class="code">formatted</span><a id="i-1143614518-1"/>
+<p>Here, <pre class="code">formatted</pre><a id="i-1143614518-1"/>
 is a method that Scala makes available
-on several classes, including <span class="code">Double</span>.<a href="abstract-members.html#footnotemain20-2">[2]</a> 
-The <span class="code">formatted</span> method returns<a id="i1886523229-1"/><a id="i1659928775-1"/>
-the string that results from formatting the original string on which <span class="code">formatted</span> was invoked
+on several classes, including <pre class="code">Double</pre>.<a href="abstract-members.html#footnotemain20-2">[2]</a> 
+The <pre class="code">formatted</pre> method returns<a id="i1886523229-1"/><a id="i1659928775-1"/>
+the string that results from formatting the original string on which <pre class="code">formatted</pre> was invoked
 according to a format string
-passed as the <span class="code">formatted</span> method's right-hand operand.
-The syntax of format strings passed to <span class="code">formatted</span> is the same as that of Java's <span class="code">String.format</span> method.</p>
+passed as the <pre class="code">formatted</pre> method's right-hand operand.
+The syntax of format strings passed to <pre class="code">formatted</pre> is the same as that of Java's <pre class="code">String.format</pre> method.</p>
 
 <p><a id="lst-us-currency-zone"/></p>
 
@@ -1358,10 +1358,10 @@ The syntax of format strings passed to <span class="code">formatted</span> is th
 <h5>Listing 20.11 - The US currency zone.</h5>
 
 
-<p>For instance, the format string <span class="code">%.2f</span> formats a number with two decimal digits.
-The format string used in the <span class="code">toString</span> shown previously is assembled by calling the <span class="code">decimals</span> method on
-<span class="code">CurrencyUnit.amount</span>. This method returns the number of decimal digits of a 
-decimal power minus one. For instance, <span class="code">decimals(10)</span> is <span class="code">1</span>, <span class="code">decimals(100)</span> is <span class="code">2</span>, and so on. The <span class="code">decimals</span> method is implemented by a simple recursion:</p>
+<p>For instance, the format string <pre class="code">%.2f</pre> formats a number with two decimal digits.
+The format string used in the <pre class="code">toString</pre> shown previously is assembled by calling the <pre class="code">decimals</pre> method on
+<pre class="code">CurrencyUnit.amount</pre>. This method returns the number of decimal digits of a 
+decimal power minus one. For instance, <pre class="code">decimals(10)</pre> is <pre class="code">1</pre>, <pre class="code">decimals(100)</pre> is <pre class="code">2</pre>, and so on. The <pre class="code">decimals</pre> method is implemented by a simple recursion:</p>
 
 <pre>
   <code class="vem">private</code>&nbsp;<code class="vem">def</code>&nbsp;decimals(n:&nbsp;<code class="typename">Long</code>):&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;
@@ -1370,10 +1370,10 @@ decimal power minus one. For instance, <span class="code">decimals(10)</span> is
 
 
 <p><a href="abstract-members.html#lst-europe-japan">Listing 20.12</a> shows some other currency zones. As another refinement, you can add a currency conversion feature to the
-model. First, you could write a <span class="code">Converter</span> object that contains
+model. First, you could write a <pre class="code">Converter</pre> object that contains
 applicable exchange rates between currencies, as shown in <a href="abstract-members.html#lst-currency-converter">Listing 20.13</a>. Then, you could add
-a conversion method, <span class="code">from</span>, to class <span class="code">Currency</span>, which converts from a given source
-currency into the current <span class="code">Currency</span> object:</p>
+a conversion method, <pre class="code">from</pre>, to class <pre class="code">Currency</pre>, which converts from a given source
+currency into the current <pre class="code">Currency</pre> object:</p>
 
 <pre>
   <code class="vem">def</code>&nbsp;from(other:&nbsp;<code class="typename">CurrencyZone</code>#<code class="typename">AbstractCurrency</code>):&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;
@@ -1383,9 +1383,9 @@ currency into the current <span class="code">Currency</span> object:</p>
 </pre>
 
 
-<p>The <span class="code">from</span> method takes an arbitrary currency as argument. This is expressed by its formal parameter type, <span class="code">CurrencyZone#AbstractCurrency</span>, which indicates that
-the argument passed as <span class="code">other</span> must be an <span class="code">AbstractCurrency</span> type in some arbitrary and unknown <span class="code">CurrencyZone</span>.
-It produces its result by multiplying the amount of the <span class="code">other</span> currency 
+<p>The <pre class="code">from</pre> method takes an arbitrary currency as argument. This is expressed by its formal parameter type, <pre class="code">CurrencyZone#AbstractCurrency</pre>, which indicates that
+the argument passed as <pre class="code">other</pre> must be an <pre class="code">AbstractCurrency</pre> type in some arbitrary and unknown <pre class="code">CurrencyZone</pre>.
+It produces its result by multiplying the amount of the <pre class="code">other</pre> currency 
 with the exchange rate between the other and the current currency.<a href="abstract-members.html#footnotemain20-3">[3]</a></p>
 
 <p><a id="lst-europe-japan"/></p>
@@ -1476,15 +1476,15 @@ with the exchange rate between the other and the current currency.<a href="abstr
 </pre>
 
 
-<h5>Listing 20.14 - The full code of class <span class="code">CurrencyZone</span>.</h5>
+<h5>Listing 20.14 - The full code of class <pre class="code">CurrencyZone</pre>.</h5>
 
 
-<p>The final version of the <span class="code">CurrencyZone</span> class is 
+<p>The final version of the <pre class="code">CurrencyZone</pre> class is 
 shown in <a href="abstract-members.html#lst-CurrencyZone">Listing 20.14</a>.
  You can test the class in the Scala command shell. We'll assume that
-the <span class="code">CurrencyZone</span> class and all concrete <span class="code">CurrencyZone</span> objects are
-defined in a package <span class="code">org.stairwaybook.currencies</span>. The first step is to import
-"<span class="code">org.stairwaybook.currencies._</span>" into the command shell.
+the <pre class="code">CurrencyZone</pre> class and all concrete <pre class="code">CurrencyZone</pre> objects are
+defined in a package <pre class="code">org.stairwaybook.currencies</pre>. The first step is to import
+"<pre class="code">org.stairwaybook.currencies._</pre>" into the command shell.
 Then you can do some currency conversions:</p>
 
 <pre>
@@ -1554,11 +1554,11 @@ There's some promising recent research on <span style="font-style:italic">virtua
 would allow this, but virtual classes are not currently supported in Scala.</p>
 
 <p><a id="footnotemain20-2"/>[2] Scala uses rich wrappers,
-described in <a href="basic-types-and-operations.html#sec-rich-wrappers">Section 5.10</a>, to make <span class="code">formatted</span>
+described in <a href="basic-types-and-operations.html#sec-rich-wrappers">Section 5.10</a>, to make <pre class="code">formatted</pre>
 available.</p>
 
 <p><a id="footnotemain20-3"/>[3] By the way, in case you think you're getting a bad deal on Japanese yen, the
-exchange rates convert currencies based on their <span class="code">CurrencyZone</span> amounts. Thus, 1.211 is the exchange rate between US cents and Japanese yen.</p>
+exchange rates convert currencies based on their <pre class="code">CurrencyZone</pre> amounts. Thus, 1.211 is the exchange rate between US cents and Japanese yen.</p>
 
 <div style="page-break-after:always"/>
 

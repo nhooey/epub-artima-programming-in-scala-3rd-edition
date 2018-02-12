@@ -23,17 +23,17 @@ them.<a id="i2091567537-1"/></p>
 
 
 <p>Assertions in Scala are written as calls of a predefined method
-<span class="code">assert</span>.<a id="i1445339835-2"/><a id="i-176392533-2"/><a href="assertions-and-tests.html#footnotemain14-1">[1]</a>  The expression <span class="code">assert(condition)</span> throws an <span class="code">AssertionError</span> if
-<span class="code">condition</span> does not hold.<a id="i-1578657506-1"/> There's also a two-argument version
-of <span class="code">assert</span>: The expression
-<span class="code">assert(condition,</span>&nbsp;<span class="code">explanation)</span> tests <span class="code">condition</span> and, if it does
-not hold, throws an <span class="code">AssertionError</span> that contains the given
-explanation. The type of explanation is <span class="code">Any</span>, so you can pass any object
+<pre class="code">assert</pre>.<a id="i1445339835-2"/><a id="i-176392533-2"/><a href="assertions-and-tests.html#footnotemain14-1">[1]</a>  The expression <pre class="code">assert(condition)</pre> throws an <pre class="code">AssertionError</pre> if
+<pre class="code">condition</pre> does not hold.<a id="i-1578657506-1"/> There's also a two-argument version
+of <pre class="code">assert</pre>: The expression
+<pre class="code">assert(condition,</pre>&nbsp;<pre class="code">explanation)</pre> tests <pre class="code">condition</pre> and, if it does
+not hold, throws an <pre class="code">AssertionError</pre> that contains the given
+explanation. The type of explanation is <pre class="code">Any</pre>, so you can pass any object
 as the explanation. The 
-<span class="code">assert</span> method will call <span class="code">toString</span> on it to get a string explanation to
-place inside the <span class="code">AssertionError</span>. For example, in the method named "<span class="code">above</span>" of class <span class="code">Element</span>, shown in 
+<pre class="code">assert</pre> method will call <pre class="code">toString</pre> on it to get a string explanation to
+place inside the <pre class="code">AssertionError</pre>. For example, in the method named "<pre class="code">above</pre>" of class <pre class="code">Element</pre>, shown in 
 <a href="composition-and-inheritance.html#lst-widen-heighten-methods">Listing 10.13</a>  <a href="composition-and-inheritance.html#lst-widen-heighten-methods">here</a>, you might place an assert
-after the calls to <span class="code">widen</span> to make sure that the widened elements
+after the calls to <pre class="code">widen</pre> to make sure that the widened elements
 have equal widths. This is shown in <a href="assertions-and-tests.html#lst-using-an-assert">Listing 14.1</a>.</p>
 
 <p><a id="lst-using-an-assert"/></p>
@@ -52,24 +52,24 @@ have equal widths. This is shown in <a href="assertions-and-tests.html#lst-using
 
 
 <p>Another way you might choose to do this is to check the widths at the end of
-the <span class="code">widen</span> method, right before you return the value. You can accomplish this by storing
-the result in a <span class="code">val</span>, performing an assertion on the result, then mentioning the <span class="code">val</span> 
-last so the result is returned if the assertion succeeds. However, you can do this more concisely with a convenience method in <span class="code">Predef</span> named
-<span class="code">ensuring</span>, as shown in
+the <pre class="code">widen</pre> method, right before you return the value. You can accomplish this by storing
+the result in a <pre class="code">val</pre>, performing an assertion on the result, then mentioning the <pre class="code">val</pre> 
+last so the result is returned if the assertion succeeds. However, you can do this more concisely with a convenience method in <pre class="code">Predef</pre> named
+<pre class="code">ensuring</pre>, as shown in
 <a href="assertions-and-tests.html#lst-using-ensuring">Listing 14.2</a>.<a id="i1797680614-1"/><a id="i538992544-1"/></p>
 
-<p>The <span class="code">ensuring</span> method can be used with any result type because of an
+<p>The <pre class="code">ensuring</pre> method can be used with any result type because of an
 implicit conversion.<a id="i456777265-2"/>
 Although it looks in this code as if we're invoking
-<span class="code">ensuring</span> on <span class="code">widen</span>'s result, which is type <span class="code">Element</span>, we're actually invoking
-<span class="code">ensuring</span> on a type to which <span class="code">Element</span> is implicitly converted. The <span class="code">ensuring</span> method
-takes one argument, a predicate function that takes a result type and returns <span class="code">Boolean</span>, and passes the result to the predicate. If the predicate returns true, <span class="code">ensuring</span> will return the result; otherwise, <span class="code">ensuring</span> will throw an <span class="code">AssertionError</span>.</p>
+<pre class="code">ensuring</pre> on <pre class="code">widen</pre>'s result, which is type <pre class="code">Element</pre>, we're actually invoking
+<pre class="code">ensuring</pre> on a type to which <pre class="code">Element</pre> is implicitly converted. The <pre class="code">ensuring</pre> method
+takes one argument, a predicate function that takes a result type and returns <pre class="code">Boolean</pre>, and passes the result to the predicate. If the predicate returns true, <pre class="code">ensuring</pre> will return the result; otherwise, <pre class="code">ensuring</pre> will throw an <pre class="code">AssertionError</pre>.</p>
 
-<p>In this example, the predicate is "<span class="code">w</span>&nbsp;<span class="code">&lt;=</span>&nbsp;<span class="code">_.width</span>". The underscore is a placeholder for the one argument
-passed to the predicate, the <span class="code">Element</span> result of the <span class="code">widen</span> method. If the width passed as <span class="code">w</span> to <span class="code">widen</span> is
-less than or equal to the <span class="code">width</span> of the result <span class="code">Element</span>, the predicate will result in true, and <span class="code">ensuring</span>
-will result in the <span class="code">Element</span> on which it was invoked. Because this is the last expression of the <span class="code">widen</span> method,
-<span class="code">widen</span> itself will then result in the <span class="code">Element</span>.</p>
+<p>In this example, the predicate is "<pre class="code">w</pre>&nbsp;<pre class="code">&lt;=</pre>&nbsp;<pre class="code">_.width</pre>". The underscore is a placeholder for the one argument
+passed to the predicate, the <pre class="code">Element</pre> result of the <pre class="code">widen</pre> method. If the width passed as <pre class="code">w</pre> to <pre class="code">widen</pre> is
+less than or equal to the <pre class="code">width</pre> of the result <pre class="code">Element</pre>, the predicate will result in true, and <pre class="code">ensuring</pre>
+will result in the <pre class="code">Element</pre> on which it was invoked. Because this is the last expression of the <pre class="code">widen</pre> method,
+<pre class="code">widen</pre> itself will then result in the <pre class="code">Element</pre>.</p>
 
 <p><a id="lst-using-ensuring"/></p>
 
@@ -85,10 +85,10 @@ will result in the <span class="code">Element</span> on which it was invoked. Be
 </pre>
 
 
-<h5>Listing 14.2 - Using <span class="code">ensuring</span> to assert a function's result.</h5>
+<h5>Listing 14.2 - Using <pre class="code">ensuring</pre> to assert a function's result.</h5>
 
 
-<p>Assertions can be enabled and disabled using the JVM's <span class="code">-ea</span> and <span class="code">-da</span> command-line flags.
+<p>Assertions can be enabled and disabled using the JVM's <pre class="code">-ea</pre> and <pre class="code">-da</pre> command-line flags.
 When enabled, each assertion serves as a little test 
 that uses the actual data encountered as the software runs. In the remainder of this chapter, we'll focus on the 
 writing of external tests, which provide their own test data and run independently from the application.</p>
@@ -103,7 +103,7 @@ ScalaCheck.<a id="i-517954686-1"/><a id="i122343128-2"/><a id="i-896072934-1"/> 
 ScalaTest.</p>
 
 <p>ScalaTest is the most flexible Scala test framework: it can be easily customized to solve different problems. ScalaTest's flexibility means teams can use whatever testing style fits their needs best.
-For example, for teams familar with JUnit, the <span class="code">FunSuite</span> style will feel comfortable and familiar.
+For example, for teams familar with JUnit, the <pre class="code">FunSuite</pre> style will feel comfortable and familiar.
 <a href="assertions-and-tests.html#lst-test-function">Listing 14.3</a> shows an example.</p>
 
 <p><a id="lst-test-function"/></p>
@@ -120,31 +120,31 @@ For example, for teams familar with JUnit, the <span class="code">FunSuite</span
 </pre>
 
 
-<h5>Listing 14.3 - Writing tests with <span class="code">FunSuite</span>.</h5>
+<h5>Listing 14.3 - Writing tests with <pre class="code">FunSuite</pre>.</h5>
 
 
 <p>The central concept in ScalaTest is the <span class="textit">suite</span>, a collection of tests.
 A <span class="textit">test</span> can be anything with a name that can start and either succeed, fail, be pending, or canceled.
-Trait <span class="code">Suite</span> is the central unit of composition in ScalaTest.
-<span class="code">Suite</span> declares "lifecycle" methods defining a default way to run tests,
+Trait <pre class="code">Suite</pre> is the central unit of composition in ScalaTest.
+<pre class="code">Suite</pre> declares "lifecycle" methods defining a default way to run tests,
 which can be overridden to customize how tests are written and run.</p>
 
-<p>ScalaTest offers <span class="textit">style traits</span> that extend <span class="code">Suite</span> and override lifecycle methods to support
+<p>ScalaTest offers <span class="textit">style traits</span> that extend <pre class="code">Suite</pre> and override lifecycle methods to support
 different testing styles.
 It also provides <span class="textit">mixin traits</span> that override lifecycle methods to address
 particular testing needs.
-You define test classes by composing <span class="code">Suite</span> style and mixin traits, and
-define test suites by composing <span class="code">Suite</span> instances.</p>
+You define test classes by composing <pre class="code">Suite</pre> style and mixin traits, and
+define test suites by composing <pre class="code">Suite</pre> instances.</p>
 
-<p><span class="code">FunSuite</span>, which is extended by the test class shown in <a href="assertions-and-tests.html#lst-test-function">Listing 14.3</a>, is an example of a testing style. The
-"<span class="code">Fun</span>" in <span class="code">FunSuite</span> stands for function; "<span class="code">test</span>" is a method defined in <span class="code">FunSuite</span>, which is invoked
-by the primary constructor of <span class="code">ElementSuite</span>. You specify the name of the test as
+<p><pre class="code">FunSuite</pre>, which is extended by the test class shown in <a href="assertions-and-tests.html#lst-test-function">Listing 14.3</a>, is an example of a testing style. The
+"<pre class="code">Fun</pre>" in <pre class="code">FunSuite</pre> stands for function; "<pre class="code">test</pre>" is a method defined in <pre class="code">FunSuite</pre>, which is invoked
+by the primary constructor of <pre class="code">ElementSuite</pre>. You specify the name of the test as
 a string between the parentheses and the test code itself between curly braces. 
-The test code is a function passed as a by-name parameter to <span class="code">test</span>, which registers
+The test code is a function passed as a by-name parameter to <pre class="code">test</pre>, which registers
 it for later execution.</p>
 
 <p>ScalaTest is integrated into common build tools (such as sbt and Maven) and IDEs (such as IntelliJ IDEA and Eclipse). You can also
-run a <span class="code">Suite</span> directly via ScalaTest's <span class="code">Runner</span> application or from the Scala interpreter simply by invoking <span class="code">execute</span> on it.
+run a <pre class="code">Suite</pre> directly via ScalaTest's <pre class="code">Runner</pre> application or from the Scala interpreter simply by invoking <pre class="code">execute</pre> on it.
 Here's an example:</p>
 
 <pre>
@@ -154,7 +154,7 @@ Here's an example:</p>
 </pre>
 
 
-<p>All ScalaTest styles, including <span class="code">FunSuite</span>, are designed to encourage the writing of focused tests with descriptive
+<p>All ScalaTest styles, including <pre class="code">FunSuite</pre>, are designed to encourage the writing of focused tests with descriptive
 names. In addition, all styles generate specification-like output that can
 facilitate communication among stakeholders.
 The style you choose dictates only how the declarations of your tests will look. Everything else in ScalaTest
@@ -178,10 +178,10 @@ and line number of the offending assertion, and an informative error message:</p
 
 
 <p>To provide descriptive error messages when assertions fail, ScalaTest analyzes the
-expressions passed to each <span class="code">assert</span> invocation at compile time.
-If you prefer to see even more detailed information about assertion failures, you can use ScalaTest's <span class="code">DiagrammedAssertions</span>,
+expressions passed to each <pre class="code">assert</pre> invocation at compile time.
+If you prefer to see even more detailed information about assertion failures, you can use ScalaTest's <pre class="code">DiagrammedAssertions</pre>,
 whose error messages display a
-diagram of the expression passed to <span class="code">assert</span>:</p>
+diagram of the expression passed to <pre class="code">assert</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;assert(<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>).contains(<code class="literal">4</code>))
@@ -193,10 +193,10 @@ diagram of the expression passed to <span class="code">assert</span>:</p>
 </pre>
 
 
-<p>ScalaTest's <span class="code">assert</span> methods do not differentiate
+<p>ScalaTest's <pre class="code">assert</pre> methods do not differentiate
 between the actual and expected result in error messages. They just indicate that the left operand did not equal the right
 operand, or show the values in a diagram. If you wish to emphasize the distinction between actual and expected, you
-can alternatively use ScalaTest's <span class="code">assertResult</span> method, like this:</p>
+can alternatively use ScalaTest's <pre class="code">assertResult</pre> method, like this:</p>
 
 <pre>
   assertResult(<code class="literal">2</code>)&nbsp;{
@@ -206,10 +206,10 @@ can alternatively use ScalaTest's <span class="code">assertResult</span> method,
 
 
 <p>With this expression you indicate that you expect the code between the curly braces to result in 2. Were the code
-between the braces to result in 3, you'd see the message, "<span class="code">Expected</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">but</span>&nbsp;<span class="code">got</span>&nbsp;<span class="code">3</span>" in the test failure
+between the braces to result in 3, you'd see the message, "<pre class="code">Expected</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">but</pre>&nbsp;<pre class="code">got</pre>&nbsp;<pre class="code">3</pre>" in the test failure
 report.</p>
 
-<p>If you want to check that a method throws an expected exception, you can use ScalaTest's <span class="code">assertThrows</span>
+<p>If you want to check that a method throws an expected exception, you can use ScalaTest's <pre class="code">assertThrows</pre>
 method, like this:</p>
 
 <pre>
@@ -221,7 +221,7 @@ method, like this:</p>
 
 <p>If the code between the curly braces throws a different exception than expected, or
 throws no exception,
-<span class="code">assertThrows</span> will complete abruptly with a <span class="code">TestFailedException</span>. You'll get a helpful error message in the failure report, such as:</p>
+<pre class="code">assertThrows</pre> will complete abruptly with a <pre class="code">TestFailedException</pre>. You'll get a helpful error message in the failure report, such as:</p>
 
 <pre>
   Expected&nbsp;IllegalArgumentException&nbsp;to&nbsp;be&nbsp;thrown,
@@ -229,10 +229,10 @@ throws no exception,
 </pre>
 
 
-<p>On the other hand, if the code completes abruptly with an instance of the passed exception class, <span class="code">assertThrows</span>
-will return normally. If you wish to inspect the expected exception further, you can use <span class="code">intercept</span> instead
-of <span class="code">assertThrows</span>. The <span class="code">intercept</span> method works the same as <span class="code">assertThrows</span>, except if the expected exception
-is thrown, <span class="code">intercept</span> returns it:</p>
+<p>On the other hand, if the code completes abruptly with an instance of the passed exception class, <pre class="code">assertThrows</pre>
+will return normally. If you wish to inspect the expected exception further, you can use <pre class="code">intercept</pre> instead
+of <pre class="code">assertThrows</pre>. The <pre class="code">intercept</pre> method works the same as <pre class="code">assertThrows</pre>, except if the expected exception
+is thrown, <pre class="code">intercept</pre> returns it:</p>
 
 <pre>
   <code class="vem">val</code>&nbsp;caught&nbsp;=
@@ -253,7 +253,7 @@ in your code.</p>
 the emphasis is on writing human-readable specifications of the expected behavior of code and accompanying tests that
 verify the code has the specified behavior.<a id="i2079947888-1"/> 
 ScalaTest includes several traits that facilitate this style of testing. An example
-using one such trait, <span class="code">FlatSpec</span>, is shown
+using one such trait, <pre class="code">FlatSpec</pre>, is shown
 in <a href="assertions-and-tests.html#lst-scalatest-spec-example">Listing 14.4</a>.</p>
 
 <p><a id="lst-scalatest-spec-example"/></p>
@@ -281,20 +281,20 @@ in <a href="assertions-and-tests.html#lst-scalatest-spec-example">Listing 14.4</
 </pre>
 
 
-<h5>Listing 14.4 - Specifying and testing behavior with a ScalaTest <span class="code">FlatSpec</span>.</h5>
+<h5>Listing 14.4 - Specifying and testing behavior with a ScalaTest <pre class="code">FlatSpec</pre>.</h5>
 
 
-<p>In a <span class="code">FlatSpec</span>, you write tests as <em>specifier clauses</em>. You start by writing a name for the
-<em>subject</em> under test as a string (<span class="code">"A</span>&nbsp;<span class="code">UniformElement"</span> in <a href="assertions-and-tests.html#lst-scalatest-spec-example">Listing 14.4</a>), 
-then <span class="code">should</span> (or <span class="code">must</span> or <span class="code">can</span>), then a string that specifies a bit of behavior required of the subject,
-then <span class="code">in</span>.
-In the curly braces following <span class="code">in</span>, you write code that tests the specified behavior. In subsequent clauses you can
-write <span class="code">it</span> to refer to the most recently given subject.
-When a <span class="code">FlatSpec</span> is executed, it will run each specifier clause as a ScalaTest test.
-<span class="code">FlatSpec</span> (and ScalaTest's other specification traits) generate output that reads
+<p>In a <pre class="code">FlatSpec</pre>, you write tests as <em>specifier clauses</em>. You start by writing a name for the
+<em>subject</em> under test as a string (<pre class="code">"A</pre>&nbsp;<pre class="code">UniformElement"</pre> in <a href="assertions-and-tests.html#lst-scalatest-spec-example">Listing 14.4</a>), 
+then <pre class="code">should</pre> (or <pre class="code">must</pre> or <pre class="code">can</pre>), then a string that specifies a bit of behavior required of the subject,
+then <pre class="code">in</pre>.
+In the curly braces following <pre class="code">in</pre>, you write code that tests the specified behavior. In subsequent clauses you can
+write <pre class="code">it</pre> to refer to the most recently given subject.
+When a <pre class="code">FlatSpec</pre> is executed, it will run each specifier clause as a ScalaTest test.
+<pre class="code">FlatSpec</pre> (and ScalaTest's other specification traits) generate output that reads
 like a specification when run.
 For example, here's what the output
-will look like if you run <span class="code">ElementSpec</span> from <a href="assertions-and-tests.html#lst-scalatest-spec-example">Listing 14.4</a> in the interpreter:</p>
+will look like if you run <pre class="code">ElementSpec</pre> from <a href="assertions-and-tests.html#lst-scalatest-spec-example">Listing 14.4</a> in the interpreter:</p>
 
 <pre>
   scala&gt;&nbsp;(<code class="vem">new</code>&nbsp;<code class="typename">ElementSpec</code>).execute()
@@ -306,11 +306,11 @@ will look like if you run <span class="code">ElementSpec</span> from <a href="as
 
 
 <p><a href="assertions-and-tests.html#lst-scalatest-spec-example">Listing 14.4</a> also illustrates ScalaTest's <em>matchers</em> domain-specific language (DSL).<a id="i-1267542082-1"/>
-By mixing in trait <span class="code">Matchers</span>, you can write assertions that read more like natural language.
+By mixing in trait <pre class="code">Matchers</pre>, you can write assertions that read more like natural language.
 ScalaTest provides many matchers in its DSL, and also enables you
 to define new matchers with custom failure messages. The matchers shown in <a href="assertions-and-tests.html#lst-scalatest-spec-example">Listing 14.4</a> include
-the "<span class="code">should</span>&nbsp;<span class="code">be</span>" and "<span class="code">an</span>&nbsp;<span class="code">[</span> ...<span class="code">]</span>&nbsp;<span class="code">should</span>&nbsp;<span class="code">be</span>&nbsp;<span class="code">thrownBy</span>&nbsp;<span class="code">{</span> ...<span class="code">}</span>&nbsp;<span class="code"></span>" syntax. You can alternatively
-mix in <span class="code">MustMatchers</span> if you prefer <span class="code">must</span> to <span class="code">should</span>. For example, mixing in <span class="code">MustMatchers</span> would allow
+the "<pre class="code">should</pre>&nbsp;<pre class="code">be</pre>" and "<pre class="code">an</pre>&nbsp;<pre class="code">[</pre> ...<pre class="code">]</pre>&nbsp;<pre class="code">should</pre>&nbsp;<pre class="code">be</pre>&nbsp;<pre class="code">thrownBy</pre>&nbsp;<pre class="code">{</pre> ...<pre class="code">}</pre>&nbsp;<pre class="code"></pre>" syntax. You can alternatively
+mix in <pre class="code">MustMatchers</pre> if you prefer <pre class="code">must</pre> to <pre class="code">should</pre>. For example, mixing in <pre class="code">MustMatchers</pre> would allow
 you to write expressions such as:</p>
 
 <pre>
@@ -360,7 +360,7 @@ For example, you could use specs2 to write the test shown in <a href="assertions
 
 
 <p>Like ScalaTest, specs2 provides a matchers DSL. You can see some examples of specs2 matchers in action in <a href="assertions-and-tests.html#lst-specs2-example">Listing 14.5</a> in 
-the lines that contain "<span class="code">must</span>&nbsp;<span class="code">be_==</span>" and "<span class="code">must</span>&nbsp;<span class="code">throwA</span>".<a href="assertions-and-tests.html#footnotemain14-3">[3]</a>
+the lines that contain "<pre class="code">must</pre>&nbsp;<pre class="code">be_==</pre>" and "<pre class="code">must</pre>&nbsp;<pre class="code">throwA</pre>".<a href="assertions-and-tests.html#footnotemain14-3">[3]</a>
 You can use specs2 standalone, but it is also
 integrated with ScalaTest and JUnit, so you can run specs2 tests with those tools as well.</p>
 
@@ -368,7 +368,7 @@ integrated with ScalaTest and JUnit, so you can run specs2 tests with those tool
 the people who decide what a software system should do, the people who implement the
 software, and the people who determine whether the software is finished and working.
 Although any of ScalaTest's or specs2's styles can be used in this manner,
-ScalaTest's <span class="code">FeatureSpec</span> in particular is designed for it. <a href="assertions-and-tests.html#lst-scalatest-featurespec-example">Listing 14.6</a> 
+ScalaTest's <pre class="code">FeatureSpec</pre> in particular is designed for it. <a href="assertions-and-tests.html#lst-scalatest-featurespec-example">Listing 14.6</a> 
 shows an example:</p>
 
 <p><a id="lst-scalatest-featurespec-example"/></p>
@@ -391,10 +391,10 @@ shows an example:</p>
 <h5>Listing 14.6 - Using tests to facilitate communication among stakeholders.</h5>
 
 
-<p><span class="code">FeatureSpec</span> is designed to guide conversations about software requirements: You must identify specific <span class="textit">features</span>, then specify those features in terms of
-<span class="textit">scenarios</span>. The <span class="code">Given</span>, <span class="code">When</span>, and <span class="code">Then</span> methods (provided by
-trait <span class="code">GivenWhenThen</span>) can help focus the conversation on the specifics
-of individual scenarios. The <span class="code">pending</span> call at the end indicates that neither the test
+<p><pre class="code">FeatureSpec</pre> is designed to guide conversations about software requirements: You must identify specific <span class="textit">features</span>, then specify those features in terms of
+<span class="textit">scenarios</span>. The <pre class="code">Given</pre>, <pre class="code">When</pre>, and <pre class="code">Then</pre> methods (provided by
+trait <pre class="code">GivenWhenThen</pre>) can help focus the conversation on the specifics
+of individual scenarios. The <pre class="code">pending</pre> call at the end indicates that neither the test
 nor the actual behavior has been implemented&mdash;just the specification. Once
 all the tests and specified behavior have been implemented, the tests will
 pass and the requirements can be deemed to have been met.</p>
@@ -405,7 +405,7 @@ pass and the requirements can be deemed to have been met.</p>
 <p>Another useful testing tool for Scala is ScalaCheck, an open source framework written by Rickard Nilsson. ScalaCheck
 enables you to specify properties that the code under test must
 obey.<a id="i568084816-1"/><a id="i-517954686-2"/> For each property, ScalaCheck will generate data and execute assertions that check whether the property holds. <a href="assertions-and-tests.html#lst-property-based-tests">Listing 14.7</a> shows an example
-of using ScalaCheck from a ScalaTest <span class="code">WordSpec</span> that mixes in trait <span class="code">PropertyChecks</span>.</p>
+of using ScalaCheck from a ScalaTest <pre class="code">WordSpec</pre> that mixes in trait <pre class="code">PropertyChecks</pre>.</p>
 
 <p><a id="lst-property-based-tests"/></p>
 
@@ -431,13 +431,13 @@ of using ScalaCheck from a ScalaTest <span class="code">WordSpec</span> that mix
 <h5>Listing 14.7 - Writing property-based tests with ScalaCheck.</h5>
 
 
-<p><span class="code">WordSpec</span> is a ScalaTest style class. The <span class="code">PropertyChecks</span>
-trait provides several <span class="code">forAll</span> methods that allow you to mix property-based tests with
+<p><pre class="code">WordSpec</pre> is a ScalaTest style class. The <pre class="code">PropertyChecks</pre>
+trait provides several <pre class="code">forAll</pre> methods that allow you to mix property-based tests with
 traditional assertion-based or matcher-based tests.
-In this example, we check a property that the <span class="code">elem</span> factory
+In this example, we check a property that the <pre class="code">elem</pre> factory
 should obey. ScalaCheck properties are expressed as function values that take as parameters 
 the data needed by the property's assertions. This data will be generated by ScalaCheck. In the property shown
-in <a href="assertions-and-tests.html#lst-property-based-tests">Listing 14.7</a>, the data is an integer named <span class="code">w</span> that
+in <a href="assertions-and-tests.html#lst-property-based-tests">Listing 14.7</a>, the data is an integer named <pre class="code">w</pre> that
 represents a width. Inside the body of the function, you see this code:</p>
 
 <pre>
@@ -447,16 +447,16 @@ represents a width. Inside the body of the function, you see this code:</p>
 </pre>
 
 
-<p>The <span class="code">whenever</span> clause indicates that whenever the left hand expression is true,
+<p>The <pre class="code">whenever</pre> clause indicates that whenever the left hand expression is true,
 the expression on the right must hold true.
-Thus in this case, the expression in the block must hold true whenever <span class="code">w</span> is greater than 0. The right-hand expression in this case
-will yield true if the width passed to the <span class="code">elem</span> factory
-is the same as the width of the <span class="code">Element</span> returned by the factory.</p>
+Thus in this case, the expression in the block must hold true whenever <pre class="code">w</pre> is greater than 0. The right-hand expression in this case
+will yield true if the width passed to the <pre class="code">elem</pre> factory
+is the same as the width of the <pre class="code">Element</pre> returned by the factory.</p>
 
 <p>With this small amount
-of code, ScalaCheck will generate possibly hundreds of values for <span class="code">w</span> and test each one, looking for
+of code, ScalaCheck will generate possibly hundreds of values for <pre class="code">w</pre> and test each one, looking for
 a value for which the property doesn't hold. If the property holds true for every value ScalaCheck tries, the
-test will pass. Otherwise, the test will complete abruptly with a <span class="code">TestFailedException</span> that
+test will pass. Otherwise, the test will complete abruptly with a <pre class="code">TestFailedException</pre> that
 contains information including the value that caused the
 failure.</p>
 
@@ -467,18 +467,18 @@ failure.</p>
 a quick overview of ScalaTest's approach. To get the full story on any of these frameworks, however, you'll need to consult
 their documentation.</p>
 
-<p>In ScalaTest, you organize large test suites by nesting <span class="code">Suite</span>s inside
-<span class="code">Suite</span>s.<a id="i-318258231-1"/> 
-When a <span class="code">Suite</span> is executed, it will execute its nested <span class="code">Suite</span>s as well as its tests. The nested <span class="code">Suite</span>s will
-in turn execute their nested <span class="code">Suite</span>s, and so on. A large test suite, therefore, is represented as a tree of <span class="code">Suite</span> objects.
-When you execute the root <span class="code">Suite</span> in the tree, all <span class="code">Suite</span>s in the tree will be executed.</p>
+<p>In ScalaTest, you organize large test suites by nesting <pre class="code">Suite</pre>s inside
+<pre class="code">Suite</pre>s.<a id="i-318258231-1"/> 
+When a <pre class="code">Suite</pre> is executed, it will execute its nested <pre class="code">Suite</pre>s as well as its tests. The nested <pre class="code">Suite</pre>s will
+in turn execute their nested <pre class="code">Suite</pre>s, and so on. A large test suite, therefore, is represented as a tree of <pre class="code">Suite</pre> objects.
+When you execute the root <pre class="code">Suite</pre> in the tree, all <pre class="code">Suite</pre>s in the tree will be executed.</p>
 
-<p>You can nest suites manually or automatically. To nest manually, you either override the <span class="code">nestedSuites</span> method on your <span class="code">Suite</span>s or pass the <span class="code">Suite</span>s you want to nest to the constructor of class <span class="code">Suites</span>, which ScalaTest provides for this purpose. To nest automatically,
-you provide package names to ScalaTest's <span class="code">Runner</span>, which will discover <span class="code">Suite</span>s automatically, nest them under a root <span class="code">Suite</span>, and
-execute the root <span class="code">Suite</span>.</p>
+<p>You can nest suites manually or automatically. To nest manually, you either override the <pre class="code">nestedSuites</pre> method on your <pre class="code">Suite</pre>s or pass the <pre class="code">Suite</pre>s you want to nest to the constructor of class <pre class="code">Suites</pre>, which ScalaTest provides for this purpose. To nest automatically,
+you provide package names to ScalaTest's <pre class="code">Runner</pre>, which will discover <pre class="code">Suite</pre>s automatically, nest them under a root <pre class="code">Suite</pre>, and
+execute the root <pre class="code">Suite</pre>.</p>
 
-<p>You can invoke ScalaTest's <span class="code">Runner</span> application from the command line or via a build tool, such as sbt, maven, or ant.
-The simplest way to invoke <span class="code">Runner</span> on the command line is via the <span class="code">org.scalatest.run</span> application. This application
+<p>You can invoke ScalaTest's <pre class="code">Runner</pre> application from the command line or via a build tool, such as sbt, maven, or ant.
+The simplest way to invoke <pre class="code">Runner</pre> on the command line is via the <pre class="code">org.scalatest.run</pre> application. This application
 expects a fully qualified test class name. For example, to run the test class shown in <a href="assertions-and-tests.html#lst-scalatest-featurespec-example">Listing 14.6</a>,
 you must compile it with:</p>
 
@@ -500,13 +500,13 @@ you must compile it with:</p>
 <p><img src="images/scalaTestOutput53.png" alt="image images/scalaTestOutput53.png"/></p>
 
 </div>
-<h5> Figure 14.1 - The output of <span class="code">org.scalatest.run</span>.</h5>
+<h5> Figure 14.1 - The output of <pre class="code">org.scalatest.run</pre>.</h5>
 
 
-<p>With <span class="code">-cp</span> you place ScalaTest's JAR file on the class path. (When downloaded, the JAR file name will include embedded Scala and
-ScalaTest version numbers.) The next token, <span class="code">org.scalatest.run</span>, is the fully qualified application name.
+<p>With <pre class="code">-cp</pre> you place ScalaTest's JAR file on the class path. (When downloaded, the JAR file name will include embedded Scala and
+ScalaTest version numbers.) The next token, <pre class="code">org.scalatest.run</pre>, is the fully qualified application name.
 Scala will run this application and pass the remaining tokens as command line arguments. 
-The <span class="code">TVSetSpec</span> argument specifies the suite to execute.
+The <pre class="code">TVSetSpec</pre> argument specifies the suite to execute.
 The result is shown in <a href="assertions-and-tests.html#fig-scalatest-gui">Figure 14.1</a>.</p>
 
 <h3>14.7 Conclusion</h3>
@@ -526,13 +526,13 @@ matching.</p>
 <h4>Footnotes for Chapter 14:</h4>
 
 
-<p><a id="footnotemain14-1"/>[1] The <span class="code">assert</span> method is defined in the <span class="code">Predef</span>
+<p><a id="footnotemain14-1"/>[1] The <pre class="code">assert</pre> method is defined in the <pre class="code">Predef</pre>
 singleton object, whose members are automatically imported into every
 Scala source file.</p>
 
-<p><a id="footnotemain14-2"/>[2] More detail on ScalaTest is available from <span class="code">http://www.scalatest.org/</span>.</p>
+<p><a id="footnotemain14-2"/>[2] More detail on ScalaTest is available from <pre class="code">http://www.scalatest.org/</pre>.</p>
 
-<p><a id="footnotemain14-3"/>[3] You can download specs2 from <span class="code">http://specs2.org/</span>.</p>
+<p><a id="footnotemain14-3"/>[3] You can download specs2 from <pre class="code">http://specs2.org/</pre>.</p>
 
 <div style="page-break-after:always"/>
 

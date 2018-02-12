@@ -122,19 +122,19 @@ own specific annotations.</p>
 </pre>
 
 
-<p>The annotation<a id="i-1632344653-1"/><a id="i86494153-1"/> is the <span class="code">@deprecated</span> part, and it applies to the
-entirety of the <span class="code">bigMistake</span> method (not shown&mdash;it's too
+<p>The annotation<a id="i-1632344653-1"/><a id="i86494153-1"/> is the <pre class="code">@deprecated</pre> part, and it applies to the
+entirety of the <pre class="code">bigMistake</pre> method (not shown&mdash;it's too
 embarrassing).  In this case, the method is being marked as something
-the author of <span class="code">bigMistake</span> wishes you not to use.  Maybe
-<span class="code">bigMistake</span> will be removed entirely from a future version of the
+the author of <pre class="code">bigMistake</pre> wishes you not to use.  Maybe
+<pre class="code">bigMistake</pre> will be removed entirely from a future version of the
 code.</p>
 
 <p>In the previous example, a method is annotated as
-<span class="code">@deprecated</span>.  Annotations are allowed in other places too.
+<pre class="code">@deprecated</pre>.  Annotations are allowed in other places too.
 Annotations are allowed on any kind of
-declaration or definition, including <span class="code">val</span>s, <span class="code">var</span>s, <span class="code">def</span>s,
-<span class="code">class</span>es, <span class="code">object</span>s, <span class="code">trait</span>s, and
-<span class="code">type</span>s.<a id="i1935725073-1"/><a id="i175307031-1"/><a id="i1767118133-1"/><a id="i1177206493-1"/><a id="i911241519-1"/><a id="i-1756036738-1"/>  The annotation
+declaration or definition, including <pre class="code">val</pre>s, <pre class="code">var</pre>s, <pre class="code">def</pre>s,
+<pre class="code">class</pre>es, <pre class="code">object</pre>s, <pre class="code">trait</pre>s, and
+<pre class="code">type</pre>s.<a id="i1935725073-1"/><a id="i175307031-1"/><a id="i1767118133-1"/><a id="i1177206493-1"/><a id="i911241519-1"/><a id="i-1756036738-1"/>  The annotation
 applies to the entirety of the declaration or definition that follows
 it:</p>
 
@@ -146,9 +146,9 @@ it:</p>
 
 
 <p>Annotations can also be applied to an expression<a id="i726662607-1"/>, as with the
-<span class="code">@unchecked</span> annotation<a id="i-2035290207-3"/><a id="i-815574504-3"/> for pattern matching
+<pre class="code">@unchecked</pre> annotation<a id="i-2035290207-3"/><a id="i-815574504-3"/> for pattern matching
 (see <a href="case-classes-and-pattern-matching.html">Chapter 15</a>).
-To do so, place a colon (<span class="code">:</span>) after the expression
+To do so, place a colon (<pre class="code">:</pre>) after the expression
 and then write the annotation.  Syntactically, it looks like
 the annotation is being used as a type:</p>
 
@@ -169,7 +169,7 @@ useful, but annotations have a richer general form:<a id="i2008427102-1"/></p>
 <div style="text-align: center">
 
 
-<p><span class="code">@</span><em>annot</em>(<em>exp</em><sub>1</sub>, <em>exp</em><sub>2</sub>, ...)</p>
+<p><pre class="code">@</pre><em>annot</em>(<em>exp</em><sub>1</sub>, <em>exp</em><sub>2</sub>, ...)</p>
 
 </div>
 
@@ -178,14 +178,14 @@ useful, but annotations have a richer general form:<a id="i2008427102-1"/></p>
 All annotations must include that much.
 The <em>exp</em><a id="i-1204896229-1"/>
 parts are arguments to the annotation.  For annotations like
-<span class="code">@deprecated</span> that do not need any arguments, you would normally
-leave off the parentheses, but you can write <span class="code">@deprecated()</span> if
+<pre class="code">@deprecated</pre> that do not need any arguments, you would normally
+leave off the parentheses, but you can write <pre class="code">@deprecated()</pre> if
 you like.  For annotations that do have arguments, place the arguments
-in parentheses, for example, <span class="code">@serial(1234)</span>.</p>
+in parentheses, for example, <pre class="code">@serial(1234)</pre>.</p>
 
 <p>The precise form of the arguments you may give to an annotation depends
 on the particular annotation class.  Most annotation processors only
-let you supply immediate constants such as <span class="code">123</span> or <span class="code">"hello"</span>.  The
+let you supply immediate constants such as <pre class="code">123</pre> or <pre class="code">"hello"</pre>.  The
 compiler itself supports arbitrary expressions, however, so long as
 they type check.  Some annotation classes can make use of this, for
 example, to let you refer to other variables that are in scope:</p>
@@ -197,7 +197,7 @@ example, to let you refer to other variables that are in scope:</p>
 
 
 <p>Internally, Scala represents an annotation as just a constructor call
-of an annotation class&mdash;replace the `<span class="code">@</span>' by `<span class="code">new</span>' and you
+of an annotation class&mdash;replace the `<pre class="code">@</pre>' by `<pre class="code">new</pre>' and you
 have a valid instance creation expression. This means that named and
 default annotation arguments are supported naturally, because Scala
 already has named and default arguments for method and constructor<a id="i463927682-1"/>
@@ -205,7 +205,7 @@ calls. One slightly tricky bit concerns annotations that conceptually
 take other annotations as arguments, which are required by some frameworks.<a id="i1452294669-1"/><a id="i1513606523-1"/>
 You cannot write an annotation directly as an argument to an annotation, 
 because annotations are not valid expressions. 
-In such cases you must use `<span class="code">new</span>' instead of `<span class="code">@</span>', as illustrated here:</p>
+In such cases you must use `<pre class="code">new</pre>' instead of `<pre class="code">@</pre>', as illustrated here:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">import</code>&nbsp;annotation._
@@ -249,7 +249,7 @@ safe in assuming that all reasonable clients will have stopped
 accessing the deprecated class or method and thus that you can safely
 remove it.</p>
 
-<p>You mark a method as deprecated simply by writing <span class="code">@deprecated</span>
+<p>You mark a method as deprecated simply by writing <pre class="code">@deprecated</pre>
 before it.  For example:</p>
 
 <pre>
@@ -260,7 +260,7 @@ before it.  For example:</p>
 <p>Such an annotation will cause the Scala compiler to emit deprecation warnings
 whenever Scala code accesses the method.</p>
 
-<p>If you supply a string as an argument to <span class="code">@deprecated</span>, that
+<p>If you supply a string as an argument to <pre class="code">@deprecated</pre>, that
 string will be emitted along with the error message.  Use this message
 to explain to developers what they should use instead of the
 deprecated method.</p>
@@ -292,16 +292,16 @@ passing and a minimum of shared mutable state.  See
 <a href="futures-and-concurrency.html">Chapter 32</a> for the details.</p>
 
 <p>Nonetheless, sometimes programmers want to use mutable state in their
-concurrent programs.  The <span class="code">@volatile</span> annotation<a id="i-882906061-1"/><a id="i915992882-1"/>
+concurrent programs.  The <pre class="code">@volatile</pre> annotation<a id="i-882906061-1"/><a id="i915992882-1"/>
 helps in such
 cases.  It informs the compiler that the variable in question will be
 used by multiple threads.  Such variables are implemented so
 that reads and writes to the variable are slower, but accesses from
 multiple threads behave more predictably.</p>
 
-<p>The <span class="code">@volatile</span> keyword gives different guarantees on different
+<p>The <pre class="code">@volatile</pre> keyword gives different guarantees on different
 platforms.  On the Java platform, however, you get the same behavior as if you
-wrote the field in Java code and marked it with the Java <span class="code">volatile</span>
+wrote the field in Java code and marked it with the Java <pre class="code">volatile</pre>
 modifier.</p>
 
 <h4>Binary serialization</h4>
@@ -324,13 +324,13 @@ these annotations in the Java way (see
 <p>The first annotation indicates whether a class is serializable at all.
 Most classes are serializable, but not all. A handle to a socket or GUI window, for example,
 cannot be serialized.  By default, a class is not
-considered serializable.  You should add a <span class="code">@serializable</span><a id="i-534731536-1"/><a id="i-897281643-1"/>
+considered serializable.  You should add a <pre class="code">@serializable</pre><a id="i-534731536-1"/><a id="i-897281643-1"/>
 annotation to any class you would like to be serializable.</p>
 
 <p>The second annotation helps deal with serializable classes changing as
 time goes by.  You can attach a serial number to the current version
 of a class by adding an annotation like<a id="i-744810718-1"/><a id="i-1236272573-1"/>
-<span class="code">@SerialVersionUID(1234)</span>, where <span class="code">1234</span> should be replaced by
+<pre class="code">@SerialVersionUID(1234)</pre>, where <pre class="code">1234</pre> should be replaced by
 your serial number of choice.  The framework should store this number
 in the generated byte stream.  When you later reload that byte stream
 and try to convert it to an object, the framework can check that the
@@ -340,38 +340,38 @@ serialization-incompatible change to your class, then you can change
 the version number.  The framework will then automatically refuse to
 load old instances of the class.</p>
 
-<p>Finally, Scala provides a <span class="code">@transient</span> annotation<a id="i875595397-1"/><a id="i2078024116-1"/> for fields that
+<p>Finally, Scala provides a <pre class="code">@transient</pre> annotation<a id="i875595397-1"/><a id="i2078024116-1"/> for fields that
 should not be serialized at all.  If you mark a field as
-<span class="code">@transient</span>, then the framework should not save the field even
+<pre class="code">@transient</pre>, then the framework should not save the field even
 when the surrounding object is serialized.  When the object is loaded,
 the field will be restored to the default value for the type of the
-field annotated as <span class="code">@transient</span>.</p>
+field annotated as <pre class="code">@transient</pre>.</p>
 
-<h4>Automatic <span class="code">get</span> and <span class="code">set</span> methods</h4>
+<h4>Automatic <pre class="code">get</pre> and <pre class="code">set</pre> methods</h4>
 
 
-<p>Scala code normally does not need explicit <span class="code">get</span> and <span class="code">set</span> methods for
+<p>Scala code normally does not need explicit <pre class="code">get</pre> and <pre class="code">set</pre> methods for
 fields, because Scala blends the syntax for field access and method
-invocation.  Some platform-specific frameworks do expect <span class="code">get</span> and <span class="code">set</span> methods, however.  For that purpose, Scala provides the
-<span class="code">@scala.reflect.BeanProperty</span> annotation.<a id="i732073940-1"/><a id="i1595748955-1"/><a id="i-1969580643-4"/><a id="i553650449-3"/>
+invocation.  Some platform-specific frameworks do expect <pre class="code">get</pre> and <pre class="code">set</pre> methods, however.  For that purpose, Scala provides the
+<pre class="code">@scala.reflect.BeanProperty</pre> annotation.<a id="i732073940-1"/><a id="i1595748955-1"/><a id="i-1969580643-4"/><a id="i553650449-3"/>
 If you add this annotation to a field, the compiler will automatically
-generate <span class="code">get</span> and <span class="code">set</span> methods for you.  If you annotate a field
-named <span class="code">crazy</span>, the <span class="code">get</span> method will be named <span class="code">getCrazy</span> and the <span class="code">set</span> method
-will be named <span class="code">setCrazy</span>.</p>
+generate <pre class="code">get</pre> and <pre class="code">set</pre> methods for you.  If you annotate a field
+named <pre class="code">crazy</pre>, the <pre class="code">get</pre> method will be named <pre class="code">getCrazy</pre> and the <pre class="code">set</pre> method
+will be named <pre class="code">setCrazy</pre>.</p>
 
-<p>The generated <span class="code">get</span> and <span class="code">set</span> methods are only available after a compilation
-pass completes.  Thus, you cannot call these <span class="code">get</span> and <span class="code">set</span> methods from
+<p>The generated <pre class="code">get</pre> and <pre class="code">set</pre> methods are only available after a compilation
+pass completes.  Thus, you cannot call these <pre class="code">get</pre> and <pre class="code">set</pre> methods from
 code you compile at the same time as the annotated fields.  This
 should not be a problem in practice, because in Scala code you can
 access the fields directly.  This feature is intended to support
-frameworks that expect regular <span class="code">get</span> and <span class="code">set</span> methods, and typically you
+frameworks that expect regular <pre class="code">get</pre> and <pre class="code">set</pre> methods, and typically you
 do not compile the framework and the code that uses it at the same
 time.</p>
 
 <h4>Tailrec</h4>
 
 
-<p>You would typically add the <span class="code">@tailrec</span> annotation to a method that<a id="i726527906-1"/><a id="i-135595761-1"/><a id="i-1317428246-1"/>
+<p>You would typically add the <pre class="code">@tailrec</pre> annotation to a method that<a id="i726527906-1"/><a id="i-135595761-1"/><a id="i-1317428246-1"/>
 needs to be tail recursive, for instance because you expect that it
 would recurse very deeply otherwise. To make sure that the Scala
 compiler does perform the tail-recursion optimization described in
@@ -383,23 +383,23 @@ explanation of the reasons.</p>
 <h4>Unchecked</h4>
 
 
-<p>The <span class="code">@unchecked</span> annotation is interpreted by the compiler during<a id="i-2035290207-4"/><a id="i-815574504-4"/>
+<p>The <pre class="code">@unchecked</pre> annotation is interpreted by the compiler during<a id="i-2035290207-4"/><a id="i-815574504-4"/>
 pattern matches.  It tells the compiler not to worry if the
-<span class="code">match</span> expression seems to leave out some cases.  See
+<pre class="code">match</pre> expression seems to leave out some cases.  See
 <a href="case-classes-and-pattern-matching.html#sec-sealed-classes">Section 15.5</a> for details.</p>
 
 <h4>Native methods</h4>
 
 
-<p>The <span class="code">@native</span> annotation informs the compiler that a method's<a id="i-1241002280-1"/><a id="i2091795679-1"/><a id="i1448620333-1"/>
+<p>The <pre class="code">@native</pre> annotation informs the compiler that a method's<a id="i-1241002280-1"/><a id="i2091795679-1"/><a id="i1448620333-1"/>
 implementation is supplied by the runtime rather than in Scala code.
 The compiler will toggle the appropriate flags in the output, and it
 will be up to the developer to supply the implementation using a
 mechanism such as the Java Native Interface (JNI).<a id="i555287182-1"/><a id="i73605-1"/></p>
 
-<p>When using the <span class="code">@native</span> annotation, a method body must be
+<p>When using the <pre class="code">@native</pre> annotation, a method body must be
 supplied, but it will not be emitted into the output. For example,
-here is how to declare that method <span class="code">beginCountdown</span> will be supplied
+here is how to declare that method <pre class="code">beginCountdown</pre> will be supplied
 by the runtime:</p>
 
 <pre>
@@ -415,8 +415,8 @@ by the runtime:</p>
 annotations that you will most commonly need to know about.  First of
 all it covered the syntax of annotations, because using
 annotations is far more common than defining new ones.  Second it showed how to use several annotations that are supported by the standard
-Scala compiler, including <span class="code">@deprecated</span>, <span class="code">@volatile</span>,
-<span class="code">@serializable</span>, <span class="code">@BeanProperty</span>, <span class="code">@tailrec</span>, and <span class="code">@unchecked</span>.</p>
+Scala compiler, including <pre class="code">@deprecated</pre>, <pre class="code">@volatile</pre>,
+<pre class="code">@serializable</pre>, <pre class="code">@BeanProperty</pre>, <pre class="code">@tailrec</pre>, and <pre class="code">@unchecked</pre>.</p>
 
 <p><a href="combining-scala-and-java.html">Chapter 31</a> gives additional,
 Java-specific information on annotations.  It covers annotations only

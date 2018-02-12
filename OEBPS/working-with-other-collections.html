@@ -34,7 +34,7 @@ you a quick tour of the most important sequences.</p>
 
 
 <p>Perhaps the most important sequence type to know about
-is class <span class="code">List</span>,<a id="i882498454-2"/>
+is class <pre class="code">List</pre>,<a id="i882498454-2"/>
 the immutable linked-list described in detail in the previous chapter.
 Lists support fast addition and
 removal of items to the beginning of the list, but they do not
@@ -102,7 +102,7 @@ existing Java methods that return arrays.<a href="working-with-other-collections
 
 <p>You have seen arrays in action many times in previous chapters.
 The basics are in <a href="next-steps-in-scala.html#step7">Step 7</a> in <a href="next-steps-in-scala.html">Chapter 3</a>.
-Several examples of iterating through the elements of an array with a <span class="code">for</span> expression are shown
+Several examples of iterating through the elements of an array with a <pre class="code">for</pre> expression are shown
 in <a href="builtin-control-structures.html#sec-for-expressions">Section 7.3</a>. Arrays also figure prominently in the two-dimensional layout library
 of <a href="composition-and-inheritance.html">Chapter 10</a>.</p>
 
@@ -111,19 +111,19 @@ of <a href="composition-and-inheritance.html">Chapter 10</a>.</p>
 
 <p><a id="sec-collections-listbuf"/></p>
 
-<p>Class <span class="code">List</span> provides fast access to the head of the list, but not the end. Thus, when you need to
+<p>Class <pre class="code">List</pre> provides fast access to the head of the list, but not the end. Thus, when you need to
 build a list by appending to the end, consider building the list backwards by prepending elements
-to the front. Then when you're done, call <span class="code">reverse</span> to get the elements in the order you need.</p>
+to the front. Then when you're done, call <pre class="code">reverse</pre> to get the elements in the order you need.</p>
 
-<p>Another alternative, which avoids the <span class="code">reverse</span> operation, is to use a
-<span class="code">ListBuffer</span>.<a id="i-1815843466-2"/>
-A <span class="code">ListBuffer</span> is a mutable object (contained in package <span class="code">scala.collection.mutable</span>), which can<a id="i-737429794-1"/>
-help you build lists more efficiently when you need to append. <span class="code">ListBuffer</span> provides constant time append and prepend
-operations. You append elements with the <span class="code">+=</span>
+<p>Another alternative, which avoids the <pre class="code">reverse</pre> operation, is to use a
+<pre class="code">ListBuffer</pre>.<a id="i-1815843466-2"/>
+A <pre class="code">ListBuffer</pre> is a mutable object (contained in package <pre class="code">scala.collection.mutable</pre>), which can<a id="i-737429794-1"/>
+help you build lists more efficiently when you need to append. <pre class="code">ListBuffer</pre> provides constant time append and prepend
+operations. You append elements with the <pre class="code">+=</pre>
 operator,<a id="i714754650-1"/> and prepend
-them with the <span class="code">+=:</span> operator.<a id="i35509127-1"/>
+them with the <pre class="code">+=:</pre> operator.<a id="i35509127-1"/>
 When you're done building, you can obtain
-a <span class="code">List</span> by invoking <span class="code">toList</span><a id="i-330065859-1"/> on the <span class="code">ListBuffer</span>. Here's an example:</p>
+a <pre class="code">List</pre> by invoking <pre class="code">toList</pre><a id="i-330065859-1"/> on the <pre class="code">ListBuffer</pre>. Here's an example:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">import</code>&nbsp;scala.collection.mutable.ListBuffer
@@ -144,10 +144,10 @@ a <span class="code">List</span> by invoking <span class="code">toList</span><a 
 </pre>
 
 
-<p>Another reason to use <span class="code">ListBuffer</span> instead of <span class="code">List</span> is to prevent the potential for stack overflow.<a id="i-981382311-1"/>
+<p>Another reason to use <pre class="code">ListBuffer</pre> instead of <pre class="code">List</pre> is to prevent the potential for stack overflow.<a id="i-981382311-1"/>
 If you can build a list in the desired order by prepending, but the recursive algorithm that would be required is
-not tail recursive, you can use a <span class="code">for</span> expression or <span class="code">while</span> loop and a <span class="code">ListBuffer</span> instead.
-You'll see <span class="code">ListBuffer</span> being used in this way in
+not tail recursive, you can use a <pre class="code">for</pre> expression or <pre class="code">while</pre> loop and a <pre class="code">ListBuffer</pre> instead.
+You'll see <pre class="code">ListBuffer</pre> being used in this way in
 <a href="implementing-lists.html#sec-the-listbuffer-class">Section 22.2</a>.</p>
 
 <h4>Array buffers</h4>
@@ -155,16 +155,16 @@ You'll see <span class="code">ListBuffer</span> being used in this way in
 
 <p><a id="sec-collections-arraybuf"/></p>
 
-<p>An <span class="code">ArrayBuffer</span> is like an array,
+<p>An <pre class="code">ArrayBuffer</pre> is like an array,
 except that you can additionally add and remove elements from the
-beginning and end of the sequence<a id="i1906553817-1"/>.  All <span class="code">Array</span> operations are available,
+beginning and end of the sequence<a id="i1906553817-1"/>.  All <pre class="code">Array</pre> operations are available,
 though they are a little slower due to a layer of wrapping in the
 implementation.  The new addition and removal operations are constant
 time on average, but occasionally require linear time due to the
 implementation needing to allocate a new array to hold the buffer's
 contents.</p>
 
-<p>To use an <span class="code">ArrayBuffer</span>, you must first import it from the mutable
+<p>To use an <pre class="code">ArrayBuffer</pre>, you must first import it from the mutable
 collections package:</p>
 
 <pre>
@@ -173,8 +173,8 @@ collections package:</p>
 </pre>
 
 
-<p>When you create an <span class="code">ArrayBuffer</span>, you must specify a type parameter, but you don't need
-to specify a length.  The <span class="code">ArrayBuffer</span> will
+<p>When you create an <pre class="code">ArrayBuffer</pre>, you must specify a type parameter, but you don't need
+to specify a length.  The <pre class="code">ArrayBuffer</pre> will
 adjust the allocated space automatically as needed:</p>
 
 <pre>
@@ -184,7 +184,7 @@ adjust the allocated space automatically as needed:</p>
 </pre>
 
 
-<p>You can append to an <span class="code">ArrayBuffer</span> using the <span class="code">+=</span> method:<a id="i-69907863-1"/></p>
+<p>You can append to an <pre class="code">ArrayBuffer</pre> using the <pre class="code">+=</pre> method:<a id="i-69907863-1"/></p>
 
 <pre>
   scala&gt;&nbsp;buf&nbsp;+=&nbsp;<code class="literal">12</code>
@@ -198,7 +198,7 @@ adjust the allocated space automatically as needed:</p>
 
 
 <p>All the normal array methods are available.  For example,
-you can ask an <span class="code">ArrayBuffer</span> its length or you can retrieve an element
+you can ask an <pre class="code">ArrayBuffer</pre> its length or you can retrieve an element
 by its index:</p>
 
 <pre>
@@ -209,13 +209,13 @@ by its index:</p>
 </pre>
 
 
-<h4>Strings (via <span class="code">StringOps</span>)</h4>
+<h4>Strings (via <pre class="code">StringOps</pre>)</h4>
 
 
 <p>One other sequence to be aware of is
-<span class="code">StringOps</span>, which implements many sequence methods. Because <span class="code">Predef</span> has<a id="i1341725017-1"/>
-an implicit conversion from <span class="code">String</span> to
-<span class="code">StringOps</span><a id="i-1007334645-1"/>, you can treat any string like a sequence.
+<pre class="code">StringOps</pre>, which implements many sequence methods. Because <pre class="code">Predef</pre> has<a id="i1341725017-1"/>
+an implicit conversion from <pre class="code">String</pre> to
+<pre class="code">StringOps</pre><a id="i-1007334645-1"/>, you can treat any string like a sequence.
 Here's an example:</p>
 
 <pre>
@@ -228,9 +228,9 @@ Here's an example:</p>
 </pre>
 
 
-<p>In this example, the <span class="code">exists</span><a id="i556038843-1"/> method is invoked on the string named <span class="code">s</span> in the <span class="code">hasUpperCase</span> method body. Because
-no method named "<span class="code">exists</span>" is declared in class <span class="code">String</span> itself, the Scala compiler will implicitly convert 
-<span class="code">s</span> to <span class="code">StringOps</span>, which has the method. The <span class="code">exists</span> method treats
+<p>In this example, the <pre class="code">exists</pre><a id="i556038843-1"/> method is invoked on the string named <pre class="code">s</pre> in the <pre class="code">hasUpperCase</pre> method body. Because
+no method named "<pre class="code">exists</pre>" is declared in class <pre class="code">String</pre> itself, the Scala compiler will implicitly convert 
+<pre class="code">s</pre> to <pre class="code">StringOps</pre>, which has the method. The <pre class="code">exists</pre> method treats
 the string as a sequence of characters, and will return true if any of the characters are upper case.<a href="working-with-other-collections.html#footnotemain17-2">[2]</a></p>
 
 <h3 id="sec-sets-and-maps">17.2 Sets and maps</h3>
@@ -243,12 +243,12 @@ In this section, we'll offer more insight into their use and show you a few more
 <p>As mentioned previously, the Scala collections library offers both mutable and immutable versions
 of sets and maps. The hierarchy for sets is shown in <a href="next-steps-in-scala.html#fig-set-hierarchy">Figure 3.2</a>  <a href="next-steps-in-scala.html#fig-set-hierarchy">here</a>,
 and the hierarchy for maps is shown in <a href="next-steps-in-scala.html#fig-map-hierarchy">Figure 3.3</a>  <a href="next-steps-in-scala.html#fig-map-hierarchy">here</a>. As these
-diagrams show, the simple names <span class="code">Set</span> and <span class="code">Map</span> are used by three traits each, residing in different packages.</p>
+diagrams show, the simple names <pre class="code">Set</pre> and <pre class="code">Map</pre> are used by three traits each, residing in different packages.</p>
 
-<p>By default when you write "<span class="code">Set</span>" or "<span class="code">Map</span>" you
+<p>By default when you write "<pre class="code">Set</pre>" or "<pre class="code">Map</pre>" you
 get an immutable object. If you want the mutable variant, you need to
 do an explicit import. Scala gives you easier access to the immutable variants, as a gentle encouragement
-to prefer them over their mutable counterparts. The easy access is provided via the <span class="code">Predef</span> object, which is implicitly
+to prefer them over their mutable counterparts. The easy access is provided via the <pre class="code">Predef</pre> object, which is implicitly
 imported into every Scala source file. <a href="working-with-other-collections.html#lst-predef-set-map">Listing 17.1</a> shows the relevant definitions:
 <a id="lst-predef-set-map"/></p>
 
@@ -263,16 +263,16 @@ imported into every Scala source file. <a href="working-with-other-collections.h
 </pre>
 
 
-<h5>Listing 17.1 - Default map and set definitions in <span class="code">Predef</span>.</h5>
+<h5>Listing 17.1 - Default map and set definitions in <pre class="code">Predef</pre>.</h5>
 
 
-<p>The "<span class="code">type</span>" keyword<a id="i-1569140754-1"/> is used in <span class="code">Predef</span> to define <span class="code">Set</span>
-and <span class="code">Map</span> as aliases for the longer fully qualified names of the immutable set and map traits.<a href="working-with-other-collections.html#footnotemain17-3">[3]</a>
-The <span class="code">val</span>s named <span class="code">Set</span> and <span class="code">Map</span> are initialized to refer to the
-singleton objects for the immutable <span class="code">Set</span> and <span class="code">Map</span>.
-So <span class="code">Map</span> is the same as <span class="code">Predef.Map</span>, which is defined to be the same 
-as <span class="code">scala.collection.immutable.Map</span>. This holds both for the <span class="code">Map</span> type and 
-<span class="code">Map</span> object.</p>
+<p>The "<pre class="code">type</pre>" keyword<a id="i-1569140754-1"/> is used in <pre class="code">Predef</pre> to define <pre class="code">Set</pre>
+and <pre class="code">Map</pre> as aliases for the longer fully qualified names of the immutable set and map traits.<a href="working-with-other-collections.html#footnotemain17-3">[3]</a>
+The <pre class="code">val</pre>s named <pre class="code">Set</pre> and <pre class="code">Map</pre> are initialized to refer to the
+singleton objects for the immutable <pre class="code">Set</pre> and <pre class="code">Map</pre>.
+So <pre class="code">Map</pre> is the same as <pre class="code">Predef.Map</pre>, which is defined to be the same 
+as <pre class="code">scala.collection.immutable.Map</pre>. This holds both for the <pre class="code">Map</pre> type and 
+<pre class="code">Map</pre> object.</p>
 
 <p>If you want to use both mutable and immutable sets or maps in the same source file,
 one approach is to import the name of the package that contains the mutable variants:</p>
@@ -283,8 +283,8 @@ one approach is to import the name of the package that contains the mutable vari
 </pre>
 
 
-<p>You can continue to refer to the immutable set as <span class="code">Set</span>, as before, but can now refer to the mutable set
-as <span class="code">mutable.Set</span>. Here's an example:</p>
+<p>You can continue to refer to the immutable set as <pre class="code">Set</pre>, as before, but can now refer to the mutable set
+as <pre class="code">mutable.Set</pre>. Here's an example:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;mutaSet&nbsp;=&nbsp;<code class="typename">mutable.Set</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -296,13 +296,13 @@ as <span class="code">mutable.Set</span>. Here's an example:</p>
 
 
 <p>The key characteristic of sets is that they will ensure that at most one of
-each object, as determined by <span class="code">==</span><a id="i1401108821-1"/>, will be contained in the set at any one time.
+each object, as determined by <pre class="code">==</pre><a id="i1401108821-1"/>, will be contained in the set at any one time.
 As an example, we'll use a set to count the number of
 different words in a string.</p>
 
-<p>The <span class="code">split</span> method on <span class="code">String</span> can separate a
+<p>The <pre class="code">split</pre> method on <pre class="code">String</pre> can separate a
 string into words<a id="i-456038910-1"/>, if you specify spaces and punctuation as word
-separators.  The regular expression "<span class="code">[</span>&nbsp;<span class="code">!,.]+</span>" will suffice: It indicates
+separators.  The regular expression "<pre class="code">[</pre>&nbsp;<pre class="code">!,.]+</pre>" will suffice: It indicates
 the string should be split at each place that one or more space and/or punctuation characters exist.</p>
 
 <pre>
@@ -318,8 +318,8 @@ the string should be split at each place that one or more space and/or punctuati
 Because sets exclude duplicates, each distinct word will appear exactly
 one time in the set.</p>
 
-<p>First, you can create an empty set using the <span class="code">empty</span> method
-provided on the <span class="code">Set</span> companion objects:<a id="i1582603163-1"/><a id="i1868251958-2"/></p>
+<p>First, you can create an empty set using the <pre class="code">empty</pre> method
+provided on the <pre class="code">Set</pre> companion objects:<a id="i1582603163-1"/><a id="i1868251958-2"/></p>
 
 <pre>
   scala&gt;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;words&nbsp;=&nbsp;mutable.Set.empty[<code class="typename">String</code>]
@@ -327,8 +327,8 @@ provided on the <span class="code">Set</span> companion objects:<a id="i15826031
 </pre>
 
 
-<p>Then, just iterate through the words with a <span class="code">for</span> expression, convert each word
-to lower case, and add it to the mutable set with the <span class="code">+=</span> operator:</p>
+<p>Then, just iterate through the words with a <pre class="code">for</pre> expression, convert each word
+to lower case, and add it to the mutable set with the <pre class="code">+=</pre> operator:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(word&nbsp;&lt;-&nbsp;wordsArray)
@@ -359,71 +359,71 @@ used methods on both mutable and immutable sets are shown in <a href="working-wi
 </tr>
 <tr>
   <td>
-    <span class="code">val</span>&nbsp;<span class="code">nums</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code">Set(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3)</span>
+    <pre class="code">val</pre>&nbsp;<pre class="code">nums</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code">Set(1,</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">3)</pre>
   </td>
   <td>
-    Creates an immutable set (<span class="code">nums.toString</span> returns <span class="code">Set(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3)</span>)
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">nums</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">5</span>
-  </td>
-  <td>
-    Adds an element (returns <span class="code">Set(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3,</span>&nbsp;<span class="code">5)</span>)<a id="i-457936727-2"/>
+    Creates an immutable set (<pre class="code">nums.toString</pre> returns <pre class="code">Set(1,</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">3)</pre>)
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">nums</span>&nbsp;<span class="code">-</span>&nbsp;<span class="code">3</span>
+    <pre class="code">nums</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">5</pre>
   </td>
   <td>
-    Removes an element (returns <span class="code">Set(1,</span>&nbsp;<span class="code">2)</span>)<a id="i-1092228898-1"/>
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">nums</span>&nbsp;<span class="code">++</span>&nbsp;<span class="code">List(5,</span>&nbsp;<span class="code">6)</span>
-  </td>
-  <td>
-    Adds multiple elements (returns <span class="code">Set(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3,</span>&nbsp;<span class="code">5,</span>&nbsp;<span class="code">6)</span>)<a id="i758428245-1"/>
+    Adds an element (returns <pre class="code">Set(1,</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">3,</pre>&nbsp;<pre class="code">5)</pre>)<a id="i-457936727-2"/>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">nums</span>&nbsp;<span class="code">--</span>&nbsp;<span class="code">List(1,</span>&nbsp;<span class="code">2)</span>
+    <pre class="code">nums</pre>&nbsp;<pre class="code">-</pre>&nbsp;<pre class="code">3</pre>
   </td>
   <td>
-    Removes multiple elements (returns <span class="code">Set(3)</span>)<a id="i-726788280-1"/>
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">nums</span>&nbsp;<span class="code">&amp;</span>&nbsp;<span class="code">Set(1,</span>&nbsp;<span class="code">3,</span>&nbsp;<span class="code">5,</span>&nbsp;<span class="code">7)</span>
-  </td>
-  <td>
-    Takes the intersection of two sets (returns <span class="code">Set(1,</span>&nbsp;<span class="code">3)</span>)<a id="i617863161-1"/>
+    Removes an element (returns <pre class="code">Set(1,</pre>&nbsp;<pre class="code">2)</pre>)<a id="i-1092228898-1"/>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">nums.size</span>
+    <pre class="code">nums</pre>&nbsp;<pre class="code">++</pre>&nbsp;<pre class="code">List(5,</pre>&nbsp;<pre class="code">6)</pre>
   </td>
   <td>
-    Returns the size of the set (returns <span class="code">3</span>)<a id="i-217240950-1"/>
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">nums.contains(3)</span>
-  </td>
-  <td>
-    Checks for inclusion (returns <span class="code">true</span>)<a id="i1685795628-1"/>
+    Adds multiple elements (returns <pre class="code">Set(1,</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">3,</pre>&nbsp;<pre class="code">5,</pre>&nbsp;<pre class="code">6)</pre>)<a id="i758428245-1"/>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">import</span>&nbsp;<span class="code">scala.collection.mutable</span>
+    <pre class="code">nums</pre>&nbsp;<pre class="code">--</pre>&nbsp;<pre class="code">List(1,</pre>&nbsp;<pre class="code">2)</pre>
+  </td>
+  <td>
+    Removes multiple elements (returns <pre class="code">Set(3)</pre>)<a id="i-726788280-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <pre class="code">nums</pre>&nbsp;<pre class="code">&amp;</pre>&nbsp;<pre class="code">Set(1,</pre>&nbsp;<pre class="code">3,</pre>&nbsp;<pre class="code">5,</pre>&nbsp;<pre class="code">7)</pre>
+  </td>
+  <td>
+    Takes the intersection of two sets (returns <pre class="code">Set(1,</pre>&nbsp;<pre class="code">3)</pre>)<a id="i617863161-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <pre class="code">nums.size</pre>
+  </td>
+  <td>
+    Returns the size of the set (returns <pre class="code">3</pre>)<a id="i-217240950-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <pre class="code">nums.contains(3)</pre>
+  </td>
+  <td>
+    Checks for inclusion (returns <pre class="code">true</pre>)<a id="i1685795628-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <pre class="code">import</pre>&nbsp;<pre class="code">scala.collection.mutable</pre>
   </td>
   <td>
     Makes the mutable collections easy to access
@@ -431,51 +431,51 @@ used methods on both mutable and immutable sets are shown in <a href="working-wi
 </tr>
 <tr>
   <td>
-    <span class="code">val</span>&nbsp;<span class="code">words</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span>&nbsp;<span class="code"></span><br />
-  <span class="code">mutable.Set.empty[String]</span>
+    <pre class="code">val</pre>&nbsp;<pre class="code">words</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre>&nbsp;<pre class="code"></pre><br />
+  <pre class="code">mutable.Set.empty[String]</pre>
   </td>
   <td>
-    Creates an empty, mutable set (<span class="code">words.toString</span> returns <span class="code">Set()</span>)<a id="i1582603163-2"/>
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">words</span>&nbsp;<span class="code">+=</span>&nbsp;<span class="code">"the"</span>
-  </td>
-  <td>
-    Adds an element (<span class="code">words.toString</span> returns <span class="code">Set(the)</span>)<a id="i1314992430-1"/>
+    Creates an empty, mutable set (<pre class="code">words.toString</pre> returns <pre class="code">Set()</pre>)<a id="i1582603163-2"/>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">words</span>&nbsp;<span class="code">-=</span>&nbsp;<span class="code">"the"</span>
+    <pre class="code">words</pre>&nbsp;<pre class="code">+=</pre>&nbsp;<pre class="code">"the"</pre>
   </td>
   <td>
-    Removes an element, if it exists (<span class="code">words.toString</span> returns <span class="code">Set()</span>)<a id="i1816671796-1"/>
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">words</span>&nbsp;<span class="code">++=</span>&nbsp;<span class="code">List("do",</span>&nbsp;<span class="code">"re",</span>&nbsp;<span class="code">"mi")</span>
-  </td>
-  <td>
-    Adds multiple elements (<span class="code">words.toString</span> returns <span class="code">Set(do,</span>&nbsp;<span class="code">re,</span>&nbsp;<span class="code">mi)</span>)<a id="i-1693046362-1"/>
+    Adds an element (<pre class="code">words.toString</pre> returns <pre class="code">Set(the)</pre>)<a id="i1314992430-1"/>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">words</span>&nbsp;<span class="code">--=</span>&nbsp;<span class="code">List("do",</span>&nbsp;<span class="code">"re")</span>
+    <pre class="code">words</pre>&nbsp;<pre class="code">-=</pre>&nbsp;<pre class="code">"the"</pre>
   </td>
   <td>
-    Removes multiple elements (<span class="code">words.toString</span> returns <span class="code">Set(mi)</span>)<a id="i-610143062-1"/>
+    Removes an element, if it exists (<pre class="code">words.toString</pre> returns <pre class="code">Set()</pre>)<a id="i1816671796-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <pre class="code">words</pre>&nbsp;<pre class="code">++=</pre>&nbsp;<pre class="code">List("do",</pre>&nbsp;<pre class="code">"re",</pre>&nbsp;<pre class="code">"mi")</pre>
+  </td>
+  <td>
+    Adds multiple elements (<pre class="code">words.toString</pre> returns <pre class="code">Set(do,</pre>&nbsp;<pre class="code">re,</pre>&nbsp;<pre class="code">mi)</pre>)<a id="i-1693046362-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <pre class="code">words</pre>&nbsp;<pre class="code">--=</pre>&nbsp;<pre class="code">List("do",</pre>&nbsp;<pre class="code">"re")</pre>
+  </td>
+  <td>
+    Removes multiple elements (<pre class="code">words.toString</pre> returns <pre class="code">Set(mi)</pre>)<a id="i-610143062-1"/>
   </td>
 </tr>
 <tr class="bottomline">
   <td>
-    <span class="code">words.clear</span>
+    <pre class="code">words.clear</pre>
   </td>
   <td>
-    Removes all elements (<span class="code">words.toString</span> returns <span class="code">Set()</span>)<a id="i-914291699-1"/>
+    Removes all elements (<pre class="code">words.toString</pre> returns <pre class="code">Set()</pre>)<a id="i-914291699-1"/>
   </td>
 </tr>
 </table>
@@ -489,7 +489,7 @@ let you associate a value with each element of a set.
 Using a map looks similar to using an array, except
 instead of indexing with integers counting from 0, you can use
 any kind of key<a id="i3344023-3"/>.
-If you import the <span class="code">mutable</span> package name, you can create an
+If you import the <pre class="code">mutable</pre> package name, you can create an
 empty mutable map like this:<a id="i-1094653291-1"/><a id="i-809004496-2"/></p>
 
 <pre>
@@ -545,13 +545,13 @@ of times each word occurs in a string:</p>
 <p>Given these counts, you can see that this text talks a lot about
 running, but not so much about seeing.</p>
 
-<p>The way this code works is that a mutable map, named <span class="code">counts</span>, maps each
+<p>The way this code works is that a mutable map, named <pre class="code">counts</pre>, maps each
 word to the number of times it occurs in the text.  For each word in
 the text, the word's old count is looked up, that count is incremented
-by one, and the new count is saved back into <span class="code">counts</span>.  Note the use
-of <span class="code">contains</span> to check whether a word has been seen yet or
+by one, and the new count is saved back into <pre class="code">counts</pre>.  Note the use
+of <pre class="code">contains</pre> to check whether a word has been seen yet or
 not.  If
-<span class="code">counts.contains(word)</span> is not true, then the word has not yet been
+<pre class="code">counts.contains(word)</pre> is not true, then the word has not yet been
 seen and zero is used for the count.</p>
 
 <p>Many of the most commonly
@@ -574,54 +574,54 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 </tr>
 <tr>
   <td>
-    <span class="code">val</span>&nbsp;<span class="code">nums</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code">Map("i"</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">1,</span>&nbsp;<span class="code">"ii"</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">2)</span>
+    <pre class="code">val</pre>&nbsp;<pre class="code">nums</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code">Map("i"</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">1,</pre>&nbsp;<pre class="code">"ii"</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">2)</pre>
   </td>
   <td>
-    Creates an immutable map (<span class="code">nums.toString</span> returns <span class="code">Map(i</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">1,</span>&nbsp;<span class="code">ii</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">2)</span>)
+    Creates an immutable map (<pre class="code">nums.toString</pre> returns <pre class="code">Map(i</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">1,</pre>&nbsp;<pre class="code">ii</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">2)</pre>)
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">nums</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">(<span class="quotedstring">"vi"</span></span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code"><span class="literal">6</span>)</span>
+    <pre class="code">nums</pre>&nbsp;<pre class="code">+</pre>&nbsp;<span class="code">(<span class="quotedstring">"vi"</span></span>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">6</span>)</span>
   </td>
   <td>
     Adds an entry (returns
-                          <span class="code">Map(i</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">1,</span> <span class="code">ii</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">vi</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">6)</span>)<a id="i979720815-1"/>
+                          <pre class="code">Map(i</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">1,</pre> <pre class="code">ii</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">vi</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">6)</pre>)<a id="i979720815-1"/>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">nums</span>&nbsp;<span class="code">-</span>&nbsp;<span class="code"><span class="quotedstring">"ii"</span></span>
+    <pre class="code">nums</pre>&nbsp;<pre class="code">-</pre>&nbsp;<span class="code"><span class="quotedstring">"ii"</span></span>
   </td>
   <td>
     Removes an entry 
                   (returns 
-                   <span class="code">Map(i</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">1)</span>)<a id="i345428644-1"/>
+                   <pre class="code">Map(i</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">1)</pre>)<a id="i345428644-1"/>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">nums</span>&nbsp;<span class="code">++</span>&nbsp;<span class="code"><span class="typename">List</span>(<span class="quotedstring">"iii"</span></span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code"><span class="literal">3</span>,</span>&nbsp;<span class="code"><span class="quotedstring">"v"</span></span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code"><span class="literal">5</span>)</span>
+    <pre class="code">nums</pre>&nbsp;<pre class="code">++</pre>&nbsp;<span class="code"><span class="typename">List</span>(<span class="quotedstring">"iii"</span></span>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">3</span>,</span>&nbsp;<span class="code"><span class="quotedstring">"v"</span></span>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">5</span>)</span>
   </td>
   <td>
-    Adds multiple entries (returns <span class="code">Map(i</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">1,</span> <span class="code">ii</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">iii</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">3,</span>&nbsp;<span class="code">v</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">5)</span>)<a id="i-2098881509-1"/>
+    Adds multiple entries (returns <pre class="code">Map(i</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">1,</pre> <pre class="code">ii</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">iii</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">3,</pre>&nbsp;<pre class="code">v</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">5)</pre>)<a id="i-2098881509-1"/>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">nums</span>&nbsp;<span class="code">--</span>&nbsp;<span class="code"><span class="typename">List</span>(<span class="quotedstring">"i"</span>,</span>&nbsp;<span class="code"><span class="quotedstring">"ii"</span>)</span>
+    <pre class="code">nums</pre>&nbsp;<pre class="code">--</pre>&nbsp;<span class="code"><span class="typename">List</span>(<span class="quotedstring">"i"</span>,</span>&nbsp;<span class="code"><span class="quotedstring">"ii"</span>)</span>
   </td>
   <td>
     Removes multiple entries  (returns
-                          <span class="code">Map()</span>)<a id="i710869262-1"/>
+                          <pre class="code">Map()</pre>)<a id="i710869262-1"/>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">nums.size</span>
+    <pre class="code">nums.size</pre>
   </td>
   <td>
-    Returns the size of the map (returns <span class="code">2</span>)
+    Returns the size of the map (returns <pre class="code">2</pre>)
   </td>
 </tr>
 <tr>
@@ -629,7 +629,7 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
     <span class="code">nums.contains(<span class="quotedstring">"ii"</span>)</span>
   </td>
   <td>
-    Checks for inclusion (returns <span class="code">true</span>)<a id="i-1171514126-1"/>
+    Checks for inclusion (returns <pre class="code">true</pre>)<a id="i-1171514126-1"/>
   </td>
 </tr>
 <tr>
@@ -638,38 +638,38 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
   </td>
   <td>
     Retrieves the value at a specified
-              key (returns <span class="code">2</span>)<a id="i648989597-2"/>
+              key (returns <pre class="code">2</pre>)<a id="i648989597-2"/>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">nums.keys</span>
+    <pre class="code">nums.keys</pre>
   </td>
   <td>
-    Returns the keys (returns an <span class="code">Iterable</span> over
-                the strings <span class="code">"i"</span> and <span class="code">"ii"</span>)<a id="i1213467709-1"/>
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">nums.keySet</span>
-  </td>
-  <td>
-    Returns the keys as a set (returns <span class="code">Set(i,</span>&nbsp;<span class="code">ii)</span>)<a id="i891405326-1"/>
+    Returns the keys (returns an <pre class="code">Iterable</pre> over
+                the strings <pre class="code">"i"</pre> and <pre class="code">"ii"</pre>)<a id="i1213467709-1"/>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">nums.values</span>
+    <pre class="code">nums.keySet</pre>
   </td>
   <td>
-    Returns the values (returns an <span class="code">Iterable</span> over
-                the integers <span class="code">1</span> and <span class="code">2</span>)<a id="i-546077233-1"/>
+    Returns the keys as a set (returns <pre class="code">Set(i,</pre>&nbsp;<pre class="code">ii)</pre>)<a id="i891405326-1"/>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">nums.isEmpty</span>
+    <pre class="code">nums.values</pre>
+  </td>
+  <td>
+    Returns the values (returns an <pre class="code">Iterable</pre> over
+                the integers <pre class="code">1</pre> and <pre class="code">2</pre>)<a id="i-546077233-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <pre class="code">nums.isEmpty</pre>
   </td>
   <td>
     Indicates whether the map is empty (returns false)<a id="i-576053426-1"/>
@@ -677,7 +677,7 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 </tr>
 <tr>
   <td>
-    <span class="code">import</span>&nbsp;<span class="code">scala.collection.mutable</span>
+    <pre class="code">import</pre>&nbsp;<pre class="code">scala.collection.mutable</pre>
   </td>
   <td>
     Makes the mutable collections
@@ -686,7 +686,7 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 </tr>
 <tr>
   <td>
-    <span class="code">val</span>&nbsp;<span class="code">words</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code"></span> <br />
+    <pre class="code">val</pre>&nbsp;<pre class="code">words</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code"></pre> <br />
   <span class="code">mutable.Map.empty[<span class="typename">String</span>,</span>&nbsp;<span class="code"><span class="typename">Int</span>]</span>
   </td>
   <td>
@@ -695,35 +695,35 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 </tr>
 <tr>
   <td>
-    <span class="code">words</span>&nbsp;<span class="code">+=</span>&nbsp;<span class="code">(<span class="quotedstring">"one"</span></span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code"><span class="literal">1</span>)</span>
+    <pre class="code">words</pre>&nbsp;<pre class="code">+=</pre>&nbsp;<span class="code">(<span class="quotedstring">"one"</span></span>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">1</span>)</span>
   </td>
   <td>
-    Adds a map entry from <span class="code">"one"</span> to <span class="code">1</span> (<span class="code">words.toString</span> returns <span class="code">Map(one</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">1)</span>)<a id="i1314809716-1"/>
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">words</span>&nbsp;<span class="code">-=</span>&nbsp;<span class="code"><span class="quotedstring">"one"</span></span>
-  </td>
-  <td>
-    Removes a map entry, if it exists (<span class="code">words.toString</span> returns <span class="code">Map()</span>)<a id="i1816489082-1"/>
+    Adds a map entry from <pre class="code">"one"</pre> to <pre class="code">1</pre> (<pre class="code">words.toString</pre> returns <pre class="code">Map(one</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">1)</pre>)<a id="i1314809716-1"/>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">words</span>&nbsp;<span class="code">++=</span>&nbsp;<span class="code"><span class="typename">List</span>(<span class="quotedstring">"one"</span></span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code"><span class="literal">1</span>,</span>&nbsp;<span class="code"></span><br />
-<span class="code"><span class="quotedstring">"two"</span></span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code"><span class="literal">2</span>,</span>&nbsp;<span class="code"><span class="quotedstring">"three"</span></span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code"><span class="literal">3</span>)</span>
+    <pre class="code">words</pre>&nbsp;<pre class="code">-=</pre>&nbsp;<span class="code"><span class="quotedstring">"one"</span></span>
   </td>
   <td>
-    Adds multiple map entries (<span class="code">words.toString</span> returns <span class="code">Map(one</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">1,</span> <span class="code">two</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">three</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">3)</span>)<a id="i-1693229076-1"/>
+    Removes a map entry, if it exists (<pre class="code">words.toString</pre> returns <pre class="code">Map()</pre>)<a id="i1816489082-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <pre class="code">words</pre>&nbsp;<pre class="code">++=</pre>&nbsp;<span class="code"><span class="typename">List</span>(<span class="quotedstring">"one"</span></span>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">1</span>,</span>&nbsp;<pre class="code"></pre><br />
+<span class="code"><span class="quotedstring">"two"</span></span>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">2</span>,</span>&nbsp;<span class="code"><span class="quotedstring">"three"</span></span>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">3</span>)</span>
+  </td>
+  <td>
+    Adds multiple map entries (<pre class="code">words.toString</pre> returns <pre class="code">Map(one</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">1,</pre> <pre class="code">two</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">three</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">3)</pre>)<a id="i-1693229076-1"/>
   </td>
 </tr>
 <tr class="bottomline">
   <td>
-    <span class="code">words</span>&nbsp;<span class="code">--=</span>&nbsp;<span class="code"><span class="typename">List</span>(<span class="quotedstring">"one"</span>,</span>&nbsp;<span class="code"><span class="quotedstring">"two"</span>)</span>
+    <pre class="code">words</pre>&nbsp;<pre class="code">--=</pre>&nbsp;<span class="code"><span class="typename">List</span>(<span class="quotedstring">"one"</span>,</span>&nbsp;<span class="code"><span class="quotedstring">"two"</span>)</span>
   </td>
   <td>
-    Removes multiple objects (<span class="code">words.toString</span> returns <span class="code">Map(three</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">3)</span>)<a id="i-610325776-1"/>
+    Removes multiple objects (<pre class="code">words.toString</pre> returns <pre class="code">Map(three</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">3)</pre>)<a id="i-610325776-1"/>
   </td>
 </tr>
 </table>
@@ -733,31 +733,31 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 
 
 <p>For most uses, the implementations of mutable and immutable sets and maps provided by<a id="i1372944617-1"/><a id="i1372761903-1"/>
-the <span class="code">Set()</span>, <span class="code">scala.collection.mutable.Map()</span>, <i>etc.</i>, factories will likely be sufficient.
+the <pre class="code">Set()</pre>, <pre class="code">scala.collection.mutable.Map()</pre>, <i>etc.</i>, factories will likely be sufficient.
 The implementations provided by these factories use a fast lookup algorithm, usually
 involving a hash table, so they can quickly decide whether or not an
 object is in the collection.</p>
 
-<p>The <span class="code">scala.collection.mutable.Set()</span> factory method, for example, returns a <span class="code">scala.collection.mutable.HashSet</span>, which
+<p>The <pre class="code">scala.collection.mutable.Set()</pre> factory method, for example, returns a <pre class="code">scala.collection.mutable.HashSet</pre>, which
 uses a hash table internally.
 Similarly, the 
-<span class="code">scala.collection.mutable.Map()</span> factory returns a <span class="code">scala.collection.mutable.HashMap</span>.</p>
+<pre class="code">scala.collection.mutable.Map()</pre> factory returns a <pre class="code">scala.collection.mutable.HashMap</pre>.</p>
 
 <p>The story for immutable sets and maps is a bit more involved. The class returned by
-the <span class="code">scala.collection.immutable.Set()</span> factory method, for example, depends on how many elements you
+the <pre class="code">scala.collection.immutable.Set()</pre> factory method, for example, depends on how many elements you
 pass to it, as shown in <a href="working-with-other-collections.html#tab-default-sets">Table 17.3</a>. For sets with fewer than five elements, a special
 class devoted exclusively to sets of each particular size is used to maximize performance. Once you request a set that has five or
 more elements in it, however, the factory method will return an implementation
 that uses hash tries.</p>
 
-<p>Similarly, the <span class="code">scala.collection.immutable.Map()</span> factory method will return a different class depending on how many key-value pairs you
+<p>Similarly, the <pre class="code">scala.collection.immutable.Map()</pre> factory method will return a different class depending on how many key-value pairs you
 pass to it, as shown in <a href="working-with-other-collections.html#tab-default-maps">Table 17.4</a>. As with sets, for immutable maps with fewer than five elements, a special
 class devoted exclusively to maps of each particular size is used to maximize performance. Once a map has five or
-more key-value pairs in it, however, an immutable <span class="code">HashMap</span> is used.</p>
+more key-value pairs in it, however, an immutable <pre class="code">HashMap</pre> is used.</p>
 
 <p>The default immutable implementation classes shown in <a href="working-with-other-collections.html#tab-default-sets">Tables 17.3</a> <a href="working-with-other-collections.html#tab-default-maps">and 17.4</a> work together
-to give you maximum performance. For example, if you add an element to an <span class="code">EmptySet</span>, it will return a <span class="code">Set1</span>. If you add an
-element to that <span class="code">Set1</span>, it will return a <span class="code">Set2</span>. If you then remove an element from the <span class="code">Set2</span>, you'll get another <span class="code">Set1</span>.</p>
+to give you maximum performance. For example, if you add an element to an <pre class="code">EmptySet</pre>, it will return a <pre class="code">Set1</pre>. If you add an
+element to that <pre class="code">Set1</pre>, it will return a <pre class="code">Set2</pre>. If you then remove an element from the <pre class="code">Set2</pre>, you'll get another <pre class="code">Set1</pre>.</p>
 
 <p><a id="tab-default-sets"/></p>
 
@@ -781,7 +781,7 @@ element to that <span class="code">Set1</span>, it will return a <span class="co
     0
   </td>
   <td>
-    <span class="code">scala.collection.immutable.EmptySet</span>
+    <pre class="code">scala.collection.immutable.EmptySet</pre>
   </td>
 </tr>
 <tr>
@@ -789,7 +789,7 @@ element to that <span class="code">Set1</span>, it will return a <span class="co
     1
   </td>
   <td>
-    <span class="code">scala.collection.immutable.Set1</span>
+    <pre class="code">scala.collection.immutable.Set1</pre>
   </td>
 </tr>
 <tr>
@@ -797,7 +797,7 @@ element to that <span class="code">Set1</span>, it will return a <span class="co
     2
   </td>
   <td>
-    <span class="code">scala.collection.immutable.Set2</span>
+    <pre class="code">scala.collection.immutable.Set2</pre>
   </td>
 </tr>
 <tr>
@@ -805,7 +805,7 @@ element to that <span class="code">Set1</span>, it will return a <span class="co
     3
   </td>
   <td>
-    <span class="code">scala.collection.immutable.Set3</span>
+    <pre class="code">scala.collection.immutable.Set3</pre>
   </td>
 </tr>
 <tr>
@@ -813,7 +813,7 @@ element to that <span class="code">Set1</span>, it will return a <span class="co
     4
   </td>
   <td>
-    <span class="code">scala.collection.immutable.Set4</span>
+    <pre class="code">scala.collection.immutable.Set4</pre>
   </td>
 </tr>
 <tr>
@@ -821,7 +821,7 @@ element to that <span class="code">Set1</span>, it will return a <span class="co
     5 or more
   </td>
   <td>
-    <span class="code">scala.collection.immutable.HashSet</span>
+    <pre class="code">scala.collection.immutable.HashSet</pre>
   </td>
 </tr>
 </table>
@@ -852,7 +852,7 @@ element to that <span class="code">Set1</span>, it will return a <span class="co
     0
   </td>
   <td>
-    <span class="code">scala.collection.immutable.EmptyMap</span>
+    <pre class="code">scala.collection.immutable.EmptyMap</pre>
   </td>
 </tr>
 <tr>
@@ -860,7 +860,7 @@ element to that <span class="code">Set1</span>, it will return a <span class="co
     1
   </td>
   <td>
-    <span class="code">scala.collection.immutable.Map1</span>
+    <pre class="code">scala.collection.immutable.Map1</pre>
   </td>
 </tr>
 <tr>
@@ -868,7 +868,7 @@ element to that <span class="code">Set1</span>, it will return a <span class="co
     2
   </td>
   <td>
-    <span class="code">scala.collection.immutable.Map2</span>
+    <pre class="code">scala.collection.immutable.Map2</pre>
   </td>
 </tr>
 <tr>
@@ -876,7 +876,7 @@ element to that <span class="code">Set1</span>, it will return a <span class="co
     3
   </td>
   <td>
-    <span class="code">scala.collection.immutable.Map3</span>
+    <pre class="code">scala.collection.immutable.Map3</pre>
   </td>
 </tr>
 <tr>
@@ -884,7 +884,7 @@ element to that <span class="code">Set1</span>, it will return a <span class="co
     4
   </td>
   <td>
-    <span class="code">scala.collection.immutable.Map4</span>
+    <pre class="code">scala.collection.immutable.Map4</pre>
   </td>
 </tr>
 <tr>
@@ -892,7 +892,7 @@ element to that <span class="code">Set1</span>, it will return a <span class="co
     5 or more
   </td>
   <td>
-    <span class="code">scala.collection.immutable.HashMap</span>
+    <pre class="code">scala.collection.immutable.HashMap</pre>
   </td>
 </tr>
 </table>
@@ -906,15 +906,15 @@ element to that <span class="code">Set1</span>, it will return a <span class="co
 
 <p>On occasion you may need a set or map whose iterator returns elements in a particular order.
 For this purpose, the Scala collections library provides traits
-<span class="code">SortedSet</span><a id="i849148531-1"/> and
-<span class="code">SortedMap</span>.<a id="i1172619245-1"/> These
+<pre class="code">SortedSet</pre><a id="i849148531-1"/> and
+<pre class="code">SortedMap</pre>.<a id="i1172619245-1"/> These
 traits are implemented by classes
-<span class="code">TreeSet</span><a id="i300430876-1"/> and
-<span class="code">TreeMap</span>,<a id="i623901590-1"/> which use a red-black tree to keep
-elements (in the case of <span class="code">TreeSet</span>) or keys (in the case of <span class="code">TreeMap</span>) in order. The order
-is determined by the <span class="code">Ordered</span><a id="i2068605051-2"/> trait, which the element type of the set, or key type of the map,
+<pre class="code">TreeSet</pre><a id="i300430876-1"/> and
+<pre class="code">TreeMap</pre>,<a id="i623901590-1"/> which use a red-black tree to keep
+elements (in the case of <pre class="code">TreeSet</pre>) or keys (in the case of <pre class="code">TreeMap</pre>) in order. The order
+is determined by the <pre class="code">Ordered</pre><a id="i2068605051-2"/> trait, which the element type of the set, or key type of the map,
 must either mix in or be implicitly convertible to. These classes only come in immutable variants. Here
-are some <span class="code">TreeSet</span> examples:</p>
+are some <pre class="code">TreeSet</pre> examples:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">import</code>&nbsp;scala.collection.immutable.TreeSet
@@ -928,7 +928,7 @@ are some <span class="code">TreeSet</span> examples:</p>
 </pre>
 
 
-<p>And here are a few <span class="code">TreeMap</span> examples:</p>
+<p>And here are a few <pre class="code">TreeMap</pre> examples:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">import</code>&nbsp;scala.collection.immutable.TreeMap
@@ -962,9 +962,9 @@ collections to their immutable counterparts.</p>
 <p>Besides being potentially easier to reason about, immutable
 collections can usually be stored more compactly than mutable ones if
 the number of elements stored in the collection is small. For instance
-an empty mutable map in its default representation of <span class="code">HashMap</span> takes up
+an empty mutable map in its default representation of <pre class="code">HashMap</pre> takes up
 about 80 bytes, and about 16 more are added for each entry that's added
-to it. An empty immutable <span class="code">Map</span> is a single object that's shared
+to it. An empty immutable <pre class="code">Map</pre> is a single object that's shared
 between all references, so referring to it essentially costs just a
 single pointer field.</p>
 
@@ -978,12 +978,12 @@ immutable can bring important space savings and performance advantages.</p>
 
 <p>To make it easier to switch from immutable to mutable collections, and vice versa, Scala provides some
 syntactic sugar.  Even though immutable sets and maps do not support a
-true <span class="code">+=</span> method, Scala gives a useful alternate interpretation to
-<span class="code">+=</span>.  Whenever you write <span class="code">a</span>&nbsp;<span class="code">+=</span>&nbsp;<span class="code">b</span>, and <span class="code">a</span> does not support a method named <span class="code">+=</span>,
-Scala will try interpreting it as <span class="code">a</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code">a</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">b</span>.</p>
+true <pre class="code">+=</pre> method, Scala gives a useful alternate interpretation to
+<pre class="code">+=</pre>.  Whenever you write <pre class="code">a</pre>&nbsp;<pre class="code">+=</pre>&nbsp;<pre class="code">b</pre>, and <pre class="code">a</pre> does not support a method named <pre class="code">+=</pre>,
+Scala will try interpreting it as <pre class="code">a</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code">a</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">b</pre>.</p>
 
 <p>For example,
-immutable sets do not support a <span class="code">+=</span> operator:<a id="i1301665902-2"/></p>
+immutable sets do not support a <pre class="code">+=</pre> operator:<a id="i1301665902-2"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;people&nbsp;=&nbsp;<code class="typename">Set</code>(<code class="quotedstring">"Nancy"</code>,&nbsp;<code class="quotedstring">"Jane"</code>)
@@ -997,8 +997,8 @@ immutable sets do not support a <span class="code">+=</span> operator:<a id="i13
 </pre>
 
 
-<p>However, if you declare <span class="code">people</span> as a <span class="code">var</span>, instead of a <span class="code">val</span>, then the collection can be "updated" with a <span class="code">+=</span> operation, even though it is
-immutable. First, a new collection will be created, and then <span class="code">people</span> 
+<p>However, if you declare <pre class="code">people</pre> as a <pre class="code">var</pre>, instead of a <pre class="code">val</pre>, then the collection can be "updated" with a <pre class="code">+=</pre> operation, even though it is
+immutable. First, a new collection will be created, and then <pre class="code">people</pre> 
 will be reassigned to refer to the new collection:</p>
 
 <pre>
@@ -1012,11 +1012,11 @@ will be reassigned to refer to the new collection:</p>
 </pre>
 
 
-<p>After this series of statements, the <span class="code">people</span> variable refers to a new immutable
-set, which contains the added string, <span class="code">"Bob"</span>.
-The same idea applies to any method ending in <span class="code">=</span>, not just
-the <span class="code">+=</span> method. Here's the same syntax used with the <span class="code">-=</span> operator, which removes
-an element from a set, and the <span class="code">++=</span> operator, which adds a collection of elements to
+<p>After this series of statements, the <pre class="code">people</pre> variable refers to a new immutable
+set, which contains the added string, <pre class="code">"Bob"</pre>.
+The same idea applies to any method ending in <pre class="code">=</pre>, not just
+the <pre class="code">+=</pre> method. Here's the same syntax used with the <pre class="code">-=</pre> operator, which removes
+an element from a set, and the <pre class="code">++=</pre> operator, which adds a collection of elements to
 a set:</p>
 
 <pre>
@@ -1028,7 +1028,7 @@ a set:</p>
 </pre>
 
 
-<p>To see how this is useful, consider again the following <span class="code">Map</span> example
+<p>To see how this is useful, consider again the following <pre class="code">Map</pre> example
 from <a href="a-scalable-language.html#sec-a-language-that-grows-on-you">Section 1.1</a>:</p>
 
 <pre>
@@ -1040,8 +1040,8 @@ from <a href="a-scalable-language.html#sec-a-language-that-grows-on-you">Section
 
 <p>This code uses immutable collections.  If you want to
 try using mutable collections instead, all that
-is necessary is to import the mutable version of <span class="code">Map</span>,
-thus overriding the default import of the immutable <span class="code">Map</span>:</p>
+is necessary is to import the mutable version of <pre class="code">Map</pre>,
+thus overriding the default import of the immutable <pre class="code">Map</pre>:</p>
 
 <pre>
   <code class="vem">import</code>&nbsp;scala.collection.mutable.Map&nbsp;&nbsp;<code class="comment">//&nbsp;only&nbsp;change&nbsp;needed!</code>
@@ -1071,15 +1071,15 @@ floating-point numbers:</p>
 
 
 <p>The effect of this expansion is similar to
-Java's assignment operators (<span class="code">+=</span>, <span class="code">-=</span>, <span class="code">*=</span>, <i>etc.</i>), but it is more general because
-every operator ending in <span class="code">=</span> can be converted.</p>
+Java's assignment operators (<pre class="code">+=</pre>, <pre class="code">-=</pre>, <pre class="code">*=</pre>, <i>etc.</i>), but it is more general because
+every operator ending in <pre class="code">=</pre> can be converted.</p>
 
 <h3>17.4 Initializing collections</h3>
 
 
 <p>As you've seen previously, the most common way to create and initialize a collection is to pass the initial elements to a factory method
 on the companion object of your chosen collection. You just place the elements in parentheses after the
-companion object name, and the Scala compiler will transform that to an invocation of an <span class="code">apply</span> method on that companion object:</p>
+companion object name, and the Scala compiler will transform that to an invocation of an <pre class="code">apply</pre> method on that companion object:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)
@@ -1117,8 +1117,8 @@ especially an issue with mutable collections. Here's an example:<a id="i-6779804
 </pre>
 
 
-<p>The problem here is that <span class="code">stuff</span> was given an element type of
-<span class="code">Int</span>.  If you want it to have an element type of <span class="code">Any</span>, you
+<p>The problem here is that <pre class="code">stuff</pre> was given an element type of
+<pre class="code">Int</pre>.  If you want it to have an element type of <pre class="code">Any</pre>, you
 need to say so explicitly by putting the element type in square brackets,
 like this:</p>
 
@@ -1129,7 +1129,7 @@ like this:</p>
 
 
 <p>Another special situation is if you want to initialize a collection with another collection. 
-For example, imagine you have a list, but you want a <span class="code">TreeSet</span> containing the elements in the list. Here's the list:</p>
+For example, imagine you have a list, but you want a <pre class="code">TreeSet</pre> containing the elements in the list. Here's the list:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;colors&nbsp;=&nbsp;<code class="typename">List</code>(<code class="quotedstring">"blue"</code>,&nbsp;<code class="quotedstring">"yellow"</code>,&nbsp;<code class="quotedstring">"red"</code>,&nbsp;<code class="quotedstring">"green"</code>)
@@ -1137,7 +1137,7 @@ For example, imagine you have a list, but you want a <span class="code">TreeSet<
 </pre>
 
 
-<p>You cannot pass the <span class="code">colors</span> list to the factory method for <span class="code">TreeSet</span>:<a id="i-1802169132-1"/></p>
+<p>You cannot pass the <pre class="code">colors</pre> list to the factory method for <pre class="code">TreeSet</pre>:<a id="i-1802169132-1"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">import</code>&nbsp;scala.collection.immutable.TreeSet
@@ -1150,7 +1150,7 @@ For example, imagine you have a list, but you want a <span class="code">TreeSet<
 </pre>
 
 
-<p>Instead, you'll need to create an empty <span class="code">TreeSet[String]</span> and add to it the elements of the list with the <span class="code">TreeSet</span>'s <span class="code">++</span> operator:</p>
+<p>Instead, you'll need to create an empty <pre class="code">TreeSet[String]</pre> and add to it the elements of the list with the <pre class="code">TreeSet</pre>'s <pre class="code">++</pre> operator:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;treeSet&nbsp;=&nbsp;<code class="typename">TreeSet[String]</code>()&nbsp;++&nbsp;colors
@@ -1164,7 +1164,7 @@ For example, imagine you have a list, but you want a <span class="code">TreeSet<
 
 <p>If you need to initialize a list or array with another collection, on the other hand, it is quite straightforward. As
 you've seen previously, to initialize a new list with another collection, simply
-invoke <span class="code">toList</span><a id="i-1723195748-2"/> on
+invoke <pre class="code">toList</pre><a id="i-1723195748-2"/> on
 that collection<a id="i1406547745-1"/><a id="i-218379511-1"/><a id="i595962916-1"/>:</p>
 
 <pre>
@@ -1173,7 +1173,7 @@ that collection<a id="i1406547745-1"/><a id="i-218379511-1"/><a id="i595962916-1
 </pre>
 
 
-<p>Or, if you need an array, invoke <span class="code">toArray</span>:</p>
+<p>Or, if you need an array, invoke <pre class="code">toArray</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;treeSet.toArray
@@ -1181,11 +1181,11 @@ that collection<a id="i1406547745-1"/><a id="i-218379511-1"/><a id="i595962916-1
 </pre>
 
 
-<p>Note that although the original <span class="code">colors</span> list was not sorted, the elements in the list produced by invoking <span class="code">toList</span> on the
-<span class="code">TreeSet</span> are in alphabetical order. When you invoke <span class="code">toList</span> or <span class="code">toArray</span> on a collection, the order of the elements in the resulting
-list or array will be the same as the order of elements produced by an iterator obtained by invoking <span class="code">elements</span> on that collection.
-Because a <span class="code">TreeSet[String]</span>'s iterator will produce strings in alphabetical order, those strings will appear in alphabetical order
-in the list resulting from invoking <span class="code">toList</span> on that <span class="code">TreeSet</span>.</p>
+<p>Note that although the original <pre class="code">colors</pre> list was not sorted, the elements in the list produced by invoking <pre class="code">toList</pre> on the
+<pre class="code">TreeSet</pre> are in alphabetical order. When you invoke <pre class="code">toList</pre> or <pre class="code">toArray</pre> on a collection, the order of the elements in the resulting
+list or array will be the same as the order of elements produced by an iterator obtained by invoking <pre class="code">elements</pre> on that collection.
+Because a <pre class="code">TreeSet[String]</pre>'s iterator will produce strings in alphabetical order, those strings will appear in alphabetical order
+in the list resulting from invoking <pre class="code">toList</pre> on that <pre class="code">TreeSet</pre>.</p>
 
 <p>Keep in mind, however, that conversion to lists or arrays
 usually requires copying all of the elements of the collection, and thus may be
@@ -1198,12 +1198,12 @@ elements anyway, in which case there is only a small speed penalty.</p>
 
 <p>Another situation that arises occasionally is the need to<a id="i-1962569096-1"/>
 convert a mutable set or map to an immutable one, or <i>vice versa</i>. To accomplish this, you
-can use the technique shown on the previous page to initialize a <span class="code">TreeSet</span> with the elements of a list.
-Create a collection of the new type using the <span class="code">empty</span> method
-and then add the new elements using either <span class="code">++</span> or <span class="code">++=</span>, whichever
+can use the technique shown on the previous page to initialize a <pre class="code">TreeSet</pre> with the elements of a list.
+Create a collection of the new type using the <pre class="code">empty</pre> method
+and then add the new elements using either <pre class="code">++</pre> or <pre class="code">++=</pre>, whichever
 is appropriate for the target collection type.
 Here's how
-you'd convert the immutable <span class="code">TreeSet</span> from the previous example to a mutable set, and back
+you'd convert the immutable <pre class="code">TreeSet</pre> from the previous example to a mutable set, and back
 again to an immutable one:</p>
 
 <pre>
@@ -1255,12 +1255,12 @@ Tuples save you the effort of choosing a name for the class,
 choosing a scope to define the class in, and choosing names
 for the members of the class.  If your class simply holds
 an integer and a string, there is no clarity added by defining
-a class named <span class="code">AnIntegerAndAString</span>.</p>
+a class named <pre class="code">AnIntegerAndAString</pre>.</p>
 
 <p>Because tuples can combine objects of different types,
-tuples do not inherit from <span class="code">Traversable</span>.
+tuples do not inherit from <pre class="code">Traversable</pre>.
 If you find yourself wanting to group exactly one integer and exactly one
-string, then you want a tuple, not a <span class="code">List</span> or <span class="code">Array</span>.</p>
+string, then you want a tuple, not a <pre class="code">List</pre> or <pre class="code">Array</pre>.</p>
 
 <p>A common application of tuples is returning multiple values from a method.<a id="i651595778-2"/><a id="i2120520132-2"/>
 For example, here is a method that finds the longest word in a
@@ -1289,17 +1289,17 @@ collection and also returns its index:<a id="i-1690228669-3"/></p>
 </pre>
 
 
-<p>The <span class="code">longestWord</span> function here computes two items: <span class="code">word</span>, the
-longest word in the array, and <span class="code">idx</span>, the index of that word.
+<p>The <pre class="code">longestWord</pre> function here computes two items: <pre class="code">word</pre>, the
+longest word in the array, and <pre class="code">idx</pre>, the index of that word.
 To keep things simple, the function assumes there is at least
 one word in the list, and it breaks ties by choosing the word
 that comes earlier in the list.
 Once the function has chosen which word and index to return,
 it returns both of them together using the tuple syntax
-<span class="code">(word,</span>&nbsp;<span class="code">idx)</span>.</p>
+<pre class="code">(word,</pre>&nbsp;<pre class="code">idx)</pre>.</p>
 
-<p>To access elements of a tuple, you can use method <span class="code">_1</span> to access
-the first element, <span class="code">_2</span> to access the second, and so on:</p>
+<p>To access elements of a tuple, you can use method <pre class="code">_1</pre> to access
+the first element, <pre class="code">_2</pre> to access the second, and so on:</p>
 
 <pre>
   scala&gt;&nbsp;longest._1
@@ -1343,7 +1343,7 @@ great when you combine data that has no meaning beyond "an A and a
 B."  However, whenever the combination has some meaning, or you want
 to add some methods to the combination, it is better to go ahead and
 create a class.  For example, do not use a 3-tuple for the combination
-of a month, a day, and a year.  Make a <span class="code">Date</span> class.  It makes your
+of a month, a day, and a year.  Make a <pre class="code">Date</pre> class.  It makes your
 intentions explicit, which both clears up the code for human readers
 and gives the compiler and language opportunities to help you
 catch mistakes.</p>
@@ -1366,16 +1366,16 @@ language and discuss Scala's support for mutable objects.</p>
 
 
 <p><a id="footnotemain17-1"/>[1] The difference in variance of Scala's and Java's arrays&mdash;<i>i.e.</i>, whether
-<span class="code">Array[String]</span> is a subtype of <span class="code">Array[AnyRef]</span>&mdash;will be discussed in <a href="type-parameterization.html#sec-first-arrays">Section 19.3</a>.</p>
+<pre class="code">Array[String]</pre> is a subtype of <pre class="code">Array[AnyRef]</pre>&mdash;will be discussed in <a href="type-parameterization.html#sec-first-arrays">Section 19.3</a>.</p>
 
 <p><a id="footnotemain17-2"/>[2] The code given  <a href="a-scalable-language.html#subsec-scala-is-high-level">here</a> of <a href="a-scalable-language.html">Chapter 1</a>
 presents a similar example.</p>
 
-<p><a id="footnotemain17-3"/>[3] The <span class="code">type</span> keyword will be explained in more 
+<p><a id="footnotemain17-3"/>[3] The <pre class="code">type</pre> keyword will be explained in more 
 detail in <a href="abstract-members.html#sec-abstract-types">Section 20.6</a>.</p>
 
 <p><a id="footnotemain17-4"/>[4] The "single object" is an
-instance of <span class="code">Set1</span> through <span class="code">Set4</span>, or <span class="code">Map1</span> through <span class="code">Map4</span>, as shown in <a href="working-with-other-collections.html#tab-default-sets">Tables 17.3</a>
+instance of <pre class="code">Set1</pre> through <pre class="code">Set4</pre>, or <pre class="code">Map1</pre> through <pre class="code">Map4</pre>, as shown in <a href="working-with-other-collections.html#tab-default-sets">Tables 17.3</a>
 <a href="working-with-other-collections.html#tab-default-maps">and 17.4</a>.</p>
 
 <p><a id="footnotemain17-5"/>[5] This syntax is actually a special case of

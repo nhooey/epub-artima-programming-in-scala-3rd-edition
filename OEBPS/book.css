@@ -23,12 +23,12 @@
       }
 
       .code {
-        font-family: monospace;
         font-size: smaller;
         overflow-wrap: break-word;
         hyphens: none;
         -webkit-hyphens: none;
         -moz-hyphens: none;
+        display: inline;
       }
 
       pre {
@@ -53,26 +53,32 @@
 
       .literal {
         color: rgb(205, 123, 0); /* orange */
+        display: inline;
       }
 
       .typename {
         color: rgb(103, 0, 154); /* purple */
+        display: inline;
       }
 
       .vem {
         color: rgb(0, 0, 230); /* blue */
+        display: inline;
       }
 
       .quotedstring {
         color: rgb(205, 123, 0); /* orange */
+        display: inline;
       }
 
       .comment {
         color: rgb(76, 76, 76); /* gray .3 */
+        display: inline;
       }
 
       .output {
         color: rgb(90, 0, 0); /* red */
+        display: inline;
       }
     
       .textit {

@@ -71,16 +71,16 @@ translation your current Scala compiler uses by examining the
 <h4>Value types</h4>
 
 
-<p>A value type like <span class="code">Int</span> can be translated in two different ways to
-Java.<a id="i840866566-1"/>  Whenever possible, the compiler translates a Scala <span class="code">Int</span> to a
-Java <span class="code">int</span> to get better performance.<a id="i884498802-4"/>  Sometimes this is not possible, though,
-because the compiler is not sure whether it is translating an <span class="code">Int</span>
+<p>A value type like <pre class="code">Int</pre> can be translated in two different ways to
+Java.<a id="i840866566-1"/>  Whenever possible, the compiler translates a Scala <pre class="code">Int</pre> to a
+Java <pre class="code">int</pre> to get better performance.<a id="i884498802-4"/>  Sometimes this is not possible, though,
+because the compiler is not sure whether it is translating an <pre class="code">Int</pre>
 or some other data type.  For example, a particular List[Any] might
-hold only <span class="code">Int</span>s, but the compiler has no way to be sure.</p>
+hold only <pre class="code">Int</pre>s, but the compiler has no way to be sure.</p>
 
 <p>In such cases, where the compiler is unsure whether an object
 is a value type or not, the compiler uses objects and relies on wrapper
-classes. For example, wrapper classes such as <span class="code">java.lang.Integer</span> allow
+classes. For example, wrapper classes such as <pre class="code">java.lang.Integer</pre> allow
 a value type to be wrapped inside a Java object and thereby manipulated
 by code that needs objects.<a href="combining-scala-and-java.html#footnotemain31-1">[1]</a></p>
 
@@ -93,10 +93,10 @@ The Scala translation of singleton objects uses a combination of static
 and instance methods.<a id="i-855208314-1"/>
 For every Scala singleton object, the compiler will create a Java class
 for the object with a dollar sign added to the end.  For a singleton
-object named <span class="code">App</span>, the compiler produces a Java class named
-<span class="code">App$</span>.  This class has all the methods and fields of the Scala
+object named <pre class="code">App</pre>, the compiler produces a Java class named
+<pre class="code">App$</pre>.  This class has all the methods and fields of the Scala
 singleton object.  The Java class also has a single static field named
-<span class="code">MODULE$</span> to hold the one instance of the class that is created at
+<pre class="code">MODULE$</pre> to hold the one instance of the class that is created at
 run time.</p>
 
 <p>As a full example, suppose you compile the following singleton object:</p>
@@ -110,7 +110,7 @@ run time.</p>
 </pre>
 
 
-<p>Scala will generate a Java <span class="code">App$</span> class with the following
+<p>Scala will generate a Java <pre class="code">App$</pre> class with the following
 fields and methods:</p>
 
 <pre>
@@ -129,9 +129,9 @@ fields and methods:</p>
 <p>That's the translation for the general case.
 An important special case is if you have a "standalone" singleton object, one which does 
 not come with a class of the same name.  For example, you might have a
-singleton object named <span class="code">App</span>, and not have any class named
-<span class="code">App</span>.  In that case, the compiler will create a Java class named
-<span class="code">App</span> that has a static forwarder method for each method of
+singleton object named <pre class="code">App</pre>, and not have any class named
+<pre class="code">App</pre>.  In that case, the compiler will create a Java class named
+<pre class="code">App</pre> that has a static forwarder method for each method of
 the Scala singleton object:</p>
 
 <pre>
@@ -144,11 +144,11 @@ the Scala singleton object:</p>
 </pre>
 
 
-<p>To contrast, if you did have a class named <span class="code">App</span>, Scala would
-create a corresponding Java <span class="code">App</span> class to hold the members
-of the <span class="code">App</span> class you defined.  In that case it would not add any forwarding
+<p>To contrast, if you did have a class named <pre class="code">App</pre>, Scala would
+create a corresponding Java <pre class="code">App</pre> class to hold the members
+of the <pre class="code">App</pre> class you defined.  In that case it would not add any forwarding
 methods for the same-named singleton object, and Java code would have
-to access the singleton via the <span class="code">MODULE$</span>
+to access the singleton via the <pre class="code">MODULE$</pre>
 field.</p>
 
 <h4>Traits as interfaces</h4>
@@ -181,15 +181,15 @@ processes it according to the general Scala rules, and then it
 does something extra for Java.</p>
 
 <p><b>Deprecation</b>
-For any method or class marked <span class="code">@deprecated</span>,<a id="i-1632344653-2"/> the
+For any method or class marked <pre class="code">@deprecated</pre>,<a id="i-1632344653-2"/> the
 compiler will add Java's own deprecation annotation to the
 emitted code.  Because of this, Java compilers can issue
 deprecation warnings when Java code accesses
 deprecated Scala methods.</p>
 
 <p><b>Volatile fields</b>
-Likewise, any field marked <span class="code">@volatile</span><a id="i-882906061-2"/> in Scala is given the
-Java <span class="code">volatile</span> modifier in the emitted code.  Thus, volatile
+Likewise, any field marked <pre class="code">@volatile</pre><a id="i-882906061-2"/> in Scala is given the
+Java <pre class="code">volatile</pre> modifier in the emitted code.  Thus, volatile
 fields in Scala behave exactly according to Java's semantics, and
 accesses to volatile fields are sequenced precisely according to the
 rules specified for volatile fields in the Java memory model.</p>
@@ -197,9 +197,9 @@ rules specified for volatile fields in the Java memory model.</p>
 <p><b>Serialization</b></p>
 
 <p>Scala's three standard serialization annotations are all
-translated to Java equivalents.  A <span class="code">@serializable</span><a id="i-534731536-2"/><a id="i-897281643-2"/> class has
-Java's <span class="code">Serializable</span> interface added to it.  A
-<span class="code">@SerialVersionUID(1234L)</span> annotation is converted to the
+translated to Java equivalents.  A <pre class="code">@serializable</pre><a id="i-534731536-2"/><a id="i-897281643-2"/> class has
+Java's <pre class="code">Serializable</pre> interface added to it.  A
+<pre class="code">@SerialVersionUID(1234L)</pre> annotation is converted to the
 following Java field definition:</p>
 
 <pre>
@@ -208,22 +208,22 @@ following Java field definition:</p>
 </pre>
 
 
-<p>Any variable marked <span class="code">@transient</span> is given the Java
-<span class="code">transient</span> modifier.</p>
+<p>Any variable marked <pre class="code">@transient</pre> is given the Java
+<pre class="code">transient</pre> modifier.</p>
 
 <h4>Exceptions thrown</h4>
 
 
 <p>Scala does not check that thrown exceptions are caught.<a id="i-767472144-1"/>  That is,
-Scala has no equivalent to Java's <span class="code">throws</span> declarations on
+Scala has no equivalent to Java's <pre class="code">throws</pre> declarations on
 methods.<a id="i1515336401-1"/><a id="i993633856-1"/><a id="i1490895901-2"/>
 All Scala methods are translated to Java methods that declare no thrown
 exceptions.<a href="combining-scala-and-java.html#footnotemain31-2">[2]</a></p>
 
 <p>The reason this feature is omitted from Scala is that the Java
-experience with it has not been purely positive.  Because annotating methods with <span class="code">throws</span>
+experience with it has not been purely positive.  Because annotating methods with <pre class="code">throws</pre>
 clauses is a heavy burden, too many developers write code
-that swallows and drops exceptions, just to get the code to compile without adding all those <span class="code">throws</span> clauses.
+that swallows and drops exceptions, just to get the code to compile without adding all those <pre class="code">throws</pre> clauses.
 They may intend to improve the exception handling later, but experience
 shows that all too often time-pressed programmers will never come back
 and add proper exception handling.  The twisted result is that this
@@ -236,13 +236,13 @@ compiler.</p>
 has
 Java-friendly annotations describing which exceptions your methods may throw.
 For example, each method in an RMI remote interface is required to
-mention <span class="code">java.io.RemoteException</span> in its <span class="code">throws</span> clause.
+mention <pre class="code">java.io.RemoteException</pre> in its <pre class="code">throws</pre> clause.
 Thus, if you wish to write an RMI remote interface as a Scala trait with abstract methods, you would need to 
-list <span class="code">RemoteException</span> in the <span class="code">throws</span> clauses for those methods.
+list <pre class="code">RemoteException</pre> in the <pre class="code">throws</pre> clauses for those methods.
 To accomplish this, all you have to do
-is mark your methods with <span class="code">@throws</span><a id="i-1229583646-1"/><a id="i1626806115-1"/> annotations.
+is mark your methods with <pre class="code">@throws</pre><a id="i-1229583646-1"/><a id="i1626806115-1"/> annotations.
 For example, the Scala class shown in <a href="combining-scala-and-java.html#lst-throws-clause">Listing 31.1</a> has a method marked as throwing
-<span class="code">IOException</span>.</p>
+<pre class="code">IOException</pre>.</p>
 
 <p><a id="lst-throws-clause"/></p>
 
@@ -257,7 +257,7 @@ For example, the Scala class shown in <a href="combining-scala-and-java.html#lst
 </pre>
 
 
-<h5>Listing 31.1 - A Scala method that declares a Java <span class="code">throws</span> clause.</h5>
+<h5>Listing 31.1 - A Scala method that declares a Java <pre class="code">throws</pre> clause.</h5>
 
 
 <p>Here is how it looks from Java:<a id="i1433885554-1"/><a id="i385195690-1"/></p>
@@ -275,9 +275,9 @@ For example, the Scala class shown in <a href="combining-scala-and-java.html#lst
 </pre>
 
 
-<p>Note that the <span class="code">read</span> method indicates with a Java <span class="code">throws</span> clause that it
+<p>Note that the <pre class="code">read</pre> method indicates with a Java <pre class="code">throws</pre> clause that it
 may throw
-an <span class="code">IOException</span>.</p>
+an <pre class="code">IOException</pre>.</p>
 
 <h4>Java annotations</h4>
 
@@ -311,16 +311,16 @@ method as a test.  It looks like this:</p>
 </pre>
 
 
-<p>The <span class="code">testMultiAdd</span> method is a test.  This test adds multiple items
+<p>The <pre class="code">testMultiAdd</pre> method is a test.  This test adds multiple items
 to a set and makes sure that each is added only once.  The
-<span class="code">assertEquals</span> method, which comes as part of the JUnit API, checks
+<pre class="code">assertEquals</pre> method, which comes as part of the JUnit API, checks
 that its two arguments are equal.  If they are different, then the
 test fails.  In this case, the test verifies that repeatedly adding
 the same numbers does not increase the size of a set.</p>
 
-<p>The test is marked using the annotation <span class="code">org.junit.Test</span>. Note that
+<p>The test is marked using the annotation <pre class="code">org.junit.Test</pre>. Note that
 this annotation has been imported, so it can be referred to as simply
-<span class="code">@Test</span> instead of the more cumbersome <span class="code">@org.junit.Test</span>.<a id="i-1737029383-1"/><a id="i-380372540-1"/></p>
+<pre class="code">@Test</pre> instead of the more cumbersome <pre class="code">@org.junit.Test</pre>.<a id="i-1737029383-1"/><a id="i-380372540-1"/></p>
 
 <p>That's all there is to it.  The test can be run using any JUnit test
 runner.  Here it is being run with the command-line test
@@ -340,7 +340,7 @@ runner:</p>
 
 
 <p>To make an annotation that is visible to Java reflection,<a id="i-244877014-1"/> you must use<a id="i-1366299605-1"/>
-Java notation and compile it with <span class="code">javac</span><a id="i-1137870217-1"/>.
+Java notation and compile it with <pre class="code">javac</pre><a id="i-1137870217-1"/>.
 For this use case, writing the annotation in Scala does not seem
 helpful, so the standard compiler does not support it.
 The reasoning is that the Scala support would inevitably fall short of
@@ -358,7 +358,7 @@ access Scala annotations with Scala reflection.</p>
 </pre>
 
 
-<p>After compiling the above with <span class="code">javac</span>, you can use the annotation
+<p>After compiling the above with <pre class="code">javac</pre>, you can use the annotation
 as follows:</p>
 
 <pre>
@@ -375,8 +375,8 @@ as follows:</p>
 </pre>
 
 
-<p>In this example, <span class="code">test1</span> and <span class="code">test2</span> are supposed to be
-test methods, but <span class="code">testData</span> should be ignored even though
+<p>In this example, <pre class="code">test1</pre> and <pre class="code">test2</pre> are supposed to be
+test methods, but <pre class="code">testData</pre> should be ignored even though
 its name starts with "test".</p>
 
 <p>To see when these annotations are present, you can use the Java
@@ -393,15 +393,15 @@ reflection APIs.  Here is sample code to show how it works:</p>
 </pre>
 
 
-<p>Here, the reflective methods <span class="code">getClass</span> and <span class="code">getMethods</span> are
+<p>Here, the reflective methods <pre class="code">getClass</pre> and <pre class="code">getMethods</pre> are
 used to
 inspect all the fields of the input object's class.  These are
 normal reflection methods.  The annotation-specific part is the use of
-method <span class="code">getAnnotation</span>. Many reflection objects have
-a <span class="code">getAnnotation</span> method for searching for annotations of a specific
+method <pre class="code">getAnnotation</pre>. Many reflection objects have
+a <pre class="code">getAnnotation</pre> method for searching for annotations of a specific
 type.  In this case, the code looks for an annotation of our
-new <span class="code">Ignore</span> type.  Since this is a Java API, success is indicated by
-whether the result is <span class="code">null</span> or an actual annotation object.</p>
+new <pre class="code">Ignore</pre> type.  Since this is a Java API, success is indicated by
+whether the result is <pre class="code">null</pre> or an actual annotation object.</p>
 
 <p>Here is the code in action:</p>
 
@@ -415,17 +415,17 @@ whether the result is <span class="code">null</span> or an actual annotation obj
 </pre>
 
 
-<p>As an aside, notice that the methods are in class <span class="code">Tests$</span> instead
-of class <span class="code">Tests</span> when viewed with Java reflection.  As described at
+<p>As an aside, notice that the methods are in class <pre class="code">Tests$</pre> instead
+of class <pre class="code">Tests</pre> when viewed with Java reflection.  As described at
 the beginning of the chapter, the implementation of a Scala singleton
 object is placed in a Java class with a dollar sign added to the end
-of its name.  In this case, the implementation of <span class="code">Tests</span> is in the
-Java class <span class="code">Tests$</span>.</p>
+of its name.  In this case, the implementation of <pre class="code">Tests</pre> is in the
+Java class <pre class="code">Tests$</pre>.</p>
 
 <p>Be aware that when you use Java annotations you have to work within
 their limitations.  For example, you can only use constants,
 not expressions, in the arguments to annotations.  You can support
-<span class="code">@serial(1234)</span> but not <span class="code">@serial(x * 2)</span>, because <span class="code">x</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">2</span> is
+<pre class="code">@serial(1234)</pre> but not <pre class="code">@serial(x * 2)</pre>, because <pre class="code">x</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">2</pre> is
 not a constant.</p>
 
 <h3 id="sec-wildcard-types">31.3 Wildcard types</h3>
@@ -433,31 +433,31 @@ not a constant.</p>
 
 <p>All Java types have a Scala equivalent.<a id="i1056209851-2"/><a id="i165566131-2"/>  This is necessary so that
 Scala code can access any legal Java class.  Most of the time the
-translation is straightforward.  <span class="code">Pattern</span> in Java is <span class="code">Pattern</span> in
-Scala, and <span class="code">Iterator&lt;Component&gt;</span> in Java is <span class="code">Iterator[Component]</span> in
+translation is straightforward.  <pre class="code">Pattern</pre> in Java is <pre class="code">Pattern</pre> in
+Scala, and <pre class="code">Iterator&lt;Component&gt;</pre> in Java is <pre class="code">Iterator[Component]</pre> in
 Scala.  For some cases, though, the Scala types you have seen so far
 are not enough.  What can be done with Java wildcard types such as
-<span class="code">Iterator&lt;?&gt;</span> or <span class="code">Iterator&lt;?</span>&nbsp;<span class="code">extends</span>&nbsp;<span class="code">Component&gt;</span>?  What can be
-done about raw types like <span class="code">Iterator</span>, where the type parameter is omitted?
+<pre class="code">Iterator&lt;?&gt;</pre> or <pre class="code">Iterator&lt;?</pre>&nbsp;<pre class="code">extends</pre>&nbsp;<pre class="code">Component&gt;</pre>?  What can be
+done about raw types like <pre class="code">Iterator</pre>, where the type parameter is omitted?
 For Java wildcard types and raw types, Scala uses an extra kind of type<a id="i414933374-2"/><a id="i1163979645-2"/><a id="i-119763145-1"/><a id="i-315542260-1"/>
 also called a <a href="glossary.html#g836624832"><em>wildcard type</em></a>.</p>
 
 <p>Wildcard types are written using <em>placeholder syntax</em>, just like
 the short-hand function literals described in
 <a href="functions-and-closures.html#sec-placeholder-syntax">Section 8.5</a>.<a id="i-1194775874-1"/> In the short hand for function literals, you can use
-an underscore (<span class="code">_</span>) in place of an expression; for example,
-<span class="code">(_</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">1)</span> is the same as <span class="code">(x</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">1)</span>. Wildcard types use the same
+an underscore (<pre class="code">_</pre>) in place of an expression; for example,
+<pre class="code">(_</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">1)</pre> is the same as <pre class="code">(x</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">1)</pre>. Wildcard types use the same
 idea, only for types instead of expressions. If you write
-<span class="code">Iterator[_]</span>, then the underscore is replacing a type. Such a type
-represents an <span class="code">Iterator</span> where the element type is not known.</p>
+<pre class="code">Iterator[_]</pre>, then the underscore is replacing a type. Such a type
+represents an <pre class="code">Iterator</pre> where the element type is not known.</p>
 
 <p>You can also insert upper and lower bounds when using this placeholder
 syntax.  Simply add the bound after the underscore, using the same
-<span class="code">&lt;:</span> syntax used with type parameters
+<pre class="code">&lt;:</pre> syntax used with type parameters
 (<a href="type-parameterization.html#sec-upper-bounds">Section 19.8</a> and <a href="type-parameterization.html#sec-lower-bounds">Section 19.5</a>).
-For example, the type <span class="code">Iterator[_</span>&nbsp;<span class="code">&lt;:</span>&nbsp;<span class="code">Component]</span> is an iterator where
+For example, the type <pre class="code">Iterator[_</pre>&nbsp;<pre class="code">&lt;:</pre>&nbsp;<pre class="code">Component]</pre> is an iterator where
 the element type is not known, but whatever type it is, it must be a
-subtype of <span class="code">Component</span>.</p>
+subtype of <pre class="code">Component</pre>.</p>
 
 <p>That's how you write a wildcard type, but how do you use it?  In
 simple cases, you can ignore the wildcard and call methods on the base
@@ -487,7 +487,7 @@ wildcard type:</p>
 
 
 <p>If you want to find out how many elements are in this collection, you
-can simply ignore the wildcard part and call the <span class="code">size</span> method as
+can simply ignore the wildcard part and call the <pre class="code">size</pre> method as
 normal:</p>
 
 <pre>
@@ -499,7 +499,7 @@ normal:</p>
 <p>In more complicated cases, wildcard types can be more awkward.  Since
 the wildcard type has no name, there is no way to use it in two
 separate places. For example, suppose you wanted to create a mutable
-Scala set and initialize it with the elements of <span class="code">contents</span>:</p>
+Scala set and initialize it with the elements of <pre class="code">contents</pre>:</p>
 
 <div style="page-break-after:always"/>
 
@@ -515,7 +515,7 @@ Scala set and initialize it with the elements of <span class="code">contents</sp
 
 <p>A problem occurs on the third line.  There is no way to name the type of
 elements in the Java collection, so you cannot write down a
-satisfactory type for <span class="code">set</span>.  To work around this kind of problem,
+satisfactory type for <pre class="code">set</pre>.  To work around this kind of problem,
 here are two tricks you should consider:</p>
 
 <ol>
@@ -628,17 +628,17 @@ often defined anonymous inner class instances, like this:</p>
 </pre>
 
 
-<p>In this example, an anonymous instance of <span class="code">ActionListener</span>
-is created and passed to the <span class="code">addActionListener</span> of a
-Swing <span class="code">JButton</span>. When a user clicks on the button, Swing
-will invoke the <span class="code">actionPerformed</span> method on this instance,
-which will print <span class="code">"pressed!"</span>.</p>
+<p>In this example, an anonymous instance of <pre class="code">ActionListener</pre>
+is created and passed to the <pre class="code">addActionListener</pre> of a
+Swing <pre class="code">JButton</pre>. When a user clicks on the button, Swing
+will invoke the <pre class="code">actionPerformed</pre> method on this instance,
+which will print <pre class="code">"pressed!"</pre>.</p>
 
 <p>In Java 8,
 a lambda expression can be used anywhere an instance of a class or interface that
 contains just a single abstract method (SAM) is required.<a id="i701753824-1"/>
-<span class="code">ActionListener</span> is such an interface, because it
-contains a single abstract method, <span class="code">actionPerformed</span>.
+<pre class="code">ActionListener</pre> is such an interface, because it
+contains a single abstract method, <pre class="code">actionPerformed</pre>.
 Thus a lambda expression can be used to register an
 action listener on a Swing button. Here's an example:</p>
 
@@ -664,7 +664,7 @@ prefer to use a function literal, like this:</p>
 
 <p>As you have already seen in <a href="implicit-conversions-and-parameters.html#sec-implicit-conversions">Section 21.1</a>, you could support such a coding style
 by defining an implicit conversion from
-the <span class="code">ActionEvent</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Unit</span> function type to <span class="code">ActionListener</span>.</p>
+the <pre class="code">ActionEvent</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">Unit</pre> function type to <pre class="code">ActionListener</pre>.</p>
 
 <p>Scala 2.12 enables a function literal
 to be used in this case even in the absence of such an implicit conversion.
@@ -672,7 +672,7 @@ As with Java 8, Scala 2.12 will allow a function type to
 be used where an instance of a class or trait declaring
 a single abstract method (SAM) is required.
 This will work with any SAM in Scala 2.12. For example, you might
-define a trait, <span class="code">Increaser</span>, with a single abstract method, <span class="code">increase</span>:</p>
+define a trait, <pre class="code">Increaser</pre>, with a single abstract method, <pre class="code">increase</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">Increaser</code>&nbsp;{
@@ -682,7 +682,7 @@ define a trait, <span class="code">Increaser</span>, with a single abstract meth
 </pre>
 
 
-<p>You could then define a method that takes an <span class="code">Increaser</span>:</p>
+<p>You could then define a method that takes an <pre class="code">Increaser</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">def</code>&nbsp;increaseOne(increaser:&nbsp;<code class="typename">Increaser</code>):&nbsp;<code class="typename">Int</code>&nbsp;=
@@ -692,7 +692,7 @@ define a trait, <span class="code">Increaser</span>, with a single abstract meth
 
 
 <p>To invoke your new method, you could pass in an
-anonymous instance of trait <span class="code">Increaser</span>, like this:</p>
+anonymous instance of trait <pre class="code">Increaser</pre>, like this:</p>
 
 <pre>
   scala&gt;&nbsp;increaseOne(
@@ -705,7 +705,7 @@ anonymous instance of trait <span class="code">Increaser</span>, like this:</p>
 
 
 <p>In Scala 2.12, however, you could alternatively just
-use a function literal, because <span class="code">Increaser</span> is a SAM type:</p>
+use a function literal, because <pre class="code">Increaser</pre> is a SAM type:</p>
 
 <pre>
   scala&gt;&nbsp;increaseOne(i&nbsp;=&gt;&nbsp;i&nbsp;+&nbsp;<code class="literal">7</code>)&nbsp;<code class="comment">//&nbsp;Scala&nbsp;2.12</code>
@@ -713,13 +713,13 @@ use a function literal, because <span class="code">Increaser</span> is a SAM typ
 </pre>
 
 
-<h4>Using Java 8 <span class="code">Stream</span>s from Scala 2.12</h4>
+<h4>Using Java 8 <pre class="code">Stream</pre>s from Scala 2.12</h4>
 
 
 <p>Java's Stream is a functional data structure that offers<a id="i-1435343948-1"/><a id="i2022123097-1"/>
-a <span class="code">map</span> method taking a <span class="code">java.util.function.IntUnaryOperator</span>.
-From Scala you could invoke <span class="code">Stream.map</span> to increment each element
-of an <span class="code">Array</span>, like this:</p>
+a <pre class="code">map</pre> method taking a <pre class="code">java.util.function.IntUnaryOperator</pre>.
+From Scala you could invoke <pre class="code">Stream.map</pre> to increment each element
+of an <pre class="code">Array</pre>, like this:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">import</code>&nbsp;java.util.function.IntUnaryOperator
@@ -737,7 +737,7 @@ of an <span class="code">Array</span>, like this:</p>
 </pre>
 
 
-<p>Because <span class="code">IntUnaryOperator</span> is a SAM type, however, you
+<p>Because <pre class="code">IntUnaryOperator</pre> is a SAM type, however, you
 could in Scala 2.12 invoke it more concisely with a
 function literal:</p>
 
@@ -751,7 +751,7 @@ function literal:</p>
 
 <p>Note that only function <span class="textit">literals</span> will be adapted to
 SAM types, not arbitrary expressions that have a function type. For example, consider
-the following <span class="code">val</span>, <span class="code">f</span>, which has type <span class="code">Int</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Int</span>:</p>
+the following <pre class="code">val</pre>, <pre class="code">f</pre>, which has type <pre class="code">Int</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">Int</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;f&nbsp;=&nbsp;(i:&nbsp;<code class="typename">Int</code>)&nbsp;=&gt;&nbsp;i&nbsp;+&nbsp;<code class="literal">1</code>
@@ -759,8 +759,8 @@ the following <span class="code">val</span>, <span class="code">f</span>, which 
 </pre>
 
 
-<p>Although <span class="code">f</span> has the same type as the function literal passed to <span class="code">stream.map</span>
-previously, you can't use <span class="code">f</span> where an <span class="code">IntUnaryOperator</span>
+<p>Although <pre class="code">f</pre> has the same type as the function literal passed to <pre class="code">stream.map</pre>
+previously, you can't use <pre class="code">f</pre> where an <pre class="code">IntUnaryOperator</pre>
 is required:</p>
 
 <pre>
@@ -775,7 +775,7 @@ is required:</p>
 </pre>
 
 
-<p>To use <span class="code">f</span>, you can explicitly call it using
+<p>To use <pre class="code">f</pre>, you can explicitly call it using
 a function literal, like this:</p>
 
 <pre>
@@ -784,8 +784,8 @@ a function literal, like this:</p>
 </pre>
 
 
-<p>Or, you could annotate <span class="code">f</span> with <span class="code">IntUnaryOperator</span>, the type expected
-by <span class="code">Stream.map</span>, when you define <span class="code">f</span>:</p>
+<p>Or, you could annotate <pre class="code">f</pre> with <pre class="code">IntUnaryOperator</pre>, the type expected
+by <pre class="code">Stream.map</pre>, when you define <pre class="code">f</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;f:&nbsp;<code class="typename">IntUnaryOperator</code>&nbsp;=&nbsp;i&nbsp;=&gt;&nbsp;i&nbsp;+&nbsp;<code class="literal">1</code>

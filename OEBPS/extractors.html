@@ -17,8 +17,8 @@
 <p>By now you have probably grown accustomed to the concise way data can
 be decomposed and analyzed using pattern matching<a id="i-83872229-1"/>. This chapter shows
 you how to generalize this concept further.  Until now, constructor
-patterns were linked to case classes. For instance, <span class="code">Some(x)</span> is a
-valid pattern because <span class="code">Some</span> is a case class.  Sometimes you might wish
+patterns were linked to case classes. For instance, <pre class="code">Some(x)</pre> is a
+valid pattern because <pre class="code">Some</pre> is a case class.  Sometimes you might wish
 that you could write patterns like this without creating an associated
 case class. In fact, you might wish to be able to create your own
 kinds of patterns. Extractors give you a way to do so<a id="i751564495-1"/>.
@@ -41,7 +41,7 @@ The traditional way to do this uses three helper functions:</p>
 </pre>
 
 
-<p>With these functions, you could parse a given string <span class="code">s</span> as
+<p>With these functions, you could parse a given string <pre class="code">s</pre> as
 follows:</p>
 
 <pre>
@@ -67,8 +67,8 @@ Let's assume for the moment that you could match a string with a pattern:</p>
 
 
 <p>The pattern would match if the string contained an embedded
-at sign (<span class="code">@</span>). In that case it would bind variable <span class="code">user</span> to the part
-of the string before the <span class="code">@</span> and variable <span class="code">domain</span> 
+at sign (<pre class="code">@</pre>). In that case it would bind variable <pre class="code">user</pre> to the part
+of the string before the <pre class="code">@</pre> and variable <pre class="code">domain</pre> 
 to the part after it. Postulating a pattern like this, the previous expression 
 could be written more clearly like this:</p>
 
@@ -94,7 +94,7 @@ with the same user part would translate to the following pattern:</p>
 <p>This is much more legible than anything that could be written with access functions.
 However, the problem is that strings are not case
 classes;
-they do not have a representation that conforms to <span class="code">EMail(user,</span>&nbsp;<span class="code">domain)</span>.
+they do not have a representation that conforms to <pre class="code">EMail(user,</pre>&nbsp;<pre class="code">domain)</pre>.
 This is where Scala's extractors come in: they let you define new patterns
 for pre-existing types, where the pattern need not follow the 
 internal representation of the type.</p>
@@ -103,9 +103,9 @@ internal representation of the type.</p>
 
 
 <p>An extractor in Scala is an object that has a method called
-<span class="code">unapply</span> as one of its members<a id="i1869714895-1"/>.  The purpose of that <span class="code">unapply</span>
+<pre class="code">unapply</pre> as one of its members<a id="i1869714895-1"/>.  The purpose of that <pre class="code">unapply</pre>
 method is to match a value and take it apart. Often, the extractor
-object also defines a dual method <span class="code">apply</span> for building values, but
+object also defines a dual method <pre class="code">apply</pre> for building values, but
 this is not required.<a id="i-649058493-1"/> As an example, <a href="extractors.html#lst-email-extractor">Listing 26.1</a> shows an extractor object for
 email addresses: 
 <a id="lst-email-extractor"/></p>
@@ -123,15 +123,15 @@ email addresses:
 </pre>
 
 
-<h5>Listing 26.1 - The <span class="code">EMail</span> string extractor object.</h5>
+<h5>Listing 26.1 - The <pre class="code">EMail</pre> string extractor object.</h5>
 
 
-<p>This object defines both <span class="code">apply</span> and <span class="code">unapply</span> methods. 
-The <span class="code">apply</span> method has the same meaning as always: it turns <span class="code">EMail</span> into 
+<p>This object defines both <pre class="code">apply</pre> and <pre class="code">unapply</pre> methods. 
+The <pre class="code">apply</pre> method has the same meaning as always: it turns <pre class="code">EMail</pre> into 
 an object that can be applied to arguments in parentheses in the same way a method is applied.
-So you can write <span class="code">EMail("John",</span>&nbsp;<span class="code">"epfl.ch")</span>
-to construct the string <span class="code">"John@epfl.ch"</span>. To make this more explicit, 
-you could also let <span class="code">EMail</span> inherit from Scala's function type, like this:</p>
+So you can write <pre class="code">EMail("John",</pre>&nbsp;<pre class="code">"epfl.ch")</pre>
+to construct the string <pre class="code">"John@epfl.ch"</pre>. To make this more explicit, 
+you could also let <pre class="code">EMail</pre> inherit from Scala's function type, like this:</p>
 
 <pre>
   <code class="vem">object</code>&nbsp;<code class="typename">EMail</code>&nbsp;<code class="vem">extends</code>&nbsp;((<code class="typename">String</code>,&nbsp;<code class="typename">String</code>)&nbsp;=&gt;&nbsp;<code class="typename">String</code>)&nbsp;{&nbsp;...&nbsp;}
@@ -142,24 +142,24 @@ you could also let <span class="code">EMail</span> inherit from Scala's function
 <h4>Note</h4>
 
 
-<p>The "<span class="code">(String,</span>&nbsp;<span class="code">String)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">String</span>" portion of the previous object declaration
-means the same as <span class="code">Function2[String,</span>&nbsp;<span class="code">String,</span>&nbsp;<span class="code">String]</span>, which declares an abstract
-<span class="code">apply</span> method that <span class="code">EMail</span> implements. As a result of this declaration, you could, for example, pass <span class="code">EMail</span>
-to a method expecting a <span class="code">Function2[String,</span>&nbsp;<span class="code">String,</span>&nbsp;<span class="code">String]</span>.</p>
+<p>The "<pre class="code">(String,</pre>&nbsp;<pre class="code">String)</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">String</pre>" portion of the previous object declaration
+means the same as <pre class="code">Function2[String,</pre>&nbsp;<pre class="code">String,</pre>&nbsp;<pre class="code">String]</pre>, which declares an abstract
+<pre class="code">apply</pre> method that <pre class="code">EMail</pre> implements. As a result of this declaration, you could, for example, pass <pre class="code">EMail</pre>
+to a method expecting a <pre class="code">Function2[String,</pre>&nbsp;<pre class="code">String,</pre>&nbsp;<pre class="code">String]</pre>.</p>
 
 </div>
 
 
-<p>The <span class="code">unapply</span> method is what turns <span class="code">EMail</span> into an extractor. 
-In a sense, it reverses the construction process of <span class="code">apply</span>. Where <span class="code">apply</span> 
+<p>The <pre class="code">unapply</pre> method is what turns <pre class="code">EMail</pre> into an extractor. 
+In a sense, it reverses the construction process of <pre class="code">apply</pre>. Where <pre class="code">apply</pre> 
 takes two strings and forms an email address string out of them, 
-<span class="code">unapply</span> takes an email address and returns potentially two strings: 
-the user and the domain of the address. But <span class="code">unapply</span> must also 
+<pre class="code">unapply</pre> takes an email address and returns potentially two strings: 
+the user and the domain of the address. But <pre class="code">unapply</pre> must also 
 handle the case where the given string is not an email address. 
-That's why <span class="code">unapply</span> returns an <span class="code">Option</span>-type over pairs of strings.
-Its result is either <span class="code">Some(user,</span>&nbsp;<span class="code">domain)</span> if the string <span class="code">str</span> is an 
-email address with the given <span class="code">user</span> and <span class="code">domain</span> parts,<a href="extractors.html#footnotemain26-1">[1]</a> or <span class="code">None</span>, if
-<span class="code">str</span> is not an email address. Here are some examples:</p>
+That's why <pre class="code">unapply</pre> returns an <pre class="code">Option</pre>-type over pairs of strings.
+Its result is either <pre class="code">Some(user,</pre>&nbsp;<pre class="code">domain)</pre> if the string <pre class="code">str</pre> is an 
+email address with the given <pre class="code">user</pre> and <pre class="code">domain</pre> parts,<a href="extractors.html#footnotemain26-1">[1]</a> or <pre class="code">None</pre>, if
+<pre class="code">str</pre> is not an email address. Here are some examples:</p>
 
 <pre>
   unapply(<code class="quotedstring">"John@epfl.ch"</code>)&nbsp;&nbsp;<code class="rm"><em>equals</em></code>&nbsp;&nbsp;<code class="typename">Some</code>(<code class="quotedstring">"John"</code>,&nbsp;<code class="quotedstring">"epfl.ch"</code>)
@@ -169,7 +169,7 @@ email address with the given <span class="code">user</span> and <span class="cod
 
 <p>Now, whenever pattern matching 
 encounters a pattern referring to an extractor object, it invokes the
-extractor's <span class="code">unapply</span> method on the selector expression.
+extractor's <pre class="code">unapply</pre> method on the selector expression.
 For instance, executing the code:</p>
 
 <pre>
@@ -184,22 +184,22 @@ For instance, executing the code:</p>
 </pre>
 
 
-<p>As you saw previously, this call to <span class="code">EMail.unapply</span> will return either
-<span class="code">None</span><a id="i2129711991-1"/> or
-<span class="code">Some(u,</span>&nbsp;<span class="code">d)</span><a id="i-467709668-1"/>, for some values <span class="code">u</span> for the user part of the address
-and <span class="code">d</span> for the domain part. In the <span class="code">None</span> case, the pattern does not
+<p>As you saw previously, this call to <pre class="code">EMail.unapply</pre> will return either
+<pre class="code">None</pre><a id="i2129711991-1"/> or
+<pre class="code">Some(u,</pre>&nbsp;<pre class="code">d)</pre><a id="i-467709668-1"/>, for some values <pre class="code">u</pre> for the user part of the address
+and <pre class="code">d</pre> for the domain part. In the <pre class="code">None</pre> case, the pattern does not
 match, and the system tries another pattern or fails with a
-<span class="code">MatchError</span> exception.<a id="i-2067503209-1"/> In the <span class="code">Some(u,</span>&nbsp;<span class="code">d)</span> case, the pattern matches and its variables
+<pre class="code">MatchError</pre> exception.<a id="i-2067503209-1"/> In the <pre class="code">Some(u,</pre>&nbsp;<pre class="code">d)</pre> case, the pattern matches and its variables
 are bound to the elements of the returned value.  In the previous match,
-<span class="code">user</span> would be bound to <span class="code">u</span> and <span class="code">domain</span> would be bound to <span class="code">d</span>.</p>
+<pre class="code">user</pre> would be bound to <pre class="code">u</pre> and <pre class="code">domain</pre> would be bound to <pre class="code">d</pre>.</p>
 
-<p>In the <span class="code">EMail</span> pattern matching example, the type <span class="code">String</span> of the
-selector expression, <span class="code">selectorString</span>, conformed to <span class="code">unapply</span>'s argument type
-(which in the example was also <span class="code">String</span>).  This is quite common, but
-not necessary. It would also be possible to use the <span class="code">EMail</span> extractor
+<p>In the <pre class="code">EMail</pre> pattern matching example, the type <pre class="code">String</pre> of the
+selector expression, <pre class="code">selectorString</pre>, conformed to <pre class="code">unapply</pre>'s argument type
+(which in the example was also <pre class="code">String</pre>).  This is quite common, but
+not necessary. It would also be possible to use the <pre class="code">EMail</pre> extractor
 to match selector expressions for more general types.
 For instance, to find out whether an arbitrary value
-<span class="code">x</span> was an email address string, you could write:</p>
+<pre class="code">x</pre> was an email address string, you could write:</p>
 
 <pre>
   <code class="vem">val</code>&nbsp;x:&nbsp;<code class="typename">Any</code>&nbsp;=&nbsp;...
@@ -208,13 +208,13 @@ For instance, to find out whether an arbitrary value
 
 
 <p>Given this code, the pattern matcher will first check whether the given
-value <span class="code">x</span> conforms to <span class="code">String</span>, the parameter type of <span class="code">EMail</span>'s unapply method. If it
-does conform, the value is cast to <span class="code">String</span> and pattern matching proceeds as before.
+value <pre class="code">x</pre> conforms to <pre class="code">String</pre>, the parameter type of <pre class="code">EMail</pre>'s unapply method. If it
+does conform, the value is cast to <pre class="code">String</pre> and pattern matching proceeds as before.
 If it does not conform, the pattern fails immediately.</p>
 
-<p>In object <span class="code">EMail</span>, the <span class="code">apply</span> method is called an <span style="font-style:italic">injection</span>, because it
+<p>In object <pre class="code">EMail</pre>, the <pre class="code">apply</pre> method is called an <span style="font-style:italic">injection</span>, because it
 takes some arguments and yields an element of a given set (in our
-case: the set of strings that are email addresses).<a id="i2031936124-1"/><a id="i1478477936-1"/> The <span class="code">unapply</span>
+case: the set of strings that are email addresses).<a id="i2031936124-1"/><a id="i1478477936-1"/> The <pre class="code">unapply</pre>
 method is called an <span style="font-style:italic">extraction</span>, because it takes an element of the same
 set and extracts some of its parts (in our case: the user and domain
 substrings)<a id="i-1101999489-1"/>.  Injections and extractions are often grouped together in
@@ -223,7 +223,7 @@ constructor and a pattern, which simulates the convention for pattern
 matching with case classes. However, it is also possible to define an
 extraction in an object without a corresponding injection. The object
 itself is called an <span style="font-style:italic">extractor</span>, regardless of whether or not
-it has an <span class="code">apply</span> method.</p>
+it has an <pre class="code">apply</pre> method.</p>
 
 <p>If an injection method is included, it should be the dual to the extraction method. 
 For instance, a call of:</p>
@@ -240,9 +240,9 @@ For instance, a call of:</p>
 </pre>
 
 
-<p><i>i.e.</i>, the same sequence of arguments wrapped in a <span class="code">Some</span>. 
-Going in the other direction means running first the <span class="code">unapply</span> 
-and then the <span class="code">apply</span>, as shown in the following code:</p>
+<p><i>i.e.</i>, the same sequence of arguments wrapped in a <pre class="code">Some</pre>. 
+Going in the other direction means running first the <pre class="code">unapply</pre> 
+and then the <pre class="code">apply</pre>, as shown in the following code:</p>
 
 <pre>
   EMail.unapply(obj)&nbsp;<code class="vem">match</code>&nbsp;{&nbsp;
@@ -251,26 +251,26 @@ and then the <span class="code">apply</span>, as shown in the following code:</p
 </pre>
 
 
-<p>In that code, if the match on <span class="code">obj</span> succeeds, you'd expect to get back that same
-object from the <span class="code">apply</span>.
-These two conditions for the duality of <span class="code">apply</span> and <span class="code">unapply</span> are good design principles.
+<p>In that code, if the match on <pre class="code">obj</pre> succeeds, you'd expect to get back that same
+object from the <pre class="code">apply</pre>.
+These two conditions for the duality of <pre class="code">apply</pre> and <pre class="code">unapply</pre> are good design principles.
 They are not enforced by Scala, but it's recommended to keep to them
 when designing your extractors.</p>
 
 <h3>26.3 Patterns with zero or one variables</h3>
 
 
-<p>The <span class="code">unapply</span> method of the previous example returned a pair of
+<p>The <pre class="code">unapply</pre> method of the previous example returned a pair of
 element values in the success case. This is easily generalized to
-patterns of more than two variables. To bind <span class="code">N</span> variables, an
-<span class="code">unapply</span> would return an <span class="code">N</span>-element tuple, wrapped in a <span class="code">Some</span>.</p>
+patterns of more than two variables. To bind <pre class="code">N</pre> variables, an
+<pre class="code">unapply</pre> would return an <pre class="code">N</pre>-element tuple, wrapped in a <pre class="code">Some</pre>.</p>
 
 <p>The case where a pattern binds just one variable is treated
 differently, however. There is no one-tuple in Scala. To return
-just one pattern element, the <span class="code">unapply</span> method simply wraps the
-element itself in a <span class="code">Some</span>.
-For example, the extractor object shown in <a href="extractors.html#lst-twice-extractor">Listing 26.2</a> defines <span class="code">apply</span>
-and <span class="code">unapply</span> for strings that consist of the same substring appearing twice in a row:
+just one pattern element, the <pre class="code">unapply</pre> method simply wraps the
+element itself in a <pre class="code">Some</pre>.
+For example, the extractor object shown in <a href="extractors.html#lst-twice-extractor">Listing 26.2</a> defines <pre class="code">apply</pre>
+and <pre class="code">unapply</pre> for strings that consist of the same substring appearing twice in a row:
 <a id="lst-twice-extractor"/></p>
 
 <pre>
@@ -285,12 +285,12 @@ and <span class="code">unapply</span> for strings that consist of the same subst
 </pre>
 
 
-<h5>Listing 26.2 - The <span class="code">Twice</span> string extractor object.</h5>
+<h5>Listing 26.2 - The <pre class="code">Twice</pre> string extractor object.</h5>
 
 
 <p>It's also possible that an extractor pattern does not bind any
-variables. In that case the corresponding <span class="code">unapply</span> method returns a
-boolean&mdash;<span class="code">true</span> for success and <span class="code">false</span> for failure. For instance,
+variables. In that case the corresponding <pre class="code">unapply</pre> method returns a
+boolean&mdash;<pre class="code">true</pre> for success and <pre class="code">false</pre> for failure. For instance,
 the extractor object shown in <a href="extractors.html#lst-uppercase-extractor">Listing 26.3</a> characterizes strings consisting of all 
 uppercase characters:</p>
 
@@ -303,13 +303,13 @@ uppercase characters:</p>
 </pre>
 
 
-<h5>Listing 26.3 - The <span class="code">UpperCase</span> string extractor object.</h5>
+<h5>Listing 26.3 - The <pre class="code">UpperCase</pre> string extractor object.</h5>
 
 
-<p>This time, the extractor only defines an <span class="code">unapply</span>, but not an <span class="code">apply</span>.
-It would make no sense to define an <span class="code">apply</span>, as there's nothing to construct.</p>
+<p>This time, the extractor only defines an <pre class="code">unapply</pre>, but not an <pre class="code">apply</pre>.
+It would make no sense to define an <pre class="code">apply</pre>, as there's nothing to construct.</p>
 
-<p>The following <span class="code">userTwiceUpper</span> function applies all previously defined extractors
+<p>The following <pre class="code">userTwiceUpper</pre> function applies all previously defined extractors
 together in its pattern matching code:</p>
 
 <pre>
@@ -336,16 +336,16 @@ uppercase letters. For instance:</p>
 </pre>
 
 
-<p>Note that <span class="code">UpperCase</span> in function <span class="code">userTwiceUpper</span> takes an empty parameter
+<p>Note that <pre class="code">UpperCase</pre> in function <pre class="code">userTwiceUpper</pre> takes an empty parameter
 list. This cannot be omitted as otherwise the match would test for
-equality with the object <span class="code">UpperCase</span>!
-Note also that, even though <span class="code">UpperCase()</span> itself does not bind any variables,
+equality with the object <pre class="code">UpperCase</pre>!
+Note also that, even though <pre class="code">UpperCase()</pre> itself does not bind any variables,
 it is still possible to associate a variable with the whole pattern matched
 by it. To do this, you use the standard scheme of variable binding explained in 
-<a href="case-classes-and-pattern-matching.html#sec-var-binding">Section 15.2</a>: the form <span class="code">x @ UpperCase()</span> associates the
-variable <span class="code">x</span> with the pattern matched by <span class="code">UpperCase()</span>. For instance, in the first <span class="code">userTwiceUpper</span> invocation
- above, <span class="code">x</span> was bound to <span class="code">"DI"</span>, because that was the value against which
-the <span class="code">UpperCase()</span> pattern was matched.</p>
+<a href="case-classes-and-pattern-matching.html#sec-var-binding">Section 15.2</a>: the form <pre class="code">x @ UpperCase()</pre> associates the
+variable <pre class="code">x</pre> with the pattern matched by <pre class="code">UpperCase()</pre>. For instance, in the first <pre class="code">userTwiceUpper</pre> invocation
+ above, <pre class="code">x</pre> was bound to <pre class="code">"DI"</pre>, because that was the value against which
+the <pre class="code">UpperCase()</pre> pattern was matched.</p>
 
 <h3>26.4 Variable argument extractors</h3>
 
@@ -369,19 +369,19 @@ This would let you express patterns such as the following:</p>
 expanded in reverse order&mdash;from the top-level domain down to
 the sub-domains. This was done so that you could better profit 
 from sequence patterns. You saw in <a href="case-classes-and-pattern-matching.html#sec-pat-sequences">Section 15.2</a>
-that a sequence wildcard pattern, <span class="code">_*</span><a id="i-563003136-1"/>, at the end of an argument list 
+that a sequence wildcard pattern, <pre class="code">_*</pre><a id="i-563003136-1"/>, at the end of an argument list 
 matches any remaining elements in a sequence. This feature is more useful
 if the top-level domain comes first, because then you can use 
 sequence wildcards to match sub-domains of arbitrary depth.</p>
 
 <p>The question remains how an extractor can support <span style="font-style:italic">vararg
 matching</span><a id="i1383700270-1"/><a id="i1018791428-1"/><a id="i-1008880962-1"/> as shown in the previous example, where patterns can have a varying number of sub-patterns.
-The <span class="code">unapply</span> methods encountered so far are not sufficient, because
+The <pre class="code">unapply</pre> methods encountered so far are not sufficient, because
 they each return a fixed number of sub-elements in the success case.
 To handle this case, Scala lets you define a different extraction method specifically
 for vararg matching. This method is called
-<span class="code">unapplySeq</span><a id="i1953385690-1"/>. To see how it is
-written, have a look at the <span class="code">Domain</span> extractor, shown in <a href="extractors.html#lst-domain-extractor">Listing 26.4</a>:
+<pre class="code">unapplySeq</pre><a id="i1953385690-1"/>. To see how it is
+written, have a look at the <pre class="code">Domain</pre> extractor, shown in <a href="extractors.html#lst-domain-extractor">Listing 26.4</a>:
 <a id="lst-domain-extractor"/></p>
 
 <pre>
@@ -396,29 +396,29 @@ written, have a look at the <span class="code">Domain</span> extractor, shown in
 </pre>
 
 
-<h5>Listing 26.4 - The <span class="code">Domain</span> string extractor object.</h5>
+<h5>Listing 26.4 - The <pre class="code">Domain</pre> string extractor object.</h5>
 
 
-<p>The <span class="code">Domain</span> object defines an <span class="code">unapplySeq</span> method that
+<p>The <pre class="code">Domain</pre> object defines an <pre class="code">unapplySeq</pre> method that
 first splits the string into parts separated by periods. 
-This is done using Java's <span class="code">split</span> method on strings, which takes a
+This is done using Java's <pre class="code">split</pre> method on strings, which takes a
 regular expression
-as its argument.  The result of <span class="code">split</span> is an array of substrings.
-The result of <span class="code">unapplySeq</span> is then that array with all elements reversed
-and wrapped in a <span class="code">Some</span>.</p>
+as its argument.  The result of <pre class="code">split</pre> is an array of substrings.
+The result of <pre class="code">unapplySeq</pre> is then that array with all elements reversed
+and wrapped in a <pre class="code">Some</pre>.</p>
 
-<p>The result type of an <span class="code">unapplySeq</span> must conform to
-<span class="code">Option[Seq[T]]</span>, where the element type <span class="code">T</span> is arbitrary. 
-As you saw in <a href="working-with-other-collections.html#sec-sequences">Section 17.1</a>, <span class="code">Seq</span> is an important class
+<p>The result type of an <pre class="code">unapplySeq</pre> must conform to
+<pre class="code">Option[Seq[T]]</pre>, where the element type <pre class="code">T</pre> is arbitrary. 
+As you saw in <a href="working-with-other-collections.html#sec-sequences">Section 17.1</a>, <pre class="code">Seq</pre> is an important class
 in Scala's collection hierarchy. It's a common superclass of several
-classes describing different kinds of sequences: <span class="code">List</span>s, <span class="code">Array</span>s, <span class="code">WrappedString</span>, and several others.</p>
+classes describing different kinds of sequences: <pre class="code">List</pre>s, <pre class="code">Array</pre>s, <pre class="code">WrappedString</pre>, and several others.</p>
 
-<p>For symmetry, <span class="code">Domain</span> also has an <span class="code">apply</span> method that builds a
+<p>For symmetry, <pre class="code">Domain</pre> also has an <pre class="code">apply</pre> method that builds a
 domain string from a variable argument parameter of domain parts starting with the
-top-level domain. As always, the <span class="code">apply</span> method is optional.</p>
+top-level domain. As always, the <pre class="code">apply</pre> method is optional.</p>
 
-<p>You can use the <span class="code">Domain</span> extractor to get more detailed information
-out of email strings. For instance, to search for an email address named "tom" in some "<span class="code">.com</span>"
+<p>You can use the <pre class="code">Domain</pre> extractor to get more detailed information
+out of email strings. For instance, to search for an email address named "tom" in some "<pre class="code">.com</pre>"
 domain, you could write the following function:</p>
 
 <pre>
@@ -441,7 +441,7 @@ domain, you could write the following function:</p>
 </pre>
 
 
-<p>It's also possible to return some fixed elements from an <span class="code">unapplySeq</span>
+<p>It's also possible to return some fixed elements from an <pre class="code">unapplySeq</pre>
 together with the variable part. This is expressed by returning all
 elements in a tuple, where the variable part comes last, as usual.
 As an example, <a href="extractors.html#lst-expanded-email-extractor">Listing 26.5</a> shows a new extractor for emails where the 
@@ -462,11 +462,11 @@ domain part is already expanded into a sequence:
 </pre>
 
 
-<h5>Listing 26.5 - The <span class="code">ExpandedEMail</span> extractor object.</h5>
+<h5>Listing 26.5 - The <pre class="code">ExpandedEMail</pre> extractor object.</h5>
 
 
-<p>The <span class="code">unapplySeq</span> method in <span class="code">ExpandedEMail</span> returns an optional value
-of a pair (a <span class="code">Tuple2</span>). The first element of the pair is the user part. The second element
+<p>The <pre class="code">unapplySeq</pre> method in <pre class="code">ExpandedEMail</pre> returns an optional value
+of a pair (a <pre class="code">Tuple2</pre>). The first element of the pair is the user part. The second element
 is a sequence of names representing the domain.  You can match on
 this as usual:</p>
 
@@ -494,8 +494,8 @@ you can access the elements of a list or an array using sequence patterns such a
 
 
 <p>In fact, these sequence patterns are all implemented using extractors in the standard Scala library.
-For instance, patterns of the form <span class="code">List(...)</span> are possible because the <span class="code">scala.List</span> companion object
-is an extractor that defines an <span class="code">unapplySeq</span> method. <a href="extractors.html#lst-lists-unapply-seq">Listing 26.6</a> shows the relevant definitions:
+For instance, patterns of the form <pre class="code">List(...)</pre> are possible because the <pre class="code">scala.List</pre> companion object
+is an extractor that defines an <pre class="code">unapplySeq</pre> method. <a href="extractors.html#lst-lists-unapply-seq">Listing 26.6</a> shows the relevant definitions:
 <a id="lst-lists-unapply-seq"/></p>
 
 <pre>
@@ -508,10 +508,10 @@ is an extractor that defines an <span class="code">unapplySeq</span> method. <a 
 </pre>
 
 
-<h5>Listing 26.6 - An extractor that defines an <span class="code">unapplySeq</span> method.</h5>
+<h5>Listing 26.6 - An extractor that defines an <pre class="code">unapplySeq</pre> method.</h5>
 
 
-<p>The <span class="code">List</span> object contains an <span class="code">apply</span> method that takes 
+<p>The <pre class="code">List</pre> object contains an <pre class="code">apply</pre> method that takes 
 a variable number of arguments.<a id="i19484993-3"/><a id="i1305057997-3"/> That's what lets you
 write expressions such as:</p>
 
@@ -521,9 +521,9 @@ write expressions such as:</p>
 </pre>
 
 
-<p>It also contains an <span class="code">unapplySeq</span> method that returns all elements
-of the list as a sequence. That's what supports <span class="code">List(...)</span> patterns.
-Very similar definitions exist in the object <span class="code">scala.Array</span>. These support
+<p>It also contains an <pre class="code">unapplySeq</pre> method that returns all elements
+of the list as a sequence. That's what supports <pre class="code">List(...)</pre> patterns.
+Very similar definitions exist in the object <pre class="code">scala.Array</pre>. These support
 analogous injections and extractions for arrays.</p>
 
 <h3>26.6 Extractors versus case classes</h3>
@@ -541,7 +541,7 @@ object. If a match against<a id="i-910914787-1"/>:</p>
 
 
 <p>succeeds, you know that the selector expression is 
-an instance of class <span class="code">C</span>.</p>
+an instance of class <pre class="code">C</pre>.</p>
 
 <p>Extractors break this link between data representations and
 patterns. You have seen in the examples in this section that they
@@ -568,9 +568,9 @@ to set up and to define, and they require less code. Second, they
 usually lead to more efficient pattern matches than extractors,<a id="i-2031931761-1"/>
 because the Scala compiler can optimize patterns over case classes
 much better than patterns over extractors. This is because
-the mechanisms of case classes are fixed, whereas an <span class="code">unapply</span> or
-<span class="code">unapplySeq</span> method in an extractor could do almost anything.  Third,
-if your case classes inherit from a <span class="code">sealed</span> base
+the mechanisms of case classes are fixed, whereas an <pre class="code">unapply</pre> or
+<pre class="code">unapplySeq</pre> method in an extractor could do almost anything.  Third,
+if your case classes inherit from a <pre class="code">sealed</pre> base
 class<a id="i-1485759717-2"/>, the
 Scala compiler will check your pattern matches for exhaustiveness and
 will complain if some combination of possible values is not covered by
@@ -611,25 +611,25 @@ them.</p>
 <p>Scala inherits its regular expression syntax from Java, which in turn
 inherits most of the features of Perl.<a id="i389811529-2"/> We assume you know that syntax already; if
 not, there are many accessible tutorials, starting with the Javadoc
-documentation of class <span class="code">java.util.regex.Pattern</span>. 
+documentation of class <pre class="code">java.util.regex.Pattern</pre>. 
 Here are just some examples that should be enough as refreshers:<br /></p>
 
 <table style="border-collapse: collapse">
 <tr>
   <td>
-    <span class="code">ab?</span>
+    <pre class="code">ab?</pre>
   </td>
   <td>
-    An `<span class="code">a</span>', possibly followed by a `<span class="code">b</span>'.
+    An `<pre class="code">a</pre>', possibly followed by a `<pre class="code">b</pre>'.
   </td>
 </tr>
 <tr>
   <td>
     [1em]
-<span class="code">\d+</span>
+<pre class="code">\d+</pre>
   </td>
   <td>
-    A number consisting of one or more digits represented by <span class="code">\d</span>.
+    A number consisting of one or more digits represented by <pre class="code">\d</pre>.
   </td>
 </tr>
 </table>
@@ -638,18 +638,18 @@ Here are just some examples that should be enough as refreshers:<br /></p>
 <table style="border-collapse: collapse">
 <tr>
   <td>
-    <span class="code">[a-dA-D]\w*</span>
+    <pre class="code">[a-dA-D]\w*</pre>
   </td>
   <td>
-    A word starting with a letter between <span class="code">a</span> and <span class="code">d</span> in lower or upper case, followed
-by a sequence of zero or more "word characters" denoted by <span class="code">\w</span>. (A
+    A word starting with a letter between <pre class="code">a</pre> and <pre class="code">d</pre> in lower or upper case, followed
+by a sequence of zero or more "word characters" denoted by <pre class="code">\w</pre>. (A
 word character is a letter, digit, or underscore.)
   </td>
 </tr>
 <tr>
   <td>
     [1em]
-<span class="code">(-)?(\d+)(\.\d*)?</span>
+<pre class="code">(-)?(\d+)(\.\d*)?</pre>
   </td>
   <td>
     A number consisting of an optional minus sign, followed
@@ -663,7 +663,7 @@ including the decimal point. Groups are enclosed in parentheses.
 
 
 <p>Scala's regular expression class resides in package
-<span class="code">scala.util.matching</span>.</p>
+<pre class="code">scala.util.matching</pre>.</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">import</code>&nbsp;scala.util.matching.Regex
@@ -671,7 +671,7 @@ including the decimal point. Groups are enclosed in parentheses.
 
 
 <p>A new regular expression value is created by passing a string to the
-<span class="code">Regex</span> constructor<a id="i78839847-1"/>. 
+<pre class="code">Regex</pre> constructor<a id="i78839847-1"/>. 
 For instance:</p>
 
 <pre>
@@ -684,7 +684,7 @@ For instance:</p>
 every backslash appears twice in the string above. This is because in 
 Java and Scala a single backslash is an escape
 character in a string literal, not a regular character that shows up
-in the string.  So instead of `<span class="code">\</span>' you need to write `<span class="code">\\</span>' to get a
+in the string.  So instead of `<pre class="code">\</pre>' you need to write `<pre class="code">\\</pre>' to get a
 single backslash in the string.</p>
 
 <p>If a regular expression contains many backslashes this might be a bit
@@ -703,7 +703,7 @@ you could write equivalently and somewhat more legibly:</p>
 
 
 <p>As you can see from the interpreter's output, the generated result
-value for <span class="code">Decimal</span> is exactly the same as before.</p>
+value for <pre class="code">Decimal</pre> is exactly the same as before.</p>
 
 <p>Another, even shorter way to write a regular expression in Scala is
 this:</p>
@@ -714,10 +714,10 @@ this:</p>
 </pre>
 
 
-<p>In other words, simply append a <span class="code">.r</span> to a string to obtain a
+<p>In other words, simply append a <pre class="code">.r</pre> to a string to obtain a
 regular expression.<a id="i-208750214-1"/><a id="i1128222747-1"/> This is possible because there is
-a method named <span class="code">r</span>
-in class <span class="code">StringOps</span>, which converts a string to a
+a method named <pre class="code">r</pre>
+in class <pre class="code">StringOps</pre>, which converts a string to a
 regular expression.
 The method is defined as shown in <a href="extractors.html#lst-the-r-method">Listing 26.7</a>:
 <a id="lst-the-r-method"/></p>
@@ -732,7 +732,7 @@ The method is defined as shown in <a href="extractors.html#lst-the-r-method">Lis
 </pre>
 
 
-<h5>Listing 26.7 - How the <span class="code">r</span> method is defined in <span class="code">StringOps</span>.</h5>
+<h5>Listing 26.7 - How the <pre class="code">r</pre> method is defined in <pre class="code">StringOps</pre>.</h5>
 
 
 <h4>Searching for regular expressions</h4>
@@ -741,24 +741,24 @@ The method is defined as shown in <a href="extractors.html#lst-the-r-method">Lis
 <p>You can search for occurrences of a regular expression in a string using
 several different operators<a id="i945174444-1"/><a id="i1535162589-1"/><a id="i1068388242-1"/>:</p>
 
-<p><span class="code">regex</span>&nbsp;<span class="code">findFirstIn</span>&nbsp;<span class="code">str</span></p>
+<p><pre class="code">regex</pre>&nbsp;<pre class="code">findFirstIn</pre>&nbsp;<pre class="code">str</pre></p>
 
 <p><br />
 Finds first occurrence of regular expression
-<span class="code">regex</span> in string <span class="code">str</span>, returning the result in an <span class="code">Option</span> type.</p>
+<pre class="code">regex</pre> in string <pre class="code">str</pre>, returning the result in an <pre class="code">Option</pre> type.</p>
 
-<p><span class="code">regex</span>&nbsp;<span class="code">findAllIn</span>&nbsp;<span class="code">str</span></p>
+<p><pre class="code">regex</pre>&nbsp;<pre class="code">findAllIn</pre>&nbsp;<pre class="code">str</pre></p>
 
 <p><br />
 Finds all occurrences of regular expression
-<span class="code">regex</span> in string <span class="code">str</span>, returning the results in an <span class="code">Iterator</span>.</p>
+<pre class="code">regex</pre> in string <pre class="code">str</pre>, returning the results in an <pre class="code">Iterator</pre>.</p>
 
-<p><span class="code">regex</span>&nbsp;<span class="code">findPrefixOf</span>&nbsp;<span class="code">str</span></p>
+<p><pre class="code">regex</pre>&nbsp;<pre class="code">findPrefixOf</pre>&nbsp;<pre class="code">str</pre></p>
 
 <p><br />
 Finds an occurrence of regular expression
-<span class="code">regex</span> at the start of string <span class="code">str</span>, returning the result in an
-<span class="code">Option</span> type.</p>
+<pre class="code">regex</pre> at the start of string <pre class="code">str</pre>, returning the result in an
+<pre class="code">Option</pre> type.</p>
 
 <p><br />
 For instance, you could define the input sequence below and then
@@ -797,16 +797,16 @@ could decompose a decimal number string as follows:</p>
 </pre>
 
 
-<p>In this example, the pattern, <span class="code">Decimal(...)</span>, is used in a <span class="code">val</span> definition, as described in
+<p>In this example, the pattern, <pre class="code">Decimal(...)</pre>, is used in a <pre class="code">val</pre> definition, as described in
 <a href="case-classes-and-pattern-matching.html#sec-patterns-everywhere">Section 15.7</a>.
-What happens here is that the <span class="code">Decimal</span> regular expression value
-defines an <span class="code">unapplySeq</span> method. That method matches every string that
+What happens here is that the <pre class="code">Decimal</pre> regular expression value
+defines an <pre class="code">unapplySeq</pre> method. That method matches every string that
 corresponds to the regular expression syntax for decimal numbers. If
 the string matches, the parts that correspond to the three groups
-in the regular expression <span class="code">(-)?(\d+)(\.\d*)?</span> are returned as
+in the regular expression <pre class="code">(-)?(\d+)(\.\d*)?</pre> are returned as
 elements of the pattern and are then matched by the three pattern
-variables <span class="code">sign</span>, <span class="code">integerpart</span>, and <span class="code">decimalpart</span>. If a group
-is missing, the element value is set to <span class="code">null</span>, as can be seen in the
+variables <pre class="code">sign</pre>, <pre class="code">integerpart</pre>, and <pre class="code">decimalpart</pre>. If a group
+is missing, the element value is set to <pre class="code">null</pre>, as can be seen in the
 following example:</p>
 
 <pre>
@@ -818,8 +818,8 @@ following example:</p>
 
 
 <p>It's also possible to mix extractors with regular expression searches
-in a <span class="code">for</span> expression<a id="i1523429976-1"/>. For instance, the following expression decomposes
-all decimal numbers it finds in the <span class="code">input</span> string:</p>
+in a <pre class="code">for</pre> expression<a id="i1523429976-1"/>. For instance, the following expression decomposes
+all decimal numbers it finds in the <pre class="code">input</pre> string:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(<code class="typename">Decimal</code>(s,&nbsp;i,&nbsp;d)&nbsp;&lt;-&nbsp;<code class="typename">Decimal</code>&nbsp;findAllIn&nbsp;input)
@@ -853,9 +853,9 @@ matching.</p>
 <h4>Footnotes for Chapter 26:</h4>
 
 
-<p><a id="footnotemain26-1"/>[1] As demonstrated here, where <span class="code">Some</span> is applied to the tuple, <span class="code">(user,</span>&nbsp;<span class="code">domain)</span>,
+<p><a id="footnotemain26-1"/>[1] As demonstrated here, where <pre class="code">Some</pre> is applied to the tuple, <pre class="code">(user,</pre>&nbsp;<pre class="code">domain)</pre>,
 you can
-leave off one pair of parentheses when passing a tuple to a function that takes a single argument. Thus, <span class="code">Some(user,</span>&nbsp;<span class="code">domain)</span> means the same as <span class="code">Some((user,</span>&nbsp;<span class="code">domain))</span>.</p>
+leave off one pair of parentheses when passing a tuple to a function that takes a single argument. Thus, <pre class="code">Some(user,</pre>&nbsp;<pre class="code">domain)</pre> means the same as <pre class="code">Some((user,</pre>&nbsp;<pre class="code">domain))</pre>.</p>
 
 <div style="page-break-after:always"/>
 

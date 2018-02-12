@@ -125,7 +125,7 @@ shown in <a href="modular-programming-using-objects.html#lst-recipe-entity">List
 </pre>
 
 
-<h5>Listing 29.1 - A simple <span class="code">Food</span> entity class.</h5>
+<h5>Listing 29.1 - A simple <pre class="code">Food</pre> entity class.</h5>
 
 
 <div style="page-break-after:always"/>
@@ -145,10 +145,10 @@ shown in <a href="modular-programming-using-objects.html#lst-recipe-entity">List
 </pre>
 
 
-<h5>Listing 29.2 - Simple <span class="code">Recipe</span> entity class.</h5>
+<h5>Listing 29.2 - Simple <pre class="code">Recipe</pre> entity class.</h5>
 
 
-<p>The <span class="code">Food</span> and <span class="code">Recipe</span> classes shown in <a href="modular-programming-using-objects.html#lst-food-entity">Listings 29.1</a> <a href="modular-programming-using-objects.html#lst-recipe-entity">and 29.2</a> represent <em>entities</em> that
+<p>The <pre class="code">Food</pre> and <pre class="code">Recipe</pre> classes shown in <a href="modular-programming-using-objects.html#lst-food-entity">Listings 29.1</a> <a href="modular-programming-using-objects.html#lst-recipe-entity">and 29.2</a> represent <em>entities</em> that
 will be persisted in the
 database.<a id="i-2102114367-1"/><a id="i728984841-1"/><a href="modular-programming-using-objects.html#footnotemain29-4">[4]</a>
 <a href="modular-programming-using-objects.html#lst-example-foods-recipe">Listing 29.3</a>
@@ -172,7 +172,7 @@ tests.<a id="i181822064-1"/><a id="i534212600-1"/></p>
 </pre>
 
 
-<h5>Listing 29.3 - <span class="code">Food</span> and <span class="code">Recipe</span> examples for use in tests.</h5>
+<h5>Listing 29.3 - <pre class="code">Food</pre> and <pre class="code">Recipe</pre> examples for use in tests.</h5>
 
 
 <p><a id="lst-mock-implementations"/></p>
@@ -210,12 +210,12 @@ You can use this database and browser as follows:</p>
 
 
 <p>To make things a little more interesting, suppose the database sorts
-foods into categories.  To implement this, you can add a <span class="code">FoodCategory</span> class
+foods into categories.  To implement this, you can add a <pre class="code">FoodCategory</pre> class
 and a list of all categories in the database, as shown in <a href="modular-programming-using-objects.html#lst-categories-added">Listing 29.5</a>.
-Notice in this example that the <span class="code">private</span> keyword, so useful for
+Notice in this example that the <pre class="code">private</pre> keyword, so useful for
 implementing classes, is also useful for implementing
 modules.<a id="i-107999758-1"/> Items
-marked <span class="code">private</span> are part of the implementation of a module, and thus
+marked <pre class="code">private</pre> are part of the implementation of a module, and thus
 are particularly easy to change without affecting other modules.</p>
 
 <p>At this point, many more facilities could be added, but you get the
@@ -264,10 +264,10 @@ the database modules:</p>
 </pre>
 
 
-<p>Because the <span class="code">SimpleBrowser</span> module mentions the <span class="code">SimpleDatabase</span> module by name, you won't be able
+<p>Because the <pre class="code">SimpleBrowser</pre> module mentions the <pre class="code">SimpleDatabase</pre> module by name, you won't be able
 to plug in a different implementation of the database module without modifying and recompiling
 the browser module.
-In addition, although there's no hard link from the <span class="code">SimpleDatabase</span> module to the <span class="code">SimpleBrowser</span>
+In addition, although there's no hard link from the <pre class="code">SimpleDatabase</pre> module to the <pre class="code">SimpleBrowser</pre>
 module,<a href="modular-programming-using-objects.html#footnotemain29-5">[5]</a>
 there's no clear way to enable the user interface layer, for example, to be configured to use different
 implementations of the browser module.</p>
@@ -304,7 +304,7 @@ module that are common to all of its possible configurations.</p>
 </pre>
 
 
-<h5>Listing 29.6 - A <span class="code">Browser</span> class with an abstract database <span class="code">val</span>.</h5>
+<h5>Listing 29.6 - A <pre class="code">Browser</pre> class with an abstract database <pre class="code">val</pre>.</h5>
 
 
 <p>The browser definition therefore becomes a class, instead of an
@@ -313,11 +313,11 @@ the class, as shown in <a href="modular-programming-using-objects.html#lst-brows
 is common between all databases, and declaring the missing parts that
 a database must define. 
 In this case, all database modules must
-define methods for <span class="code">allFoods</span>, <span class="code">allRecipes</span>, and <span class="code">allCategories</span>,
+define methods for <pre class="code">allFoods</pre>, <pre class="code">allRecipes</pre>, and <pre class="code">allCategories</pre>,
 but since they can
 use an arbitrary definition, the methods must be left abstract in the
-<span class="code">Database</span> class.  The <span class="code">foodNamed</span> method, by contrast, can
-be defined in the abstract <span class="code">Database</span> class, as shown in <a href="modular-programming-using-objects.html#lst-database-as-class">Listing 29.7</a>.</p>
+<pre class="code">Database</pre> class.  The <pre class="code">foodNamed</pre> method, by contrast, can
+be defined in the abstract <pre class="code">Database</pre> class, as shown in <a href="modular-programming-using-objects.html#lst-database-as-class">Listing 29.7</a>.</p>
 
 <p><a id="lst-database-as-class"/></p>
 
@@ -333,11 +333,11 @@ be defined in the abstract <span class="code">Database</span> class, as shown in
 </pre>
 
 
-<h5>Listing 29.7 - A <span class="code">Database</span> class with abstract methods.</h5>
+<h5>Listing 29.7 - A <pre class="code">Database</pre> class with abstract methods.</h5>
 
 
-<p>The <span class="code">SimpleDatabase</span> object must be updated to inherit from the
-abstract <span class="code">Database</span> class, as shown in <a href="modular-programming-using-objects.html#lst-new-simple-database">Listing 29.8</a>.
+<p>The <pre class="code">SimpleDatabase</pre> object must be updated to inherit from the
+abstract <pre class="code">Database</pre> class, as shown in <a href="modular-programming-using-objects.html#lst-new-simple-database">Listing 29.8</a>.
 <a id="lst-new-simple-database"/></p>
 
 <pre>
@@ -352,10 +352,10 @@ abstract <span class="code">Database</span> class, as shown in <a href="modular-
 </pre>
 
 
-<h5>Listing 29.8 - The <span class="code">SimpleDatabase</span> object as a <span class="code">Database</span> subclass.</h5>
+<h5>Listing 29.8 - The <pre class="code">SimpleDatabase</pre> object as a <pre class="code">Database</pre> subclass.</h5>
 
 
-<p>Then, a specific browser module is made by instantiating the <span class="code">Browser</span>
+<p>Then, a specific browser module is made by instantiating the <pre class="code">Browser</pre>
 class and specifying which database to use, as shown in <a href="modular-programming-using-objects.html#lst-new-simple-browser">Listing 29.9</a>.</p>
 
 <p><a id="lst-new-simple-browser"/></p>
@@ -367,7 +367,7 @@ class and specifying which database to use, as shown in <a href="modular-program
 </pre>
 
 
-<h5>Listing 29.9 - The <span class="code">SimpleBrowser</span> object as a <span class="code">Browser</span> subclass.</h5>
+<h5>Listing 29.9 - The <pre class="code">SimpleBrowser</pre> object as a <pre class="code">Browser</pre> subclass.</h5>
 
 
 <p>You can use these more pluggable modules the same as before:</p>
@@ -411,7 +411,7 @@ class with it, as shown in <a href="modular-programming-using-objects.html#lst-s
 <p>Often a module is too large to fit comfortably into a single file.
 When that happens, you can use traits to split a module into separate
 files.<a id="i-865710043-2"/> For example, suppose you wanted to move categorization code out of the
-main <span class="code">Database</span> file and into its own.  You could create a trait for
+main <pre class="code">Database</pre> file and into its own.  You could create a trait for
 the code as shown in (<a href="modular-programming-using-objects.html#lst-trait-food-categories">Listing 29.11</a>).
 <a id="lst-trait-food-categories"/></p>
 
@@ -426,8 +426,8 @@ the code as shown in (<a href="modular-programming-using-objects.html#lst-trait-
 <h5>Listing 29.11 - A trait for food categories.</h5>
 
 
-<p>Now class <span class="code">Database</span> can mix in the <span class="code">FoodCategories</span> trait instead of
-defining <span class="code">FoodCategory</span> and <span class="code">allCategories</span> itself, as shown in <a href="modular-programming-using-objects.html#lst-database-mixes-in">Listing 29.12</a>:
+<p>Now class <pre class="code">Database</pre> can mix in the <pre class="code">FoodCategories</pre> trait instead of
+defining <pre class="code">FoodCategory</pre> and <pre class="code">allCategories</pre> itself, as shown in <a href="modular-programming-using-objects.html#lst-database-mixes-in">Listing 29.12</a>:
 <a id="lst-database-mixes-in"/></p>
 
 <pre>
@@ -440,12 +440,12 @@ defining <span class="code">FoodCategory</span> and <span class="code">allCatego
 </pre>
 
 
-<h5>Listing 29.12 - A <span class="code">Database</span> class that mixes in the <span class="code">FoodCategories</span> trait.</h5>
+<h5>Listing 29.12 - A <pre class="code">Database</pre> class that mixes in the <pre class="code">FoodCategories</pre> trait.</h5>
 
 
-<p>You might try and divide <span class="code">SimpleDatabase</span>
+<p>You might try and divide <pre class="code">SimpleDatabase</pre>
 into two traits, one for foods and one for recipes. This would allow you
-to define <span class="code">SimpleDatabase</span> as shown in <a href="modular-programming-using-objects.html#lst-simple-traits">Listing 29.13</a>:
+to define <pre class="code">SimpleDatabase</pre> as shown in <a href="modular-programming-using-objects.html#lst-simple-traits">Listing 29.13</a>:
 <a id="lst-simple-traits"/></p>
 
 <pre>
@@ -454,10 +454,10 @@ to define <span class="code">SimpleDatabase</span> as shown in <a href="modular-
 </pre>
 
 
-<h5>Listing 29.13 - A <span class="code">SimpleDatabase</span> object composed solely of mixins.</h5>
+<h5>Listing 29.13 - A <pre class="code">SimpleDatabase</pre> object composed solely of mixins.</h5>
 
 
-<p>The <span class="code">SimpleFoods</span> trait could look as shown in <a href="modular-programming-using-objects.html#lst-simple-foods-trait">Listing 29.14</a>:
+<p>The <pre class="code">SimpleFoods</pre> trait could look as shown in <a href="modular-programming-using-objects.html#lst-simple-foods-trait">Listing 29.14</a>:
 <a id="lst-simple-foods-trait"/></p>
 
 <pre>
@@ -469,11 +469,11 @@ to define <span class="code">SimpleDatabase</span> as shown in <a href="modular-
 </pre>
 
 
-<h5>Listing 29.14 - A <span class="code">SimpleFoods</span> trait.</h5>
+<h5>Listing 29.14 - A <pre class="code">SimpleFoods</pre> trait.</h5>
 
 
 <p>So far so good, but unfortunately, a
-problem arises if you try to define a <span class="code">SimpleRecipe</span>s trait like this:</p>
+problem arises if you try to define a <pre class="code">SimpleRecipe</pre>s trait like this:</p>
 
 <pre>
   <code class="vem">trait</code>&nbsp;<code class="typename">SimpleRecipes</code>&nbsp;{&nbsp;<code class="comment">//&nbsp;Does&nbsp;not&nbsp;compile</code>
@@ -487,20 +487,20 @@ problem arises if you try to define a <span class="code">SimpleRecipe</span>s tr
 </pre>
 
 
-<p>The problem is that <span class="code">Pear</span> is located in a different trait from
+<p>The problem is that <pre class="code">Pear</pre> is located in a different trait from
 the one that uses it, so it is out of scope.  The compiler has no
-idea that <span class="code">SimpleRecipes</span> is only ever mixed together with
-<span class="code">SimpleFoods</span>.</p>
+idea that <pre class="code">SimpleRecipes</pre> is only ever mixed together with
+<pre class="code">SimpleFoods</pre>.</p>
 
 <p>However, there is a way you can tell this to the compiler.  Scala
 provides the <a href="glossary.html#g-1749196914"><em>self type</em></a> for precisely this situation.<a id="i979629307-1"/><a id="i-560124499-1"/><a id="i-178750838-1"/>
-Technically, a self type is an assumed type for <span class="code">this</span> whenever
-<span class="code">this</span> is mentioned within the class.<a id="i-1139406016-1"/><a id="i1634645853-1"/> Pragmatically, a self type
+Technically, a self type is an assumed type for <pre class="code">this</pre> whenever
+<pre class="code">this</pre> is mentioned within the class.<a id="i-1139406016-1"/><a id="i1634645853-1"/> Pragmatically, a self type
 specifies the requirements on any concrete class the trait is mixed
 into.  If you have a trait that is only ever used when mixed in with
 another trait or traits, then you can specify that those other traits
 should be assumed.  In the present case, it is enough to specify a
-self type of <span class="code">SimpleFoods</span>, as shown in <a href="modular-programming-using-objects.html#lst-simple-recipes-trait">Listing 29.15</a>:
+self type of <pre class="code">SimpleFoods</pre>, as shown in <a href="modular-programming-using-objects.html#lst-simple-recipes-trait">Listing 29.15</a>:
 <a id="lst-simple-recipes-trait"/></p>
 
 <pre>
@@ -516,16 +516,16 @@ self type of <span class="code">SimpleFoods</span>, as shown in <a href="modular
 </pre>
 
 
-<h5>Listing 29.15 - A <span class="code">SimpleRecipes</span> trait with a self type.</h5>
+<h5>Listing 29.15 - A <pre class="code">SimpleRecipes</pre> trait with a self type.</h5>
 
 
-<p>Given the new self type, <span class="code">Pear</span> is now available.  Implicitly, the
-reference to <span class="code">Pear</span> is thought of as <span class="code">this.Pear</span>.  This is safe,
- because any <em>concrete</em> class that mixes in <span class="code">SimpleRecipes</span> must
-also be a subtype of <span class="code">SimpleFoods</span>, which means that <span class="code">Pear</span> will be
+<p>Given the new self type, <pre class="code">Pear</pre> is now available.  Implicitly, the
+reference to <pre class="code">Pear</pre> is thought of as <pre class="code">this.Pear</pre>.  This is safe,
+ because any <em>concrete</em> class that mixes in <pre class="code">SimpleRecipes</pre> must
+also be a subtype of <pre class="code">SimpleFoods</pre>, which means that <pre class="code">Pear</pre> will be
 a member.  Abstract subclasses and traits do not have to follow this
-restriction, but since they cannot be instantiated with <span class="code">new</span>, there
-is no risk that the <span class="code">this.Pear</span> reference will fail.</p>
+restriction, but since they cannot be instantiated with <pre class="code">new</pre>, there
+is no risk that the <pre class="code">this.Pear</pre> reference will fail.</p>
 
 <h3>29.5 Runtime linking</h3>
 
@@ -578,8 +578,8 @@ you will find no recipes at all using apples:</p>
 
 
 <p>You may wonder if you are not backsliding to the hard links problem of the original examples in
-this chapter, because the <span class="code">GotApples</span> object shown
-in <a href="modular-programming-using-objects.html#lst-got-apples">Listing 29.16</a> contains hard links to both <span class="code">StudentDatabase</span> and <span class="code">SimpleDatabase</span>.
+this chapter, because the <pre class="code">GotApples</pre> object shown
+in <a href="modular-programming-using-objects.html#lst-got-apples">Listing 29.16</a> contains hard links to both <pre class="code">StudentDatabase</pre> and <pre class="code">SimpleDatabase</pre>.
 The difference here is that the hard links are localized in one file
 that can be replaced.<a id="i475125994-1"/><a id="i-578074568-1"/></p>
 
@@ -600,8 +600,8 @@ the Scala compiler should uncover any misspellings in it prior to its actual use
 <p>Despite using the same code, the different browser and database
 modules created in the previous section really are separate modules.  This means that
 each module has its own contents, including any nested classes.  
-<span class="code">FoodCategory</span> in <span class="code">SimpleDatabase</span>, for example, is a different class from
-<span class="code">FoodCategory</span> in <span class="code">StudentDatabase</span>!<a id="i-677980410-10"/></p>
+<pre class="code">FoodCategory</pre> in <pre class="code">SimpleDatabase</pre>, for example, is a different class from
+<pre class="code">FoodCategory</pre> in <pre class="code">StudentDatabase</pre>!<a id="i-677980410-10"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;category&nbsp;=&nbsp;StudentDatabase.allCategories.head
@@ -616,20 +616,20 @@ each module has its own contents, including any nested classes.
 </pre>
 
 
-<p>If instead you prefer all <span class="code">FoodCategory</span>s to be the same, you can
-accomplish this by moving the definition of <span class="code">FoodCategory</span> outside of
+<p>If instead you prefer all <pre class="code">FoodCategory</pre>s to be the same, you can
+accomplish this by moving the definition of <pre class="code">FoodCategory</pre> outside of
 any class or trait.  The choice is yours, but as it is written, each
-<span class="code">Database</span> gets its own, unique <span class="code">FoodCategory</span> class.</p>
+<pre class="code">Database</pre> gets its own, unique <pre class="code">FoodCategory</pre> class.</p>
 
-<p>Since the two <span class="code">FoodCategory</span> classes shown in this example really are different, the compiler is correct
+<p>Since the two <pre class="code">FoodCategory</pre> classes shown in this example really are different, the compiler is correct
 to complain.  Sometimes, though, you may encounter a case where two
 types are the same but the compiler can't verify it.  You will
 see the compiler complaining that two types are not the same, even
 though you as the programmer know they are.</p>
 
 <p>In such cases you can often fix the problem using <em>singleton
-types</em>.  For example, in the <span class="code">GotApples</span> program, the type checker
-does not know that <span class="code">db</span> and <span class="code">browser.database</span> are the same.  This
+types</em>.  For example, in the <pre class="code">GotApples</pre> program, the type checker
+does not know that <pre class="code">db</pre> and <pre class="code">browser.database</pre> are the same.  This
 will cause type errors if you try to pass categories between the two
 objects:<a id="i-677980410-11"/></p>
 
@@ -651,7 +651,7 @@ objects:<a id="i-677980410-11"/></p>
 
 <p>To avoid this error, you need to inform the type checker that they are
 the same object.<a id="i-677980410-12"/> You can do this by changing the definition
-of <span class="code">browser.database</span> as shown in <a href="modular-programming-using-objects.html#lst-db-type">Listing 29.17</a>:
+of <pre class="code">browser.database</pre> as shown in <a href="modular-programming-using-objects.html#lst-db-type">Listing 29.17</a>:
 <a id="lst-db-type"/></p>
 
 <pre>
@@ -664,14 +664,14 @@ of <span class="code">browser.database</span> as shown in <a href="modular-progr
 <h5>Listing 29.17 - Using a singleton type.</h5>
 
 
-<p>This definition is the same as before except that <span class="code">database</span> has the<a id="i-1431142691-1"/>
-funny-looking type <span class="code">db.type</span>.  The "<span class="code">.type</span>" on the end means that
+<p>This definition is the same as before except that <pre class="code">database</pre> has the<a id="i-1431142691-1"/>
+funny-looking type <pre class="code">db.type</pre>.  The "<pre class="code">.type</pre>" on the end means that
 this is a <em>singleton type</em>.<a id="i-108236764-2"/><a id="i-1108021686-1"/> A singleton type is extremely specific and
 holds only one object; in this case, whichever object is referred to by
-<span class="code">db</span>.  Usually such types are too specific to be useful, which is why
+<pre class="code">db</pre>.  Usually such types are too specific to be useful, which is why
 the compiler is reluctant to insert them automatically.  In this case,
-though, the singleton type allows the compiler to know that <span class="code">db</span> and
-<span class="code">browser.database</span> are the same object&mdash;enough information to
+though, the singleton type allows the compiler to know that <pre class="code">db</pre> and
+<pre class="code">browser.database</pre> are the same object&mdash;enough information to
 eliminate the type error.</p>
 
 <h3>29.7 Conclusion</h3>
@@ -709,8 +709,8 @@ and the dependency injection pattern."  <a href="bibliography.html#fowler-depend
 
 <p><a id="footnotemain29-4"/>[4] These entity classes are simplified to keep the example uncluttered
 with too much real-world detail. But transforming these classes into entities that could be persisted
-with Hibernate<a id="i1100003378-1"/> or the Java Persistence Architecture,<a id="i-1968727662-1"/> , for example, would require only a few modifications, such as adding a private <span class="code">Long</span> <span class="code">id</span> field and
-a no-arg constructor, placing <span class="code">scala.reflect.BeanProperty</span> annotations on the fields, specifying appropriate mappings via
+with Hibernate<a id="i1100003378-1"/> or the Java Persistence Architecture,<a id="i-1968727662-1"/> , for example, would require only a few modifications, such as adding a private <pre class="code">Long</pre> <pre class="code">id</pre> field and
+a no-arg constructor, placing <pre class="code">scala.reflect.BeanProperty</pre> annotations on the fields, specifying appropriate mappings via
 annotations or a separate XML file, and so
 on.<a id="i-146150294-1"/></p>
 

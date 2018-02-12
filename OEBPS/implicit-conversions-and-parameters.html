@@ -56,13 +56,13 @@ use the function literal syntax as a lightweight way to specify what
 should happen for a certain class of events. Since Java doesn't have
 function literals, Swing uses the next best thing, an inner class that
 implements a one-method interface. In the case of action listeners,
-the interface is <span class="code">ActionListener</span>.</p>
+the interface is <pre class="code">ActionListener</pre>.</p>
 
 <p>Without the use of implicit conversions, a Scala program that uses
 Swing must use inner classes just like in Java. Here's an example that
 creates a button and hooks up an action listener to it.  The action
 listener is invoked whenever the button is pressed, at which point it
-prints the string <span class="code">"pressed!"</span>:</p>
+prints the string <pre class="code">"pressed!"</pre>:</p>
 
 <pre>
   <code class="vem">val</code>&nbsp;button&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">JButton</code>
@@ -77,11 +77,11 @@ prints the string <span class="code">"pressed!"</span>:</p>
 
 
 <p>This code has a lot of information-free boilerplate. The fact that
-this listener is an <span class="code">ActionListener</span>, the fact that the callback method
-is named <span class="code">actionPerformed</span>, and the fact that the argument is an
-<span class="code">ActionEvent</span> are all implied for any argument to
-<span class="code">addActionListener</span>. The only new information here is the code to be
-performed, namely the call to <span class="code">println</span>. This new information is
+this listener is an <pre class="code">ActionListener</pre>, the fact that the callback method
+is named <pre class="code">actionPerformed</pre>, and the fact that the argument is an
+<pre class="code">ActionEvent</pre> are all implied for any argument to
+<pre class="code">addActionListener</pre>. The only new information here is the code to be
+performed, namely the call to <pre class="code">println</pre>. This new information is
 drowned out by the boilerplate. Someone reading this code will need to have an
 eagle's eye to pick through the noise and find the informative part.</p>
 
@@ -95,7 +95,7 @@ greatly reducing the amount of boilerplate:</p>
 </pre>
 
 
-<p>As written so far, this code doesn't work.<a href="implicit-conversions-and-parameters.html#footnotemain21-1">[1]</a> The <span class="code">addActionListener</span>
+<p>As written so far, this code doesn't work.<a href="implicit-conversions-and-parameters.html#footnotemain21-1">[1]</a> The <pre class="code">addActionListener</pre>
 method wants an action listener but is getting a function. With
 implicit conversions, however, this code can be made to work.</p>
 
@@ -127,7 +127,7 @@ directly and have its result passed on to another expression:</p>
 <p>This is already an improvement on the version with the inner class. Note
 how arbitrary amounts of boilerplate end up replaced by a function
 literal and a call to a method. It gets better, though, with implicit
-conversions. Because <span class="code">function2ActionListener</span> is marked as
+conversions. Because <pre class="code">function2ActionListener</pre> is marked as
 implicit, it can be left out and the compiler will insert it
 automatically. 
 Here is the result:</p>
@@ -143,7 +143,7 @@ Here is the result:</p>
 <p>The way this code works is that the compiler first tries to compile it
 as is, but it sees a type error. Before giving up, it looks for an
 implicit conversion that can repair the problem. In this case, it
-finds <span class="code">function2ActionListener</span>. It tries that conversion method,
+finds <pre class="code">function2ActionListener</pre>. It tries that conversion method,
 sees that it works, and moves on. The compiler works hard here so that
 the developer can ignore one more fiddly detail. Action listener?
 Action event function? Either one will work&mdash;use the one that's more
@@ -159,18 +159,18 @@ implicit conversions are tried and how they are found.</p>
 
 <p>Implicit definitions are those that the compiler is allowed to insert
 into a program in order to fix any of its type errors.  For example,
-if <span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span> does not type check, then the compiler might change it to
-<span class="code">convert(x)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span>, where <span class="code">convert</span> is some available implicit
-conversion.  If <span class="code">convert</span> changes <span class="code">x</span> into something that has
-a <span class="code">+</span> method, then this change might fix a program so that it type
-checks and runs correctly.  If <span class="code">convert</span> really is just a simple
+if <pre class="code">x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">y</pre> does not type check, then the compiler might change it to
+<pre class="code">convert(x)</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">y</pre>, where <pre class="code">convert</pre> is some available implicit
+conversion.  If <pre class="code">convert</pre> changes <pre class="code">x</pre> into something that has
+a <pre class="code">+</pre> method, then this change might fix a program so that it type
+checks and runs correctly.  If <pre class="code">convert</pre> really is just a simple
 conversion function, then leaving it out of the source code can be a
 clarification.</p>
 
 <p>Implicit conversions are governed by the following general rules:</p>
 
-<p><b>Marking rule: Only definitions marked <span class="code">implicit</span> are
-available.</b>  The <span class="code">implicit</span> keyword is used to mark which
+<p><b>Marking rule: Only definitions marked <pre class="code">implicit</pre> are
+available.</b>  The <pre class="code">implicit</pre> keyword is used to mark which
 declarations the compiler may use as implicits.  You can use it to
 mark any variable, function, or object definition. Here's
 an example of an implicit function definition:<a href="implicit-conversions-and-parameters.html#footnotemain21-2">[2]</a></p>
@@ -180,8 +180,8 @@ an example of an implicit function definition:<a href="implicit-conversions-and-
 </pre>
 
 
-<p>The compiler will only change <span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span> to <span class="code">convert(x)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span> if
-<span class="code">convert</span> is marked as <span class="code">implicit</span>.  This way, you avoid the
+<p>The compiler will only change <pre class="code">x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">y</pre> to <pre class="code">convert(x)</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">y</pre> if
+<pre class="code">convert</pre> is marked as <pre class="code">implicit</pre>.  This way, you avoid the
 confusion that would result if the compiler picked random functions
 that happen to be in scope and inserted them as "conversions."  The
 compiler will only select among the definitions you have explicitly marked
@@ -195,24 +195,24 @@ scope.<a id="i1011304421-1"/> To make
 an implicit conversion available, therefore, you must in some way bring it into scope. Moreover, with one exception,
 the implicit conversion must be in scope <em>as a single identifier</em>.
 The compiler will not insert a conversion of the form
-<span class="code">someVariable.convert</span>. For example, it will not expand <span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span> to <span class="code">someVariable.convert(x)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span>. 
-If you want to make <span class="code">someVariable.convert</span> available
+<pre class="code">someVariable.convert</pre>. For example, it will not expand <pre class="code">x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">y</pre> to <pre class="code">someVariable.convert(x)</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">y</pre>. 
+If you want to make <pre class="code">someVariable.convert</pre> available
 as an implicit, you would need to import it, which would make it available as a single identifier. Once imported, the compiler would be free to
-apply it as <span class="code">convert(x)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span>.
-In fact, it is common for libraries to include a <span class="code">Preamble</span> object
+apply it as <pre class="code">convert(x)</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">y</pre>.
+In fact, it is common for libraries to include a <pre class="code">Preamble</pre> object
 including a number of useful implicit conversions.  Code that
-uses the library can then do a single "<span class="code">import</span>&nbsp;<span class="code">Preamble._</span>" to access
+uses the library can then do a single "<pre class="code">import</pre>&nbsp;<pre class="code">Preamble._</pre>" to access
 the library's implicit conversions.</p>
 
 <p>There's one exception to the "single identifier" rule.
 The compiler will also look for implicit definitions in the companion object of the source 
-or expected target types of the conversion<a id="i1755659460-1"/>. For example, if you're attempting to pass a <span class="code">Dollar</span> object to a method that takes a <span class="code">Euro</span>,
-the source type is <span class="code">Dollar</span> and the target type is <span class="code">Euro</span>.  You could, therefore, package
-an implicit conversion from <span class="code">Dollar</span> to <span class="code">Euro</span> in
-the companion object of either class, <span class="code">Dollar</span> or <span class="code">Euro</span>.</p>
+or expected target types of the conversion<a id="i1755659460-1"/>. For example, if you're attempting to pass a <pre class="code">Dollar</pre> object to a method that takes a <pre class="code">Euro</pre>,
+the source type is <pre class="code">Dollar</pre> and the target type is <pre class="code">Euro</pre>.  You could, therefore, package
+an implicit conversion from <pre class="code">Dollar</pre> to <pre class="code">Euro</pre> in
+the companion object of either class, <pre class="code">Dollar</pre> or <pre class="code">Euro</pre>.</p>
 
 <p>Here's an example in which the implicit definition is placed
-in <span class="code">Dollar</span>'s companion object:</p>
+in <pre class="code">Dollar</pre>'s companion object:</p>
 
 <pre>
   <code class="vem">object</code>&nbsp;<code class="typename">Dollar</code>&nbsp;{
@@ -222,9 +222,9 @@ in <span class="code">Dollar</span>'s companion object:</p>
 </pre>
 
 
-<p>In this case, the conversion <span class="code">dollarToEuro</span> is said to be <span style="font-style:italic">associated</span> to the 
-type <span class="code">Dollar</span>. The compiler will find such an associated conversion every time
-it needs to convert from an instance of type <span class="code">Dollar</span>. There's no need to
+<p>In this case, the conversion <pre class="code">dollarToEuro</pre> is said to be <span style="font-style:italic">associated</span> to the 
+type <pre class="code">Dollar</pre>. The compiler will find such an associated conversion every time
+it needs to convert from an instance of type <pre class="code">Dollar</pre>. There's no need to
 import the conversion separately into your program.</p>
 
 <p>The Scope Rule helps with modular reasoning.  When you read code in
@@ -236,7 +236,7 @@ effect system-wide, then to understand a file you would have to know
 about every implicit introduced anywhere in the program!</p>
 
 <p><b>One-at-a-time rule: Only one implicit is inserted.</b>  The compiler
-will never rewrite <span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span> to <span class="code">convert1(convert2(x))</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span>.  Doing so
+will never rewrite <pre class="code">x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">y</pre> to <pre class="code">convert1(convert2(x))</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">y</pre>.  Doing so
 would cause compile times to increase dramatically on erroneous code,
 and it would increase the difference between what the programmer
 writes and what the program actually does.  For sanity's sake, the
@@ -278,9 +278,9 @@ implicit conversions:</p>
 </pre>
 
 
-<p>In your application, you want to make use of the <span class="code">stringWrapper</span> conversion,
+<p>In your application, you want to make use of the <pre class="code">stringWrapper</pre> conversion,
 but you don't want integers to be converted automatically to strings 
-by means of the <span class="code">intToString</span> conversion. You can achieve this by importing
+by means of the <pre class="code">intToString</pre> conversion. You can achieve this by importing
 only one conversion, but not the other:</p>
 
 <pre>
@@ -299,13 +299,13 @@ names, because only that way could you selectively import one and not the other.
 to an expected type, conversions of the receiver of a selection, and
 implicit parameters. Implicit conversions to an expected type let you
 use one type in a context where a different type is expected.  For
-example, you might have a <span class="code">String</span> and want to pass it to a method that requires an
-<span class="code">IndexedSeq[Char]</span>.
+example, you might have a <pre class="code">String</pre> and want to pass it to a method that requires an
+<pre class="code">IndexedSeq[Char]</pre>.
 Conversions of the receiver let you adapt
 the receiver of a method call (<i>i.e.</i>, the object on which a method is invoked), if the method is not applicable on the
-original type. An example is <span class="code">"abc".exists</span>, which is converted to
-<span class="code">stringWrapper("abc").exists</span> because the <span class="code">exists</span> method is not
-available on <span class="code">String</span>s but is available on <span class="code">IndexedSeq</span>s.  
+original type. An example is <pre class="code">"abc".exists</pre>, which is converted to
+<pre class="code">stringWrapper("abc").exists</pre> because the <pre class="code">exists</pre> method is not
+available on <pre class="code">String</pre>s but is available on <pre class="code">IndexedSeq</pre>s.  
 Implicit parameters, on the other hand, are
 usually used to provide more information to the called function about what the
 caller wants.  Implicit parameters are especially useful with generic
@@ -343,14 +343,14 @@ it loses precision:<a id="i-677980410-7"/></p>
 </pre>
 
 
-<p>What happens here is that the compiler sees a <span class="code">Double</span>, specifically
-<span class="code">3.5</span>, in a context where it requires an <span class="code">Int</span>.
+<p>What happens here is that the compiler sees a <pre class="code">Double</pre>, specifically
+<pre class="code">3.5</pre>, in a context where it requires an <pre class="code">Int</pre>.
 So far, the compiler is looking at an ordinary type error.
 Before giving up, though, it
-searches for an implicit conversion from <span class="code">Double</span> to <span class="code">Int</span>.  In this
-case, it finds one: <span class="code">doubleToInt</span>, because <span class="code">doubleToInt</span> is in scope as a single identifier. (Outside the interpreter, you might
-bring <span class="code">doubleToInt</span> into scope via an <span class="code">import</span> or possibly through inheritance.) The compiler then inserts a call
-to <span class="code">doubleToInt</span> automatically.  Behind the scenes, the code becomes:</p>
+searches for an implicit conversion from <pre class="code">Double</pre> to <pre class="code">Int</pre>.  In this
+case, it finds one: <pre class="code">doubleToInt</pre>, because <pre class="code">doubleToInt</pre> is in scope as a single identifier. (Outside the interpreter, you might
+bring <pre class="code">doubleToInt</pre> into scope via an <pre class="code">import</pre> or possibly through inheritance.) The compiler then inserts a call
+to <pre class="code">doubleToInt</pre> automatically.  Behind the scenes, the code becomes:</p>
 
 <pre>
   <code class="vem">val</code>&nbsp;i:&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;doubleToInt(<code class="literal">3.5</code>)
@@ -358,29 +358,29 @@ to <span class="code">doubleToInt</span> automatically.  Behind the scenes, the 
 
 
 <p>This is literally an <em>implicit</em> conversion.  You did 
-not explicitly ask for conversion.  Instead, you marked <span class="code">doubleToInt</span> as
+not explicitly ask for conversion.  Instead, you marked <pre class="code">doubleToInt</pre> as
 an available implicit conversion by bringing it into scope as a single identifier, and then the compiler automatically
-used it when it needed to convert from a <span class="code">Double</span> to an <span class="code">Int</span>.</p>
+used it when it needed to convert from a <pre class="code">Double</pre> to an <pre class="code">Int</pre>.</p>
 
-<p>Converting <span class="code">Double</span>s to <span class="code">Int</span>s might raise some eyebrows because,
+<p>Converting <pre class="code">Double</pre>s to <pre class="code">Int</pre>s might raise some eyebrows because,
 it's a dubious idea to have something that causes a loss in precision
 happen invisibly. So this is not really a conversion we recommend. It
 makes much more sense to go the other way, from some more constrained
-type to a more general one. For instance, an <span class="code">Int</span> can be converted
-without loss of precision to a <span class="code">Double</span>, so an implicit conversion
-from <span class="code">Int</span> to <span class="code">Double</span> makes sense. In fact, that's exactly
-what happens. The <span class="code">scala.Predef</span> object, which is implicitly imported into
+type to a more general one. For instance, an <pre class="code">Int</pre> can be converted
+without loss of precision to a <pre class="code">Double</pre>, so an implicit conversion
+from <pre class="code">Int</pre> to <pre class="code">Double</pre> makes sense. In fact, that's exactly
+what happens. The <pre class="code">scala.Predef</pre> object, which is implicitly imported into
 every Scala program, defines implicit conversions that convert
 "smaller" numeric types to "larger" ones. 
 For instance, you will find in
-<span class="code">Predef</span> the following conversion:</p>
+<pre class="code">Predef</pre> the following conversion:</p>
 
 <pre>
   <code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;int2double(x:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">Double</code>&nbsp;=&nbsp;x.toDouble
 </pre>
 
 
-<p>That's why in Scala <span class="code">Int</span> values can be stored in variables of type <span class="code">Double</span>. There's no special rule in the type system for this; it's just an implicit 
+<p>That's why in Scala <pre class="code">Int</pre> values can be stored in variables of type <pre class="code">Double</pre>. There's no special rule in the type system for this; it's just an implicit 
 conversion that gets applied.<a href="implicit-conversions-and-parameters.html#footnotemain21-3">[3]</a></p>
 
 <h3>21.4 Converting the receiver</h3>
@@ -393,12 +393,12 @@ into an existing class hierarchy. And second, they support writing
 domain-specific languages (DSLs) within the language.<a id="i49254319-1"/></p>
 
 <p>To see how it works, suppose you write down 
-<span class="code">obj.doIt</span>, and <span class="code">obj</span>
-does not have a member named <span class="code">doIt</span>.  The compiler will try to insert
+<pre class="code">obj.doIt</pre>, and <pre class="code">obj</pre>
+does not have a member named <pre class="code">doIt</pre>.  The compiler will try to insert
 conversions before giving up.  In this case, the conversion needs to
-apply to the receiver, <span class="code">obj</span>.  The compiler will act as if the
-expected "type" of <span class="code">obj</span> was "has a member named <span class="code">doIt</span>."  This
-"has a <span class="code">doIt</span>" type is not a normal Scala type, but it
+apply to the receiver, <pre class="code">obj</pre>.  The compiler will act as if the
+expected "type" of <pre class="code">obj</pre> was "has a member named <pre class="code">doIt</pre>."  This
+"has a <pre class="code">doIt</pre>" type is not a normal Scala type, but it
 is there conceptually and is why the compiler will insert an implicit
 conversion in this case.</p>
 
@@ -409,7 +409,7 @@ conversion in this case.</p>
 of new types with existing types. In particular, they allow you to enable client programmers to use
 instances of existing types as if they were instances of your new type.
 Take,
-for example, class <span class="code">Rational</span>
+for example, class <pre class="code">Rational</pre>
 shown in <a href="functional-objects.html#lst-overloaded-methods">Listing 6.5</a>  <a href="functional-objects.html#lst-overloaded-methods">here</a>.
 Here's a snippet of that
 class again:</p>
@@ -423,8 +423,8 @@ class again:</p>
 </pre>
 
 
-<p>Class <span class="code">Rational</span> has two overloaded variants of the <span class="code">+</span> method,
-which take <span class="code">Rational</span>s and <span class="code">Int</span>s, respectively, as arguments.
+<p>Class <pre class="code">Rational</pre> has two overloaded variants of the <pre class="code">+</pre> method,
+which take <pre class="code">Rational</pre>s and <pre class="code">Int</pre>s, respectively, as arguments.
 So you can either add two rational numbers or a rational number and an integer:</p>
 
 <pre>
@@ -437,8 +437,8 @@ So you can either add two rational numbers or a rational number and an integer:<
 </pre>
 
 
-<p>What about an expression like <span class="code">1</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">oneHalf</span>?  This expression is
-tricky because the receiver, <span class="code">1</span>, does not have a suitable <span class="code">+</span>
+<p>What about an expression like <pre class="code">1</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">oneHalf</pre>?  This expression is
+tricky because the receiver, <pre class="code">1</pre>, does not have a suitable <pre class="code">+</pre>
 method.  So the following gives an error:<a id="i1859455133-1"/></p>
 
 <pre>
@@ -452,7 +452,7 @@ method.  So the following gives an error:<a id="i1859455133-1"/></p>
 
 
 <p>To allow this kind of mixed arithmetic, you need to define an 
-implicit conversion from <span class="code">Int</span> to <span class="code">Rational</span>:</p>
+implicit conversion from <pre class="code">Int</pre> to <pre class="code">Rational</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;intToRational(x:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;
@@ -470,11 +470,11 @@ implicit conversion from <span class="code">Int</span> to <span class="code">Rat
 
 
 <p>What happens behind the scenes here is that the Scala compiler first tries to
-type check the expression <span class="code">1</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">oneHalf</span> as it is. This fails
-because <span class="code">Int</span> has several <span class="code">+</span> methods, but none that takes 
-a <span class="code">Rational</span> argument. Next, the compiler searches for
-an implicit conversion from <span class="code">Int</span> to another type that has a <span class="code">+</span> method 
-which can be applied to a <span class="code">Rational</span>. 
+type check the expression <pre class="code">1</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">oneHalf</pre> as it is. This fails
+because <pre class="code">Int</pre> has several <pre class="code">+</pre> methods, but none that takes 
+a <pre class="code">Rational</pre> argument. Next, the compiler searches for
+an implicit conversion from <pre class="code">Int</pre> to another type that has a <pre class="code">+</pre> method 
+which can be applied to a <pre class="code">Rational</pre>. 
 It finds your conversion
 and applies it, which yields:</p>
 
@@ -495,19 +495,19 @@ brought it into scope for the remainder of the interpreter session.</p>
 <p>The other major use of implicit conversions 
 is to simulate adding new syntax.
 Recall that you can
-make a <span class="code">Map</span> using syntax like this:</p>
+make a <pre class="code">Map</pre> using syntax like this:</p>
 
 <pre>
   <code class="typename">Map</code>(<code class="literal">1</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"one"</code>,&nbsp;<code class="literal">2</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"two"</code>,&nbsp;<code class="literal">3</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"three"</code>)
 </pre>
 
 
-<p>Have you wondered how the <span class="code">-&gt;</span> is supported?<a id="i483527409-1"/>  It's not syntax!
-Instead, <span class="code">-&gt;</span> is a method of the class <span class="code">ArrowAssoc</span>, a class defined
-inside the standard Scala preamble (<span class="code">scala.Predef</span>).  The preamble
-also defines an implicit conversion from <span class="code">Any</span> to <span class="code">ArrowAssoc</span>.
-When you write <span class="code">1</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">"one"</span>, the compiler inserts a conversion from
-<span class="code">1</span> to <span class="code">ArrowAssoc</span> so that the <span class="code">-&gt;</span> method can be found. 
+<p>Have you wondered how the <pre class="code">-&gt;</pre> is supported?<a id="i483527409-1"/>  It's not syntax!
+Instead, <pre class="code">-&gt;</pre> is a method of the class <pre class="code">ArrowAssoc</pre>, a class defined
+inside the standard Scala preamble (<pre class="code">scala.Predef</pre>).  The preamble
+also defines an implicit conversion from <pre class="code">Any</pre> to <pre class="code">ArrowAssoc</pre>.
+When you write <pre class="code">1</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">"one"</pre>, the compiler inserts a conversion from
+<pre class="code">1</pre> to <pre class="code">ArrowAssoc</pre> so that the <pre class="code">-&gt;</pre> method can be found. 
 Here are the relevant definitions:</p>
 
 <pre>
@@ -528,9 +528,9 @@ syntax-like extensions to the language, so you should be ready to
 recognize the pattern when you see it.<a id="i807731316-2"/><a id="i681737575-2"/>  Whenever you see someone calling
 methods that appear not to exist in the receiver class, 
 they are probably using implicits.
-Similarly, if you see a class named <span class="code">RichSomething</span> (<i>e.g.</i>, <span class="code">RichInt</span> or
-<span class="code">RichBoolean</span>),  that class is likely adding syntax-like methods to
-type <span class="code">Something</span>.</p>
+Similarly, if you see a class named <pre class="code">RichSomething</pre> (<i>e.g.</i>, <pre class="code">RichInt</pre> or
+<pre class="code">RichBoolean</pre>),  that class is likely adding syntax-like methods to
+type <pre class="code">Something</pre>.</p>
 
 <p>You have already seen this rich wrappers pattern 
 for the basic types described in
@@ -545,12 +545,12 @@ other languages might feel the need to develop an external DSL.<a id="i367427817
 <p>Implicit classes<a id="i-1972624620-1"/><a id="i-2080002837-1"/><a id="i1275741881-1"/> were
 added in Scala 2.10 to make it easier to write rich wrapper
 classes. An implicit class is a class that is preceded by the
-<span class="code">implicit</span> keyword. For any such class, the compiler generates an
+<pre class="code">implicit</pre> keyword. For any such class, the compiler generates an
 implicit conversion from the class's constructor parameter to the
 class itself. Such a conversion is just what you need if you plan to
 use the class for the rich wrappers pattern.</p>
 
-<p>For example, suppose you have a class named <span class="code">Rectangle</span> for
+<p>For example, suppose you have a class named <pre class="code">Rectangle</pre> for
 representing the width and height of a rectangle on the screen:</p>
 
 <pre>
@@ -569,7 +569,7 @@ to do so.</p>
 </pre>
 
 
-<p>The above definition defines a <span class="code">RectangleMaker</span> class in the usual manner. In
+<p>The above definition defines a <pre class="code">RectangleMaker</pre> class in the usual manner. In
 addition, it causes the following conversion to be automatically
 generated:</p>
 
@@ -580,7 +580,7 @@ generated:</p>
 </pre>
 
 
-<p>As a result, you can create points by putting an <span class="code">x</span> in between
+<p>As a result, you can create points by putting an <pre class="code">x</pre> in between
 two integers:</p>
 
 <pre>
@@ -589,15 +589,15 @@ two integers:</p>
 </pre>
 
 
-<p>This is how it works: Since type <span class="code">Int</span> has no method
-named <span class="code">x</span>, the compiler will look for an implicit conversion from
-<span class="code">Int</span> to something that does. It will find the generated
-<span class="code">RectangleMaker</span> conversion, and <span class="code">RectangleMaker</span> does have a method
-named <span class="code">x</span>. The compiler inserts a call to this conversion, after
-which the call to <span class="code">x</span> type checks and does what is desired.</p>
+<p>This is how it works: Since type <pre class="code">Int</pre> has no method
+named <pre class="code">x</pre>, the compiler will look for an implicit conversion from
+<pre class="code">Int</pre> to something that does. It will find the generated
+<pre class="code">RectangleMaker</pre> conversion, and <pre class="code">RectangleMaker</pre> does have a method
+named <pre class="code">x</pre>. The compiler inserts a call to this conversion, after
+which the call to <pre class="code">x</pre> type checks and does what is desired.</p>
 
 <p>As a warning to the adventurous, it might be tempting to think that
-any class can have <span class="code">implicit</span> put in front of it. It's not so. An
+any class can have <pre class="code">implicit</pre> put in front of it. It's not so. An
 implicit class cannot be a case class, and its constructor must have
 exactly one parameter. Also, an implicit class must be located
 within some other object, class, or trait. In practice, so long as you
@@ -609,23 +609,23 @@ existing class, these restrictions should not matter.</p>
 
 <p>The remaining place the compiler inserts implicits is within argument
 lists.<a id="i-568821387-3"/><a id="i-1127720187-1"/>
-The compiler will sometimes replace <span class="code">someCall(a)</span> with <span class="code">someCall(a)(b)</span>, or
-<span class="code">new</span>&nbsp;<span class="code">SomeClass(a)</span> with <span class="code">new</span>&nbsp;<span class="code">SomeClass(a)(b)</span>, thereby adding a missing parameter
-list to complete a function call. It is the entire last curried parameter list that's supplied, not just the last parameter. For example, if <span class="code">someCall</span>'s missing
-last parameter list takes three parameters, the compiler might replace <span class="code">someCall(a)</span> with <span class="code">someCall(a)(b,</span>&nbsp;<span class="code">c,</span>&nbsp;<span class="code">d)</span>.  For this usage, not only must the inserted
-identifiers, such as <span class="code">b</span>, <span class="code">c</span>, and <span class="code">d</span> in <span class="code">(b,</span>&nbsp;<span class="code">c,</span>&nbsp;<span class="code">d)</span>, be marked <span class="code">implicit</span> where they are defined, but also the last parameter
-list in <span class="code">someCall</span>'s or <span class="code">someClass</span>'s definition must be marked <span class="code">implicit</span>.</p>
+The compiler will sometimes replace <pre class="code">someCall(a)</pre> with <pre class="code">someCall(a)(b)</pre>, or
+<pre class="code">new</pre>&nbsp;<pre class="code">SomeClass(a)</pre> with <pre class="code">new</pre>&nbsp;<pre class="code">SomeClass(a)(b)</pre>, thereby adding a missing parameter
+list to complete a function call. It is the entire last curried parameter list that's supplied, not just the last parameter. For example, if <pre class="code">someCall</pre>'s missing
+last parameter list takes three parameters, the compiler might replace <pre class="code">someCall(a)</pre> with <pre class="code">someCall(a)(b,</pre>&nbsp;<pre class="code">c,</pre>&nbsp;<pre class="code">d)</pre>.  For this usage, not only must the inserted
+identifiers, such as <pre class="code">b</pre>, <pre class="code">c</pre>, and <pre class="code">d</pre> in <pre class="code">(b,</pre>&nbsp;<pre class="code">c,</pre>&nbsp;<pre class="code">d)</pre>, be marked <pre class="code">implicit</pre> where they are defined, but also the last parameter
+list in <pre class="code">someCall</pre>'s or <pre class="code">someClass</pre>'s definition must be marked <pre class="code">implicit</pre>.</p>
 
-<p>Here's a simple example.  Suppose you have a class <span class="code">PreferredPrompt</span>, which encapsulates
-a shell prompt string (such as, say <span class="code">"$</span>&nbsp;<span class="code">"</span> or <span class="code">"&gt;</span>&nbsp;<span class="code">"</span>) that is preferred by a user:</p>
+<p>Here's a simple example.  Suppose you have a class <pre class="code">PreferredPrompt</pre>, which encapsulates
+a shell prompt string (such as, say <pre class="code">"$</pre>&nbsp;<pre class="code">"</pre> or <pre class="code">"&gt;</pre>&nbsp;<pre class="code">"</pre>) that is preferred by a user:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">PreferredPrompt</code>(<code class="vem">val</code>&nbsp;preference:&nbsp;<code class="typename">String</code>)
 </pre>
 
 
-<p>Also, suppose you have a <span class="code">Greeter</span> object with a <span class="code">greet</span> method, which takes two parameter lists. The first
-parameter list takes a string user name, and the second parameter list takes a <span class="code">PreferredPrompt</span>:</p>
+<p>Also, suppose you have a <pre class="code">Greeter</pre> object with a <pre class="code">greet</pre> method, which takes two parameter lists. The first
+parameter list takes a string user name, and the second parameter list takes a <pre class="code">PreferredPrompt</pre>:</p>
 
 <pre>
   <code class="vem">object</code>&nbsp;<code class="typename">Greeter</code>&nbsp;{
@@ -637,8 +637,8 @@ parameter list takes a string user name, and the second parameter list takes a <
 </pre>
 
 
-<p>The last parameter list is marked <span class="code">implicit</span>, which means it can be supplied implicitly. But you can still
-provide the <span class="code">prompt</span> explicitly, like this:</p>
+<p>The last parameter list is marked <pre class="code">implicit</pre>, which means it can be supplied implicitly. But you can still
+provide the <pre class="code">prompt</pre> explicitly, like this:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;bobsPrompt&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">PreferredPrompt</code>(<code class="quotedstring">"relax&gt;&nbsp;"</code>)
@@ -650,7 +650,7 @@ provide the <span class="code">prompt</span> explicitly, like this:</p>
 
 
 <p>To let the compiler supply the parameter implicitly, you must first define a variable of the expected
-type, which in this case is <span class="code">PreferredPrompt</span>. You could do this, for example, in a preferences object:</p>
+type, which in this case is <pre class="code">PreferredPrompt</pre>. You could do this, for example, in a preferences object:</p>
 
 <pre>
   <code class="vem">object</code>&nbsp;<code class="typename">JoesPrefs</code>&nbsp;{
@@ -659,7 +659,7 @@ type, which in this case is <span class="code">PreferredPrompt</span>. You could
 </pre>
 
 
-<p>Note that the <span class="code">val</span> itself is marked implicit. If it wasn't, the compiler would not use it to supply the
+<p>Note that the <pre class="code">val</pre> itself is marked implicit. If it wasn't, the compiler would not use it to supply the
 missing parameter list. It will also not use it if it isn't in scope as a single identifier, as shown in this example:<a id="i-1437022486-1"/></p>
 
 <pre>
@@ -682,15 +682,15 @@ missing parameter list. It will also not use it if it isn't in scope as a single
 </pre>
 
 
-<p>Note that the <span class="code">implicit</span> keyword applies to an entire parameter list,
+<p>Note that the <pre class="code">implicit</pre> keyword applies to an entire parameter list,
 not to individual parameters.  <a href="implicit-conversions-and-parameters.html#lst-multiple-implicit-params">Listing 21.1</a> shows an example in which the last parameter
-list of <span class="code">Greeter</span>'s <span class="code">greet</span> method, which is again marked <span class="code">implicit</span>, has two parameters: <span class="code">prompt</span> (of type <span class="code">PreferredPrompt</span>) and <span class="code">drink</span>
-(of type <span class="code">PreferredDrink</span>).</p>
+list of <pre class="code">Greeter</pre>'s <pre class="code">greet</pre> method, which is again marked <pre class="code">implicit</pre>, has two parameters: <pre class="code">prompt</pre> (of type <pre class="code">PreferredPrompt</pre>) and <pre class="code">drink</pre>
+(of type <pre class="code">PreferredDrink</pre>).</p>
 
-<p>Singleton object <span class="code">JoesPrefs</span> declares two implicit <span class="code">val</span>s, <span class="code">prompt</span> of
-type <span class="code">PreferredPrompt</span> and <span class="code">drink</span> of type <span class="code">PreferredDrink</span>. As before, however,
+<p>Singleton object <pre class="code">JoesPrefs</pre> declares two implicit <pre class="code">val</pre>s, <pre class="code">prompt</pre> of
+type <pre class="code">PreferredPrompt</pre> and <pre class="code">drink</pre> of type <pre class="code">PreferredDrink</pre>. As before, however,
 so long as these are not in scope as single identifiers, they won't be used to fill
-in a missing parameter list to <span class="code">greet</span>:<a id="i-1437022486-2"/></p>
+in a missing parameter list to <pre class="code">greet</pre>:<a id="i-1437022486-2"/></p>
 
 <pre>
   scala&gt;&nbsp;Greeter.greet(<code class="quotedstring">"Joe"</code>)&nbsp;
@@ -701,7 +701,7 @@ in a missing parameter list to <span class="code">greet</span>:<a id="i-14370224
 </pre>
 
 
-<p>You can bring both implicit <span class="code">val</span>s into scope with an import:</p>
+<p>You can bring both implicit <pre class="code">val</pre>s into scope with an import:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">import</code>&nbsp;JoesPrefs._
@@ -709,7 +709,7 @@ in a missing parameter list to <span class="code">greet</span>:<a id="i-14370224
 </pre>
 
 
-<p>Because both <span class="code">prompt</span> and <span class="code">drink</span> are now in scope as single identifiers,
+<p>Because both <pre class="code">prompt</pre> and <pre class="code">drink</pre> are now in scope as single identifiers,
 you can use them to supply the last parameter list explicitly, like this:</p>
 
 <pre>
@@ -721,7 +721,7 @@ you can use them to supply the last parameter list explicitly, like this:</p>
 
 
 <p>And because all the rules for implicit parameters are now met, you can alternatively let the Scala compiler
-supply <span class="code">prompt</span> and <span class="code">drink</span> for you by leaving off the last parameter list:</p>
+supply <pre class="code">prompt</pre> and <pre class="code">drink</pre> for you by leaving off the last parameter list:</p>
 
 <pre>
   scala&gt;&nbsp;Greeter.greet(<code class="quotedstring">"Joe"</code>)
@@ -755,21 +755,21 @@ supply <span class="code">prompt</span> and <span class="code">drink</span> for 
 <h5>Listing 21.1 - An implicit parameter list with multiple parameters.</h5>
 
 
-<p>One thing to note about the previous examples is that we didn't use <span class="code">String</span> as the type
-of <span class="code">prompt</span> or <span class="code">drink</span>, even though ultimately it was a <span class="code">String</span> that each
-of them provided through their <span class="code">preference</span> fields. Because the compiler selects implicit parameters
+<p>One thing to note about the previous examples is that we didn't use <pre class="code">String</pre> as the type
+of <pre class="code">prompt</pre> or <pre class="code">drink</pre>, even though ultimately it was a <pre class="code">String</pre> that each
+of them provided through their <pre class="code">preference</pre> fields. Because the compiler selects implicit parameters
 by matching types of parameters against types of values in scope, implicit parameters usually have "rare"
 or "special" enough types that accidental matches are unlikely. 
-For example, the types <span class="code">PreferredPrompt</span> and
-<span class="code">PreferredDrink</span> in <a href="implicit-conversions-and-parameters.html#lst-multiple-implicit-params">Listing 21.1</a> were defined solely to serve as implicit parameter types.
+For example, the types <pre class="code">PreferredPrompt</pre> and
+<pre class="code">PreferredDrink</pre> in <a href="implicit-conversions-and-parameters.html#lst-multiple-implicit-params">Listing 21.1</a> were defined solely to serve as implicit parameter types.
 As a result, it is unlikely that implicit variables of these types will be in scope if they
-aren't intended to be used as implicit parameters to <span class="code">Greeter.greet</span>.</p>
+aren't intended to be used as implicit parameters to <pre class="code">Greeter.greet</pre>.</p>
 
 <p>Another thing to know about implicit parameters is that they are perhaps most often used to provide
 information about a type mentioned <em>explicitly</em> in an earlier parameter list,
 similar to the type classes of Haskell.</p>
 
-<p>As an example, consider the <span class="code">maxListOrdering</span> function shown in <a href="implicit-conversions-and-parameters.html#lst-max-list-take-one">Listing 21.2</a>, 
+<p>As an example, consider the <pre class="code">maxListOrdering</pre> function shown in <a href="implicit-conversions-and-parameters.html#lst-max-list-take-one">Listing 21.2</a>, 
 which returns the maximum element of the passed list.</p>
 
 <p><a id="lst-max-list-take-one"/></p>
@@ -792,25 +792,25 @@ which returns the maximum element of the passed list.</p>
 <h5>Listing 21.2 - A function with an upper bound.</h5>
 
 
-<p>The signature of <span class="code">maxListOrdering</span> is similar to that of <span class="code">orderedMergeSort</span>,
+<p>The signature of <pre class="code">maxListOrdering</pre> is similar to that of <pre class="code">orderedMergeSort</pre>,
 shown in <a href="type-parameterization.html#lst-upper-bound-sort">Listing 19.12</a>  <a href="type-parameterization.html#lst-upper-bound-sort">here</a>: It takes
-a <span class="code">List[T]</span> as its argument, and now it takes an additional argument of type <span class="code">Ordering[T]</span>.
+a <pre class="code">List[T]</pre> as its argument, and now it takes an additional argument of type <pre class="code">Ordering[T]</pre>.
 This additional argument specifies which ordering to use when comparing elements of type
-<span class="code">T</span>. As such, this version can be used for types that don't have a built-in ordering.
+<pre class="code">T</pre>. As such, this version can be used for types that don't have a built-in ordering.
 Additionally, this version can be used for types that <em>do</em> have a built-in ordering, but
 for which you occasionally want to use some other ordering.</p>
 
 <p>This version is more general, but it's also more cumbersome to
-use. Now a caller must specify an explicit ordering even if <span class="code">T</span> is
-something like <span class="code">String</span> or <span class="code">Int</span> that has an obvious default
+use. Now a caller must specify an explicit ordering even if <pre class="code">T</pre> is
+something like <pre class="code">String</pre> or <pre class="code">Int</pre> that has an obvious default
 ordering. To make the new method more convenient, it helps to make the
 second argument implicit. This approach is shown in <a href="implicit-conversions-and-parameters.html#lst-max-list-take-two">Listing 21.3</a>.</p>
 
-<p>The <span class="code">ordering</span> parameter in this example is used to describe the
-ordering of <span class="code">T</span>s.
- In the body of <span class="code">maxListImpParm</span>, this ordering is used
-in two places: a recursive call to <span class="code">maxListImpParm</span>, and an
-<span class="code">if</span> expression that checks whether the head of the list is larger than the
+<p>The <pre class="code">ordering</pre> parameter in this example is used to describe the
+ordering of <pre class="code">T</pre>s.
+ In the body of <pre class="code">maxListImpParm</pre>, this ordering is used
+in two places: a recursive call to <pre class="code">maxListImpParm</pre>, and an
+<pre class="code">if</pre> expression that checks whether the head of the list is larger than the
 maximum element of the rest of the list.</p>
 
 <p><a id="lst-max-list-take-two"/></p>
@@ -833,17 +833,17 @@ maximum element of the rest of the list.</p>
 <h5>Listing 21.3 - A function with an implicit parameter.</h5>
 
 
-<p>The <span class="code">maxListImpParm</span> function is an example of an implicit parameter used to provide more information
+<p>The <pre class="code">maxListImpParm</pre> function is an example of an implicit parameter used to provide more information
 about a type mentioned explicitly in an earlier parameter list. To be specific,
-the implicit parameter <span class="code">ordering</span>, of type <span class="code">Ordering[T]</span>, provides
-more information about type <span class="code">T</span>&mdash;in this case, how to order <span class="code">T</span>s. Type <span class="code">T</span> is mentioned in <span class="code">List[T]</span>, the type
-of parameter <span class="code">elements</span>, which appears in the earlier parameter list. Because <span class="code">elements</span> must always be provided
-explicitly in any invocation of <span class="code">maxListImpParm</span>, the compiler will know <span class="code">T</span> at compile time and can therefore determine
-whether an implicit definition of type <span class="code">Ordering[T]</span> is available. If so, it can pass in the second parameter list, <span class="code">ordering</span>, implicitly.</p>
+the implicit parameter <pre class="code">ordering</pre>, of type <pre class="code">Ordering[T]</pre>, provides
+more information about type <pre class="code">T</pre>&mdash;in this case, how to order <pre class="code">T</pre>s. Type <pre class="code">T</pre> is mentioned in <pre class="code">List[T]</pre>, the type
+of parameter <pre class="code">elements</pre>, which appears in the earlier parameter list. Because <pre class="code">elements</pre> must always be provided
+explicitly in any invocation of <pre class="code">maxListImpParm</pre>, the compiler will know <pre class="code">T</pre> at compile time and can therefore determine
+whether an implicit definition of type <pre class="code">Ordering[T]</pre> is available. If so, it can pass in the second parameter list, <pre class="code">ordering</pre>, implicitly.</p>
 
 <p>This pattern is so common that the standard Scala library
 provides implicit "ordering" methods for many common types.  You could therefore use
-this <span class="code">maxListImpParm</span> method with a variety of types:</p>
+this <pre class="code">maxListImpParm</pre> method with a variety of types:</p>
 
 <pre>
   scala&gt;&nbsp;maxListImpParm(<code class="typename">List</code>(<code class="literal">1</code>,<code class="literal">5</code>,<code class="literal">10</code>,<code class="literal">3</code>))
@@ -855,17 +855,17 @@ this <span class="code">maxListImpParm</span> method with a variety of types:</p
 </pre>
 
 
-<p>In the first case, the compiler inserted an <span class="code">ordering</span> for
-<span class="code">Int</span>s; in the second case, for
-<span class="code">Double</span>s; in the third case, for <span class="code">String</span>s.</p>
+<p>In the first case, the compiler inserted an <pre class="code">ordering</pre> for
+<pre class="code">Int</pre>s; in the second case, for
+<pre class="code">Double</pre>s; in the third case, for <pre class="code">String</pre>s.</p>
 
 <h4>A style rule for implicit parameters</h4>
 
 
 <p>As a style rule, it is best to use a custom named type in the
-types of implicit parameters. For example, the types of <span class="code">prompt</span> and <span class="code">drink</span> in the previous example
-was not <span class="code">String</span>, but <span class="code">PreferredPrompt</span> and <span class="code">PreferredDrink</span>, respectively. As a
-counterexample, consider that the <span class="code">maxListImpParm</span> function could just as
+types of implicit parameters. For example, the types of <pre class="code">prompt</pre> and <pre class="code">drink</pre> in the previous example
+was not <pre class="code">String</pre>, but <pre class="code">PreferredPrompt</pre> and <pre class="code">PreferredDrink</pre>, respectively. As a
+counterexample, consider that the <pre class="code">maxListImpParm</pre> function could just as
 well have been written with the following type signature:</p>
 
 <pre>
@@ -875,19 +875,19 @@ well have been written with the following type signature:</p>
 
 
 <p>To use this version of the function, though, the caller would have to
-supply an <span class="code">orderer</span> parameter of type <span class="code">(T,</span>&nbsp;<span class="code">T)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span>.  This is a
-fairly generic type that includes any function from two <span class="code">T</span>s to a
-<span class="code">Boolean</span>.  It does not indicate anything at all about what the type is
+supply an <pre class="code">orderer</pre> parameter of type <pre class="code">(T,</pre>&nbsp;<pre class="code">T)</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">Boolean</pre>.  This is a
+fairly generic type that includes any function from two <pre class="code">T</pre>s to a
+<pre class="code">Boolean</pre>.  It does not indicate anything at all about what the type is
 for; it could be an equality test, a less-than test, a greater-than
 test, or something else entirely.</p>
 
-<p>The actual code for <span class="code">maxListImpParm</span>, given in <a href="implicit-conversions-and-parameters.html#lst-max-list-take-two">Listing 21.3</a>, shows better style.  It uses an <span class="code">ordering</span>
-parameter of type <span class="code">Ordering[T]</span>.  The word <span class="code">Ordering</span> in this type
+<p>The actual code for <pre class="code">maxListImpParm</pre>, given in <a href="implicit-conversions-and-parameters.html#lst-max-list-take-two">Listing 21.3</a>, shows better style.  It uses an <pre class="code">ordering</pre>
+parameter of type <pre class="code">Ordering[T]</pre>.  The word <pre class="code">Ordering</pre> in this type
 indicates exactly what the implicit parameter is used for: it is for
-ordering elements of <span class="code">T</span>.  Because this <span class="code">ordering</span> type is more
+ordering elements of <pre class="code">T</pre>.  Because this <pre class="code">ordering</pre> type is more
 explicit, it's no trouble to add implicit providers for this
 type in the standard library.  To contrast, imagine the chaos that
-would ensue if you added an implicit of type <span class="code">(T,</span>&nbsp;<span class="code">T)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span> in the
+would ensue if you added an implicit of type <pre class="code">(T,</pre>&nbsp;<pre class="code">T)</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">Boolean</pre> in the
 standard library, and the compiler started sprinkling it around in
 people's code.  You would end up with code that compiles and runs, but
 that does fairly arbitrary tests against pairs of items! Thus the style rule: Use at least one role-determining name within the
@@ -897,10 +897,10 @@ type of an implicit parameter.</p>
 
 
 <p>The previous example showed an opportunity to use an implicit but did
-not.  Note that when you use <span class="code">implicit</span> on a parameter, not only will the
+not.  Note that when you use <pre class="code">implicit</pre> on a parameter, not only will the
 compiler try to <em>supply</em> that parameter with an implicit value,
 but the compiler will also <em>use</em> that parameter as an available
-implicit in the body of the method!  Thus, the first use of <span class="code">ordering</span>
+implicit in the body of the method!  Thus, the first use of <pre class="code">ordering</pre>
 within the body of the method
 can be left out.</p>
 
@@ -925,15 +925,15 @@ can be left out.</p>
 
 
 <p>When the compiler examines the code in <a href="implicit-conversions-and-parameters.html#lst-max-list-take-three">Listing 21.4</a>, it will see that the
-types do not match up.  The expression <span class="code">maxList(rest)</span> only
-supplies one parameter list, but <span class="code">maxList</span> requires two.
+types do not match up.  The expression <pre class="code">maxList(rest)</pre> only
+supplies one parameter list, but <pre class="code">maxList</pre> requires two.
 Since the second parameter list is implicit, the compiler
 does not give up type checking immediately. Instead, it looks
 for an implicit parameter of the appropriate type, in this case
-<span class="code">Ordering[T]</span>. In this case, it finds one and rewrites the
-call to <span class="code">maxList(rest)(ordering)</span>, after which the code type checks.</p>
+<pre class="code">Ordering[T]</pre>. In this case, it finds one and rewrites the
+call to <pre class="code">maxList(rest)(ordering)</pre>, after which the code type checks.</p>
 
-<p>There is also a way to eliminate the second use of <span class="code">ordering</span>. It
+<p>There is also a way to eliminate the second use of <pre class="code">ordering</pre>. It
 involves the following method defined in the standard library:</p>
 
 <pre>
@@ -941,18 +941,18 @@ involves the following method defined in the standard library:</p>
 </pre>
 
 
-<p>The effect of calling <span class="code">implicitly[Foo]</span> is that the compiler will
-look for an implicit definition of type <span class="code">Foo</span>. It will then call the
-<span class="code">implicitly</span> method with that object, which in turn returns the
-object right back. Thus you can write <span class="code">implicitly[Foo]</span> whenever you
-want to find an implicit object of type <span class="code">Foo</span> in the current scope.
+<p>The effect of calling <pre class="code">implicitly[Foo]</pre> is that the compiler will
+look for an implicit definition of type <pre class="code">Foo</pre>. It will then call the
+<pre class="code">implicitly</pre> method with that object, which in turn returns the
+object right back. Thus you can write <pre class="code">implicitly[Foo]</pre> whenever you
+want to find an implicit object of type <pre class="code">Foo</pre> in the current scope.
 For example, <a href="implicit-conversions-and-parameters.html#lst-max-list-take-three-b">Listing 21.5</a> shows a use of
-<span class="code">implicitly[Ordering[T]]</span> to retrieve the <span class="code">ordering</span> parameter by its
+<pre class="code">implicitly[Ordering[T]]</pre> to retrieve the <pre class="code">ordering</pre> parameter by its
 type.</p>
 
-<p>Look closely at this last version of <span class="code">maxList</span>. There is not a single
-mention of the <span class="code">ordering</span> parameter in the text of the method. The
-second parameter could just as well be named "<span class="code">comparator</span>":</p>
+<p>Look closely at this last version of <pre class="code">maxList</pre>. There is not a single
+mention of the <pre class="code">ordering</pre> parameter in the text of the method. The
+second parameter could just as well be named "<pre class="code">comparator</pre>":</p>
 
 <div style="page-break-after:always"/>
 
@@ -980,7 +980,7 @@ second parameter could just as well be named "<span class="code">comparator</spa
 </pre>
 
 
-<h5>Listing 21.5 - A function that uses <span class="code">implicitly</span>.</h5>
+<h5>Listing 21.5 - A function that uses <pre class="code">implicitly</pre>.</h5>
 
 
 <p>For that matter, this version works as well:</p>
@@ -994,21 +994,21 @@ second parameter could just as well be named "<span class="code">comparator</spa
 <p>Because this pattern is common, Scala lets you
 leave out the name of this parameter and shorten
 the method header by using a <em>context bound</em>.<a id="i-956942778-2"/>
-Using a context bound, you would write the signature of <span class="code">maxList</span> as shown
-in <a href="implicit-conversions-and-parameters.html#lst-max-list-context-bound">Listing 21.6</a>. The syntax <span class="code">[T</span>&nbsp;<span class="code">:</span>&nbsp;<span class="code">Ordering]</span> is a context bound, and it does two
-things. First, it introduces a type parameter <span class="code">T</span> as normal. Second,
-it adds an implicit parameter of type <span class="code">Ordering[T]</span>. In previous
-versions of <span class="code">maxList</span>, that parameter was called <span class="code">ordering</span>, but
+Using a context bound, you would write the signature of <pre class="code">maxList</pre> as shown
+in <a href="implicit-conversions-and-parameters.html#lst-max-list-context-bound">Listing 21.6</a>. The syntax <pre class="code">[T</pre>&nbsp;<pre class="code">:</pre>&nbsp;<pre class="code">Ordering]</pre> is a context bound, and it does two
+things. First, it introduces a type parameter <pre class="code">T</pre> as normal. Second,
+it adds an implicit parameter of type <pre class="code">Ordering[T]</pre>. In previous
+versions of <pre class="code">maxList</pre>, that parameter was called <pre class="code">ordering</pre>, but
 when using a context bound you don't know what the parameter will be
 called. As shown earlier, you often don't need to know what the
 parameter is called.</p>
 
 <p>Intuitively, you can think of a context bound as saying something
-<em>about</em> a type parameter. When you write <span class="code">[T</span>&nbsp;<span class="code">&lt;:</span>&nbsp;<span class="code">Ordered[T]]</span> you
-are saying that a <span class="code">T</span> <em>is</em> an <span class="code">Ordered[T]</span>. To contrast, when
-you write <span class="code">[T</span>&nbsp;<span class="code">:</span>&nbsp;<span class="code">Ordering]</span> you are not so much saying what <span class="code">T</span> is;
+<em>about</em> a type parameter. When you write <pre class="code">[T</pre>&nbsp;<pre class="code">&lt;:</pre>&nbsp;<pre class="code">Ordered[T]]</pre> you
+are saying that a <pre class="code">T</pre> <em>is</em> an <pre class="code">Ordered[T]</pre>. To contrast, when
+you write <pre class="code">[T</pre>&nbsp;<pre class="code">:</pre>&nbsp;<pre class="code">Ordering]</pre> you are not so much saying what <pre class="code">T</pre> is;
 rather, you are saying that there is some form of ordering associated
-with <span class="code">T</span>. Thus, a context bound is quite flexible. It allows you to
+with <pre class="code">T</pre>. Thus, a context bound is quite flexible. It allows you to
 use code that requires orderings&mdash;or any other property of a
 type&mdash;without having to change the definition of that type.</p>
 
@@ -1073,8 +1073,8 @@ case, the programmer should specify which one is intended and be
 explicit. Up through Scala 2.7, that was the end of the story. Whenever multiple
 implicit conversions applied, the compiler refused to choose between
 them. The situation was just as with method overloading. If you try
-to call <span class="code">foo(null)</span> and there are two different <span class="code">foo</span> overloads
-that accept <span class="code">null</span>, the compiler will refuse. It will say that the
+to call <pre class="code">foo(null)</pre> and there are two different <pre class="code">foo</pre> overloads
+that accept <pre class="code">null</pre>, the compiler will refuse. It will say that the
 method call's target is ambiguous.</p>
 
 <p>Scala 2.8 loosened this rule. If one of the available conversions is
@@ -1083,9 +1083,9 @@ will choose the more specific one. The idea is that whenever there is a
 reason to believe a programmer would always choose one of the
 conversions over the others, don't require the programmer to write it
 explicitly. After all, method overloading has the same relaxation.
-Continuing the previous example, if one of the available <span class="code">foo</span>
-methods takes a <span class="code">String</span> while the other takes an <span class="code">Any</span>, then choose
-the <span class="code">String</span> version. It's clearly more specific.</p>
+Continuing the previous example, if one of the available <pre class="code">foo</pre>
+methods takes a <pre class="code">String</pre> while the other takes an <pre class="code">Any</pre>, then choose
+the <pre class="code">String</pre> version. It's clearly more specific.</p>
 
 <p>To be more precise, one implicit conversion is <em>more specific</em>
 than another if one of the following applies:</p>
@@ -1115,24 +1115,24 @@ strings.</p>
 </pre>
 
 
-<p>What is the type inferred for <span class="code">cba</span>? Intuitively, the type should be
-<span class="code">String</span>.  Reversing a string should yield another string, right?
+<p>What is the type inferred for <pre class="code">cba</pre>? Intuitively, the type should be
+<pre class="code">String</pre>.  Reversing a string should yield another string, right?
 However, in Scala 2.7, what happened was that "abc" was converted to a
 Scala collection. Reversing a Scala collection yields a Scala
-collection, so the type of <span class="code">cba</span> would be a collection. There's also
+collection, so the type of <pre class="code">cba</pre> would be a collection. There's also
 an implicit conversion back to a string, but that didn't patch up
-every problem. For example, in versions prior to Scala 2.8, <span class="code">"abc"</span>&nbsp;<span class="code">==</span>&nbsp;<span class="code">"abc".reverse.reverse</span> was
+every problem. For example, in versions prior to Scala 2.8, <pre class="code">"abc"</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">"abc".reverse.reverse</pre> was
 false!</p>
 
-<p>With Scala 2.8, the type of <span class="code">cba</span> is <span class="code">String</span>. The old implicit
-conversion to a Scala collection (now named <span class="code">WrappedString</span>)<a id="i-260905957-1"/><a id="i-61010514-1"/> is retained. However, there is a more
-specific conversion supplied from <span class="code">String</span> to a new type called
-<span class="code">StringOps</span>.<a id="i1341725017-2"/><a id="i-1007334645-2"/> <span class="code">StringOps</span> has many methods such as <span class="code">reverse</span>, but
-instead of returning a collection, they return a <span class="code">String</span>. The
-conversion to <span class="code">StringOps</span> is defined directly in <span class="code">Predef</span>, whereas
+<p>With Scala 2.8, the type of <pre class="code">cba</pre> is <pre class="code">String</pre>. The old implicit
+conversion to a Scala collection (now named <pre class="code">WrappedString</pre>)<a id="i-260905957-1"/><a id="i-61010514-1"/> is retained. However, there is a more
+specific conversion supplied from <pre class="code">String</pre> to a new type called
+<pre class="code">StringOps</pre>.<a id="i1341725017-2"/><a id="i-1007334645-2"/> <pre class="code">StringOps</pre> has many methods such as <pre class="code">reverse</pre>, but
+instead of returning a collection, they return a <pre class="code">String</pre>. The
+conversion to <pre class="code">StringOps</pre> is defined directly in <pre class="code">Predef</pre>, whereas
 the conversion to a Scala collection is defined in a new class,
-<span class="code">LowPriorityImplicits</span>,<a id="i-486218258-1"/> which is extended by <span class="code">Predef</span>. Whenever a choice exists between these two conversions, the compiler chooses the
-conversion to <span class="code">StringOps</span>, because it's defined in a subclass of
+<pre class="code">LowPriorityImplicits</pre>,<a id="i-486218258-1"/> which is extended by <pre class="code">Predef</pre>. Whenever a choice exists between these two conversions, the compiler chooses the
+conversion to <pre class="code">StringOps</pre>, because it's defined in a subclass of
 the class where the other conversion is defined.</p>
 
 <h3>21.8 Debugging implicits</h3>
@@ -1146,8 +1146,8 @@ the conversion out explicitly. If that also gives an error message,
 you then know why the compiler could not apply your implicit.</p>
 
 <p>For instance, assume that you mistakenly took
-<span class="code">wrapString</span> to be a conversion from <span class="code">String</span>s to <span class="code">List</span>s,
-instead of <span class="code">IndexedSeq</span>s. You would wonder why the following code
+<pre class="code">wrapString</pre> to be a conversion from <pre class="code">String</pre>s to <pre class="code">List</pre>s,
+instead of <pre class="code">IndexedSeq</pre>s. You would wonder why the following code
 does not work:<a id="i-677980410-8"/></p>
 
 <pre>
@@ -1160,7 +1160,7 @@ does not work:<a id="i-677980410-8"/></p>
 </pre>
 
 
-<p>Again, it helps to write the <span class="code">wrapString</span> conversion explicitly to find out what went wrong:<a id="i-677980410-9"/></p>
+<p>Again, it helps to write the <pre class="code">wrapString</pre> conversion explicitly to find out what went wrong:<a id="i-677980410-9"/></p>
 
 <div style="page-break-after:always"/>
 
@@ -1175,7 +1175,7 @@ does not work:<a id="i-677980410-8"/></p>
 </pre>
 
 
-<p>With this, you have found the cause of the error: <span class="code">wrapString</span> has
+<p>With this, you have found the cause of the error: <pre class="code">wrapString</pre> has
 the wrong return type. On the other hand, it's also possible 
 that inserting the conversion
 explicitly will make the error go away. In that case you know that one
@@ -1185,14 +1185,14 @@ was preventing the implicit conversion
 from being applied.</p>
 
 <p>When you are debugging a program, it can sometimes help to see what implicit
-conversions the compiler is inserting.  The <span class="code">-Xprint:typer</span> option to
-the compiler is useful for this.  If you run <span class="code">scalac</span> with this
+conversions the compiler is inserting.  The <pre class="code">-Xprint:typer</pre> option to
+the compiler is useful for this.  If you run <pre class="code">scalac</pre> with this
 option, the compiler will show you what your code looks like
 after all implicit conversions have been added by the type checker.
 An example is shown in <a href="implicit-conversions-and-parameters.html#lst-example">Listing 21.7</a> and <a href="implicit-conversions-and-parameters.html#lst-print-typer">Listing 21.8</a>.
 If you look at the last statement in each of these listings, you'll see that the second parameter
-list to <span class="code">enjoy</span>, which was left off in the code in <a href="implicit-conversions-and-parameters.html#lst-example">Listing 21.7</a>,
-"<span class="code">enjoy("reader")</span>,"
+list to <pre class="code">enjoy</pre>, which was left off in the code in <a href="implicit-conversions-and-parameters.html#lst-example">Listing 21.7</a>,
+"<pre class="code">enjoy("reader")</pre>,"
 was inserted by the compiler, as shown in <a href="implicit-conversions-and-parameters.html#lst-print-typer">Listing 21.8</a>:</p>
 
 <pre>
@@ -1200,7 +1200,7 @@ was inserted by the compiler, as shown in <a href="implicit-conversions-and-para
 </pre>
 
 
-<p>If you are brave, try <span class="code">scala</span>&nbsp;<span class="code">-Xprint:typer</span> to get an interactive
+<p>If you are brave, try <pre class="code">scala</pre>&nbsp;<pre class="code">-Xprint:typer</pre> to get an interactive
 shell that prints out the post-typing source code it uses internally.
 If you do so, be prepared to see an enormous amount of boilerplate
 surrounding the meat of your code.</p>
@@ -1281,7 +1281,7 @@ be able to help you out.</p>
 used as <em>implicit parameters</em>. This use case will be described later in this chapter.</p>
 
 <p><a id="footnotemain21-3"/>[3] The Scala compiler backend will treat the conversion specially, however, 
-translating it to a special "<span class="code">i2d</span>" bytecode. 
+translating it to a special "<pre class="code">i2d</pre>" bytecode. 
 So the compiled image is the same as in Java.</p>
 
 <div style="page-break-after:always"/>

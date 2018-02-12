@@ -40,9 +40,9 @@ explanations.</p>
 
 <p>The easiest way to get started with Scala is by using the Scala<a id="i-2008009094-1"/><a id="i-162949284-1"/><a id="i-2032368478-1"/>
 interpreter, an interactive "shell" for writing Scala expressions and programs.
-The interpreter, which is called<a id="i1638768746-1"/> <span class="code">scala</span>, will evaluate expressions you type and print
+The interpreter, which is called<a id="i1638768746-1"/> <pre class="code">scala</pre>, will evaluate expressions you type and print
 the resulting value.
-You use it by typing <span class="code">scala</span> at a command prompt:<a href="first-steps-in-scala.html#footnotemain2-2">[2]</a></p>
+You use it by typing <pre class="code">scala</pre> at a command prompt:<a href="first-steps-in-scala.html#footnotemain2-2">[2]</a></p>
 
 <pre>
   $&nbsp;scala
@@ -53,7 +53,7 @@ You use it by typing <span class="code">scala</span> at a command prompt:<a href
 </pre>
 
 
-<p>After you type an expression, such as <span class="code">1</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">2</span>, and hit enter:</p>
+<p>After you type an expression, such as <pre class="code">1</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">2</pre>, and hit enter:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="literal">1</code>&nbsp;+&nbsp;<code class="literal">2</code>
@@ -72,38 +72,38 @@ You use it by typing <span class="code">scala</span> at a command prompt:<a href
 <ul>
 
 
-<li>an automatically generated or user-defined name to refer to the computed value (<span class="code">res0</span>, which means result 0),
+<li>an automatically generated or user-defined name to refer to the computed value (<pre class="code">res0</pre>, which means result 0),
 
 
 </li>
-<li>a colon (<span class="code">:</span>), followed by the type of the expression (<span class="code">Int</span>),
+<li>a colon (<pre class="code">:</pre>), followed by the type of the expression (<pre class="code">Int</pre>),
 
 
 </li>
-<li>an equals sign (<span class="code">=</span>),
+<li>an equals sign (<pre class="code">=</pre>),
 
 
 </li>
-<li>the value resulting from evaluating the expression (<span class="code">3</span>).
+<li>the value resulting from evaluating the expression (<pre class="code">3</pre>).
 
 
 </li></ul>
 
 
-<p>The type <span class="code">Int</span> names the class <span class="code">Int</span> in the package
-<span class="code">scala</span>. Packages in Scala are similar to packages in Java: They partition the global namespace<a id="i374717171-1"/>
-and provide a mechanism for information hiding.<a href="first-steps-in-scala.html#footnotemain2-3">[3]</a> Values of class <span class="code">Int</span> correspond to Java's
-<span class="code">int</span> values. 
+<p>The type <pre class="code">Int</pre> names the class <pre class="code">Int</pre> in the package
+<pre class="code">scala</pre>. Packages in Scala are similar to packages in Java: They partition the global namespace<a id="i374717171-1"/>
+and provide a mechanism for information hiding.<a href="first-steps-in-scala.html#footnotemain2-3">[3]</a> Values of class <pre class="code">Int</pre> correspond to Java's
+<pre class="code">int</pre> values. 
 More generally, all of Java's primitive types have corresponding
-classes in the <span class="code">scala</span> package. For example, <span class="code">scala.Boolean</span> corresponds
-to Java's <span class="code">boolean</span>. <span class="code">scala.Float</span> corresponds to
-Java's <span class="code">float</span>.
+classes in the <pre class="code">scala</pre> package. For example, <pre class="code">scala.Boolean</pre> corresponds
+to Java's <pre class="code">boolean</pre>. <pre class="code">scala.Float</pre> corresponds to
+Java's <pre class="code">float</pre>.
 And when you compile your Scala code to Java bytecodes, the Scala compiler will
 use Java's primitive types where possible to give you the performance benefits<a id="i884498802-1"/>
 of the primitive types.</p>
 
-<p>The <span class="code">resX</span> identifier may be used in later lines. For instance,
-since <span class="code">res0</span> was set to 3 previously, <span class="code">res0</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">3</span> will be <span class="code">9</span>:</p>
+<p>The <pre class="code">resX</pre> identifier may be used in later lines. For instance,
+since <pre class="code">res0</pre> was set to 3 previously, <pre class="code">res0</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">3</pre> will be <pre class="code">9</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;res0&nbsp;*&nbsp;<code class="literal">3</code>
@@ -111,7 +111,7 @@ since <span class="code">res0</span> was set to 3 previously, <span class="code"
 </pre>
 
 
-<p>To print the necessary, but not sufficient, <span class="code">Hello,</span>&nbsp;<span class="code">world!</span> greeting, type:</p>
+<p>To print the necessary, but not sufficient, <pre class="code">Hello,</pre>&nbsp;<pre class="code">world!</pre> greeting, type:</p>
 
 <pre>
   scala&gt;&nbsp;println(<code class="quotedstring">"Hello,&nbsp;world!"</code>)
@@ -119,17 +119,17 @@ since <span class="code">res0</span> was set to 3 previously, <span class="code"
 </pre>
 
 
-<p>The <span class="code">println</span> function prints the passed string to the standard output, similar to
-<span class="code">System.out.println</span> in Java.</p>
+<p>The <pre class="code">println</pre> function prints the passed string to the standard output, similar to
+<pre class="code">System.out.println</pre> in Java.</p>
 
 <h3><a id="step2">Step 2. Define some variables</a></h3>
 
 
-<p>Scala has two kinds of variables, <span class="code">val</span>s and <span class="code">var</span>s.<a id="i-717204901-1"/><a id="i646151360-1"/><a id="i-1545622202-1"/>
-A <span class="code">val</span> is similar to a final variable
-in Java. Once initialized, a <span class="code">val</span> can never be reassigned. A <span class="code">var</span>, by contrast, is similar to a non-final
-variable in Java. A <span class="code">var</span> can be reassigned throughout its lifetime.
-Here's a <span class="code">val</span> definition:<a id="i61-1"/></p>
+<p>Scala has two kinds of variables, <pre class="code">val</pre>s and <pre class="code">var</pre>s.<a id="i-717204901-1"/><a id="i646151360-1"/><a id="i-1545622202-1"/>
+A <pre class="code">val</pre> is similar to a final variable
+in Java. Once initialized, a <pre class="code">val</pre> can never be reassigned. A <pre class="code">var</pre>, by contrast, is similar to a non-final
+variable in Java. A <pre class="code">var</pre> can be reassigned throughout its lifetime.
+Here's a <pre class="code">val</pre> definition:<a id="i61-1"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;msg&nbsp;=&nbsp;<code class="quotedstring">"Hello,&nbsp;world!"</code>
@@ -137,16 +137,16 @@ Here's a <span class="code">val</span> definition:<a id="i61-1"/></p>
 </pre>
 
 
-<p>This statement introduces <span class="code">msg</span> as a name for the string <span class="code">"Hello,</span>&nbsp;<span class="code">world!"</span>.
-The type of <span class="code">msg</span> is <span class="code">java.lang.String</span>, because
-Scala strings are implemented by Java's <span class="code">String</span> class.</p>
+<p>This statement introduces <pre class="code">msg</pre> as a name for the string <pre class="code">"Hello,</pre>&nbsp;<pre class="code">world!"</pre>.
+The type of <pre class="code">msg</pre> is <pre class="code">java.lang.String</pre>, because
+Scala strings are implemented by Java's <pre class="code">String</pre> class.</p>
 
 <p>If you're used to declaring variables in Java, you'll notice one striking difference
-here: neither <span class="code">java.lang.String</span> nor <span class="code">String</span> appear anywhere in the <span class="code">val</span> definition.
+here: neither <pre class="code">java.lang.String</pre> nor <pre class="code">String</pre> appear anywhere in the <pre class="code">val</pre> definition.
 This example illustrates <em>type inference</em>, Scala's ability to figure out
 types you leave off.
-In this case, because you initialized <span class="code">msg</span> with a string literal, Scala inferred the
-type of <span class="code">msg</span> to be <span class="code">String</span>. 
+In this case, because you initialized <pre class="code">msg</pre> with a string literal, Scala inferred the
+type of <pre class="code">msg</pre> to be <pre class="code">String</pre>. 
 When the Scala interpreter (or compiler) can infer types, it is often best to let it do so rather than fill the code
 with unnecessary, explicit type annotations.<a id="i-2107785776-3"/><a id="i1449766718-3"/> You can, however, specify a type explicitly if you wish, and sometimes you
 probably should. An explicit type annotation can both ensure the Scala compiler infers the type you intend, as
@@ -161,7 +161,7 @@ For example:</p>
 </pre>
 
 
-<p>Or, since <span class="code">java.lang</span> types are visible with their simple names<a href="first-steps-in-scala.html#footnotemain2-4">[4]</a> in Scala programs, simply:</p>
+<p>Or, since <pre class="code">java.lang</pre> types are visible with their simple names<a href="first-steps-in-scala.html#footnotemain2-4">[4]</a> in Scala programs, simply:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;msg3:&nbsp;<code class="typename">String</code>&nbsp;=&nbsp;<code class="quotedstring">"Hello&nbsp;yet&nbsp;again,&nbsp;world!"</code>
@@ -169,7 +169,7 @@ For example:</p>
 </pre>
 
 
-<p>Going back to the original <span class="code">msg</span>, now that it is defined, you can use it as you'd expect, for example:</p>
+<p>Going back to the original <pre class="code">msg</pre>, now that it is defined, you can use it as you'd expect, for example:</p>
 
 <pre>
   scala&gt;&nbsp;println(msg)
@@ -177,7 +177,7 @@ For example:</p>
 </pre>
 
 
-<p>What you can't do with <span class="code">msg</span>, given that it is a <span class="code">val</span>, not a <span class="code">var</span>, is reassign it.<a href="first-steps-in-scala.html#footnotemain2-5">[5]</a> For example, see how
+<p>What you can't do with <pre class="code">msg</pre>, given that it is a <pre class="code">val</pre>, not a <pre class="code">var</pre>, is reassign it.<a href="first-steps-in-scala.html#footnotemain2-5">[5]</a> For example, see how
 the interpreter complains when you attempt the following:<a id="i1301665902-1"/></p>
 
 <pre>
@@ -188,7 +188,7 @@ the interpreter complains when you attempt the following:<a id="i1301665902-1"/>
 </pre>
 
 
-<p>If reassignment is what you want, you'll need to use a <span class="code">var</span>, as in:</p>
+<p>If reassignment is what you want, you'll need to use a <pre class="code">var</pre>, as in:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">var</code>&nbsp;greeting&nbsp;=&nbsp;<code class="quotedstring">"Hello,&nbsp;world!"</code>
@@ -196,8 +196,8 @@ the interpreter complains when you attempt the following:<a id="i1301665902-1"/>
 </pre>
 
 
-<p>Since <span class="code">greeting</span> is a <span class="code">var</span> not a <span class="code">val</span>, you can 
-reassign it later. If you are feeling grouchy later, for example, you could change your <span class="code">greeting</span> to:</p>
+<p>Since <pre class="code">greeting</pre> is a <pre class="code">var</pre> not a <pre class="code">val</pre>, you can 
+reassign it later. If you are feeling grouchy later, for example, you could change your <pre class="code">greeting</pre> to:</p>
 
 <pre>
   scala&gt;&nbsp;greeting&nbsp;=&nbsp;<code class="quotedstring">"Leave&nbsp;me&nbsp;alone,&nbsp;world!"</code>
@@ -250,19 +250,19 @@ want to write some functions. Here's how you do that in Scala:</p>
 </pre>
 
 
-<p>Function definitions start with <span class="code">def</span>.<a id="i1764649166-1"/>  The function's name, in this case <span class="code">max</span>, is followed by a comma-separated list of parameters
+<p>Function definitions start with <pre class="code">def</pre>.<a id="i1764649166-1"/>  The function's name, in this case <pre class="code">max</pre>, is followed by a comma-separated list of parameters
 in parentheses. A type annotation must follow every function parameter, preceded by a colon,
 because the Scala compiler (and interpreter, but from now on we'll just say compiler) does
-not infer function parameter types. In this example, the function named <span class="code">max</span>
-takes two parameters, <span class="code">x</span> and <span class="code">y</span>, both of type <span class="code">Int</span>. After the close parenthesis of <span class="code">max</span>'s parameter list
-you'll find another "<span class="code">:</span>&nbsp;<span class="code">Int</span>" type annotation. This one defines the <a href="glossary.html#g-595246755"><em>result type</em></a>
-of<a id="i-595246755-1"/><a id="i-1437134274-1"/> the <span class="code">max</span> function itself.<a href="first-steps-in-scala.html#footnotemain2-6">[6]</a>
+not infer function parameter types. In this example, the function named <pre class="code">max</pre>
+takes two parameters, <pre class="code">x</pre> and <pre class="code">y</pre>, both of type <pre class="code">Int</pre>. After the close parenthesis of <pre class="code">max</pre>'s parameter list
+you'll find another "<pre class="code">:</pre>&nbsp;<pre class="code">Int</pre>" type annotation. This one defines the <a href="glossary.html#g-595246755"><em>result type</em></a>
+of<a id="i-595246755-1"/><a id="i-1437134274-1"/> the <pre class="code">max</pre> function itself.<a href="first-steps-in-scala.html#footnotemain2-6">[6]</a>
 Following the function's result type is an equals sign and pair of curly braces that contain the body of the
 function.
-In this case, the body contains a single <span class="code">if</span> expression,<a id="i-1395149224-1"/> which selects either <span class="code">x</span> or <span class="code">y</span>, whichever
-is greater, as the result of the <span class="code">max</span> function. As demonstrated here, Scala's <span class="code">if</span> expression can
+In this case, the body contains a single <pre class="code">if</pre> expression,<a id="i-1395149224-1"/> which selects either <pre class="code">x</pre> or <pre class="code">y</pre>, whichever
+is greater, as the result of the <pre class="code">max</pre> function. As demonstrated here, Scala's <pre class="code">if</pre> expression can
 result in a value, similar to Java's ternary operator. For example, the
-Scala expression "<span class="code">if</span>&nbsp;<span class="code">(x</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">y)</span>&nbsp;<span class="code">x</span>&nbsp;<span class="code">else</span>&nbsp;<span class="code">y</span>" behaves similarly to "<span class="code">(x</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">y)</span>&nbsp;<span class="code">?</span>&nbsp;<span class="code">x</span>&nbsp;<span class="code">:</span>&nbsp;<span class="code">y</span>" in Java.
+Scala expression "<pre class="code">if</pre>&nbsp;<pre class="code">(x</pre>&nbsp;<pre class="code">&gt;</pre>&nbsp;<pre class="code">y)</pre>&nbsp;<pre class="code">x</pre>&nbsp;<pre class="code">else</pre>&nbsp;<pre class="code">y</pre>" behaves similarly to "<pre class="code">(x</pre>&nbsp;<pre class="code">&gt;</pre>&nbsp;<pre class="code">y)</pre>&nbsp;<pre class="code">?</pre>&nbsp;<pre class="code">x</pre>&nbsp;<pre class="code">:</pre>&nbsp;<pre class="code">y</pre>" in Java.
 The equals sign that precedes the body of a function hints that in the functional world view, a function defines an expression
 that results in a value.
 The basic structure of a function is illustrated in <a href="first-steps-in-scala.html#fig-method-form">Figure 2.1</a>.</p>
@@ -277,9 +277,9 @@ The basic structure of a function is illustrated in <a href="first-steps-in-scal
 
 
 <p>Sometimes the Scala compiler will require you to specify the result type of a function. If the function is <a href="glossary.html#g1165780018"><em>recursive</em></a>,<a href="first-steps-in-scala.html#footnotemain2-7">[7]</a>
-for example, you must explicitly specify the function's result type. In the case of <span class="code">max</span>, however, you may leave the result type
+for example, you must explicitly specify the function's result type. In the case of <pre class="code">max</pre>, however, you may leave the result type
 off and the compiler will infer it.<a href="first-steps-in-scala.html#footnotemain2-8">[8]</a> Also, if a function consists of just one statement, you can optionally leave off the
-curly braces. Thus, you could alternatively write the <span class="code">max</span> function like this:</p>
+curly braces. Thus, you could alternatively write the <pre class="code">max</pre> function like this:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">def</code>&nbsp;max(x:&nbsp;<code class="typename">Int</code>,&nbsp;y:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;<code class="vem">if</code>&nbsp;(x&nbsp;&gt;&nbsp;y)&nbsp;x&nbsp;<code class="vem">else</code>&nbsp;y
@@ -303,17 +303,17 @@ curly braces. Thus, you could alternatively write the <span class="code">max</sp
 </pre>
 
 
-<p>When you define the <span class="code">greet()</span> function,
-the interpreter will respond with <span class="code">greet:</span>&nbsp;<span class="code">()Unit</span>. "<span class="code">greet</span>" is, of course, the name of the function.
-The empty parentheses indicate the function takes no parameters. And <span class="code">Unit</span> is <span class="code">greet</span>'s result type. 
-A result type of <span class="code">Unit</span> indicates the function returns no interesting value.
-Scala's <span class="code">Unit</span> type is similar to Java's <span class="code">void</span> type; in fact, every
-<span class="code">void</span>-returning method in Java is mapped to a <span class="code">Unit</span>-returning method in Scala.
-Methods with the result type of <span class="code">Unit</span>, therefore, are only executed for their side effects.
-In the case of <span class="code">greet()</span>, the side effect is a friendly greeting printed to the standard output.</p>
+<p>When you define the <pre class="code">greet()</pre> function,
+the interpreter will respond with <pre class="code">greet:</pre>&nbsp;<pre class="code">()Unit</pre>. "<pre class="code">greet</pre>" is, of course, the name of the function.
+The empty parentheses indicate the function takes no parameters. And <pre class="code">Unit</pre> is <pre class="code">greet</pre>'s result type. 
+A result type of <pre class="code">Unit</pre> indicates the function returns no interesting value.
+Scala's <pre class="code">Unit</pre> type is similar to Java's <pre class="code">void</pre> type; in fact, every
+<pre class="code">void</pre>-returning method in Java is mapped to a <pre class="code">Unit</pre>-returning method in Scala.
+Methods with the result type of <pre class="code">Unit</pre>, therefore, are only executed for their side effects.
+In the case of <pre class="code">greet()</pre>, the side effect is a friendly greeting printed to the standard output.</p>
 
 <p>In the next step, you'll place Scala code in a file and run it as a script. If you
-wish to exit the interpreter, you can do so by entering <span class="code">:quit</span> or <span class="code">:q</span>.</p>
+wish to exit the interpreter, you can do so by entering <pre class="code">:quit</pre> or <pre class="code">:q</pre>.</p>
 
 <pre>
   scala&gt;&nbsp;:quit
@@ -327,7 +327,7 @@ wish to exit the interpreter, you can do so by entering <span class="code">:quit
 <p>Although Scala is designed to help programmers build very large-scale systems, it also scales<a id="i1047419434-1"/>
 down nicely to scripting. A script is just a sequence of 
 statements in a file that will be executed sequentially.
-Put this into a file named <span class="code">hello.scala</span>:</p>
+Put this into a file named <pre class="code">hello.scala</pre>:</p>
 
 <pre>
   println(<code class="quotedstring">"Hello,&nbsp;world,&nbsp;from&nbsp;a&nbsp;script!"</code>)
@@ -348,10 +348,10 @@ Put this into a file named <span class="code">hello.scala</span>:</p>
 </pre>
 
 
-<p>Command line arguments<a id="i337914190-1"/> to a Scala script are available via a Scala array named <span class="code">args</span>.<a id="i515731402-1"/> In Scala, arrays are zero
+<p>Command line arguments<a id="i337914190-1"/> to a Scala script are available via a Scala array named <pre class="code">args</pre>.<a id="i515731402-1"/> In Scala, arrays are zero
 based, and you access an element by specifying an index in parentheses. So 
-the first element in a Scala array named <span class="code">steps</span> is <span class="code">steps(0)</span>, not <span class="code">steps[0]</span>, as in Java. To try this out, type the
-following into a new file named <span class="code">helloarg.scala</span>:</p>
+the first element in a Scala array named <pre class="code">steps</pre> is <pre class="code">steps(0)</pre>, not <pre class="code">steps[0]</pre>, as in Java. To try this out, type the
+following into a new file named <pre class="code">helloarg.scala</pre>:</p>
 
 <pre>
   <code class="comment">//&nbsp;Say&nbsp;hello&nbsp;to&nbsp;the&nbsp;first&nbsp;argument</code>
@@ -366,7 +366,7 @@ following into a new file named <span class="code">helloarg.scala</span>:</p>
 </pre>
 
 
-<p>In this command, <span class="code">"planet"</span> is passed as a command line argument, which is accessed in the script as <span class="code">args(0)</span>.
+<p>In this command, <pre class="code">"planet"</pre> is passed as a command line argument, which is accessed in the script as <pre class="code">args(0)</pre>.
 Thus, you should see:</p>
 
 <pre>
@@ -374,16 +374,16 @@ Thus, you should see:</p>
 </pre>
 
 
-<p>Note that this script included a comment. The Scala compiler will ignore characters between <span class="code">//</span> 
-and the next end of line and any characters between <span class="code">/*</span> and <span class="code">*/</span>.  This example also shows <span class="code">String</span>s being
-concatenated with the <span class="code">+</span> operator. This works as you'd
-expect. The expression <span class="code">"Hello,</span>&nbsp;<span class="code">"</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">"world!"</span> will result in the string <span class="code">"Hello,</span>&nbsp;<span class="code">world!"</span>.</p>
+<p>Note that this script included a comment. The Scala compiler will ignore characters between <pre class="code">//</pre> 
+and the next end of line and any characters between <pre class="code">/*</pre> and <pre class="code">*/</pre>.  This example also shows <pre class="code">String</pre>s being
+concatenated with the <pre class="code">+</pre> operator. This works as you'd
+expect. The expression <pre class="code">"Hello,</pre>&nbsp;<pre class="code">"</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">"world!"</pre> will result in the string <pre class="code">"Hello,</pre>&nbsp;<pre class="code">world!"</pre>.</p>
 
-<h3><a id="step5">Step 5. Loop with <span class="code">while</span>; decide with <span class="code">if</span></a></h3>
+<h3><a id="step5">Step 5. Loop with <pre class="code">while</pre>; decide with <pre class="code">if</pre></a></h3>
 
 
-<p>To try out a <span class="code">while</span>, type the following<a id="i852231328-1"/>
-into a file named <span class="code">printargs.scala</span>:</p>
+<p>To try out a <pre class="code">while</pre>, type the following<a id="i852231328-1"/>
+into a file named <pre class="code">printargs.scala</pre>:</p>
 
 <pre>
   <code class="vem">var</code>&nbsp;i&nbsp;=&nbsp;<code class="literal">0</code>
@@ -398,18 +398,18 @@ into a file named <span class="code">printargs.scala</span>:</p>
 <h4>Note</h4>
 
 
-<p>Although the examples in this section help explain <span class="code">while</span> loops, they do not demonstrate the best Scala style. In the next section, you'll see better
+<p>Although the examples in this section help explain <pre class="code">while</pre> loops, they do not demonstrate the best Scala style. In the next section, you'll see better
 approaches that avoid iterating through arrays with indexes.</p>
 
 </div>
 
 
-<p>This script starts with a variable definition, <span class="code">var</span>&nbsp;<span class="code">i</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code">0</span>. Type inference gives <span class="code">i</span> the type <span class="code">scala.Int</span>, because that is the type of its initial value, <span class="code">0</span>. The <span class="code">while</span> construct on the next line causes the <a href="glossary.html#g93832333"><em>block</em></a>
-(the code between the curly braces) to be repeatedly executed until the boolean expression <span class="code">i</span>&nbsp;<span class="code">&lt;</span>&nbsp;<span class="code">args.length</span> is
-false. <span class="code">args.length</span> gives the length of the <span class="code">args</span> array. The block contains two statements, each indented two spaces, the recommended indentation style for Scala. The
-first statement, <span class="code">println(args(i))</span>, prints out the <span class="code">i</span>th command line argument. 
-The second statement, <span class="code">i</span>&nbsp;<span class="code">+=</span>&nbsp;<span class="code">1</span>, increments <span class="code">i</span> by one. Note that Java's <span class="code">++i</span> and <span class="code">i++</span> don't work in Scala.
-To increment in Scala, you need to say either <span class="code">i</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code">i</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">1</span> or <span class="code">i</span>&nbsp;<span class="code">+=</span>&nbsp;<span class="code">1</span>.<a id="i-1984818667-1"/>
+<p>This script starts with a variable definition, <pre class="code">var</pre>&nbsp;<pre class="code">i</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code">0</pre>. Type inference gives <pre class="code">i</pre> the type <pre class="code">scala.Int</pre>, because that is the type of its initial value, <pre class="code">0</pre>. The <pre class="code">while</pre> construct on the next line causes the <a href="glossary.html#g93832333"><em>block</em></a>
+(the code between the curly braces) to be repeatedly executed until the boolean expression <pre class="code">i</pre>&nbsp;<pre class="code">&lt;</pre>&nbsp;<pre class="code">args.length</pre> is
+false. <pre class="code">args.length</pre> gives the length of the <pre class="code">args</pre> array. The block contains two statements, each indented two spaces, the recommended indentation style for Scala. The
+first statement, <pre class="code">println(args(i))</pre>, prints out the <pre class="code">i</pre>th command line argument. 
+The second statement, <pre class="code">i</pre>&nbsp;<pre class="code">+=</pre>&nbsp;<pre class="code">1</pre>, increments <pre class="code">i</pre> by one. Note that Java's <pre class="code">++i</pre> and <pre class="code">i++</pre> don't work in Scala.
+To increment in Scala, you need to say either <pre class="code">i</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code">i</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">1</pre> or <pre class="code">i</pre>&nbsp;<pre class="code">+=</pre>&nbsp;<pre class="code">1</pre>.<a id="i-1984818667-1"/>
 Run this script with the following command:</p>
 
 <pre>
@@ -426,7 +426,7 @@ Run this script with the following command:</p>
 </pre>
 
 
-<p>For even more fun, type the following code into a new file with the name <span class="code">echoargs.scala</span>:</p>
+<p>For even more fun, type the following code into a new file with the name <pre class="code">echoargs.scala</pre>:</p>
 
 <pre>
   <code class="vem">var</code>&nbsp;i&nbsp;=&nbsp;<code class="literal">0</code>
@@ -440,10 +440,10 @@ Run this script with the following command:</p>
 </pre>
 
 
-<p>In this version, you've replaced the <span class="code">println</span> call with a <span class="code">print</span> call, so that all the arguments will be printed out on the same
-line. To make this readable, you've inserted a single space before each argument except the first via the <span class="code">if</span>&nbsp;<span class="code">(i</span>&nbsp;<span class="code">!=</span>&nbsp;<span class="code">0)</span> construct. Since
-<span class="code">i</span>&nbsp;<span class="code">!=</span>&nbsp;<span class="code">0</span> will be <span class="code">false</span> the first time through the <span class="code">while</span> loop, no space will get printed before the initial argument. Lastly,
-you've added one more <span class="code">println</span> to the end, to get a line return after printing out all the arguments. Your output will
+<p>In this version, you've replaced the <pre class="code">println</pre> call with a <pre class="code">print</pre> call, so that all the arguments will be printed out on the same
+line. To make this readable, you've inserted a single space before each argument except the first via the <pre class="code">if</pre>&nbsp;<pre class="code">(i</pre>&nbsp;<pre class="code">!=</pre>&nbsp;<pre class="code">0)</pre> construct. Since
+<pre class="code">i</pre>&nbsp;<pre class="code">!=</pre>&nbsp;<pre class="code">0</pre> will be <pre class="code">false</pre> the first time through the <pre class="code">while</pre> loop, no space will get printed before the initial argument. Lastly,
+you've added one more <pre class="code">println</pre> to the end, to get a line return after printing out all the arguments. Your output will
 be very pretty indeed. If you run this script with the following command:</p>
 
 <pre>
@@ -458,13 +458,13 @@ be very pretty indeed. If you run this script with the following command:</p>
 </pre>
 
 
-<p>Note that in Scala, as in Java, you must put the boolean expression for a <span class="code">while</span> or an <span class="code">if</span> in parentheses. (In other words,
-you can't say in Scala things like <span class="code">if</span>&nbsp;<span class="code">i</span>&nbsp;<span class="code">&lt;</span>&nbsp;<span class="code">10</span> as you can in a language such as Ruby.<a id="i-1395149224-2"/> You must say <span class="code">if</span>&nbsp;<span class="code">(i</span>&nbsp;<span class="code">&lt;</span>&nbsp;<span class="code">10)</span> in Scala.) Another similarity to Java is that if a block
-has only one statement, you can optionally leave off the curly braces, as demonstrated by the <span class="code">if</span> statement in <span class="code">echoargs.scala</span>. And although you haven't
+<p>Note that in Scala, as in Java, you must put the boolean expression for a <pre class="code">while</pre> or an <pre class="code">if</pre> in parentheses. (In other words,
+you can't say in Scala things like <pre class="code">if</pre>&nbsp;<pre class="code">i</pre>&nbsp;<pre class="code">&lt;</pre>&nbsp;<pre class="code">10</pre> as you can in a language such as Ruby.<a id="i-1395149224-2"/> You must say <pre class="code">if</pre>&nbsp;<pre class="code">(i</pre>&nbsp;<pre class="code">&lt;</pre>&nbsp;<pre class="code">10)</pre> in Scala.) Another similarity to Java is that if a block
+has only one statement, you can optionally leave off the curly braces, as demonstrated by the <pre class="code">if</pre> statement in <pre class="code">echoargs.scala</pre>. And although you haven't
 seen any of them, Scala does use semicolons to separate statements as in Java, except that in Scala the semicolons are very often optional, giving
 some welcome relief to your right little finger.
 If you had been in a more verbose mood, therefore, you could have
-written the <span class="code">echoargs.scala</span> script as follows:</p>
+written the <pre class="code">echoargs.scala</pre> script as follows:</p>
 
 <pre>
   <code class="vem">var</code>&nbsp;i&nbsp;=&nbsp;<code class="literal">0</code>;
@@ -479,10 +479,10 @@ written the <span class="code">echoargs.scala</span> script as follows:</p>
 </pre>
 
 
-<h3><a id="step6">Step 6. Iterate with <span class="code">foreach</span> and <span class="code">for</span></a></h3>
+<h3><a id="step6">Step 6. Iterate with <pre class="code">foreach</pre> and <pre class="code">for</pre></a></h3>
 
 
-<p>Although you may not have realized it, when you wrote the <span class="code">while</span> loops in the previous step, you were programming in an <em>imperative</em> style.
+<p>Although you may not have realized it, when you wrote the <pre class="code">while</pre> loops in the previous step, you were programming in an <em>imperative</em> style.
 In the imperative style, which is the style you normally use with languages like Java, C++, and C, you
 give one imperative command at a time, iterate with loops, and often mutate state shared between different functions.
 Scala enables you to program imperatively, but as you get to know Scala better, you'll likely often find yourself
@@ -498,10 +498,10 @@ very true in Scala. For example, another (far more concise) way to print each co
 </pre>
 
 
-<p>In this code, you call the <span class="code">foreach</span> method on <span class="code">args</span> and pass in a function. In this case, you're
-passing in a <a href="glossary.html#g1911543911"><em>function literal</em></a> that takes one parameter named <span class="code">arg</span>.
-The body of the function is <span class="code">println(arg)</span>.
-If you type the above code into a new file named <span class="code">pa.scala</span> and execute with the command:</p>
+<p>In this code, you call the <pre class="code">foreach</pre> method on <pre class="code">args</pre> and pass in a function. In this case, you're
+passing in a <a href="glossary.html#g1911543911"><em>function literal</em></a> that takes one parameter named <pre class="code">arg</pre>.
+The body of the function is <pre class="code">println(arg)</pre>.
+If you type the above code into a new file named <pre class="code">pa.scala</pre> and execute with the command:</p>
 
 <pre>
   $&nbsp;scala&nbsp;pa.scala&nbsp;Concise&nbsp;is&nbsp;nice
@@ -518,8 +518,8 @@ If you type the above code into a new file named <span class="code">pa.scala</sp
 
 
 <p>In the previous example, the Scala
-interpreter infers the type of <span class="code">arg</span> to be <span class="code">String</span>, since <span class="code">String</span> is the element type of the array on which you're calling
-<span class="code">foreach</span>. If you'd prefer to be more explicit, you can mention the type name. But when you do, you'll
+interpreter infers the type of <pre class="code">arg</pre> to be <pre class="code">String</pre>, since <pre class="code">String</pre> is the element type of the array on which you're calling
+<pre class="code">foreach</pre>. If you'd prefer to be more explicit, you can mention the type name. But when you do, you'll
 need to wrap the argument portion in parentheses (which is the normal form of the syntax anyway):</p>
 
 <pre>
@@ -551,9 +551,9 @@ This syntax is illustrated in <a href="first-steps-in-scala.html#fig-function-li
 <h5> Figure 2.2 - The syntax of a function literal in Scala.<a id="i-995341786-1"/></h5>
 
 
-<p>Now, by this point you may be wondering what happened to those trusty <span class="code">for</span> loops you have been accustomed to using in imperative languages, such as Java or C. In an effort to guide you in a functional direction, only a functional relative of the imperative
-<span class="code">for</span> (called a <em><span class="code">for</span> expression</em>) is available in Scala.<a id="i-207940604-1"/> While you won't see their full power and expressiveness until
-you reach (or peek ahead to) <a href="builtin-control-structures.html#sec-for-expressions">Section 7.3</a>, we'll give you a glimpse here. In a new file named <span class="code">forargs.scala</span>, type the following:</p>
+<p>Now, by this point you may be wondering what happened to those trusty <pre class="code">for</pre> loops you have been accustomed to using in imperative languages, such as Java or C. In an effort to guide you in a functional direction, only a functional relative of the imperative
+<pre class="code">for</pre> (called a <em><pre class="code">for</pre> expression</em>) is available in Scala.<a id="i-207940604-1"/> While you won't see their full power and expressiveness until
+you reach (or peek ahead to) <a href="builtin-control-structures.html#sec-for-expressions">Section 7.3</a>, we'll give you a glimpse here. In a new file named <pre class="code">forargs.scala</pre>, type the following:</p>
 
 <pre>
   <code class="vem">for</code>&nbsp;(arg&nbsp;&lt;-&nbsp;args)
@@ -561,19 +561,19 @@ you reach (or peek ahead to) <a href="builtin-control-structures.html#sec-for-ex
 </pre>
 
 
-<p>The parentheses after the "<span class="code">for</span>" contain <span class="code">arg</span>&nbsp;<span class="code">&lt;-</span>&nbsp;<span class="code">args</span>.<a href="first-steps-in-scala.html#footnotemain2-11">[11]</a>
-To the right of the <span class="code">&lt;-</span> symbol is the familiar <span class="code">args</span> array.<a id="i-1528740659-1"/>
-To the left of <span class="code">&lt;-</span> 
-is "<span class="code">arg</span>", the name of a <span class="code">val</span>, not a <span class="code">var</span>.
-(Because it is always a <span class="code">val</span>, you just write "<span class="code">arg</span>" by
-itself, not "<span class="code">val</span>&nbsp;<span class="code">arg</span>".)
-Although <span class="code">arg</span> may seem to be a <span class="code">var</span>, because it will get a new value on each iteration,
-it really is a <span class="code">val</span>: <span class="code">arg</span> can't be reassigned inside the body of the <span class="code">for</span> expression.
-Instead, for each element of the <span class="code">args</span> array, a <em>new</em> <span class="code">arg</span> <span class="code">val</span> will be created and initialized
-to the element value, and the body of the <span class="code">for</span>
+<p>The parentheses after the "<pre class="code">for</pre>" contain <pre class="code">arg</pre>&nbsp;<pre class="code">&lt;-</pre>&nbsp;<pre class="code">args</pre>.<a href="first-steps-in-scala.html#footnotemain2-11">[11]</a>
+To the right of the <pre class="code">&lt;-</pre> symbol is the familiar <pre class="code">args</pre> array.<a id="i-1528740659-1"/>
+To the left of <pre class="code">&lt;-</pre> 
+is "<pre class="code">arg</pre>", the name of a <pre class="code">val</pre>, not a <pre class="code">var</pre>.
+(Because it is always a <pre class="code">val</pre>, you just write "<pre class="code">arg</pre>" by
+itself, not "<pre class="code">val</pre>&nbsp;<pre class="code">arg</pre>".)
+Although <pre class="code">arg</pre> may seem to be a <pre class="code">var</pre>, because it will get a new value on each iteration,
+it really is a <pre class="code">val</pre>: <pre class="code">arg</pre> can't be reassigned inside the body of the <pre class="code">for</pre> expression.
+Instead, for each element of the <pre class="code">args</pre> array, a <em>new</em> <pre class="code">arg</pre> <pre class="code">val</pre> will be created and initialized
+to the element value, and the body of the <pre class="code">for</pre>
 will be executed.</p>
 
-<p>If you run the <span class="code">forargs.scala</span> script with the command:</p>
+<p>If you run the <pre class="code">forargs.scala</pre> script with the command:</p>
 
 <pre>
   $&nbsp;scala&nbsp;forargs.scala&nbsp;for&nbsp;arg&nbsp;in&nbsp;args
@@ -590,9 +590,9 @@ will be executed.</p>
 </pre>
 
 
-<p>Scala's <span class="code">for</span> expression can do much more than this, but this example
+<p>Scala's <pre class="code">for</pre> expression can do much more than this, but this example
 is enough to get you started. We'll
-show you more about <span class="code">for</span> in <a href="builtin-control-structures.html#sec-for-expressions">Section 7.3</a> and 
+show you more about <pre class="code">for</pre> in <a href="builtin-control-structures.html#sec-for-expressions">Section 7.3</a> and 
 <a href="for-expressions-revisited.html">Chapter 23</a>.</p>
 
 <h3>Conclusion</h3>
@@ -611,16 +611,16 @@ we'll continue this introductory overview and get into more advanced topics.</p>
 tested the examples in this book with Scala version 2.11.7.</p>
 
 <p><a id="footnotemain2-2"/>[2] If you're using
-Windows, you'll need to type the <span class="code">scala</span> command into the "Command Prompt" DOS box.</p>
+Windows, you'll need to type the <pre class="code">scala</pre> command into the "Command Prompt" DOS box.</p>
 
 <p><a id="footnotemain2-3"/>[3] If you're not familiar with Java packages, you can think of them as
-providing a full name for classes. Because <span class="code">Int</span> is a member of package <span class="code">scala</span>, "<span class="code">Int</span>" is the class's simple name,
-and "<span class="code">scala.Int</span>" is its full name. The details of
+providing a full name for classes. Because <pre class="code">Int</pre> is a member of package <pre class="code">scala</pre>, "<pre class="code">Int</pre>" is the class's simple name,
+and "<pre class="code">scala.Int</pre>" is its full name. The details of
 packages are explained in <a href="packages-and-imports.html">Chapter 13</a>.</p>
 
-<p><a id="footnotemain2-4"/>[4] The simple name of <span class="code">java.lang.String</span> is <span class="code">String</span>.</p>
+<p><a id="footnotemain2-4"/>[4] The simple name of <pre class="code">java.lang.String</pre> is <pre class="code">String</pre>.</p>
 
-<p><a id="footnotemain2-5"/>[5] In the interpreter, however, you can <em>define</em> a new <span class="code">val</span> with
+<p><a id="footnotemain2-5"/>[5] In the interpreter, however, you can <em>define</em> a new <pre class="code">val</pre> with
 a name that was already used before. This mechanism is explained in <a href="builtin-control-structures.html#sec-variable-scope">Section 7.7</a>.</p>
 
 <p><a id="footnotemain2-6"/>[6] In Java, the type of the value returned from a method is its
@@ -633,14 +633,14 @@ function result types explicitly, even when the compiler doesn't require it.
 Such type annotations can make the code easier to read, because the reader need not study the function body
 to figure out the inferred result type.</p>
 
-<p><a id="footnotemain2-9"/>[9] You can run scripts without typing "<span class="code">scala</span>" on Unix
+<p><a id="footnotemain2-9"/>[9] You can run scripts without typing "<pre class="code">scala</pre>" on Unix
 and Windows using a "pound-bang" syntax, which is shown in <a href="scala-scripts-on-unix-and-windows.html">Appendix A</a>.</p>
 
 <p><a id="footnotemain2-10"/>[10] This shorthand, called a <em>partially applied function</em>,
 is described in <a href="functions-and-closures.html#sec-partially-applied-functions">Section 8.6</a>.</p>
 
 <p><a id="footnotemain2-11"/>[11] You can say "in" for
-the <span class="code">&lt;-</span> symbol. You'd read <span class="code">for</span>&nbsp;<span class="code">(arg</span>&nbsp;<span class="code">&lt;-</span>&nbsp;<span class="code">args)</span>, therefore, as "for arg in args."</p>
+the <pre class="code">&lt;-</pre> symbol. You'd read <pre class="code">for</pre>&nbsp;<pre class="code">(arg</pre>&nbsp;<pre class="code">&lt;-</pre>&nbsp;<pre class="code">args)</pre>, therefore, as "for arg in args."</p>
 
 <div style="page-break-after:always"/>
 

@@ -24,8 +24,8 @@ covered in this chapter are essentially the same as in Java, we've inserted note
 indicating what sections Java developers can safely skip.</p>
 
 <p>In this chapter, you'll get an overview of Scala's basic types,
-including <span class="code">String</span>s and the value types <span class="code">Int</span>, <span class="code">Long</span>, <span class="code">Short</span>,
-<span class="code">Byte</span>, <span class="code">Float</span>, <span class="code">Double</span>, <span class="code">Char</span>, and <span class="code">Boolean</span>. You'll learn
+including <pre class="code">String</pre>s and the value types <pre class="code">Int</pre>, <pre class="code">Long</pre>, <pre class="code">Short</pre>,
+<pre class="code">Byte</pre>, <pre class="code">Float</pre>, <pre class="code">Double</pre>, <pre class="code">Char</pre>, and <pre class="code">Boolean</pre>. You'll learn
 the operations you can perform on these types, including how operator
 precedence works in Scala expressions. You'll also learn
 how implicit conversions can "enrich" variants of these basic types, giving
@@ -37,11 +37,11 @@ you additional operations beyond those supported by Java.</p>
 <p>Several fundamental types of Scala, along with the ranges of values instances of
 these types may
 have, are shown in <a href="basic-types-and-operations.html#tab-valtypes">Table 5.1</a>.
-Collectively, types <span class="code">Byte</span>,<a id="i1013322880-1"/>
-<span class="code">Short</span>,<a id="i1149344948-1"/> <span class="code">Int</span>,<a id="i517506535-1"/>
-<span class="code">Long</span>,<a id="i-149056780-1"/> and <span class="code">Char</span><a id="i1377752142-1"/> are
+Collectively, types <pre class="code">Byte</pre>,<a id="i1013322880-1"/>
+<pre class="code">Short</pre>,<a id="i1149344948-1"/> <pre class="code">Int</pre>,<a id="i517506535-1"/>
+<pre class="code">Long</pre>,<a id="i-149056780-1"/> and <pre class="code">Char</pre><a id="i1377752142-1"/> are
 called <em>integral types</em>.<a id="i-1495655539-1"/> The integral types plus
-<span class="code">Float</span><a id="i-1609149804-1"/> and <span class="code">Double</span><a id="i-265180023-1"/>
+<pre class="code">Float</pre><a id="i-1609149804-1"/> and <pre class="code">Double</pre><a id="i-265180023-1"/>
 are called <em>numeric types</em>.<a id="i-404482804-1"/></p>
 
 <p><a id="tab-valtypes"/></p>
@@ -106,7 +106,7 @@ are called <em>numeric types</em>.<a id="i-404482804-1"/></p>
     <span class="code"><span class="typename">String</span></span>
   </td>
   <td>
-    <span style="font-size:small">a sequence of <span class="code">Char</span>s</span>
+    <span style="font-size:small">a sequence of <pre class="code">Char</pre>s</span>
   </td>
 </tr>
 <tr>
@@ -130,22 +130,22 @@ are called <em>numeric types</em>.<a id="i-404482804-1"/></p>
     <span class="code"><span class="typename">Boolean</span></span>
   </td>
   <td>
-    <span style="font-size:small"><span class="code">true</span> or <span class="code">false</span></span>
+    <span style="font-size:small"><pre class="code">true</pre> or <pre class="code">false</pre></span>
   </td>
 </tr>
 </table>
 
 
-<p>Other than <span class="code">String</span>, which resides in package <span class="code">java.lang</span>, all of the types shown
+<p>Other than <pre class="code">String</pre>, which resides in package <pre class="code">java.lang</pre>, all of the types shown
 in <a href="basic-types-and-operations.html#tab-valtypes">Table 5.1</a> are members of package
-<span class="code">scala</span>.<a href="basic-types-and-operations.html#footnotemain5-1">[1]</a> For example, the full name of <span class="code">Int</span> is <span class="code">scala.Int</span>.
-However, given that all the members of package <span class="code">scala</span> and <span class="code">java.lang</span> are automatically imported into every Scala source file,
+<pre class="code">scala</pre>.<a href="basic-types-and-operations.html#footnotemain5-1">[1]</a> For example, the full name of <pre class="code">Int</pre> is <pre class="code">scala.Int</pre>.
+However, given that all the members of package <pre class="code">scala</pre> and <pre class="code">java.lang</pre> are automatically imported into every Scala source file,
 you can just use the simple names (<i>i.e.</i>, names like
-<span class="code">Boolean</span>,<a id="i1148427104-1"/> <span class="code">Char</span>, or
-<span class="code">String</span><a id="i-1230806839-1"/>) everywhere.</p>
+<pre class="code">Boolean</pre>,<a id="i1148427104-1"/> <pre class="code">Char</pre>, or
+<pre class="code">String</pre><a id="i-1230806839-1"/>) everywhere.</p>
 
 <p>Savvy Java developers will note that Scala's basic types have the exact same ranges as the corresponding types in Java.
-This enables the Scala compiler to transform instances of Scala <a href="glossary.html#g1985162377"><em>value types</em></a>, such as <span class="code">Int</span> or <span class="code">Double</span>, down to Java primitive types
+This enables the Scala compiler to transform instances of Scala <a href="glossary.html#g1985162377"><em>value types</em></a>, such as <pre class="code">Int</pre> or <pre class="code">Double</pre>, down to Java primitive types
 in the bytecodes it produces.</p>
 
 <h3 id="sec-literals">5.2 Literals</h3>
@@ -173,9 +173,9 @@ as 031, do not compile.</p>
 <h4>Integer literals</h4>
 
 
-<p>Integer literals for the types <span class="code">Int</span>, <span class="code">Long</span>, <span class="code">Short</span>, and <span class="code">Byte</span> come in two forms: decimal and hexadecimal. The way an integer literal begins indicates the
-base of the number. If the number begins with a <span class="code">0x</span> or <span class="code">0X</span>, it is hexadecimal (base 16), and may contain <span class="code">0</span> through <span class="code">9</span> as well as upper or lowercase
-digits <span class="code">A</span> through <span class="code">F</span>.
+<p>Integer literals for the types <pre class="code">Int</pre>, <pre class="code">Long</pre>, <pre class="code">Short</pre>, and <pre class="code">Byte</pre> come in two forms: decimal and hexadecimal. The way an integer literal begins indicates the
+base of the number. If the number begins with a <pre class="code">0x</pre> or <pre class="code">0X</pre>, it is hexadecimal (base 16), and may contain <pre class="code">0</pre> through <pre class="code">9</pre> as well as upper or lowercase
+digits <pre class="code">A</pre> through <pre class="code">F</pre>.
 Some examples are:<a id="i-168837784-1"/><a id="i208067142-1"/></p>
 
 <pre>
@@ -189,7 +189,7 @@ Some examples are:<a id="i-168837784-1"/><a id="i208067142-1"/></p>
 
 
 <p>Note that the Scala shell always prints integer values in base 10, no matter what literal form you may have
-used to initialize it. Thus the interpreter displays the value of the <span class="code">hex2</span> variable you initialized with literal <span class="code">0x00FF</span>
+used to initialize it. Thus the interpreter displays the value of the <pre class="code">hex2</pre> variable you initialized with literal <pre class="code">0x00FF</pre>
 as decimal 255. (Of course, you don't need to take our word for it. A good way to start getting a feel for the language is to
 try these statements out in the interpreter as you read this chapter.)
 If the number begins with a non-zero digit, and is otherwise undecorated,
@@ -205,8 +205,8 @@ it is decimal (base 10). For example:</p>
 </pre>
 
 
-<p>If an integer literal ends in an <span class="code">L</span> or <span class="code">l</span>, it is a <span class="code">Long</span>; otherwise it is an <span class="code">Int</span>. Some examples of
-<span class="code">Long</span> integer literals are:</p>
+<p>If an integer literal ends in an <pre class="code">L</pre> or <pre class="code">l</pre>, it is a <pre class="code">Long</pre>; otherwise it is an <pre class="code">Int</pre>. Some examples of
+<pre class="code">Long</pre> integer literals are:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;prog&nbsp;=&nbsp;<code class="literal">0XCAFEBABEL</code>
@@ -218,8 +218,8 @@ it is decimal (base 10). For example:</p>
 </pre>
 
 
-<p>If an <span class="code">Int</span> literal is assigned to a variable of type <span class="code">Short</span> or
-<span class="code">Byte</span>, the literal is treated as if it were a <span class="code">Short</span> or <span class="code">Byte</span> type so long as the literal value is within the valid range for that type.
+<p>If an <pre class="code">Int</pre> literal is assigned to a variable of type <pre class="code">Short</pre> or
+<pre class="code">Byte</pre>, the literal is treated as if it were a <pre class="code">Short</pre> or <pre class="code">Byte</pre> type so long as the literal value is within the valid range for that type.
 For example:</p>
 
 <pre>
@@ -233,7 +233,7 @@ For example:</p>
 <h4>Floating point literals</h4>
 
 
-<p>Floating point literals are made up of decimal digits, optionally containing a decimal point, and optionally followed by an <span class="code">E</span> or <span class="code">e</span>
+<p>Floating point literals are made up of decimal digits, optionally containing a decimal point, and optionally followed by an <pre class="code">E</pre> or <pre class="code">e</pre>
 and an exponent. Some examples of floating-point literals are:<a id="i1661236620-1"/><a id="i2064554715-1"/></p>
 
 <pre>
@@ -247,8 +247,8 @@ and an exponent. Some examples of floating-point literals are:<a id="i1661236620
 
 
 <p>Note that the exponent portion means the power of 10 by which the other portion is multiplied. Thus, 1.2345e1 is 1.2345 <i>times</i> 10<sup>1</sup>, which
-is 12.345. If a floating-point literal ends in an <span class="code">F</span> or <span class="code">f</span>, it is a <span class="code">Float</span>; otherwise it is a <span class="code">Double</span>. Optionally, a <span class="code">Double</span> floating-point literal can
-end in <span class="code">D</span> or <span class="code">d</span>. Some examples of <span class="code">Float</span> literals are:</p>
+is 12.345. If a floating-point literal ends in an <pre class="code">F</pre> or <pre class="code">f</pre>, it is a <pre class="code">Float</pre>; otherwise it is a <pre class="code">Double</pre>. Optionally, a <pre class="code">Double</pre> floating-point literal can
+end in <pre class="code">D</pre> or <pre class="code">d</pre>. Some examples of <pre class="code">Float</pre> literals are:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;little&nbsp;=&nbsp;<code class="literal">1.2345F</code>
@@ -258,7 +258,7 @@ end in <span class="code">D</span> or <span class="code">d</span>. Some examples
 </pre>
 
 
-<p>That last value expressed as a <span class="code">Double</span> could
+<p>That last value expressed as a <pre class="code">Double</pre> could
 take these (and other) forms:</p>
 
 <pre>
@@ -283,7 +283,7 @@ quotes, such as:<a id="i1377637053-1"/><a id="i2027394259-1"/><a id="i-197420869
 
 <p>In addition to providing an explicit character between the single quotes,
 you can identify a character using its Unicode code point. To do so,
-write <span class="code">\u</span> followed by four hex digits with the code point, like this:</p>
+write <pre class="code">\u</pre> followed by four hex digits with the code point, like this:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;d&nbsp;=&nbsp;<code class="quotedstring">'\u0041'</code>
@@ -302,7 +302,7 @@ you could also write an identifier like this:</p>
 </pre>
 
 
-<p>This identifier is treated as identical to <span class="code">BAD</span>, the result of expanding the two Unicode
+<p>This identifier is treated as identical to <pre class="code">BAD</pre>, the result of expanding the two Unicode
 characters in the code above. In general, it is a bad idea to name identifiers like
 this because it is hard to read. Rather, this syntax is intended to allow Scala
 source files that include non-ASCII Unicode characters to be represented in ASCII.</p>
@@ -335,66 +335,66 @@ For example:</p>
 </tr>
 <tr class="topline ">
   <td>
-    <span class="code">\n</span>
+    <pre class="code">\n</pre>
   </td>
   <td>
-    line feed (<span class="code">\u000A</span>)
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">\b</span>
-  </td>
-  <td>
-    backspace (<span class="code">\u0008</span>)
+    line feed (<pre class="code">\u000A</pre>)
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">\t</span>
+    <pre class="code">\b</pre>
   </td>
   <td>
-    tab (<span class="code">\u0009</span>)
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">\f</span>
-  </td>
-  <td>
-    form feed (<span class="code">\u000C</span>)
+    backspace (<pre class="code">\u0008</pre>)
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">\r</span>
+    <pre class="code">\t</pre>
   </td>
   <td>
-    carriage return (<span class="code">\u000D</span>)
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">\"</span>
-  </td>
-  <td>
-    double quote (<span class="code">\u0022</span>)
+    tab (<pre class="code">\u0009</pre>)
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">\'</span>
+    <pre class="code">\f</pre>
   </td>
   <td>
-    single quote (<span class="code">\u0027</span>)
+    form feed (<pre class="code">\u000C</pre>)
+  </td>
+</tr>
+<tr>
+  <td>
+    <pre class="code">\r</pre>
+  </td>
+  <td>
+    carriage return (<pre class="code">\u000D</pre>)
+  </td>
+</tr>
+<tr>
+  <td>
+    <pre class="code">\"</pre>
+  </td>
+  <td>
+    double quote (<pre class="code">\u0022</pre>)
+  </td>
+</tr>
+<tr>
+  <td>
+    <pre class="code">\'</pre>
+  </td>
+  <td>
+    single quote (<pre class="code">\u0027</pre>)
   </td>
 </tr>
 <tr class="bottomline">
   <td>
-    <span class="code">\\</span>
+    <pre class="code">\\</pre>
   </td>
   <td>
-    backslash (<span class="code">\u005C</span>)
+    backslash (<pre class="code">\u005C</pre>)
   </td>
 </tr>
 </table>
@@ -429,7 +429,7 @@ character literals. For example:</p>
 sequences or strings that span multiple lines, Scala
 includes a special syntax for <span style="font-style:italic">raw
 strings</span>.<a id="i-1493588176-1"/><a id="i1433882250-1"/><a id="i943241332-1"/>  You start and end a
-raw string with three double quotation marks in a row (<span class="code">"""</span>).  The
+raw string with three double quotation marks in a row (<pre class="code">"""</pre>).  The
 interior of a raw string may contain any characters whatsoever,
 including newlines, quotation marks, and special characters, except of
 course three quotes in a row. For example, the following program
@@ -451,10 +451,10 @@ prints out a message using a raw string:<a id="i-1356616527-1"/></p>
 
 <p>The issue is that the leading spaces before the second line are
 included in the string!  To help with this common situation, you can
-call <span class="code">stripMargin</span> on
+call <pre class="code">stripMargin</pre> on
 strings.<a id="i1176903119-1"/>  To use this
-method, put a pipe character (<span class="code">|</span>) at the front of each line, and
-then call <span class="code">stripMargin</span> on the whole string:</p>
+method, put a pipe character (<pre class="code">|</pre>) at the front of each line, and
+then call <pre class="code">stripMargin</pre> on the whole string:</p>
 
 <pre>
   println(<code class="quotedstring">"""|Welcome&nbsp;to&nbsp;Ultamix&nbsp;3000.</code>
@@ -473,11 +473,11 @@ then call <span class="code">stripMargin</span> on the whole string:</p>
 <h4>Symbol literals</h4>
 
 
-<p>A symbol literal is written <span class="code">'</span><em>ident</em>, where <em>ident</em> can be any
+<p>A symbol literal is written <pre class="code">'</pre><em>ident</em>, where <em>ident</em> can be any
 alphanumeric identifier.
 Such literals are mapped to instances of the predefined
-class <span class="code">scala.Symbol</span>. Specifically, the literal <span class="code">'cymbal</span> will be expanded
-by the compiler to a factory method invocation: <span class="code">Symbol("cymbal")</span>. Symbol literals are typically used in
+class <pre class="code">scala.Symbol</pre>. Specifically, the literal <pre class="code">'cymbal</pre> will be expanded
+by the compiler to a factory method invocation: <pre class="code">Symbol("cymbal")</pre>. Symbol literals are typically used in
 situations where you would use just an identifier in a dynamically<a id="i2012339474-3"/><a id="i716433724-3"/>
 typed language.<a id="i-2064511954-1"/><a id="i386345772-1"/> For instance, you might want to define a method
 that updates a record in a database:</p>
@@ -523,13 +523,13 @@ find out its name:</p>
 
 
 <p>Another thing that's noteworthy is that symbols are <span style="font-style:italic">interned</span>. If you 
-write the same symbol literal twice, both expressions will refer to the exact same <span class="code">Symbol</span> object.</p>
+write the same symbol literal twice, both expressions will refer to the exact same <pre class="code">Symbol</pre> object.</p>
 
 <h4>Boolean literals</h4>
 
 
-<p>The <span class="code">Boolean</span> type has two literals,
-<span class="code">true</span> and <span class="code">false</span>:<a id="i-2062178222-1"/><a id="i594122396-1"/><a id="i907417652-1"/><a id="i1304901727-1"/></p>
+<p>The <pre class="code">Boolean</pre> type has two literals,
+<pre class="code">true</pre> and <pre class="code">false</pre>:<a id="i-2062178222-1"/><a id="i594122396-1"/><a id="i907417652-1"/><a id="i1304901727-1"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;bool&nbsp;=&nbsp;<code class="vem">true</code>&nbsp;
@@ -556,16 +556,16 @@ Here's an example:</p>
 </pre>
 
 
-<p>The expression, <span class="code">s"Hello,</span>&nbsp;<span class="code">$name!"</span> is a <span class="textit">processed</span> string
+<p>The expression, <pre class="code">s"Hello,</pre>&nbsp;<pre class="code">$name!"</pre> is a <span class="textit">processed</span> string
 literal.<a id="i479175681-1"/><a id="i-1017781128-1"/><a id="i-2068973913-2"/><a id="i1349528476-2"/><a id="i-1883760226-1"/><a id="i544577078-1"/> Because
-the letter <span class="code">s</span> immediately precedes the open quote, Scala will use the 
-<span class="textit"><span class="code">s</span> string interpolator</span> to process the literal. The <span class="code">s</span> interpolator will<a id="i1290088777-1"/>
-evaluate each embedded expression, invoke <span class="code">toString</span> on each result, and 
+the letter <pre class="code">s</pre> immediately precedes the open quote, Scala will use the 
+<span class="textit"><pre class="code">s</pre> string interpolator</span> to process the literal. The <pre class="code">s</pre> interpolator will<a id="i1290088777-1"/>
+evaluate each embedded expression, invoke <pre class="code">toString</pre> on each result, and 
 replace the embedded expressions in the literal with those results.
-Thus <span class="code">s"Hello,</span>&nbsp;<span class="code">$name!"</span> yields <span class="code">"Hello,</span>&nbsp;<span class="code">reader!"</span>, the same result as
-<span class="code">"Hello,</span>&nbsp;<span class="code">"</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">name</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">"!"</span>.</p>
+Thus <pre class="code">s"Hello,</pre>&nbsp;<pre class="code">$name!"</pre> yields <pre class="code">"Hello,</pre>&nbsp;<pre class="code">reader!"</pre>, the same result as
+<pre class="code">"Hello,</pre>&nbsp;<pre class="code">"</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">name</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">"!"</pre>.</p>
 
-<p>You can place any expression after a dollar sign (<span class="code">$</span>) in a processed string literal.
+<p>You can place any expression after a dollar sign (<pre class="code">$</pre>) in a processed string literal.
 For single-variable expressions, you can often just place the variable name after
 the dollar sign. Scala will interpret all characters up to the first non-identifier
 character as the expression.
@@ -579,8 +579,8 @@ Here's an example:</p>
 </pre>
 
 
-<p>Scala provides two other string interpolators by default: <span class="code">raw</span><a id="i-2113209218-1"/> and <span class="code">f</span><a id="i-1457473092-1"/>.
-The <span class="code">raw</span> string interpolator behaves like <span class="code">s</span>, except it does not
+<p>Scala provides two other string interpolators by default: <pre class="code">raw</pre><a id="i-2113209218-1"/> and <pre class="code">f</pre><a id="i-1457473092-1"/>.
+The <pre class="code">raw</pre> string interpolator behaves like <pre class="code">s</pre>, except it does not
 recognize character literal escape sequences (such as those shown in
 <a href="basic-types-and-operations.html#tab-specchar">Table 5.2</a>). For example, the following statement prints
 four backslashes, not two:</p>
@@ -590,9 +590,9 @@ four backslashes, not two:</p>
 </pre>
 
 
-<p>The <span class="code">f</span> string interpolator allows you to attach <span class="code">printf</span>-style formatting instructions
+<p>The <pre class="code">f</pre> string interpolator allows you to attach <pre class="code">printf</pre>-style formatting instructions
 to embedded expressions. You place the instructions after the expression, starting with a
-percent sign (<span class="texttt">%</span>), using the syntax specified by <span class="code">java.util.Formatter</span>. For example,
+percent sign (<span class="texttt">%</span>), using the syntax specified by <pre class="code">java.util.Formatter</pre>. For example,
 here's how you might format pi:</p>
 
 <pre>
@@ -601,9 +601,9 @@ here's how you might format pi:</p>
 </pre>
 
 
-<p>If you provide no formatting instructions for an embedded expression, the <span class="code">f</span> string
-interpolator will default to <span class="texttt">%</span><span class="code">s</span>, which means the <span class="code">toString</span> value will be
-substituted, just like the <span class="code">s</span> string interpolator. For example:</p>
+<p>If you provide no formatting instructions for an embedded expression, the <pre class="code">f</pre> string
+interpolator will default to <span class="texttt">%</span><pre class="code">s</pre>, which means the <pre class="code">toString</pre> value will be
+substituted, just like the <pre class="code">s</pre> string interpolator. For example:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;pi&nbsp;=&nbsp;<code class="quotedstring">"Pi"</code>
@@ -619,8 +619,8 @@ The compiler will treat any expression
 consisting of an identifier followed immediately by
 the open double quote of a string literal
 as a string interpolator expression.
-The <span class="code">s</span>, <span class="code">f</span>, and
-<span class="code">raw</span> string interpolators are implemented via this general mechanism.
+The <pre class="code">s</pre>, <pre class="code">f</pre>, and
+<pre class="code">raw</pre> string interpolators are implemented via this general mechanism.
 Libraries and users can define other string interpolators for other purposes.</p>
 
 <h3 id="sec-operators">5.4 Operators are methods</h3>
@@ -630,10 +630,10 @@ Libraries and users can define other string interpolators for other purposes.</p
 types.
 As mentioned in previous chapters, these operators are
 actually just a nice syntax for ordinary method calls. For example,
-<span class="code">1</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">2</span> really means the same thing as <span class="code">1.+(2)</span>.<a id="i-614149608-2"/> In other words,
-class <span class="code">Int</span> contains a method named <span class="code">+</span> that takes an <span class="code">Int</span> and
-returns an <span class="code">Int</span> result.  This <span class="code">+</span> method is 
-invoked when you add two <span class="code">Int</span>s:</p>
+<pre class="code">1</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">2</pre> really means the same thing as <pre class="code">1.+(2)</pre>.<a id="i-614149608-2"/> In other words,
+class <pre class="code">Int</pre> contains a method named <pre class="code">+</pre> that takes an <pre class="code">Int</pre> and
+returns an <pre class="code">Int</pre> result.  This <pre class="code">+</pre> method is 
+invoked when you add two <pre class="code">Int</pre>s:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;sum&nbsp;=&nbsp;<code class="literal">1</code>&nbsp;+&nbsp;<code class="literal">2</code>&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Scala&nbsp;invokes&nbsp;1.+(2)</code>
@@ -649,12 +649,12 @@ invoked when you add two <span class="code">Int</span>s:</p>
 </pre>
 
 
-<p>In fact, <span class="code">Int</span> contains several
-<em>overloaded</em> <span class="code">+</span> methods that take different parameter
+<p>In fact, <pre class="code">Int</pre> contains several
+<em>overloaded</em> <pre class="code">+</pre> methods that take different parameter
 types.<a href="basic-types-and-operations.html#footnotemain5-3">[3]</a>
-For example, <span class="code">Int</span> has another method, also named <span class="code">+</span>,
-that takes and returns a <span class="code">Long</span>. If you
-add a <span class="code">Long</span> to an <span class="code">Int</span>, this alternate <span class="code">+</span> method will be invoked, as in:</p>
+For example, <pre class="code">Int</pre> has another method, also named <pre class="code">+</pre>,
+that takes and returns a <pre class="code">Long</pre>. If you
+add a <pre class="code">Long</pre> to an <pre class="code">Int</pre>, this alternate <pre class="code">+</pre> method will be invoked, as in:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;longSum&nbsp;=&nbsp;<code class="literal">1</code>&nbsp;+&nbsp;<code class="literal">2L</code>&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Scala&nbsp;invokes&nbsp;1.+(2L)</code>
@@ -662,13 +662,13 @@ add a <span class="code">Long</span> to an <span class="code">Int</span>, this a
 </pre>
 
 
-<p>The <span class="code">+</span> symbol is an operator&mdash;an infix operator to be specific.<a id="i145517742-1"/><a id="i-74898194-1"/>
-Operator notation is not limited to methods like <span class="code">+</span> that look like
+<p>The <pre class="code">+</pre> symbol is an operator&mdash;an infix operator to be specific.<a id="i145517742-1"/><a id="i-74898194-1"/>
+Operator notation is not limited to methods like <pre class="code">+</pre> that look like
 operators in other languages. You can use <em>any</em> method in operator
 notation.<a id="i-1126677335-1"/>
-For example, class <span class="code">String</span> has a method, <span class="code">indexOf</span>, that takes one <span class="code">Char</span> parameter. The <span class="code">indexOf</span> method searches the string for the first occurrence
-of the specified character and returns its index or <span class="code">-1</span> if it doesn't find the character.
-You can use <span class="code">indexOf</span> as an
+For example, class <pre class="code">String</pre> has a method, <pre class="code">indexOf</pre>, that takes one <pre class="code">Char</pre> parameter. The <pre class="code">indexOf</pre> method searches the string for the first occurrence
+of the specified character and returns its index or <pre class="code">-1</pre> if it doesn't find the character.
+You can use <pre class="code">indexOf</pre> as an
 operator, like this:</p>
 
 <pre>
@@ -679,11 +679,11 @@ operator, like this:</p>
 </pre>
 
 
-<p>In addition, <span class="code">String</span> offers an overloaded <span class="code">indexOf</span> method that takes two parameters, the character for which to search 
-and an index at which to start. (The other <span class="code">indexOf</span> method, shown previously, starts at index zero, the beginning of the <span class="code">String</span>.) Even though this <span class="code">indexOf</span>
+<p>In addition, <pre class="code">String</pre> offers an overloaded <pre class="code">indexOf</pre> method that takes two parameters, the character for which to search 
+and an index at which to start. (The other <pre class="code">indexOf</pre> method, shown previously, starts at index zero, the beginning of the <pre class="code">String</pre>.) Even though this <pre class="code">indexOf</pre>
 method takes two arguments, you can use it in operator notation. But whenever you call a method that takes multiple
 arguments using operator notation, you have to place those arguments in parentheses. For example, here's how you use this other 
-<span class="code">indexOf</span> form as an operator (continuing from the previous example):</p>
+<pre class="code">indexOf</pre> form as an operator (continuing from the previous example):</p>
 
 <pre>
   scala&gt;&nbsp;s&nbsp;indexOf&nbsp;(<code class="quotedstring">'o'</code>,&nbsp;<code class="literal">5</code>)&nbsp;<code class="comment">//&nbsp;Scala&nbsp;invokes&nbsp;s.indexOf('o',&nbsp;5)</code>
@@ -696,8 +696,8 @@ arguments using operator notation, you have to place those arguments in parenthe
 
 
 <p>In Scala operators are not special language syntax; any method can be an operator. What makes a method an operator is how you <em>use</em> it.
-When you write "<span class="code">s.indexOf('o')</span>", <span class="code">indexOf</span> is not an operator. But when
-you write "<span class="code">s</span>&nbsp;<span class="code">indexOf</span>&nbsp;<span class="code">'o'</span>", <span class="code">indexOf</span> <em>is</em> an operator, because you're using
+When you write "<pre class="code">s.indexOf('o')</pre>", <pre class="code">indexOf</pre> is not an operator. But when
+you write "<pre class="code">s</pre>&nbsp;<pre class="code">indexOf</pre>&nbsp;<pre class="code">'o'</pre>", <pre class="code">indexOf</pre> <em>is</em> an operator, because you're using
 it in operator notation.</p>
 
 </div>
@@ -705,19 +705,19 @@ it in operator notation.</p>
 
 <p>So far, you've seen examples of <em>infix</em> operator notation, which means
 the method to invoke sits between the object and the parameter (or parameters) you
-wish to pass to the method, as in "<span class="code">7</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">2</span>".
+wish to pass to the method, as in "<pre class="code">7</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">2</pre>".
 Scala also has two other operator notations: prefix and postfix.
 In prefix notation, you put the method name before the object on which you
-are invoking the method (for example, the `<span class="code">-</span>' in <span class="code">-7</span>). In postfix
-notation, you put the method after the object (for example, the "<span class="code">toLong</span>"
-in "<span class="code">7</span>&nbsp;<span class="code">toLong</span>").</p>
+are invoking the method (for example, the `<pre class="code">-</pre>' in <pre class="code">-7</pre>). In postfix
+notation, you put the method after the object (for example, the "<pre class="code">toLong</pre>"
+in "<pre class="code">7</pre>&nbsp;<pre class="code">toLong</pre>").</p>
 
 <p>In contrast to the infix operator notation&mdash;in which operators take two operands, one to the left and the other to the right&mdash;prefix and postfix
 operators are <em>unary</em>: they take just one operand.<a id="i-1088310403-1"/> In prefix notation, the operand is to the right of the operator.<a id="i711311856-1"/><a id="i-2117778892-1"/>
-Some examples of prefix operators are <span class="code">-2.0</span>, <span class="code">!found</span>, and <span class="code"><span style="font-size:large">~</span>0xFF</span>. As with the
+Some examples of prefix operators are <pre class="code">-2.0</pre>, <pre class="code">!found</pre>, and <span class="code"><span style="font-size:large">~</span>0xFF</span>. As with the
 infix operators, these prefix operators are a shorthand way of invoking methods. In this case,
-however, the name of the method has "<span class="code">unary_</span>" prepended to the operator character. For instance, Scala will transform the expression <span class="code">-2.0</span> into
-the method invocation "<span class="code">(2.0).unary_-</span>".  You can demonstrate this to yourself by typing the method call both via operator notation and explicitly:</p>
+however, the name of the method has "<pre class="code">unary_</pre>" prepended to the operator character. For instance, Scala will transform the expression <pre class="code">-2.0</pre> into
+the method invocation "<pre class="code">(2.0).unary_-</pre>".  You can demonstrate this to yourself by typing the method call both via operator notation and explicitly:</p>
 
 <pre>
   scala&gt;&nbsp;-<code class="literal">2.0</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Scala&nbsp;invokes&nbsp;(2.0).unary_-</code>
@@ -727,18 +727,18 @@ the method invocation "<span class="code">(2.0).unary_-</span>".  You can demons
 </pre>
 
 
-<p>The only identifiers that can be used as prefix operators are <span class="code">+</span>, <span class="code">-</span>, <span class="code">!</span>, and <span class="code"><span style="font-size:large">~</span></span>. Thus, if you define a method named <span class="code">unary_!</span>, you
-could invoke that method on a value or variable of the appropriate type using prefix operator notation, such as <span class="code">!p</span>. But if you define a method
-named <span class="code">unary_*</span>, you wouldn't be able to use prefix operator notation because <span class="code">*</span> isn't one of the four identifiers that can be used as prefix
-operators. You could invoke the method normally, as in <span class="code">p.unary_*</span>, but if you attempted to invoke it via <span class="code">*p</span>, Scala will
-parse it as if you'd written <span class="code">*.p</span>, which is probably not what you had in mind!<a href="basic-types-and-operations.html#footnotemain5-4">[4]</a></p>
+<p>The only identifiers that can be used as prefix operators are <pre class="code">+</pre>, <pre class="code">-</pre>, <pre class="code">!</pre>, and <span class="code"><span style="font-size:large">~</span></span>. Thus, if you define a method named <pre class="code">unary_!</pre>, you
+could invoke that method on a value or variable of the appropriate type using prefix operator notation, such as <pre class="code">!p</pre>. But if you define a method
+named <pre class="code">unary_*</pre>, you wouldn't be able to use prefix operator notation because <pre class="code">*</pre> isn't one of the four identifiers that can be used as prefix
+operators. You could invoke the method normally, as in <pre class="code">p.unary_*</pre>, but if you attempted to invoke it via <pre class="code">*p</pre>, Scala will
+parse it as if you'd written <pre class="code">*.p</pre>, which is probably not what you had in mind!<a href="basic-types-and-operations.html#footnotemain5-4">[4]</a></p>
 
 <p>Postfix operators are methods that take no arguments, when they are
 invoked without a dot or parentheses. In Scala, you can leave off
 empty parentheses on method calls.<a id="i-1718164274-1"/><a id="i1976561855-1"/> The convention is that you include
-parentheses if the method has side effects, such as <span class="code">println()</span>, but
+parentheses if the method has side effects, such as <pre class="code">println()</pre>, but
 you can leave them off if the method has no side effects, such as
-<span class="code">toLowerCase</span> invoked on a <span class="code">String</span>:</p>
+<pre class="code">toLowerCase</pre> invoked on a <pre class="code">String</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;s&nbsp;=&nbsp;<code class="quotedstring">"Hello,&nbsp;world!"</code>
@@ -757,7 +757,7 @@ use postfix operator notation:<a id="i797797395-1"/><a id="i-1299180525-1"/></p>
 </pre>
 
 
-<p>In this case, <span class="code">toLowerCase</span> is used as a postfix operator on the operand <span class="code">s</span>.</p>
+<p>In this case, <pre class="code">toLowerCase</pre> is used as a postfix operator on the operand <pre class="code">s</pre>.</p>
 
 <p>Therefore, to see what operators you can use with Scala's basic types, all you really need
 to do is look at the methods declared in the type's classes in the Scala API documentation. Given that this is a Scala tutorial, however,
@@ -780,9 +780,9 @@ describes how Scala differs from Java in the area of object equality.</p>
 
 
 <p>You can invoke arithmetic methods via infix operator notation for<a id="i63774984-1"/>
-addition (<span class="code">+</span>),<a id="i983413923-1"/> subtraction (<span class="code">-</span>)<a id="i716347441-1"/>, multiplication
-(<span class="code">*</span>)<a id="i-1513393110-1"/>, division
-(<span class="code">/</span>)<a id="i1085968089-1"/>, and remainder (<span class="code"><span class="texttt">%</span></span>)<a id="i277713802-1"/> on
+addition (<pre class="code">+</pre>),<a id="i983413923-1"/> subtraction (<pre class="code">-</pre>)<a id="i716347441-1"/>, multiplication
+(<pre class="code">*</pre>)<a id="i-1513393110-1"/>, division
+(<pre class="code">/</pre>)<a id="i1085968089-1"/>, and remainder (<span class="code"><span class="texttt">%</span></span>)<a id="i277713802-1"/> on
 any numeric type. Here are some examples:</p>
 
 <pre>
@@ -805,13 +805,13 @@ any numeric type. Here are some examples:</p>
 </pre>
 
 
-<p>When both the left and right operands are integral types (<span class="code">Int</span>, <span class="code">Long</span>, <span class="code">Byte</span>, <span class="code">Short</span>, or <span class="code">Char</span>), the <span class="code">/</span> operator will tell
+<p>When both the left and right operands are integral types (<pre class="code">Int</pre>, <pre class="code">Long</pre>, <pre class="code">Byte</pre>, <pre class="code">Short</pre>, or <pre class="code">Char</pre>), the <pre class="code">/</pre> operator will tell
 you the whole number portion of the quotient, excluding any remainder. The <span class="code"><span class="texttt">%</span></span> operator indicates the remainder of an implied integer division.</p>
 
 <p>The floating-point remainder you get with <span class="code"><span class="texttt">%</span></span>
 is not the one defined by the IEEE 754 standard. The IEEE 754 remainder uses 
 rounding division, not truncating division, in calculating the remainder, so it is quite different from the integer remainder operation. If you really
-want an IEEE 754 remainder, you can call <span class="code">IEEEremainder</span> on <span class="code">scala.math</span>, as in:</p>
+want an IEEE 754 remainder, you can call <pre class="code">IEEEremainder</pre> on <pre class="code">scala.math</pre>, as in:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="typename">math.IEEEremainder</code>(<code class="literal">11.0</code>,&nbsp;<code class="literal">4.0</code>)
@@ -819,11 +819,11 @@ want an IEEE 754 remainder, you can call <span class="code">IEEEremainder</span>
 </pre>
 
 
-<p>The numeric types also offer unary prefix operators <span class="code">+</span> (method <span class="code">unary_+</span>) and <span class="code">-</span> (method <span class="code">unary_-</span>), which allow you
-to indicate whether a literal number is positive or negative, as in <span class="code">-3</span> or <span class="code">+4.0</span>. If
-you don't specify a unary <span class="code">+</span> or <span class="code">-</span>, a literal number is interpreted as positive.
-Unary <span class="code">+</span> exists solely for symmetry with unary <span class="code">-</span>, but has no effect.
-The unary <span class="code">-</span> can also be used to negate a variable.
+<p>The numeric types also offer unary prefix operators <pre class="code">+</pre> (method <pre class="code">unary_+</pre>) and <pre class="code">-</pre> (method <pre class="code">unary_-</pre>), which allow you
+to indicate whether a literal number is positive or negative, as in <pre class="code">-3</pre> or <pre class="code">+4.0</pre>. If
+you don't specify a unary <pre class="code">+</pre> or <pre class="code">-</pre>, a literal number is interpreted as positive.
+Unary <pre class="code">+</pre> exists solely for symmetry with unary <pre class="code">-</pre>, but has no effect.
+The unary <pre class="code">-</pre> can also be used to negate a variable.
 Here are some examples:</p>
 
 <pre>
@@ -840,11 +840,11 @@ Here are some examples:</p>
 
 
 <p>You can compare numeric types with relational methods greater than<a id="i-1517365894-1"/>
-(<span class="code">&gt;</span>)<a id="i990790573-1"/>, less than (<span class="code">&lt;</span>)<a id="i220203625-1"/>, greater
-than or equal to (<span class="code">&gt;=</span>)<a id="i-248849346-1"/>, and less than or
-equal to (<span class="code">&lt;=</span>)<a id="i529909354-1"/>, which yield a <span class="code">Boolean</span> result. In
-addition, you can use the unary `<span class="code">!</span>' operator (the <span class="code">unary_!</span> method)
-to invert a <span class="code">Boolean</span> value.<a id="i1211007643-1"/><a id="i1148427104-2"/>  Here are a few examples:</p>
+(<pre class="code">&gt;</pre>)<a id="i990790573-1"/>, less than (<pre class="code">&lt;</pre>)<a id="i220203625-1"/>, greater
+than or equal to (<pre class="code">&gt;=</pre>)<a id="i-248849346-1"/>, and less than or
+equal to (<pre class="code">&lt;=</pre>)<a id="i529909354-1"/>, which yield a <pre class="code">Boolean</pre> result. In
+addition, you can use the unary `<pre class="code">!</pre>' operator (the <pre class="code">unary_!</pre> method)
+to invert a <pre class="code">Boolean</pre> value.<a id="i1211007643-1"/><a id="i1148427104-2"/>  Here are a few examples:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="literal">1</code>&nbsp;&gt;&nbsp;<code class="literal">2</code>&nbsp;
@@ -862,8 +862,8 @@ to invert a <span class="code">Boolean</span> value.<a id="i1211007643-1"/><a id
 </pre>
 
 
-<p>Logical methods, logical-and (<span class="code">&amp;&amp;</span> and <span class="code">&amp;</span>) and logical-or (<span class="code">||</span> and <span class="code">|</span>), take <span class="code">Boolean</span> operands in infix notation<a id="i-206208280-1"/>
-and yield a <span class="code">Boolean</span> result.  For example:<a id="i-991245277-1"/><a id="i-821581301-1"/></p>
+<p>Logical methods, logical-and (<pre class="code">&amp;&amp;</pre> and <pre class="code">&amp;</pre>) and logical-or (<pre class="code">||</pre> and <pre class="code">|</pre>), take <pre class="code">Boolean</pre> operands in infix notation<a id="i-206208280-1"/>
+and yield a <pre class="code">Boolean</pre> result.  For example:<a id="i-991245277-1"/><a id="i-821581301-1"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;toBe&nbsp;=&nbsp;<code class="vem">true</code>
@@ -875,12 +875,12 @@ and yield a <span class="code">Boolean</span> result.  For example:<a id="i-9912
 </pre>
 
 
-<p>The <span class="code">&amp;&amp;</span> and <span class="code">||</span> operations <em>short-circuit</em> as in Java: expressions<a id="i682407483-1"/>
+<p>The <pre class="code">&amp;&amp;</pre> and <pre class="code">||</pre> operations <em>short-circuit</em> as in Java: expressions<a id="i682407483-1"/>
 built from these operators are only evaluated as far as needed to determine the result.
-In other words, the right-hand side of <span class="code">&amp;&amp;</span> and <span class="code">||</span> expressions
-won't be evaluated if the left-hand side determines the result. For example, if the left-hand side of a <span class="code">&amp;&amp;</span> expression
-evaluates to <span class="code">false</span>, the result of the expression will definitely be <span class="code">false</span>, so the right-hand side is not evaluated. Likewise, if
-the left-hand side of a <span class="code">||</span> expression evaluates to <span class="code">true</span>, the result of the expression will definitely be <span class="code">true</span>, so the
+In other words, the right-hand side of <pre class="code">&amp;&amp;</pre> and <pre class="code">||</pre> expressions
+won't be evaluated if the left-hand side determines the result. For example, if the left-hand side of a <pre class="code">&amp;&amp;</pre> expression
+evaluates to <pre class="code">false</pre>, the result of the expression will definitely be <pre class="code">false</pre>, so the right-hand side is not evaluated. Likewise, if
+the left-hand side of a <pre class="code">||</pre> expression evaluates to <pre class="code">true</pre>, the result of the expression will definitely be <pre class="code">true</pre>, so the
 right-hand side is not evaluated.</p>
 
 <pre>
@@ -898,16 +898,16 @@ right-hand side is not evaluated.</p>
 </pre>
 
 
-<p>In the first expression, <span class="code">pepper</span> and <span class="code">salt</span> are invoked,  but
-in the second, only <span class="code">salt</span> is invoked.  Given <span class="code">salt</span> returns
-<span class="code">false</span>, there's no need to call <span class="code">pepper</span>.</p>
+<p>In the first expression, <pre class="code">pepper</pre> and <pre class="code">salt</pre> are invoked,  but
+in the second, only <pre class="code">salt</pre> is invoked.  Given <pre class="code">salt</pre> returns
+<pre class="code">false</pre>, there's no need to call <pre class="code">pepper</pre>.</p>
 
 <div style="page-break-after:always"/>
 
 
-<p>If you want to evaluate the right hand side no matter what, use <span class="code">&amp;</span> and <span class="code">|</span> instead. 
-The <span class="code">&amp;</span> method performs a logical-and operation, and <span class="code">|</span> a logical-or, but don't short-ciruit
-like <span class="code">&amp;&amp;</span> and <span class="code">||</span>.
+<p>If you want to evaluate the right hand side no matter what, use <pre class="code">&amp;</pre> and <pre class="code">|</pre> instead. 
+The <pre class="code">&amp;</pre> method performs a logical-and operation, and <pre class="code">|</pre> a logical-or, but don't short-ciruit
+like <pre class="code">&amp;&amp;</pre> and <pre class="code">||</pre>.
 Here's an example:</p>
 
 <pre>
@@ -936,7 +936,7 @@ called <a href="glossary.html#g-1173919606"><em>by-name parameters</em></a> and 
 
 
 <p>Scala enables you to perform operations on individual bits of integer types with several bitwise methods.<a id="i1795120479-1"/><a id="i824307652-1"/><a id="i608439332-1"/><a id="i-788169784-1"/><a id="i-354658411-1"/>
-The bitwise methods are: bitwise-and (<span class="code">&amp;</span>), bitwise-or (<span class="code">|</span>), and bitwise-xor (<span class="code">^</span>).<a href="basic-types-and-operations.html#footnotemain5-5">[5]</a> The unary bitwise
+The bitwise methods are: bitwise-and (<pre class="code">&amp;</pre>), bitwise-or (<pre class="code">|</pre>), and bitwise-xor (<pre class="code">^</pre>).<a href="basic-types-and-operations.html#footnotemain5-5">[5]</a> The unary bitwise
 complement operator (<span class="code"><span style="font-size:large">~</span></span>, the method <span class="code">unary_<span style="font-size:large">~</span></span>) inverts each bit in its operand. For example:</p>
 
 <pre>
@@ -951,13 +951,13 @@ complement operator (<span class="code"><span style="font-size:large">~</span></
 </pre>
 
 
-<p>The first expression, <span class="code">1</span>&nbsp;<span class="code">&amp;</span>&nbsp;<span class="code">2</span>, bitwise-ands each bit in 1 (0001) and 2 (0010), which yields 0 (0000). The
-second expression, <span class="code">1</span>&nbsp;<span class="code">|</span>&nbsp;<span class="code">2</span>, bitwise-ors each bit in the same operands, yielding 3 (0011). The third expression, <span class="code">1</span>&nbsp;<span class="code">^</span>&nbsp;<span class="code">3</span>,
+<p>The first expression, <pre class="code">1</pre>&nbsp;<pre class="code">&amp;</pre>&nbsp;<pre class="code">2</pre>, bitwise-ands each bit in 1 (0001) and 2 (0010), which yields 0 (0000). The
+second expression, <pre class="code">1</pre>&nbsp;<pre class="code">|</pre>&nbsp;<pre class="code">2</pre>, bitwise-ors each bit in the same operands, yielding 3 (0011). The third expression, <pre class="code">1</pre>&nbsp;<pre class="code">^</pre>&nbsp;<pre class="code">3</pre>,
 bitwise-xors each bit in 1 (0001) and 3 (0011), yielding 2 (0010). The final expression, <span class="code"><span style="font-size:large">~</span>1</span>, inverts each bit in 1 (0001),
 yielding -2, which in binary looks like 11111111111111111111111111111110.</p>
 
-<p>Scala integer types also offer three shift methods: shift left (<span class="code">&lt;&lt;</span>), shift right (<span class="code">&gt;&gt;</span>), and<a id="i1503282158-1"/><a id="i683040431-1"/><a id="i1817662978-1"/><a id="i-1799112486-1"/>
-unsigned shift right (<span class="code">&gt;&gt;&gt;</span>). The shift methods, when used in infix operator notation, shift the integer
+<p>Scala integer types also offer three shift methods: shift left (<pre class="code">&lt;&lt;</pre>), shift right (<pre class="code">&gt;&gt;</pre>), and<a id="i1503282158-1"/><a id="i683040431-1"/><a id="i1817662978-1"/><a id="i-1799112486-1"/>
+unsigned shift right (<pre class="code">&gt;&gt;&gt;</pre>). The shift methods, when used in infix operator notation, shift the integer
 value on the left of the operator by the amount specified by the integer value on the right. Shift left and
 unsigned shift right fill with zeroes as they shift. Shift right fills with the highest bit (the sign bit) of the
 left-hand value as it shifts. Here are some examples:<a id="i1037331510-1"/></p>
@@ -972,20 +972,20 @@ left-hand value as it shifts. Here are some examples:<a id="i1037331510-1"/></p>
 </pre>
 
 
-<p>-1 in binary is 11111111111111111111111111111111. In the first example, <span class="code">-1</span>&nbsp;<span class="code">&gt;&gt;</span>&nbsp;<span class="code">31</span>, -1 is shifted to the right 31 bit positions. Since an
-<span class="code">Int</span> consists of 32 bits, this operation effectively moves the leftmost bit over until it becomes the rightmost
+<p>-1 in binary is 11111111111111111111111111111111. In the first example, <pre class="code">-1</pre>&nbsp;<pre class="code">&gt;&gt;</pre>&nbsp;<pre class="code">31</pre>, -1 is shifted to the right 31 bit positions. Since an
+<pre class="code">Int</pre> consists of 32 bits, this operation effectively moves the leftmost bit over until it becomes the rightmost
 bit.<a href="basic-types-and-operations.html#footnotemain5-6">[6]</a>
-Since the <span class="code">&gt;&gt;</span> method fills with ones as it shifts right, because the leftmost bit of -1 is 1, the result is identical to the original left operand, 32 one bits, or -1.
-In the second example, <span class="code">-1</span>&nbsp;<span class="code">&gt;&gt;&gt;</span>&nbsp;<span class="code">31</span>, the leftmost bit is again shifted right until it is in the rightmost position, but this time
-filling with zeroes along the way. Thus the result this time is binary 00000000000000000000000000000001, or 1. In the final example, <span class="code">1</span>&nbsp;<span class="code">&lt;&lt;</span>&nbsp;<span class="code">2</span>,  
+Since the <pre class="code">&gt;&gt;</pre> method fills with ones as it shifts right, because the leftmost bit of -1 is 1, the result is identical to the original left operand, 32 one bits, or -1.
+In the second example, <pre class="code">-1</pre>&nbsp;<pre class="code">&gt;&gt;&gt;</pre>&nbsp;<pre class="code">31</pre>, the leftmost bit is again shifted right until it is in the rightmost position, but this time
+filling with zeroes along the way. Thus the result this time is binary 00000000000000000000000000000001, or 1. In the final example, <pre class="code">1</pre>&nbsp;<pre class="code">&lt;&lt;</pre>&nbsp;<pre class="code">2</pre>,  
 the left operand, 1, is shifted left two positions (filling in with zeroes), resulting in binary 00000000000000000000000000000100, or 4.</p>
 
 <h3 id="sec-equality">5.8 Object equality</h3>
 
 
 <p>If you want to compare two objects for equality, you
-can use either <span class="code">==</span> or its inverse
-<span class="code">!=</span>.<a id="i46092869-1"/><a id="i307189229-1"/> Here are a
+can use either <pre class="code">==</pre> or its inverse
+<pre class="code">!=</pre>.<a id="i46092869-1"/><a id="i307189229-1"/> Here are a
 few simple examples:<a id="i-1583721442-1"/><a id="i1095465388-1"/><a id="i15383763-1"/><a id="i-1108611945-1"/></p>
 
 <pre>
@@ -999,7 +999,7 @@ few simple examples:<a id="i-1583721442-1"/><a id="i1095465388-1"/><a id="i15383
 
 
 <p>These operations actually apply to all objects, not just basic types.
-For example, you can use <span class="code">==</span> to compare lists:</p>
+For example, you can use <pre class="code">==</pre> to compare lists:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)&nbsp;==&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)
@@ -1019,8 +1019,8 @@ For example, you can use <span class="code">==</span> to compare lists:</p>
 </pre>
 
 
-<p>You can even compare against <span class="code">null</span>, or against things that might be
-<span class="code">null</span>.  No exception will be thrown:</p>
+<p>You can even compare against <pre class="code">null</pre>, or against things that might be
+<pre class="code">null</pre>.  No exception will be thrown:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)&nbsp;==&nbsp;<code class="vem">null</code>
@@ -1030,17 +1030,17 @@ For example, you can use <span class="code">==</span> to compare lists:</p>
 </pre>
 
 
-<p>As you see, <span class="code">==</span> has been carefully crafted so that you get just the
+<p>As you see, <pre class="code">==</pre> has been carefully crafted so that you get just the
 equality comparison you want in most cases.  This is accomplished with
-a very simple rule: First check the left side for <span class="code">null</span>. If it
-is not <span class="code">null</span>, call the <span class="code">equals</span> method.<a id="i-342464093-1"/>
-Since <span class="code">equals</span> is a method, the precise
+a very simple rule: First check the left side for <pre class="code">null</pre>. If it
+is not <pre class="code">null</pre>, call the <pre class="code">equals</pre> method.<a id="i-342464093-1"/>
+Since <pre class="code">equals</pre> is a method, the precise
 comparison you get depends on the type of the left-hand argument.
 Since there is an automatic null check, you do not have to do the
 check yourself.<a href="basic-types-and-operations.html#footnotemain5-7">[7]</a></p>
 
-<p>This kind of comparison will yield <span class="code">true</span> on different objects, so
-long as their contents are the same and their <span class="code">equals</span> method is
+<p>This kind of comparison will yield <pre class="code">true</pre> on different objects, so
+long as their contents are the same and their <pre class="code">equals</pre> method is
 written to be based on
 contents.  For example, here is a comparison
 between two strings that happen to have the same five letters in them:<a id="i307189229-2"/></p>
@@ -1052,17 +1052,17 @@ between two strings that happen to have the same five letters in them:<a id="i30
 
 
 <div class="aside">
-<h3>How Scala's <span class="code">==</span> differs from Java's</h3>
+<h3>How Scala's <pre class="code">==</pre> differs from Java's</h3>
 
 
-<p>In Java, you can use <span class="code">==</span> to compare both primitive<a id="i-383144457-1"/><a id="i1422354335-1"/>
-and reference types. On primitive types, Java's <span class="code">==</span> compares value equality,<a id="i1877185224-1"/>
-as in Scala. On reference types, however, Java's <span class="code">==</span> compares <a href="glossary.html#g1293228591"><em>reference equality</em></a>, which
+<p>In Java, you can use <pre class="code">==</pre> to compare both primitive<a id="i-383144457-1"/><a id="i1422354335-1"/>
+and reference types. On primitive types, Java's <pre class="code">==</pre> compares value equality,<a id="i1877185224-1"/>
+as in Scala. On reference types, however, Java's <pre class="code">==</pre> compares <a href="glossary.html#g1293228591"><em>reference equality</em></a>, which
 means the two variables point to the same object on the JVM's heap.
-Scala provides a facility for comparing reference equality, as well, under the name <span class="code">eq</span>.  However,
-<span class="code">eq</span> and its opposite, <span class="code">ne</span>, only apply to objects that directly map to Java objects.
-The full details about <span class="code">eq</span> and <span class="code">ne</span> are given in <a href="scalas-hierarchy.html#sec-scalas-class-hierarchy">Sections 11.1</a> and<a href="scalas-hierarchy.html#sec-impl-primitives"> 11.2</a>.
-Also, see <a href="object-equality.html">Chapter 30</a> on how to write a good <span class="code">equals</span> method.<a id="i-795280463-1"/><a id="i2030434891-1"/><a id="i-1620977796-1"/><a id="i1319501024-1"/><a id="i1544052809-1"/></p>
+Scala provides a facility for comparing reference equality, as well, under the name <pre class="code">eq</pre>.  However,
+<pre class="code">eq</pre> and its opposite, <pre class="code">ne</pre>, only apply to objects that directly map to Java objects.
+The full details about <pre class="code">eq</pre> and <pre class="code">ne</pre> are given in <a href="scalas-hierarchy.html#sec-scalas-class-hierarchy">Sections 11.1</a> and<a href="scalas-hierarchy.html#sec-impl-primitives"> 11.2</a>.
+Also, see <a href="object-equality.html">Chapter 30</a> on how to write a good <pre class="code">equals</pre> method.<a id="i-795280463-1"/><a id="i2030434891-1"/><a id="i-1620977796-1"/><a id="i1319501024-1"/><a id="i1544052809-1"/></p>
 
 </div>
 
@@ -1071,7 +1071,7 @@ Also, see <a href="object-equality.html">Chapter 30</a> on how to write a good <
 
 
 <p>Operator precedence determines which parts of an expression are evaluated before the other parts. For example, the expression<a id="i1955596960-1"/><a id="i2084616098-1"/>
-<span class="code">2</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">2</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">7</span> evaluates to 16, not 28, because the * operator has a higher precedence than the + operator. Thus the multiplication part of
+<pre class="code">2</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">7</pre> evaluates to 16, not 28, because the * operator has a higher precedence than the + operator. Thus the multiplication part of
 the expression is evaluated before the addition part. You can of course use parentheses in expressions to clarify evaluation
 order or to override precedence. For example, if you really wanted the result of the expression above to be 28, you could
 write the expression like this:</p>
@@ -1086,12 +1086,12 @@ methods in operator notation, you may be wondering how operator
 precedence works. Scala decides precedence based on the first
 character of the methods used in operator notation (there's one
 exception to this rule, which will be discussed in the following pages). If the method name
-starts with a <span class="code">*</span>, for example, it will have a higher precedence than
-a method that starts with a <span class="code">+</span>. Thus <span class="code">2</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">2</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">7</span> will be evaluated
-as <span class="code">2</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">(2</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">7)</span>. Similarly, <span class="code">a</span>&nbsp;<span class="code">+++</span>&nbsp;<span class="code">b</span>&nbsp;<span class="code">***</span>&nbsp;<span class="code">c</span> (in which <span class="code">a</span>, <span class="code">b</span>, and <span class="code">c</span>
-are variables, and <span class="code">+++</span> and <span class="code">***</span> are methods) will be
-evaluated <span class="code">a</span>&nbsp;<span class="code">+++</span>&nbsp;<span class="code">(b</span>&nbsp;<span class="code">***</span>&nbsp;<span class="code">c)</span>, because the <span class="code">***</span> method has a higher
-precedence than the <span class="code">+++</span> method.</p>
+starts with a <pre class="code">*</pre>, for example, it will have a higher precedence than
+a method that starts with a <pre class="code">+</pre>. Thus <pre class="code">2</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">7</pre> will be evaluated
+as <pre class="code">2</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">(2</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">7)</pre>. Similarly, <pre class="code">a</pre>&nbsp;<pre class="code">+++</pre>&nbsp;<pre class="code">b</pre>&nbsp;<pre class="code">***</pre>&nbsp;<pre class="code">c</pre> (in which <pre class="code">a</pre>, <pre class="code">b</pre>, and <pre class="code">c</pre>
+are variables, and <pre class="code">+++</pre> and <pre class="code">***</pre> are methods) will be
+evaluated <pre class="code">a</pre>&nbsp;<pre class="code">+++</pre>&nbsp;<pre class="code">(b</pre>&nbsp;<pre class="code">***</pre>&nbsp;<pre class="code">c)</pre>, because the <pre class="code">***</pre> method has a higher
+precedence than the <pre class="code">+++</pre> method.</p>
 
 <p><a id="tab-opprec"/></p>
 
@@ -1109,42 +1109,42 @@ precedence than the <span class="code">+++</span> method.</p>
 </tr>
 <tr>
   <td>
-    <span class="code">*</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code"><span class="texttt">%</span></span>
+    <pre class="code">*</pre>&nbsp;<pre class="code">/</pre>&nbsp;<span class="code"><span class="texttt">%</span></span>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">+</span>&nbsp;<span class="code">-</span>
+    <pre class="code">+</pre>&nbsp;<pre class="code">-</pre>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">:</span>
+    <pre class="code">:</pre>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">=</span>&nbsp;<span class="code">!</span>
+    <pre class="code">=</pre>&nbsp;<pre class="code">!</pre>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">&lt;</span>&nbsp;<span class="code">&gt;</span>
+    <pre class="code">&lt;</pre>&nbsp;<pre class="code">&gt;</pre>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">&amp;</span>
+    <pre class="code">&amp;</pre>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">^</span>
+    <pre class="code">^</pre>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">|</span>
+    <pre class="code">|</pre>
   </td>
 </tr>
 <tr>
@@ -1174,10 +1174,10 @@ Here's an example that illustrates the influence of precedence:</p>
 </pre>
 
 
-<p>The <span class="code">&lt;&lt;</span> method starts with the character <span class="code">&lt;</span>, which appears lower in <a href="basic-types-and-operations.html#tab-opprec">Table 5.3</a> than the character <span class="code">+</span>, which is the
-first and only character of the <span class="code">+</span> method. Thus <span class="code">&lt;&lt;</span> will have lower precedence than <span class="code">+</span>, and the expression will
-be evaluated by first invoking the <span class="code">+</span> method, then the <span class="code">&lt;&lt;</span> method, as in <span class="code">2</span>&nbsp;<span class="code">&lt;&lt;</span>&nbsp;<span class="code">(2</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">2)</span>. <span class="code">2</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">2</span> is <span class="code">4</span>, by
-our math, and <span class="code">2</span>&nbsp;<span class="code">&lt;&lt;</span>&nbsp;<span class="code">4</span> yields <span class="code">32</span>. If you swap the operators, you'll get a different result:</p>
+<p>The <pre class="code">&lt;&lt;</pre> method starts with the character <pre class="code">&lt;</pre>, which appears lower in <a href="basic-types-and-operations.html#tab-opprec">Table 5.3</a> than the character <pre class="code">+</pre>, which is the
+first and only character of the <pre class="code">+</pre> method. Thus <pre class="code">&lt;&lt;</pre> will have lower precedence than <pre class="code">+</pre>, and the expression will
+be evaluated by first invoking the <pre class="code">+</pre> method, then the <pre class="code">&lt;&lt;</pre> method, as in <pre class="code">2</pre>&nbsp;<pre class="code">&lt;&lt;</pre>&nbsp;<pre class="code">(2</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">2)</pre>. <pre class="code">2</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">2</pre> is <pre class="code">4</pre>, by
+our math, and <pre class="code">2</pre>&nbsp;<pre class="code">&lt;&lt;</pre>&nbsp;<pre class="code">4</pre> yields <pre class="code">32</pre>. If you swap the operators, you'll get a different result:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="literal">2</code>&nbsp;+&nbsp;<code class="literal">2</code>&nbsp;&lt;&lt;&nbsp;<code class="literal">2</code>
@@ -1185,16 +1185,16 @@ our math, and <span class="code">2</span>&nbsp;<span class="code">&lt;&lt;</span
 </pre>
 
 
-<p>Since the first characters are the same as in the previous example, the methods will be invoked in the same order. First the <span class="code">+</span> method will be invoked,
-then the <span class="code">&lt;&lt;</span> method. So <span class="code">2</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">2</span> will again yield <span class="code">4</span>, and <span class="code">4</span>&nbsp;<span class="code">&lt;&lt;</span>&nbsp;<span class="code">2</span> is 16.</p>
+<p>Since the first characters are the same as in the previous example, the methods will be invoked in the same order. First the <pre class="code">+</pre> method will be invoked,
+then the <pre class="code">&lt;&lt;</pre> method. So <pre class="code">2</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">2</pre> will again yield <pre class="code">4</pre>, and <pre class="code">4</pre>&nbsp;<pre class="code">&lt;&lt;</pre>&nbsp;<pre class="code">2</pre> is 16.</p>
 
 <p>The one exception to the precedence rule, 
 alluded to earlier,
 concerns <span style="font-style:italic">assignment operators</span>, which end in an equals character.
-If an operator ends in an equals character <span class="code">(=)</span>, and the
-operator is not one of the comparison operators <span class="code">&lt;=</span>, <span class="code">&gt;=</span>, <span class="code">==</span>,
-or <span class="code">!=</span>, then the precedence of the operator is the same as that
-of simple assignment <span class="code">(=)</span>. That is, it is lower than the
+If an operator ends in an equals character <pre class="code">(=)</pre>, and the
+operator is not one of the comparison operators <pre class="code">&lt;=</pre>, <pre class="code">&gt;=</pre>, <pre class="code">==</pre>,
+or <pre class="code">!=</pre>, then the precedence of the operator is the same as that
+of simple assignment <pre class="code">(=)</pre>. That is, it is lower than the
 precedence of any other operator. For instance:</p>
 
 <pre>
@@ -1209,18 +1209,18 @@ precedence of any other operator. For instance:</p>
 </pre>
 
 
-<p>because <span class="code">*=</span> is classified as an assignment operator whose precedence is lower than <span class="code">+</span>, even though the operator's first character 
-is <span class="code">*</span>, which would suggest a precedence higher than <span class="code">+</span>.</p>
+<p>because <pre class="code">*=</pre> is classified as an assignment operator whose precedence is lower than <pre class="code">+</pre>, even though the operator's first character 
+is <pre class="code">*</pre>, which would suggest a precedence higher than <pre class="code">+</pre>.</p>
 
 <p>When multiple operators of the same precedence appear side by side in an expression, the <em>associativity</em> of the operators<a id="i1109054020-1"/><a id="i1812392602-1"/>
 determines the way operators are grouped. The associativity of an operator in Scala is determined by its <em>last</em> character. As mentioned
- <a href="next-steps-in-scala.html#note-colonmethod">here</a> of <a href="next-steps-in-scala.html">Chapter 3</a>, any method that ends in a `<span class="code">:</span>'
+ <a href="next-steps-in-scala.html#note-colonmethod">here</a> of <a href="next-steps-in-scala.html">Chapter 3</a>, any method that ends in a `<pre class="code">:</pre>'
 character is invoked on its right operand, passing in the left operand. Methods
 that end in any other character are the other way around: They are invoked on their left operand, passing in the right operand.
-So <span class="code">a</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">b</span> yields <span class="code">a.*(b)</span>, but <span class="code">a</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">b</span> yields <span class="code">b.:::(a)</span>.<a id="i-1085593547-2"/></p>
+So <pre class="code">a</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">b</pre> yields <pre class="code">a.*(b)</pre>, but <pre class="code">a</pre>&nbsp;<pre class="code">:::</pre>&nbsp;<pre class="code">b</pre> yields <pre class="code">b.:::(a)</pre>.<a id="i-1085593547-2"/></p>
 
 <p>No matter what associativity an operator has, however, its operands are always evaluated left to right. 
-So if <span class="code">a</span> is an expression that is not just a simple reference to an immutable value, then <span class="code">a</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">b</span>
+So if <pre class="code">a</pre> is an expression that is not just a simple reference to an immutable value, then <pre class="code">a</pre>&nbsp;<pre class="code">:::</pre>&nbsp;<pre class="code">b</pre>
 is more precisely treated as the following block:</p>
 
 <pre>
@@ -1228,21 +1228,21 @@ is more precisely treated as the following block:</p>
 </pre>
 
 
-<p>In this block <span class="code">a</span> is still evaluated before <span class="code">b</span>, and then the result of this evaluation is passed as an operand
-to <span class="code">b</span>'s <span class="code">:::</span> method.</p>
+<p>In this block <pre class="code">a</pre> is still evaluated before <pre class="code">b</pre>, and then the result of this evaluation is passed as an operand
+to <pre class="code">b</pre>'s <pre class="code">:::</pre> method.</p>
 
 <p>This associativity rule also plays a role when multiple operators of
-the same precedence appear side by side. If the methods end in `<span class="code">:</span>',
+the same precedence appear side by side. If the methods end in `<pre class="code">:</pre>',
 they are grouped right to left; otherwise, they are grouped left to
-right.  For example, <span class="code">a</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">b</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">c</span> is treated as <span class="code">a</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">(b</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">c)</span>. 
-But <span class="code">a</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">b</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">c</span>, by contrast, is treated as <span class="code">(a</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">b)</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">c</span>.</p>
+right.  For example, <pre class="code">a</pre>&nbsp;<pre class="code">:::</pre>&nbsp;<pre class="code">b</pre>&nbsp;<pre class="code">:::</pre>&nbsp;<pre class="code">c</pre> is treated as <pre class="code">a</pre>&nbsp;<pre class="code">:::</pre>&nbsp;<pre class="code">(b</pre>&nbsp;<pre class="code">:::</pre>&nbsp;<pre class="code">c)</pre>. 
+But <pre class="code">a</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">b</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">c</pre>, by contrast, is treated as <pre class="code">(a</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">b)</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">c</pre>.</p>
 
 <p>Operator precedence is part of the Scala language. You needn't be afraid to use it. Nevertheless, it is
 good style to use parentheses to clarify what operators are operating upon what expressions.
-Perhaps the only precedence you can truly count on other programmers knowing without looking up is that multiplicative operators, <span class="code">*</span>,
-<span class="code">/</span>, and <span class="code"><span class="texttt">%</span></span>, have a higher precedence than the additive ones <span class="code">+</span> and <span class="code">-</span>. Thus even if <span class="code">a</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">b</span>&nbsp;<span class="code">&lt;&lt;</span>&nbsp;<span class="code">c</span> yields the result you want without
-parentheses, the extra clarity you get by writing <span class="code">(a</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">b)</span>&nbsp;<span class="code">&lt;&lt;</span>&nbsp;<span class="code">c</span> may reduce the frequency with which your peers utter
-your name in operator notation, for example, by shouting in disgust, "<span class="code">bills</span>  <span class="code">!*&amp;^<span class="texttt">%</span><span style="font-size:large">~</span></span>  <span class="code">code!</span>".<a href="basic-types-and-operations.html#footnotemain5-8">[8]</a></p>
+Perhaps the only precedence you can truly count on other programmers knowing without looking up is that multiplicative operators, <pre class="code">*</pre>,
+<pre class="code">/</pre>, and <span class="code"><span class="texttt">%</span></span>, have a higher precedence than the additive ones <pre class="code">+</pre> and <pre class="code">-</pre>. Thus even if <pre class="code">a</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">b</pre>&nbsp;<pre class="code">&lt;&lt;</pre>&nbsp;<pre class="code">c</pre> yields the result you want without
+parentheses, the extra clarity you get by writing <pre class="code">(a</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">b)</pre>&nbsp;<pre class="code">&lt;&lt;</pre>&nbsp;<pre class="code">c</pre> may reduce the frequency with which your peers utter
+your name in operator notation, for example, by shouting in disgust, "<pre class="code">bills</pre>  <span class="code">!*&amp;^<span class="texttt">%</span><span style="font-size:large">~</span></span>  <pre class="code">code!</pre>".<a href="basic-types-and-operations.html#footnotemain5-8">[8]</a></p>
 
 <h3 id="sec-rich-wrappers">5.10 Rich wrappers</h3>
 
@@ -1277,74 +1277,74 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr class="topline ">
   <td>
-    <span class="code"><span class="literal">0</span></span>&nbsp;<span class="code">max</span>&nbsp;<span class="code"><span class="literal">5</span></span>
+    <span class="code"><span class="literal">0</span></span>&nbsp;<pre class="code">max</pre>&nbsp;<span class="code"><span class="literal">5</span></span>
   </td>
   <td>
-    <span class="code">5</span>
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code"><span class="literal">0</span></span>&nbsp;<span class="code">min</span>&nbsp;<span class="code"><span class="literal">5</span></span>
-  </td>
-  <td>
-    <span class="code">0</span>
+    <pre class="code">5</pre>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">-<span class="literal">2.7</span></span>&nbsp;<span class="code">abs</span>
+    <span class="code"><span class="literal">0</span></span>&nbsp;<pre class="code">min</pre>&nbsp;<span class="code"><span class="literal">5</span></span>
   </td>
   <td>
-    <span class="code">2.7</span>
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">-<span class="literal">2.7</span></span>&nbsp;<span class="code">round</span>
-  </td>
-  <td>
-    <span class="code">-3L</span>
+    <pre class="code">0</pre>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="literal">1.5</span></span>&nbsp;<span class="code">isInfinity</span>
+    <span class="code">-<span class="literal">2.7</span></span>&nbsp;<pre class="code">abs</pre>
   </td>
   <td>
-    <span class="code">false</span>
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">(<span class="literal">1.0</span></span>&nbsp;<span class="code">/</span>&nbsp;<span class="code"><span class="literal">0</span>)</span>&nbsp;<span class="code">isInfinity</span>
-  </td>
-  <td>
-    <span class="code">true</span>
+    <pre class="code">2.7</pre>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="literal">4</span></span>&nbsp;<span class="code">to</span>&nbsp;<span class="code"><span class="literal">6</span></span>
+    <span class="code">-<span class="literal">2.7</span></span>&nbsp;<pre class="code">round</pre>
   </td>
   <td>
-    <span class="code">Range(4,</span>&nbsp;<span class="code">5,</span>&nbsp;<span class="code">6)</span>
+    <pre class="code">-3L</pre>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="quotedstring">"bob"</span></span>&nbsp;<span class="code">capitalize</span>
+    <span class="code"><span class="literal">1.5</span></span>&nbsp;<pre class="code">isInfinity</pre>
   </td>
   <td>
-    <span class="code">"Bob"</span>
+    <pre class="code">false</pre>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">(<span class="literal">1.0</span></span>&nbsp;<pre class="code">/</pre>&nbsp;<span class="code"><span class="literal">0</span>)</span>&nbsp;<pre class="code">isInfinity</pre>
+  </td>
+  <td>
+    <pre class="code">true</pre>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code"><span class="literal">4</span></span>&nbsp;<pre class="code">to</pre>&nbsp;<span class="code"><span class="literal">6</span></span>
+  </td>
+  <td>
+    <pre class="code">Range(4,</pre>&nbsp;<pre class="code">5,</pre>&nbsp;<pre class="code">6)</pre>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code"><span class="quotedstring">"bob"</span></span>&nbsp;<pre class="code">capitalize</pre>
+  </td>
+  <td>
+    <pre class="code">"Bob"</pre>
   </td>
 </tr>
 <tr class="bottomline">
   <td>
-    <span class="code"><span class="quotedstring">"robert"</span></span>&nbsp;<span class="code">drop</span>&nbsp;<span class="code"><span class="literal">2</span></span>
+    <span class="code"><span class="quotedstring">"robert"</span></span>&nbsp;<pre class="code">drop</pre>&nbsp;<span class="code"><span class="literal">2</span></span>
   </td>
   <td>
-    <span class="code">"bert"</span>
+    <pre class="code">"bert"</pre>
   </td>
 </tr>
 </table>
@@ -1375,7 +1375,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
     <span class="code"><span class="typename">Byte</span></span>
   </td>
   <td>
-    <span class="code">scala.runtime.RichByte</span>
+    <pre class="code">scala.runtime.RichByte</pre>
   </td>
 </tr>
 <tr>
@@ -1383,7 +1383,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
     <span class="code"><span class="typename">Short</span></span>
   </td>
   <td>
-    <span class="code">scala.runtime.RichShort</span>
+    <pre class="code">scala.runtime.RichShort</pre>
   </td>
 </tr>
 <tr>
@@ -1391,7 +1391,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
     <span class="code"><span class="typename">Int</span></span>
   </td>
   <td>
-    <span class="code">scala.runtime.RichInt</span>
+    <pre class="code">scala.runtime.RichInt</pre>
   </td>
 </tr>
 <tr>
@@ -1399,7 +1399,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
     <span class="code"><span class="typename">Long</span></span>
   </td>
   <td>
-    <span class="code">scala.runtime.RichLong</span>
+    <pre class="code">scala.runtime.RichLong</pre>
   </td>
 </tr>
 <tr>
@@ -1407,7 +1407,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
     <span class="code"><span class="typename">Char</span></span>
   </td>
   <td>
-    <span class="code">scala.runtime.RichChar</span>
+    <pre class="code">scala.runtime.RichChar</pre>
   </td>
 </tr>
 <tr>
@@ -1415,7 +1415,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
     <span class="code"><span class="typename">Float</span></span>
   </td>
   <td>
-    <span class="code">scala.runtime.RichFloat</span>
+    <pre class="code">scala.runtime.RichFloat</pre>
   </td>
 </tr>
 <tr>
@@ -1423,7 +1423,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
     <span class="code"><span class="typename">Double</span></span>
   </td>
   <td>
-    <span class="code">scala.runtime.RichDouble</span>
+    <pre class="code">scala.runtime.RichDouble</pre>
   </td>
 </tr>
 <tr>
@@ -1431,7 +1431,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
     <span class="code"><span class="typename">Boolean</span></span>
   </td>
   <td>
-    <span class="code">scala.runtime.RichBoolean</span>
+    <pre class="code">scala.runtime.RichBoolean</pre>
   </td>
 </tr>
 <tr class="bottomline">
@@ -1439,7 +1439,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
     <span class="code"><span class="typename">String</span></span>
   </td>
   <td>
-    <span class="code">scala.collection.immutable.StringOps</span>
+    <pre class="code">scala.collection.immutable.StringOps</pre>
   </td>
 </tr>
 </table>
@@ -1473,17 +1473,17 @@ different argument types. More on method overloading in <a href="functional-obje
 
 <p><a id="footnotemain5-4"/>[4] All is not necessarily
 lost, however. There is an extremely slight chance your program with
-the <span class="code">*p</span> might compile as C++.</p>
+the <pre class="code">*p</pre> might compile as C++.</p>
 
 <p><a id="footnotemain5-5"/>[5] The bitwise-xor
 method performs an <em>exclusive or</em> on its operands. Identical bits yield a 0. Different bits yield a 1. Thus
-<span class="code">0011</span>&nbsp;<span class="code">^</span>&nbsp;<span class="code">0101</span> yields <span class="code">0110</span>.</p>
+<pre class="code">0011</pre>&nbsp;<pre class="code">^</pre>&nbsp;<pre class="code">0101</pre> yields <pre class="code">0110</pre>.</p>
 
 <p><a id="footnotemain5-6"/>[6] The leftmost bit in an integer type is the sign bit. If the leftmost bit is 1, the number is negative. If 0, the number is positive.</p>
 
 <p><a id="footnotemain5-7"/>[7] The automatic check does not look at the
-right-hand side, but any reasonable <span class="code">equals</span> method should return
-<span class="code">false</span> if its argument is <span class="code">null</span>.</p>
+right-hand side, but any reasonable <pre class="code">equals</pre> method should return
+<pre class="code">false</pre> if its argument is <pre class="code">null</pre>.</p>
 
 <p><a id="footnotemain5-8"/>[8] By now you should be able to figure out that
 given this code, the Scala compiler would invoke <span class="code">(bills.!*&amp;^<span class="texttt">%</span><span style="font-size:large">~</span>(code)).!()</span>.</p>

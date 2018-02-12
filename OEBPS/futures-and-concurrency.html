@@ -19,17 +19,17 @@ an increased interest in concurrency.
 Java provides concurrency support built around shared memory and locking. Although this
 support is sufficient, this approach turns out to be quite difficult to get right in practice.<a id="i-1261817322-1"/><a id="i-503567600-1"/><a id="i-2146835927-1"/>
 Scala's standard library offers an alternative that avoids these difficulties by
-focusing on asynchronous transformations of immutable state: the <span class="code">Future</span>.</p>
+focusing on asynchronous transformations of immutable state: the <pre class="code">Future</pre>.</p>
 
-<p>Although Java also offers a <span class="code">Future</span>, it is very different from Scala's.
-Both represent the result of an asynchronous computation, but Java's <span class="code">Future</span> requires that you access the result via a
-blocking <span class="code">get</span> method. Although you can call <span class="code">isDone</span> to find out if a Java <span class="code">Future</span> has completed
-before calling <span class="code">get</span>, thereby avoiding any blocking, you must wait until the Java <span class="code">Future</span> has completed before
+<p>Although Java also offers a <pre class="code">Future</pre>, it is very different from Scala's.
+Both represent the result of an asynchronous computation, but Java's <pre class="code">Future</pre> requires that you access the result via a
+blocking <pre class="code">get</pre> method. Although you can call <pre class="code">isDone</pre> to find out if a Java <pre class="code">Future</pre> has completed
+before calling <pre class="code">get</pre>, thereby avoiding any blocking, you must wait until the Java <pre class="code">Future</pre> has completed before
 proceeding with any computation that uses the result.</p>
 
-<p>By contrast, you can specify transformations on a Scala <span class="code">Future</span> whether it has completed or not.
-Each transformation results in a new <span class="code">Future</span> representing the asynchronous result of
-the original <span class="code">Future</span> transformed by the function. The thread that performs the computation is
+<p>By contrast, you can specify transformations on a Scala <pre class="code">Future</pre> whether it has completed or not.
+Each transformation results in a new <pre class="code">Future</pre> representing the asynchronous result of
+the original <pre class="code">Future</pre> transformed by the function. The thread that performs the computation is
 determined by an implicitly provided <span class="textit">execution context</span>. This allows you to describe asynchronous computations
 as a series of transformations of immutable values, with no need to reason about shared memory and locks.</p>
 
@@ -47,10 +47,10 @@ thereby enabling you to orchestrate multi-threaded access to the shared
 data.<a id="i2035919517-1"/></p>
 
 <p>For compatibility's sake, Scala provides access to Java's concurrency
-primitives.  The <span class="code">wait</span>, <span class="code">notify</span>, and <span class="code">notifyAll</span> methods can be
+primitives.  The <pre class="code">wait</pre>, <pre class="code">notify</pre>, and <pre class="code">notifyAll</pre> methods can be
 called in Scala, and they have the same meaning as in Java.  Scala
-doesn't technically have a <span class="code">synchronized</span> keyword, but it includes a
-predefined <span class="code">synchronized</span> method that can be called as follows:</p>
+doesn't technically have a <pre class="code">synchronized</pre> keyword, but it includes a
+predefined <pre class="code">synchronized</pre> method that can be called as follows:</p>
 
 <pre>
   <code class="vem">var</code>&nbsp;counter&nbsp;=&nbsp;<code class="literal">0</code>
@@ -81,27 +81,27 @@ conditions, they simultaneously add possibilities for deadlocks.  A
 correct lock-using program must have neither race conditions nor deadlocks,
 so you cannot play it safe by overdoing it in either direction.</p>
 
-<p>The <span class="code">java.util.concurrent</span> library provides
+<p>The <pre class="code">java.util.concurrent</pre> library provides
 higher level abstractions for concurrent programming.<a id="i-1522908125-1"/>
 Using the concurrency utilities makes multi-threaded programming far less error prone than rolling your own abstractions with
 Java's low-level synchronization primitives. Nevertheless, the concurrent utilities are also based on the shared data
 and locks model, and as a result, do not solve the fundamental
 difficulties of using that model.<a id="i1837693870-1"/><a id="i1225979037-1"/><a id="i1954917920-1"/></p>
 
-<h3>32.2 Asynchronous execution and <span class="code">Try</span>s</h3>
+<h3>32.2 Asynchronous execution and <pre class="code">Try</pre>s</h3>
 
 
-<p>Although not a silver bullet, Scala's <span class="code">Future</span> offers one way to deal with<a id="i634201779-1"/>
+<p>Although not a silver bullet, Scala's <pre class="code">Future</pre> offers one way to deal with<a id="i634201779-1"/>
 concurrency that can reduce, and often eliminate, the need to reason about
 shared data and locks. When you invoke a Scala method, it performs a computation "while you wait" and
-returns a result. If that result is a <span class="code">Future</span>, the <span class="code">Future</span> represents
+returns a result. If that result is a <pre class="code">Future</pre>, the <pre class="code">Future</pre> represents
 another computation to be performed asynchronously, often by a completely
 different thread. As a result, many
-operations on <span class="code">Future</span> require an implicit <span class="textit">execution context</span> that
+operations on <pre class="code">Future</pre> require an implicit <span class="textit">execution context</span> that
 provides a strategy for executing functions asynchronously. For example,
-if you try to create a future via the <span class="code">Future.apply</span> factory method<a id="i2121330216-1"/><a id="i-702563230-1"/>
+if you try to create a future via the <pre class="code">Future.apply</pre> factory method<a id="i2121330216-1"/><a id="i-702563230-1"/>
 without providing an implicit execution context,
-an instance of <span class="code">scala.concurrent.ExecutionContext</span>,<a id="i-89859177-1"/>
+an instance of <pre class="code">scala.concurrent.ExecutionContext</pre>,<a id="i-89859177-1"/>
 you'll get a compiler error:</p>
 
 <pre>
@@ -131,13 +131,13 @@ you can create a future:</p>
 
 
 <p>The future created in the previous example asynchronously executes the block of code, using
-the <span class="code">global</span> execution context, then completes with the value 42.
+the <pre class="code">global</pre> execution context, then completes with the value 42.
 Once it starts execution, that thread will sleep for ten seconds.
 Thus this future will take at least ten seconds to complete.</p>
 
-<p>Two methods on <span class="code">Future</span> allow you to poll: <span class="code">isCompleted</span> and <span class="code">value</span>.
-When invoked on a future that has not yet completed, <span class="code">isCompleted</span> will
-return <span class="code">false</span> and <span class="code">value</span> will return <span class="code">None</span>.</p>
+<p>Two methods on <pre class="code">Future</pre> allow you to poll: <pre class="code">isCompleted</pre> and <pre class="code">value</pre>.
+When invoked on a future that has not yet completed, <pre class="code">isCompleted</pre> will
+return <pre class="code">false</pre> and <pre class="code">value</pre> will return <pre class="code">None</pre>.</p>
 
 <pre>
   scala&gt;&nbsp;fut.isCompleted
@@ -148,8 +148,8 @@ return <span class="code">false</span> and <span class="code">value</span> will 
 
 
 <p>Once the future completes (in this case, after at least ten seconds
-has gone by), <span class="code">isCompleted</span> will return <span class="code">true</span> and <span class="code">value</span>
-will return a <span class="code">Some</span>:<a id="i-1388404182-1"/><a id="i1126777268-1"/><a id="i217604474-1"/><a id="i971355780-1"/></p>
+has gone by), <pre class="code">isCompleted</pre> will return <pre class="code">true</pre> and <pre class="code">value</pre>
+will return a <pre class="code">Some</pre>:<a id="i-1388404182-1"/><a id="i1126777268-1"/><a id="i217604474-1"/><a id="i971355780-1"/></p>
 
 <pre>
   scala&gt;&nbsp;fut.isCompleted
@@ -159,11 +159,11 @@ will return a <span class="code">Some</span>:<a id="i-1388404182-1"/><a id="i112
 </pre>
 
 
-<p>The option returned by <span class="code">value</span> contains
-a <span class="code">Try</span>. As shown in <a href="futures-and-concurrency.html#fig-try-hierarchy">Figure 32.1</a>, a <span class="code">Try</span> is either
-a <span class="code">Success</span>, which contains a value of type <span class="code">T</span>, or a <span class="code">Failure</span>, which
-contains an exception (an instance of <span class="code">java.lang.Throwable</span>). The purpose of <span class="code">Try</span> is to provide for asynchronous computations what the
-<span class="code">try</span> expression provides for synchronous computations: It allows you to
+<p>The option returned by <pre class="code">value</pre> contains
+a <pre class="code">Try</pre>. As shown in <a href="futures-and-concurrency.html#fig-try-hierarchy">Figure 32.1</a>, a <pre class="code">Try</pre> is either
+a <pre class="code">Success</pre>, which contains a value of type <pre class="code">T</pre>, or a <pre class="code">Failure</pre>, which
+contains an exception (an instance of <pre class="code">java.lang.Throwable</pre>). The purpose of <pre class="code">Try</pre> is to provide for asynchronous computations what the
+<pre class="code">try</pre> expression provides for synchronous computations: It allows you to
 deal with the possibility that the computation will complete
 abruptly with an exception rather than return a result.<a href="futures-and-concurrency.html#footnotemain32-2">[2]</a></p>
 
@@ -173,17 +173,17 @@ abruptly with an exception rather than return a result.<a href="futures-and-conc
 <p><img src="images/tryHierarchy85.png" alt="image images/tryHierarchy85.png"/></p>
 
 </div>
-<h5> Figure 32.1 - Class hierarchy for <span class="code">Try</span>.<a id="i532116857-1"/><a id="i1073460856-1"/></h5>
+<h5> Figure 32.1 - Class hierarchy for <pre class="code">Try</pre>.<a id="i532116857-1"/><a id="i1073460856-1"/></h5>
 
 
 <p>For synchronous
-computations you can use <span class="code">try</span>/<span class="code">catch</span> to ensure that a thread that
+computations you can use <pre class="code">try</pre>/<pre class="code">catch</pre> to ensure that a thread that
 invokes a method catches and handles exceptions thrown by the method.
 For asynchronous computations, however,
 the thread that initiates the computation often moves on to other tasks. Later
 if that asynchronous computation fails with an exception, the original thread
-is no longer able to handle the exception in a <span class="code">catch</span> clause. Thus when working with 
-a <span class="code">Future</span> representing an asynchronous activity, you use <span class="code">Try</span> to deal with
+is no longer able to handle the exception in a <pre class="code">catch</pre> clause. Thus when working with 
+a <pre class="code">Future</pre> representing an asynchronous activity, you use <pre class="code">Try</pre> to deal with
 the possibility that the activity fails to yield a value and instead completes abruptly
 an exception. Here's an example that shows what happens when an asynchronous activity fails:</p>
 
@@ -204,23 +204,23 @@ an exception. Here's an example that shows what happens when an asynchronous act
 </pre>
 
 
-<h3>32.3 Working with <span class="code">Future</span>s</h3>
+<h3>32.3 Working with <pre class="code">Future</pre>s</h3>
 
 
-<p>Scala's <span class="code">Future</span> allows you to specify
-transformations on <span class="code">Future</span> results and obtain
+<p>Scala's <pre class="code">Future</pre> allows you to specify
+transformations on <pre class="code">Future</pre> results and obtain
 a <span class="textit">new future</span> that represents the composition of the two 
 asynchronous computations: the original and the transformation.</p>
 
-<h4>Transforming <span class="code">Future</span>s with <span class="code">map</span></h4>
+<h4>Transforming <pre class="code">Future</pre>s with <pre class="code">map</pre></h4>
 
 
-<p>The most fundamental such operation is <span class="code">map</span>.<a id="i-1389984145-1"/><a id="i1273958009-1"/> 
+<p>The most fundamental such operation is <pre class="code">map</pre>.<a id="i-1389984145-1"/><a id="i1273958009-1"/> 
 Instead of blocking then continuing with another computation, you can
-just <span class="code">map</span> the next computation onto the future.
+just <pre class="code">map</pre> the next computation onto the future.
 The result will be a new future that represents the original
 asynchronously computed result transformed asynchronously by the function passed
-to <span class="code">map</span>.</p>
+to <pre class="code">map</pre>.</p>
 
 <p>For example, the following future will complete
 after ten seconds:</p>
@@ -245,7 +245,7 @@ increment:</p>
 
 
 <p>Once the original future completes and the function has been applied to its result, the
-future returned by <span class="code">map</span> will complete:</p>
+future returned by <pre class="code">map</pre> will complete:</p>
 
 <pre>
   scala&gt;&nbsp;result.value
@@ -256,10 +256,10 @@ future returned by <span class="code">map</span> will complete:</p>
 <p>Note that the operations performed in this example&mdash;the future creation, the 21 + 21 sum calculation, and
 the 42 + 1 increment&mdash;may be performed by three different threads.</p>
 
-<h4>Transforming <span class="code">Future</span>s with <span class="code">for</span> expressions</h4>
+<h4>Transforming <pre class="code">Future</pre>s with <pre class="code">for</pre> expressions</h4>
 
 
-<p>Because Scala's future also declares a <span class="code">flatMap</span> method,<a id="i-212724097-1"/><a id="i1700331144-1"/> you can transform futures using a <span class="code">for</span> expression.<a id="i-1506494671-1"/>
+<p>Because Scala's future also declares a <pre class="code">flatMap</pre> method,<a id="i-212724097-1"/><a id="i1700331144-1"/> you can transform futures using a <pre class="code">for</pre> expression.<a id="i-1506494671-1"/>
 For example, consider the following two futures that will, after ten seconds, produce 42 and 46:</p>
 
 <pre>
@@ -291,10 +291,10 @@ you'll be able to see the result:</p>
 </pre>
 
 
-<p>Because <span class="code">for</span> expressions serialize their transformations,<a href="futures-and-concurrency.html#footnotemain32-3">[3]</a>
-if you don't create the futures before the <span class="code">for</span> expression,
-they won't run in parallel. For example, although the previous <span class="code">for</span>
-expression requires around ten seconds to complete, the following <span class="code">for</span>
+<p>Because <pre class="code">for</pre> expressions serialize their transformations,<a href="futures-and-concurrency.html#footnotemain32-3">[3]</a>
+if you don't create the futures before the <pre class="code">for</pre> expression,
+they won't run in parallel. For example, although the previous <pre class="code">for</pre>
+expression requires around ten seconds to complete, the following <pre class="code">for</pre>
 expression requires at least twenty seconds:</p>
 
 <pre>
@@ -311,14 +311,14 @@ expression requires at least twenty seconds:</p>
 </pre>
 
 
-<h4>Creating the <span class="code">Future</span>: <span class="code">Future.failed</span>, <span class="code">Future.successful</span>, <span class="code">Future.fromTry</span>, and <span class="code">Promise</span>s</h4>
+<h4>Creating the <pre class="code">Future</pre>: <pre class="code">Future.failed</pre>, <pre class="code">Future.successful</pre>, <pre class="code">Future.fromTry</pre>, and <pre class="code">Promise</pre>s</h4>
 
 
-<p>Besides the <span class="code">apply</span> method, used in earlier examples to create futures, the <span class="code">Future</span> companion object also
-includes three factory methods for creating already-completed futures: <span class="code">successful</span>, <span class="code">failed</span>, and <span class="code">fromTry</span>. These factory methods
-do not require an <span class="code">ExecutionContext</span>.<a id="i1338824042-1"/><a id="i-1310847346-1"/></p>
+<p>Besides the <pre class="code">apply</pre> method, used in earlier examples to create futures, the <pre class="code">Future</pre> companion object also
+includes three factory methods for creating already-completed futures: <pre class="code">successful</pre>, <pre class="code">failed</pre>, and <pre class="code">fromTry</pre>. These factory methods
+do not require an <pre class="code">ExecutionContext</pre>.<a id="i1338824042-1"/><a id="i-1310847346-1"/></p>
 
-<p>The <span class="code">successful</span> factory method
+<p>The <pre class="code">successful</pre> factory method
 creates a future that has already succeeded:</p>
 
 <pre>
@@ -327,7 +327,7 @@ creates a future that has already succeeded:</p>
 </pre>
 
 
-<p>The <span class="code">failed</span><a id="i1043356583-1"/><a id="i329824497-1"/> method creates a future that has already failed:</p>
+<p>The <pre class="code">failed</pre><a id="i1043356583-1"/><a id="i329824497-1"/> method creates a future that has already failed:</p>
 
 <pre>
   scala&gt;&nbsp;Future.failed(<code class="vem">new</code>&nbsp;<code class="typename">Exception</code>(<code class="quotedstring">"bummer!"</code>))
@@ -335,7 +335,7 @@ creates a future that has already succeeded:</p>
 </pre>
 
 
-<p>The <span class="code">fromTry</span> method<a id="i359181829-1"/><a id="i-987153563-1"/> creates an already completed future from a <span class="code">Try</span>:</p>
+<p>The <pre class="code">fromTry</pre> method<a id="i359181829-1"/><a id="i-987153563-1"/> creates an already completed future from a <pre class="code">Try</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">import</code>&nbsp;scala.util.{<code class="typename">Success</code>,<code class="typename">Failure</code>}
@@ -348,7 +348,7 @@ creates a future that has already succeeded:</p>
 
 
 <p>The most general way to create a future is to
-use a <span class="code">Promise</span>. Given a promise<a id="i515731113-1"/> you can obtain a future that is
+use a <pre class="code">Promise</pre>. Given a promise<a id="i515731113-1"/> you can obtain a future that is
 controlled by the promise. The future will complete when you complete the promise.
 Here's an example:<a id="i2130471540-1"/><a id="i-1314558614-1"/></p>
 
@@ -363,10 +363,10 @@ Here's an example:<a id="i2130471540-1"/><a id="i-1314558614-1"/></p>
 
 
 <p>You can complete
-the promise with methods named <span class="code">success</span>,<a id="i-1996854080-1"/><a id="i-623661142-1"/> <span class="code">failure</span>, and <span class="code">complete</span>. These
-methods on <span class="code">Promise</span> are similar to
+the promise with methods named <pre class="code">success</pre>,<a id="i-1996854080-1"/><a id="i-623661142-1"/> <pre class="code">failure</pre>, and <pre class="code">complete</pre>. These
+methods on <pre class="code">Promise</pre> are similar to
 those described previously for constructing already completed
-futures. For example, the <span class="code">success</span> method will complete the future successfully:</p>
+futures. For example, the <pre class="code">success</pre> method will complete the future successfully:</p>
 
 <pre>
   scala&gt;&nbsp;pro.success(<code class="literal">42</code>)
@@ -376,18 +376,18 @@ futures. For example, the <span class="code">success</span> method will complete
 </pre>
 
 
-<p>The <span class="code">failure</span> method<a id="i726772761-1"/><a id="i-2044691727-1"/> takes an exception that will cause the future to fail
-with that exception. The <span class="code">complete</span> method<a id="i172934974-1"/><a id="i1338121824-1"/> takes a <span class="code">Try</span>. A <span class="code">completeWith</span>
+<p>The <pre class="code">failure</pre> method<a id="i726772761-1"/><a id="i-2044691727-1"/> takes an exception that will cause the future to fail
+with that exception. The <pre class="code">complete</pre> method<a id="i172934974-1"/><a id="i1338121824-1"/> takes a <pre class="code">Try</pre>. A <pre class="code">completeWith</pre>
 method,<a id="i689370776-1"/><a id="i-909785018-1"/> which takes a future, also exists; the promise's future will thereafter mirror
-the completion status of the future you passed to <span class="code">completeWith</span>.</p>
+the completion status of the future you passed to <pre class="code">completeWith</pre>.</p>
 
-<h4>Filtering: <span class="code">filter</span> and <span class="code">collect</span></h4>
+<h4>Filtering: <pre class="code">filter</pre> and <pre class="code">collect</pre></h4>
 
 
-<p>Scala's future offers two methods, <span class="code">filter</span> and <span class="code">collect</span>, that allow you to ensure a property holds true
-about a future value. The <span class="code">filter</span>
+<p>Scala's future offers two methods, <pre class="code">filter</pre> and <pre class="code">collect</pre>, that allow you to ensure a property holds true
+about a future value. The <pre class="code">filter</pre>
 method<a id="i1823852756-1"/><a id="i1364617591-1"/> validates the future result, leaving it the same if it is valid.
-Here's an example that ensures an <span class="code">Int</span> is positive:</p>
+Here's an example that ensures an <pre class="code">Int</pre> is positive:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fut&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="literal">42</code>&nbsp;}
@@ -399,8 +399,8 @@ Here's an example that ensures an <span class="code">Int</span> is positive:</p>
 </pre>
 
 
-<p>If the future value is not valid, the future returned by <span class="code">filter</span> will fail with
-a <span class="code">NoSuchElementException</span>:</p>
+<p>If the future value is not valid, the future returned by <pre class="code">filter</pre> will fail with
+a <pre class="code">NoSuchElementException</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;invalid&nbsp;=&nbsp;fut.filter(res&nbsp;=&gt;&nbsp;res&nbsp;&lt;&nbsp;<code class="literal">0</code>)
@@ -412,8 +412,8 @@ a <span class="code">NoSuchElementException</span>:</p>
 </pre>
 
 
-<p>Because <span class="code">Future</span> also offers a <span class="code">withFilter</span> method,<a id="i-1671672129-1"/><a id="i-1286210351-1"/> you can
-perform the same operation with <span class="code">for</span> expression filters:</p>
+<p>Because <pre class="code">Future</pre> also offers a <pre class="code">withFilter</pre> method,<a id="i-1671672129-1"/><a id="i-1286210351-1"/> you can
+perform the same operation with <pre class="code">for</pre> expression filters:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;valid&nbsp;=&nbsp;<code class="vem">for</code>&nbsp;(res&nbsp;&lt;-&nbsp;fut&nbsp;<code class="vem">if</code>&nbsp;res&nbsp;&gt;&nbsp;<code class="literal">0</code>)&nbsp;<code class="vem">yield</code>&nbsp;res
@@ -429,9 +429,9 @@ perform the same operation with <span class="code">for</span> expression filters
 </pre>
 
 
-<p><span class="code">Future</span>'s <span class="code">collect</span> method<a id="i160873094-1"/><a id="i-557339295-1"/> allows you to validate the future value and transform it in
-one operation. If the partial function passed to <span class="code">collect</span> is defined at the
-future result, the future returned by <span class="code">collect</span> will succeed with that value transformed
+<p><pre class="code">Future</pre>'s <pre class="code">collect</pre> method<a id="i160873094-1"/><a id="i-557339295-1"/> allows you to validate the future value and transform it in
+one operation. If the partial function passed to <pre class="code">collect</pre> is defined at the
+future result, the future returned by <pre class="code">collect</pre> will succeed with that value transformed
 by the function:</p>
 
 <pre>
@@ -443,7 +443,7 @@ by the function:</p>
 </pre>
 
 
-<p>Otherwise, the future will fail with <span class="code">NoSuchElementException</span>:</p>
+<p>Otherwise, the future will fail with <pre class="code">NoSuchElementException</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;invalid&nbsp;=
@@ -456,12 +456,12 @@ by the function:</p>
 </pre>
 
 
-<h4>Dealing with failure: <span class="code">failed</span>, <span class="code">fallBackTo</span>, <span class="code">recover</span>, and <span class="code">recoverWith</span></h4>
+<h4>Dealing with failure: <pre class="code">failed</pre>, <pre class="code">fallBackTo</pre>, <pre class="code">recover</pre>, and <pre class="code">recoverWith</pre></h4>
 
 
-<p>Scala's future provides ways to work with futures that fail, including <span class="code">failed</span>, <span class="code">fallBackTo</span>, <span class="code">recover</span>, and <span class="code">recoverWith</span>. The 
-<span class="code">failed</span> method<a id="i2053859225-1"/><a id="i1132575058-1"/> will transform a failed future of any type into a successful
-<span class="code">Future[Throwable]</span> that holds onto the exception that caused
+<p>Scala's future provides ways to work with futures that fail, including <pre class="code">failed</pre>, <pre class="code">fallBackTo</pre>, <pre class="code">recover</pre>, and <pre class="code">recoverWith</pre>. The 
+<pre class="code">failed</pre> method<a id="i2053859225-1"/><a id="i1132575058-1"/> will transform a failed future of any type into a successful
+<pre class="code">Future[Throwable]</pre> that holds onto the exception that caused
 the failure. Here's an example:</p>
 
 <pre>
@@ -478,9 +478,9 @@ the failure. Here's an example:</p>
 </pre>
 
 
-<p>If the future on which the <span class="code">failed</span> method is called ultimately succeeds,
-the future returned by <span class="code">failed</span> will itself fail with
-a <span class="code">NoSuchElementException</span>. The <span class="code">failed</span> method is appropriate,
+<p>If the future on which the <pre class="code">failed</pre> method is called ultimately succeeds,
+the future returned by <pre class="code">failed</pre> will itself fail with
+a <pre class="code">NoSuchElementException</pre>. The <pre class="code">failed</pre> method is appropriate,
 therefore, only when you expect that the future will fail.
 Here's an example:</p>
 
@@ -498,8 +498,8 @@ Here's an example:</p>
 </pre>
 
 
-<p>The <span class="code">fallbackTo</span> method<a id="i-17509287-1"/><a id="i-431989870-1"/> allows you to provide an alternate future
-to use in case the future on which you invoke <span class="code">fallbackTo</span> fails.
+<p>The <pre class="code">fallbackTo</pre> method<a id="i-17509287-1"/><a id="i-431989870-1"/> allows you to provide an alternate future
+to use in case the future on which you invoke <pre class="code">fallbackTo</pre> fails.
 Here's an example in which a failed future falls back to a successful
 future:</p>
 
@@ -511,10 +511,10 @@ future:</p>
 </pre>
 
 
-<p>If the original future on which <span class="code">fallbackTo</span> is invoked fails,
-a failure of the future passed to <span class="code">fallbackTo</span> is
+<p>If the original future on which <pre class="code">fallbackTo</pre> is invoked fails,
+a failure of the future passed to <pre class="code">fallbackTo</pre> is
 essentially ignored. The future
-returned by <span class="code">fallbackTo</span> will fail with the initial
+returned by <pre class="code">fallbackTo</pre> will fail with the initial
 exception. Here's an example:</p>
 
 <pre>
@@ -528,11 +528,11 @@ exception. Here's an example:</p>
 </pre>
 
 
-<p>The <span class="code">recover</span> method<a id="i-152382784-1"/><a id="i-724473753-1"/> allows you to transform a failed future
+<p>The <pre class="code">recover</pre> method<a id="i-152382784-1"/><a id="i-724473753-1"/> allows you to transform a failed future
 into a successful one, allowing a successful future's result
 to pass through unchanged. For
 example, on a future that fails
-with <span class="code">ArithmeticException</span>, you can use the <span class="code">recover</span> method to transform
+with <pre class="code">ArithmeticException</pre>, you can use the <pre class="code">recover</pre> method to transform
 the failure into a success, like this:</p>
 
 <pre>
@@ -546,7 +546,7 @@ the failure into a success, like this:</p>
 
 
 <p>If the original future doesn't fail, the
-future returned by <span class="code">recover</span> will complete with the same
+future returned by <pre class="code">recover</pre> will complete with the same
 value:</p>
 
 <pre>
@@ -559,7 +559,7 @@ value:</p>
 </pre>
 
 
-<p>Similarly, if the partial function passed to <span class="code">recover</span> isn't defined at
+<p>Similarly, if the partial function passed to <pre class="code">recover</pre> isn't defined at
 the exception with which the original future ultimately fails, that
 original failure will pass through:</p>
 
@@ -574,8 +574,8 @@ original failure will pass through:</p>
 </pre>
 
 
-<p>The <span class="code">recoverWith</span> method<a id="i-1242555994-1"/><a id="i-1046291647-1"/> is similar to <span class="code">recover</span>, except instead
-of recovering to a value like <span class="code">recover</span>, the <span class="code">recoverWith</span>
+<p>The <pre class="code">recoverWith</pre> method<a id="i-1242555994-1"/><a id="i-1046291647-1"/> is similar to <pre class="code">recover</pre>, except instead
+of recovering to a value like <pre class="code">recover</pre>, the <pre class="code">recoverWith</pre>
 method allows you to recover to a future value. Here's an
 example:</p>
 
@@ -589,16 +589,16 @@ example:</p>
 </pre>
 
 
-<p>As with <span class="code">recover</span>, if either the original future doesn't fail,
-or the partial function passed to <span class="code">recoverWith</span> isn't defined at
+<p>As with <pre class="code">recover</pre>, if either the original future doesn't fail,
+or the partial function passed to <pre class="code">recoverWith</pre> isn't defined at
 the exception the original future ultimately fails with, the
 original success (or failure) will pass through to the future
-returned by <span class="code">recoverWith</span>.</p>
+returned by <pre class="code">recoverWith</pre>.</p>
 
-<h4>Mapping both possibilities: <span class="code">transform</span></h4>
+<h4>Mapping both possibilities: <pre class="code">transform</pre></h4>
 
 
-<p><span class="code">Future</span>'s <span class="code">transform</span> method<a id="i1345650888-1"/><a id="i1282076639-1"/> accepts two functions
+<p><pre class="code">Future</pre>'s <pre class="code">transform</pre> method<a id="i1345650888-1"/><a id="i1282076639-1"/> accepts two functions
 with which to transform a future: one to use in case
 of success and the other in case of failure:</p>
 
@@ -633,11 +633,11 @@ of success and the other in case of failure:</p>
 </pre>
 
 
-<p>Note that with the <span class="code">transform</span> method shown in the previous examples, you can't
+<p>Note that with the <pre class="code">transform</pre> method shown in the previous examples, you can't
 change a successful future into a failed one, nor can you change a failed future
 into a successful one. 
-To make this kind of transformation easier, Scala 2.12 introduced an alternate overloaded form of <span class="code">transform</span> that<a id="i88737196-5"/>
-takes a function from <span class="code">Try</span> to <span class="code">Try</span>. Here are some examples:</p>
+To make this kind of transformation easier, Scala 2.12 introduced an alternate overloaded form of <pre class="code">transform</pre> that<a id="i88737196-5"/>
+takes a function from <pre class="code">Try</pre> to <pre class="code">Try</pre>. Here are some examples:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;firstCase&nbsp;=&nbsp;success.transform&nbsp;{&nbsp;<code class="comment">//&nbsp;Scala&nbsp;2.12</code>
@@ -660,7 +660,7 @@ takes a function from <span class="code">Try</span> to <span class="code">Try</s
 </pre>
 
 
-<p>Here's an example of using the new <span class="code">transform</span> method to transform a failure 
+<p>Here's an example of using the new <pre class="code">transform</pre> method to transform a failure 
 into a success:</p>
 
 <pre>
@@ -674,11 +674,11 @@ into a success:</p>
 </pre>
 
 
-<h4>Combining futures: <span class="code">zip</span>, <span class="code">Future.fold</span>, <span class="code">Future.reduce</span>, <span class="code">Future.sequence</span>, and <span class="code">Future.traverse</span></h4>
+<h4>Combining futures: <pre class="code">zip</pre>, <pre class="code">Future.fold</pre>, <pre class="code">Future.reduce</pre>, <pre class="code">Future.sequence</pre>, and <pre class="code">Future.traverse</pre></h4>
 
 
-<p><span class="code">Future</span> and its companion object offer methods that allow you to combine 
-multiple futures. The <span class="code">zip</span> method<a id="i-1389589174-1"/><a id="i-576155948-1"/> will transform two successful futures
+<p><pre class="code">Future</pre> and its companion object offer methods that allow you to combine 
+multiple futures. The <pre class="code">zip</pre> method<a id="i-1389589174-1"/><a id="i-576155948-1"/> will transform two successful futures
 into a future tuple of both values. Here's an example:</p>
 
 <pre>
@@ -691,7 +691,7 @@ into a future tuple of both values. Here's an example:</p>
 
 
 <p>If either of the futures fail, however, the future returned by
-<span class="code">zip</span> will also fail with the same exception:</p>
+<pre class="code">zip</pre> will also fail with the same exception:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;zippedFailure&nbsp;=&nbsp;success&nbsp;zip&nbsp;failure
@@ -704,16 +704,16 @@ into a future tuple of both values. Here's an example:</p>
 
 <p>If both futures fail, the failed future that results will contain
 the exception stored in the initial future, the one on which 
-<span class="code">zip</span> was invoked.</p>
+<pre class="code">zip</pre> was invoked.</p>
 
-<p><span class="code">Future</span>'s companion object offers a <span class="code">fold</span> method<a id="i-2005196253-1"/><a id="i1171341749-1"/> that
-allows you to accumulate a result across a <span class="code">TraversableOnce</span>
+<p><pre class="code">Future</pre>'s companion object offers a <pre class="code">fold</pre> method<a id="i-2005196253-1"/><a id="i1171341749-1"/> that
+allows you to accumulate a result across a <pre class="code">TraversableOnce</pre>
 collection of futures, yielding a future result. If all futures in
 the collection succeed, the resulting future will succeed with
 the accumulated result. If any future in the collection fails, the resulting future
 will fail. If multiple futures fail, the result will fail
 with the same exception with which the first future (earliest in
-the <span class="code">TraversableOnce</span> collection) fails.
+the <pre class="code">TraversableOnce</pre> collection) fails.
 Here's an example:</p>
 
 <pre>
@@ -733,7 +733,7 @@ Here's an example:</p>
 </pre>
 
 
-<p>The <span class="code">Future.reduce</span> method<a id="i-1081335906-1"/><a id="i1635871834-1"/> performs a fold without a zero, using
+<p>The <pre class="code">Future.reduce</pre> method<a id="i-1081335906-1"/><a id="i1635871834-1"/> performs a fold without a zero, using
 the initial future result as the start value. Here's an example:</p>
 
 <pre>
@@ -748,13 +748,13 @@ the initial future result as the start value. Here's an example:</p>
 
 
 <p>If you pass an empty
-collection to <span class="code">reduce</span>, the resulting future will fail with a
-<span class="code">NoSuchElementException</span>.</p>
+collection to <pre class="code">reduce</pre>, the resulting future will fail with a
+<pre class="code">NoSuchElementException</pre>.</p>
 
-<p>The <span class="code">Future.sequence</span> method<a id="i1360532195-1"/><a id="i-1604674187-1"/> transforms a <span class="code">TraversableOnce</span> collection of futures into a 
-future <span class="code">TraversableOnce</span> of values. For instance, in the following
-example, <span class="code">sequence</span> is used to transform a <span class="code">List[Future[Int]]</span> to
-a <span class="code">Future[List[Int]]</span>:</p>
+<p>The <pre class="code">Future.sequence</pre> method<a id="i1360532195-1"/><a id="i-1604674187-1"/> transforms a <pre class="code">TraversableOnce</pre> collection of futures into a 
+future <pre class="code">TraversableOnce</pre> of values. For instance, in the following
+example, <pre class="code">sequence</pre> is used to transform a <pre class="code">List[Future[Int]]</pre> to
+a <pre class="code">Future[List[Int]]</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;futureList&nbsp;=&nbsp;Future.sequence(futureNums)
@@ -765,11 +765,11 @@ a <span class="code">Future[List[Int]]</span>:</p>
 </pre>
 
 
-<p>The <span class="code">Future.traverse</span> method<a id="i-551617710-1"/><a id="i-1636098202-1"/> 
-will change a <span class="code">TraversableOnce</span> of any element type into
-a <span class="code">TraversableOnce</span> of futures and "sequence" that
-into a future <span class="code">TraversableOnce</span> of values. For example, here a <span class="code">List[Int]</span> is transformed
-into a <span class="code">Future[List[Int]]</span> by <span class="code">Future.traverse</span>:</p>
+<p>The <pre class="code">Future.traverse</pre> method<a id="i-551617710-1"/><a id="i-1636098202-1"/> 
+will change a <pre class="code">TraversableOnce</pre> of any element type into
+a <pre class="code">TraversableOnce</pre> of futures and "sequence" that
+into a future <pre class="code">TraversableOnce</pre> of values. For example, here a <pre class="code">List[Int]</pre> is transformed
+into a <pre class="code">Future[List[Int]]</pre> by <pre class="code">Future.traverse</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;traversed&nbsp;=
@@ -781,12 +781,12 @@ into a <span class="code">Future[List[Int]]</span> by <span class="code">Future.
 </pre>
 
 
-<h4>Performing side-effects: <span class="code">foreach</span>, <span class="code">onComplete</span>, and <span class="code">andThen</span></h4>
+<h4>Performing side-effects: <pre class="code">foreach</pre>, <pre class="code">onComplete</pre>, and <pre class="code">andThen</pre></h4>
 
 
-<p>Sometimes you may need to perform a side effect after a future completes. <span class="code">Future</span> provides
-several methods for this purpose. The most basic method is <span class="code">foreach</span>, which will perform a side effect
-if a future completes successfully.<a id="i-541819994-1"/><a id="i541315137-1"/> For instance, in the following example a <span class="code">println</span> is not executed
+<p>Sometimes you may need to perform a side effect after a future completes. <pre class="code">Future</pre> provides
+several methods for this purpose. The most basic method is <pre class="code">foreach</pre>, which will perform a side effect
+if a future completes successfully.<a id="i-541819994-1"/><a id="i541315137-1"/> For instance, in the following example a <pre class="code">println</pre> is not executed
 in the case of a failed future, just a successful future:</p>
 
 <pre>
@@ -796,9 +796,9 @@ in the case of a failed future, just a successful future:</p>
 </pre>
 
 
-<p>Since <span class="code">for</span> without <span class="code">yield</span> will rewrite to an invocation
-of <span class="code">foreach</span>, you can also accomplish the same
-effect using <span class="code">for</span> expressions:</p>
+<p>Since <pre class="code">for</pre> without <pre class="code">yield</pre> will rewrite to an invocation
+of <pre class="code">foreach</pre>, you can also accomplish the same
+effect using <pre class="code">for</pre> expressions:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(res&nbsp;&lt;-&nbsp;failure)&nbsp;println(res)
@@ -807,11 +807,11 @@ effect using <span class="code">for</span> expressions:</p>
 </pre>
 
 
-<p><span class="code">Future</span> also offers two methods for registering "callback"
-functions. The <span class="code">onComplete</span> method
+<p><pre class="code">Future</pre> also offers two methods for registering "callback"
+functions. The <pre class="code">onComplete</pre> method
 will be executed whether the future ultimately
-succeeds or fails.<a id="i-1956458092-1"/><a id="i1655500727-1"/> The function will be passed a <span class="code">Try</span>&mdash;a
-<span class="code">Success</span> holding the result if the future succeeded, else a <span class="code">Failure</span>
+succeeds or fails.<a id="i-1956458092-1"/><a id="i1655500727-1"/> The function will be passed a <pre class="code">Try</pre>&mdash;a
+<pre class="code">Success</pre> holding the result if the future succeeded, else a <pre class="code">Failure</pre>
 holding the exception that caused the future to fail.
 Here's an example:</p>
 
@@ -831,12 +831,12 @@ Here's an example:</p>
 </pre>
 
 
-<p><span class="code">Future</span> does not guarantee any order of execution
-for callback functions registered with <span class="code">onComplete</span>. If you want to
-enforce an order for callback functions, you must use <span class="code">andThen</span> instead.<a id="i-522076688-1"/><a id="i-886602953-1"/> The <span class="code">andThen</span> method returns
+<p><pre class="code">Future</pre> does not guarantee any order of execution
+for callback functions registered with <pre class="code">onComplete</pre>. If you want to
+enforce an order for callback functions, you must use <pre class="code">andThen</pre> instead.<a id="i-522076688-1"/><a id="i-886602953-1"/> The <pre class="code">andThen</pre> method returns
 a new future that mirrors (succeeds or fails in the
 same way as) the original future on which you
-invoke <span class="code">andThen</span>, but it does not complete until 
+invoke <pre class="code">andThen</pre>, but it does not complete until 
 the callback function has been fully executed:</p>
 
 <pre>
@@ -851,15 +851,15 @@ the callback function has been fully executed:</p>
 </pre>
 
 
-<p>Note that if a callback function passed to <span class="code">andThen</span> throws an exception when executed, that exception will
+<p>Note that if a callback function passed to <pre class="code">andThen</pre> throws an exception when executed, that exception will
 not be propagated to subsequent callbacks or reported via the resulting future.</p>
 
-<h4>Other methods added in 2.12: <span class="code">flatten</span>, <span class="code">zipWith</span>, and <span class="code">transformWith</span></h4>
+<h4>Other methods added in 2.12: <pre class="code">flatten</pre>, <pre class="code">zipWith</pre>, and <pre class="code">transformWith</pre></h4>
 
 
-<p>The <span class="code">flatten</span> method,<a id="i-1187330208-1"/><a id="i1701496775-1"/> added in 2.12, transforms a <span class="code">Future</span> nested inside another <span class="code">Future</span> into a
-<span class="code">Future</span> of the nested type. For example, <span class="code">flatten</span> can transform a <span class="code">Future[Future[Int]]</span>
-into a <span class="code">Future[Int]</span>:</p>
+<p>The <pre class="code">flatten</pre> method,<a id="i-1187330208-1"/><a id="i1701496775-1"/> added in 2.12, transforms a <pre class="code">Future</pre> nested inside another <pre class="code">Future</pre> into a
+<pre class="code">Future</pre> of the nested type. For example, <pre class="code">flatten</pre> can transform a <pre class="code">Future[Future[Int]]</pre>
+into a <pre class="code">Future[Int]</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;nestedFuture&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="literal">42</code>&nbsp;}&nbsp;}
@@ -869,9 +869,9 @@ into a <span class="code">Future[Int]</span>:</p>
 </pre>
 
 
-<p>The <span class="code">zipWith</span> method, added in 2.12, essentially zips two <span class="code">Future</span>s together, then
-performs a <span class="code">map</span> on the resulting tuple. Here's an example of the
-two-step process, a <span class="code">zip</span> followed by a <span class="code">map</span>:</p>
+<p>The <pre class="code">zipWith</pre> method, added in 2.12, essentially zips two <pre class="code">Future</pre>s together, then
+performs a <pre class="code">map</pre> on the resulting tuple. Here's an example of the
+two-step process, a <pre class="code">zip</pre> followed by a <pre class="code">map</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;futNum&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="literal">21</code>&nbsp;+&nbsp;<code class="literal">21</code>&nbsp;}
@@ -890,7 +890,7 @@ two-step process, a <span class="code">zip</span> followed by a <span class="cod
 </pre>
 
 
-<p>The <span class="code">zipWith</span> method allows you to perform the same operation in
+<p>The <pre class="code">zipWith</pre> method allows you to perform the same operation in
 one step:<a id="i996770531-1"/><a id="i-62204252-1"/></p>
 
 <pre>
@@ -904,9 +904,9 @@ one step:<a id="i996770531-1"/><a id="i-62204252-1"/></p>
 </pre>
 
 
-<p><span class="code">Future</span> also gained a <span class="code">transformWith</span> method in Scala 2.12, which
-allows you to transform a future using a function from <span class="code">Try</span>
-to <span class="code">Future</span>.<a id="i-488373330-1"/><a id="i968615609-1"/>
+<p><pre class="code">Future</pre> also gained a <pre class="code">transformWith</pre> method in Scala 2.12, which
+allows you to transform a future using a function from <pre class="code">Try</pre>
+to <pre class="code">Future</pre>.<a id="i-488373330-1"/><a id="i968615609-1"/>
 Here's an example:</p>
 
 <pre>
@@ -922,10 +922,10 @@ Here's an example:</p>
 </pre>
 
 
-<p>The <span class="code">transformWith</span> method is similar to the new, overloaded <span class="code">transform</span> method added in Scala 2.12, 
-except instead of yielding a <span class="code">Try</span> in your passed function as in <span class="code">transform</span>, <span class="code">transformWith</span> allows you to yield a future.</p>
+<p>The <pre class="code">transformWith</pre> method is similar to the new, overloaded <pre class="code">transform</pre> method added in Scala 2.12, 
+except instead of yielding a <pre class="code">Try</pre> in your passed function as in <pre class="code">transform</pre>, <pre class="code">transformWith</pre> allows you to yield a future.</p>
 
-<h3>32.4 Testing with <span class="code">Future</span>s</h3>
+<h3>32.4 Testing with <pre class="code">Future</pre>s</h3>
 
 
 <p>One advantage of Scala's futures is that they help you avoid blocking. On most JVM implementations,
@@ -933,7 +933,7 @@ after creating just a few thousand threads, the cost of context switching betwee
 degrade performance to an unnacceptable level.  By avoiding blocking, you can keep the finite
 number of threads you decide to work with busy. Nevertheless, Scala does allow you to block
 on a future result when you need to.
-Scala's <span class="code">Await</span> object facilitates blocking to wait for future results. Here's
+Scala's <pre class="code">Await</pre> object facilitates blocking to wait for future results. Here's
 an example:</p>
 
 <pre>
@@ -948,13 +948,13 @@ an example:</p>
 </pre>
 
 
-<p><span class="code">Await.result</span> takes a <span class="code">Future</span> and a <span class="code">Duration</span>.
-The <span class="code">Duration</span> indicates how long <span class="code">Await.result</span> should wait for a <span class="code">Future</span> to complete before timing out. In this
-example, fifteen seconds was specified for the <span class="code">Duration</span>. Thus the <span class="code">Await.result</span> method should not time out
+<p><pre class="code">Await.result</pre> takes a <pre class="code">Future</pre> and a <pre class="code">Duration</pre>.
+The <pre class="code">Duration</pre> indicates how long <pre class="code">Await.result</pre> should wait for a <pre class="code">Future</pre> to complete before timing out. In this
+example, fifteen seconds was specified for the <pre class="code">Duration</pre>. Thus the <pre class="code">Await.result</pre> method should not time out
  before the future completes with its eventual value, 42.</p>
 
 <p>One place where blocking has been generally accepted is in tests of asynchronous code.
-Now that the <span class="code">Await.result</span> has returned, you can perform a
+Now that the <pre class="code">Await.result</pre> has returned, you can perform a
 computation using that result, such as an assertion in a test:</p>
 
 <pre>
@@ -965,10 +965,10 @@ computation using that result, such as an assertion in a test:</p>
 </pre>
 
 
-<p>Alternatively, you can use blocking constructs provided by ScalaTest's trait <span class="code">ScalaFutures</span>. For
-example, the <span class="code">futureValue</span> method, implicitly added to <span class="code">Future</span> by <span class="code">ScalaFutures</span>,
-will block until the future completes. If the future fails, <span class="code">futureValue</span>
-will throw a <span class="code">TestFailedException</span> describing the problem. If the future succeeds, <span class="code">futureValue</span> will
+<p>Alternatively, you can use blocking constructs provided by ScalaTest's trait <pre class="code">ScalaFutures</pre>. For
+example, the <pre class="code">futureValue</pre> method, implicitly added to <pre class="code">Future</pre> by <pre class="code">ScalaFutures</pre>,
+will block until the future completes. If the future fails, <pre class="code">futureValue</pre>
+will throw a <pre class="code">TestFailedException</pre> describing the problem. If the future succeeds, <pre class="code">futureValue</pre> will
 return the successful result of the future so you can
 perform asssertions on that value:</p>
 
@@ -987,7 +987,7 @@ perform asssertions on that value:</p>
 to test futures without blocking. Given a future,
 instead of blocking and performing assertions on the
 result, you can map assertions directly onto that future and return
-the resulting <span class="code">Future[Assertion]</span> to ScalaTest. An example is shown in
+the resulting <pre class="code">Future[Assertion]</pre> to ScalaTest. An example is shown in
 <a href="futures-and-concurrency.html#lst-scalatest-future-assertion">Listing 32.1</a>.
 When the future assertion completes, ScalaTest will fire events (test succeeded,
 test failed, <i>etc.</i>) to the test reporter
@@ -1048,11 +1048,11 @@ the global execution context places tasks on the JavaScript event
 queue.</p>
 
 <p><a id="footnotemain32-2"/>[2] Note that
-the Java <span class="code">Future</span> also has a way to deal with the potential of an exception
-being thrown by the asynchronous computation: its <span class="code">get</span> method will throw that
-exception wrapped in an <span class="code">ExecutionException</span>.</p>
+the Java <pre class="code">Future</pre> also has a way to deal with the potential of an exception
+being thrown by the asynchronous computation: its <pre class="code">get</pre> method will throw that
+exception wrapped in an <pre class="code">ExecutionException</pre>.</p>
 
-<p><a id="footnotemain32-3"/>[3] The <span class="code">for</span> expression shown in this example will be rewritten as a call to <span class="code">fut1.flatMap</span> passing in a function that calls <span class="code">fut2.map</span>: <span class="code">fut1.flatMap(x</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">fut2.map(y</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y))</span>.</p>
+<p><a id="footnotemain32-3"/>[3] The <pre class="code">for</pre> expression shown in this example will be rewritten as a call to <pre class="code">fut1.flatMap</pre> passing in a function that calls <pre class="code">fut2.map</pre>: <pre class="code">fut1.flatMap(x</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">fut2.map(y</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">y))</pre>.</p>
 
 <div style="page-break-after:always"/>
 

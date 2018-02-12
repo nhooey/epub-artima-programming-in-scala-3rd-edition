@@ -32,7 +32,7 @@ for building and rendering two-dimensional layout elements.
 Each element will represent a
 rectangle filled with text. 
 For convenience, the library will provide factory methods 
-named "<span class="code">elem</span>" that construct new elements from passed data.
+named "<pre class="code">elem</pre>" that construct new elements from passed data.
 For example, you'll be able
 to create a layout element containing a string using a factory method with 
 the following signature:</p>
@@ -42,8 +42,8 @@ the following signature:</p>
 </pre>
 
 
-<p>As you can see, elements will be modeled with a type named <span class="code">Element</span>.
-You'll be able to call <span class="code">above</span> or <span class="code">beside</span> on an element, passing in a second
+<p>As you can see, elements will be modeled with a type named <pre class="code">Element</pre>.
+You'll be able to call <pre class="code">above</pre> or <pre class="code">beside</pre> on an element, passing in a second
 element, to get a new element that combines the two.
 For example, the following expression would construct a larger element consisting 
 of two columns, each with a height of two:</p>
@@ -67,7 +67,7 @@ of two columns, each with a height of two:</p>
 from simple parts with the aid of composing operators. In this chapter,
 we'll define classes that enable element objects to be constructed from arrays,
 lines, and rectangles. These basic element objects will be the simple parts. We'll also define composing operators
-<span class="code">above</span> and <span class="code">beside</span>. Such composing operators are also often called <span style="font-style:italic">
+<pre class="code">above</pre> and <pre class="code">beside</pre>. Such composing operators are also often called <span style="font-style:italic">
 combinators</span> because they combine elements of some domain into new
 elements<a id="i-649047625-1"/>.</p>
 
@@ -83,13 +83,13 @@ have good answers to these questions, your library design is on track.</p>
 
 
 <p>Our first task is to define type
-<span class="code">Element</span>, which represents layout elements. 
+<pre class="code">Element</pre>, which represents layout elements. 
 Since elements are
 two dimensional rectangles of characters, it makes sense to include a member,
-<span class="code">contents</span>, that refers to the contents of a layout
+<pre class="code">contents</pre>, that refers to the contents of a layout
 element<a id="i-860903178-1"/>.
 The contents can be represented as an array of strings, where each string represents a line.
-Hence, the type of the result returned by <span class="code">contents</span> will be <span class="code">Array[String]</span>. <a href="composition-and-inheritance.html#lst-abstract-method-class">Listing 10.1</a> shows what
+Hence, the type of the result returned by <pre class="code">contents</pre> will be <pre class="code">Array[String]</pre>. <a href="composition-and-inheritance.html#lst-abstract-method-class">Listing 10.1</a> shows what
 it will look like.</p>
 
 <p><a id="lst-abstract-method-class"/></p>
@@ -104,10 +104,10 @@ it will look like.</p>
 <h5>Listing 10.1 - Defining an abstract method and class.</h5>
 
 
-<p>In this class, <span class="code">contents</span> is declared as a method that has no implementation.
-In other words, the method is an <span style="font-style:italic">abstract</span> member of class <span class="code">Element</span>. A class with abstract
+<p>In this class, <pre class="code">contents</pre> is declared as a method that has no implementation.
+In other words, the method is an <span style="font-style:italic">abstract</span> member of class <pre class="code">Element</pre>. A class with abstract
 members must itself be declared abstract, which is done by writing an
-<span class="code">abstract</span> modifier in front of the <span class="code">class</span>
+<pre class="code">abstract</pre> modifier in front of the <pre class="code">class</pre>
 keyword<a id="i1203833450-1"/><a id="i-860903178-2"/>:</p>
 
 <pre>
@@ -115,7 +115,7 @@ keyword<a id="i1203833450-1"/><a id="i-860903178-2"/>:</p>
 </pre>
 
 
-<p>The <span class="code">abstract</span> modifier signifies that the class 
+<p>The <pre class="code">abstract</pre> modifier signifies that the class 
 may have abstract members that do not have an implementation. 
 As a result, you cannot instantiate an abstract class. If you try to do so,
 you'll get a compiler error:<a id="i-983091129-1"/></p>
@@ -129,29 +129,29 @@ you'll get a compiler error:<a id="i-983091129-1"/></p>
 </pre>
 
 
-<p>Later in this chapter, you'll see how to create subclasses of class <span class="code">Element</span>, which you'll be able to instantiate because they fill in the 
-missing definition for <span class="code">contents</span>.</p>
+<p>Later in this chapter, you'll see how to create subclasses of class <pre class="code">Element</pre>, which you'll be able to instantiate because they fill in the 
+missing definition for <pre class="code">contents</pre>.</p>
 
-<p>Note that the <span class="code">contents</span> method in class <span class="code">Element</span> does not carry an <span class="code">abstract</span>
+<p>Note that the <pre class="code">contents</pre> method in class <pre class="code">Element</pre> does not carry an <pre class="code">abstract</pre>
 modifier.  A method is abstract if it does not have an implementation
 (<i>i.e.</i>, no equals sign or body). Unlike Java, no abstract modifier is necessary (or allowed)
 on method declarations. Methods that have an implementation are called <span style="font-style:italic">
 concrete</span><a id="i-141831446-1"/>.<a id="i-1171687261-1"/></p>
 
 <p>Another bit of terminology distinguishes between <span style="font-style:italic">
-declarations</span> and <span style="font-style:italic">definitions</span>.  Class <span class="code">Element</span> <a href="glossary.html#g1542341994"><em>declares</em></a>
-the abstract method <span class="code">contents</span>, but currently <a href="glossary.html#g-1335633477"><em>defines</em></a> no
+declarations</span> and <span style="font-style:italic">definitions</span>.  Class <pre class="code">Element</pre> <a href="glossary.html#g1542341994"><em>declares</em></a>
+the abstract method <pre class="code">contents</pre>, but currently <a href="glossary.html#g-1335633477"><em>defines</em></a> no
 concrete methods. In the next section, however, we'll enhance
-<span class="code">Element</span> by defining some concrete methods.</p>
+<pre class="code">Element</pre> by defining some concrete methods.</p>
 
 <h3 id="sec-uniform-access-principle">10.3 Defining parameterless methods</h3>
 
 
-<p>As a next step, we'll add methods to <span class="code">Element</span> that reveal its width and height,
+<p>As a next step, we'll add methods to <pre class="code">Element</pre> that reveal its width and height,
 as shown in
 <a href="composition-and-inheritance.html#lst-parameterless-methods">Listing 10.2</a>.<a id="i1448211194-1"/><a id="i1133207124-1"/>
-The <span class="code">height</span> method returns the number of lines in <span class="code">contents</span>.
-The <span class="code">width</span> method returns the length of the first line, or if there
+The <pre class="code">height</pre> method returns the number of lines in <pre class="code">contents</pre>.
+The <pre class="code">width</pre> method returns the length of the first line, or if there
 are no lines in the element, returns zero. (This means you cannot define an
 element with a height of zero and a non-zero width.)</p>
 
@@ -166,10 +166,10 @@ element with a height of zero and a non-zero width.)</p>
 </pre>
 
 
-<h5>Listing 10.2 - Defining parameterless methods <span class="code">width</span> and <span class="code">height</span>.</h5>
+<h5>Listing 10.2 - Defining parameterless methods <pre class="code">width</pre> and <pre class="code">height</pre>.</h5>
 
 
-<p>Note that none of <span class="code">Element</span>'s three methods has a parameter list, not even an empty one.
+<p>Note that none of <pre class="code">Element</pre>'s three methods has a parameter list, not even an empty one.
 For example, instead of:</p>
 
 <pre>
@@ -185,7 +185,7 @@ For example, instead of:</p>
 
 
 <p>Such <a href="glossary.html#g-1903107585"><em>parameterless methods</em></a> are quite common in Scala.<a id="i-1718164274-2"/><a id="i1976561855-2"/>
-By contrast, methods defined with empty parentheses, such as <span class="code">def</span>&nbsp;<span class="code">height():</span>&nbsp;<span class="code">Int</span>, 
+By contrast, methods defined with empty parentheses, such as <pre class="code">def</pre>&nbsp;<pre class="code">height():</pre>&nbsp;<pre class="code">Int</pre>, 
 are called <em>empty-paren methods</em>.<a id="i1343251059-1"/><a id="i1617330716-1"/><a id="i1755483330-1"/>
 The recommended convention is to use a parameterless method whenever there are no parameters
 <em>and</em> the method accesses mutable state only by reading fields of
@@ -195,9 +195,9 @@ says that client code should not be affected by a decision to
 implement an attribute as a field or method<a id="i758262274-1"/>.</p>
 
 <p>For instance, we
-could implement <span class="code">width</span> and <span class="code">height</span> as fields,
-instead of methods, simply by changing the <span class="code">def</span> in each definition
-to a <span class="code">val</span>:</p>
+could implement <pre class="code">width</pre> and <pre class="code">height</pre> as fields,
+instead of methods, simply by changing the <pre class="code">def</pre> in each definition
+to a <pre class="code">val</pre>:</p>
 
 <pre>
   <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Element</code>&nbsp;{
@@ -215,13 +215,13 @@ The only difference is that field accesses might be
 slightly faster than method invocations because the field values are
 pre-computed when the class is initialized, instead of being computed
 on each method call. On the other hand, the fields require extra
-memory space in each <span class="code">Element</span> object. So it depends on the usage profile 
+memory space in each <pre class="code">Element</pre> object. So it depends on the usage profile 
 of a class whether an attribute is better represented as a field or method, 
 and that usage profile might change over time.
 The point is that clients of
-the <span class="code">Element</span> class should not be affected when its internal implementation changes.</p>
+the <pre class="code">Element</pre> class should not be affected when its internal implementation changes.</p>
 
-<p>In particular, a client of class <span class="code">Element</span> should not need to be rewritten if a field of that class gets changed
+<p>In particular, a client of class <pre class="code">Element</pre> should not need to be rewritten if a field of that class gets changed
 into an access function, so long as the access function is <span style="font-style:italic">pure</span> 
 (<i>i.e.</i>, it does not have any side effects and does not depend on mutable
 state<a id="i-242056329-1"/>). 
@@ -230,8 +230,8 @@ The client should not need to care either way.</p>
 <p>So far so good. But there's still a slight complication that has to do
 with the way Java handles things. The problem is that Java does not
 implement the uniform access principle.
-So it's <span class="code">string.length()</span> in Java, not <span class="code">string.length</span>, even though it's
-<span class="code">array.length</span>, not <span class="code">array.length()</span>. Needless to say, this is very confusing.</p>
+So it's <pre class="code">string.length()</pre> in Java, not <pre class="code">string.length</pre>, even though it's
+<pre class="code">array.length</pre>, not <pre class="code">array.length()</pre>. Needless to say, this is very confusing.</p>
 
 <p>To bridge that gap, Scala is very liberal when it comes to
 mixing parameterless and empty-paren methods.
@@ -252,8 +252,8 @@ For instance, the following two lines are both legal in Scala:</p>
 Scala function calls. However, it's still recommended to write the empty parentheses
 when the invoked method represents more than a property of its receiver object.
 For instance, empty parentheses are appropriate if the method
-performs I/O, writes reassignable variables (<span class="code">var</span>s), or reads 
-<span class="code">var</span>s other than the receiver's fields, 
+performs I/O, writes reassignable variables (<pre class="code">var</pre>s), or reads 
+<pre class="code">var</pre>s other than the receiver's fields, 
 either directly or indirectly by using mutable objects. 
 That way, the parameter
 list acts as a visual clue that some interesting computation is
@@ -282,10 +282,10 @@ access to a property, leave the parentheses off.</p>
 
 
 <p>We still need to be able to create new element objects.  You have
-already seen that "<span class="code">new</span>&nbsp;<span class="code">Element</span>" cannot be used for this because
-class <span class="code">Element</span> is abstract. To instantiate an element, therefore, we
-will need to create a subclass that extends <span class="code">Element</span> and implements
-the abstract <span class="code">contents</span> method. <a href="composition-and-inheritance.html#lst-defining-subclass">Listing 10.3</a>
+already seen that "<pre class="code">new</pre>&nbsp;<pre class="code">Element</pre>" cannot be used for this because
+class <pre class="code">Element</pre> is abstract. To instantiate an element, therefore, we
+will need to create a subclass that extends <pre class="code">Element</pre> and implements
+the abstract <pre class="code">contents</pre> method. <a href="composition-and-inheritance.html#lst-defining-subclass">Listing 10.3</a>
 shows one possible way to do
 that:<a id="i-1408184354-1"/><a id="i-1305664359-1"/></p>
 
@@ -298,10 +298,10 @@ that:<a id="i-1408184354-1"/><a id="i-1305664359-1"/></p>
 </pre>
 
 
-<h5>Listing 10.3 - Defining <span class="code">ArrayElement</span> as a subclass of <span class="code">Element</span>.</h5>
+<h5>Listing 10.3 - Defining <pre class="code">ArrayElement</pre> as a subclass of <pre class="code">Element</pre>.</h5>
 
 
-<p>Class <span class="code">ArrayElement</span> is defined to <span style="font-style:italic">extend</span> class <span class="code">Element</span>. Just like in Java, 
+<p>Class <pre class="code">ArrayElement</pre> is defined to <span style="font-style:italic">extend</span> class <pre class="code">Element</pre>. Just like in Java, 
 you use an extends clause after the class name to express this:</p>
 
 <pre>
@@ -315,19 +315,19 @@ you use an extends clause after the class name to express this:</p>
 <p><img src="images/ArrayElement160.png" alt="image images/ArrayElement160.png"/></p>
 
 </div>
-<h5> Figure 10.1 - Class diagram for <span class="code">ArrayElement</span>.</h5>
+<h5> Figure 10.1 - Class diagram for <pre class="code">ArrayElement</pre>.</h5>
 
 
 <p>Such an extends clause has two
-effects: It makes class <span class="code">ArrayElement</span> <span style="font-style:italic">inherit</span> all non-private
-members from class <span class="code">Element</span>, and it makes the type <span class="code">ArrayElement</span> a
-<span style="font-style:italic">subtype</span> of the type <span class="code">Element</span>.
-Given <span class="code">ArrayElement</span> extends <span class="code">Element</span>, class <span class="code">ArrayElement</span> is called a <span style="font-style:italic">
-subclass</span> of class <span class="code">Element</span>.<a id="i-1485346100-1"/>  Conversely, <span class="code">Element</span> is a <em>superclass</em>
-of <span class="code">ArrayElement</span>.<a id="i1436252235-1"/> If you leave out an <span class="code">extends</span>
+effects: It makes class <pre class="code">ArrayElement</pre> <span style="font-style:italic">inherit</span> all non-private
+members from class <pre class="code">Element</pre>, and it makes the type <pre class="code">ArrayElement</pre> a
+<span style="font-style:italic">subtype</span> of the type <pre class="code">Element</pre>.
+Given <pre class="code">ArrayElement</pre> extends <pre class="code">Element</pre>, class <pre class="code">ArrayElement</pre> is called a <span style="font-style:italic">
+subclass</span> of class <pre class="code">Element</pre>.<a id="i-1485346100-1"/>  Conversely, <pre class="code">Element</pre> is a <em>superclass</em>
+of <pre class="code">ArrayElement</pre>.<a id="i1436252235-1"/> If you leave out an <pre class="code">extends</pre>
 clause, the Scala compiler implicitly assumes your class extends from
-<span class="code">scala.AnyRef</span>, which on the Java platform is the same as class
-<span class="code">java.lang.Object</span>. Thus, class <span class="code">Element</span> implicitly extends class <span class="code">AnyRef</span>. You can see these inheritance relationships in 
+<pre class="code">scala.AnyRef</pre>, which on the Java platform is the same as class
+<pre class="code">java.lang.Object</pre>. Thus, class <pre class="code">Element</pre> implicitly extends class <pre class="code">AnyRef</pre>. You can see these inheritance relationships in 
 <a href="composition-and-inheritance.html#fig-element-family">Figure 10.1</a>.</p>
 
 <p><span style="font-style:italic">Inheritance</span> means that all members of the superclass are also members
@@ -339,14 +339,14 @@ the member of the subclass <span style="font-style:italic">overrides</span> the 
 If the member in the subclass is concrete and the member of the superclass is abstract, 
 we also say that the concrete member <span style="font-style:italic">implements</span> the abstract one.</p>
 
-<p>For example, the <span class="code">contents</span> method in <span class="code">ArrayElement</span> overrides (or
-alternatively: implements) abstract method <span class="code">contents</span> in class
-<span class="code">Element</span>.<a href="composition-and-inheritance.html#footnotemain10-2">[2]</a>
-By contrast, class <span class="code">ArrayElement</span> inherits the 
-<span class="code">width</span> and <span class="code">height</span> methods from class <span class="code">Element</span>.
-For example, given an <span class="code">ArrayElement</span> <span class="code">ae</span>, you can query its width
-using <span class="code">ae.width</span>, as if <span class="code">width</span> were defined in class
-<span class="code">ArrayElement</span>:</p>
+<p>For example, the <pre class="code">contents</pre> method in <pre class="code">ArrayElement</pre> overrides (or
+alternatively: implements) abstract method <pre class="code">contents</pre> in class
+<pre class="code">Element</pre>.<a href="composition-and-inheritance.html#footnotemain10-2">[2]</a>
+By contrast, class <pre class="code">ArrayElement</pre> inherits the 
+<pre class="code">width</pre> and <pre class="code">height</pre> methods from class <pre class="code">Element</pre>.
+For example, given an <pre class="code">ArrayElement</pre> <pre class="code">ae</pre>, you can query its width
+using <pre class="code">ae.width</pre>, as if <pre class="code">width</pre> were defined in class
+<pre class="code">ArrayElement</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;ae&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">ArrayElement</code>(<code class="typename">Array</code>(<code class="quotedstring">"hello"</code>,&nbsp;<code class="quotedstring">"world"</code>))
@@ -364,15 +364,15 @@ wherever a value of the superclass is required. For example:</p>
 </pre>
 
 
-<p>Variable <span class="code">e</span> is defined to be of type <span class="code">Element</span>, so its initializing value 
-should also be an <span class="code">Element</span>. In fact, the initializing value's type is <span class="code">ArrayElement</span>.
-This is OK, because class <span class="code">ArrayElement</span> extends class <span class="code">Element</span>, and as a result, the type
-<span class="code">ArrayElement</span> is compatible with the type <span class="code">Element</span>.<a href="composition-and-inheritance.html#footnotemain10-3">[3]</a></p>
+<p>Variable <pre class="code">e</pre> is defined to be of type <pre class="code">Element</pre>, so its initializing value 
+should also be an <pre class="code">Element</pre>. In fact, the initializing value's type is <pre class="code">ArrayElement</pre>.
+This is OK, because class <pre class="code">ArrayElement</pre> extends class <pre class="code">Element</pre>, and as a result, the type
+<pre class="code">ArrayElement</pre> is compatible with the type <pre class="code">Element</pre>.<a href="composition-and-inheritance.html#footnotemain10-3">[3]</a></p>
 
-<p><a href="composition-and-inheritance.html#fig-element-family">Figure 10.1</a> also shows the <em>composition</em> relationship that exists between <span class="code">ArrayElement</span> and
-<span class="code">Array[String]</span><a id="i-838923862-1"/>. This relationship is called composition because class <span class="code">ArrayElement</span> is "composed" out of
-class <span class="code">Array[String]</span>, in that the Scala compiler will place into the binary class it generates for <span class="code">ArrayElement</span> a field 
-that holds a reference to the passed <span class="code">conts</span> array. We'll discuss some design considerations concerning composition and inheritance
+<p><a href="composition-and-inheritance.html#fig-element-family">Figure 10.1</a> also shows the <em>composition</em> relationship that exists between <pre class="code">ArrayElement</pre> and
+<pre class="code">Array[String]</pre><a id="i-838923862-1"/>. This relationship is called composition because class <pre class="code">ArrayElement</pre> is "composed" out of
+class <pre class="code">Array[String]</pre>, in that the Scala compiler will place into the binary class it generates for <pre class="code">ArrayElement</pre> a field 
+that holds a reference to the passed <pre class="code">conts</pre> array. We'll discuss some design considerations concerning composition and inheritance
 later in this chapter, in <a href="composition-and-inheritance.html#sec-using-composition-and-inheritance">Section 10.11</a>.</p>
 
 <h3 id="sec-two-name-spaces">10.5 Overriding methods and fields</h3>
@@ -382,9 +382,9 @@ later in this chapter, in <a href="composition-and-inheritance.html#sec-using-co
 fields and methods more uniformly than Java. Another difference is
 that in Scala, fields and methods belong to the same namespace. This
 makes it possible for a field to override a parameterless method.
-For instance, you could change the implementation of <span class="code">contents</span> in class
-<span class="code">ArrayElement</span> from a method to a field without having to modify the 
-abstract method definition of <span class="code">contents</span> in class <span class="code">Element</span>, as shown
+For instance, you could change the implementation of <pre class="code">contents</pre> in class
+<pre class="code">ArrayElement</pre> from a method to a field without having to modify the 
+abstract method definition of <pre class="code">contents</pre> in class <pre class="code">Element</pre>, as shown
 in <a href="composition-and-inheritance.html#lst-overriding-with-field">Listing 10.4</a>:</p>
 
 <p><a id="lst-overriding-with-field"/></p>
@@ -399,9 +399,9 @@ in <a href="composition-and-inheritance.html#lst-overriding-with-field">Listing 
 <h5>Listing 10.4 - Overriding a parameterless method with a field.</h5>
 
 
-<p>Field <span class="code">contents</span> (defined with a <span class="code">val</span>) in this version of <span class="code">ArrayElement</span> is a perfectly good
-implementation of the parameterless method <span class="code">contents</span> (declared with a <span class="code">def</span>) in class
-<span class="code">Element</span>. On the other hand, in Scala it is forbidden to define a field and 
+<p>Field <pre class="code">contents</pre> (defined with a <pre class="code">val</pre>) in this version of <pre class="code">ArrayElement</pre> is a perfectly good
+implementation of the parameterless method <pre class="code">contents</pre> (declared with a <pre class="code">def</pre>) in class
+<pre class="code">Element</pre>. On the other hand, in Scala it is forbidden to define a field and 
 method with the same name in the same class, whereas this is allowed in
 Java.</p>
 
@@ -447,16 +447,16 @@ By contrast, Scala's two namespaces are:</p>
 
 <p>The reason Scala places fields
 and methods into the same namespace is precisely so you can
-override a parameterless method with a <span class="code">val</span>, something you
+override a parameterless method with a <pre class="code">val</pre>, something you
 can't do with Java.<a href="composition-and-inheritance.html#footnotemain10-4">[4]</a></p>
 
 <h3 id="sec-parametric-fields">10.6 Defining parametric fields</h3>
 
 
-<p>Consider again the definition of class <span class="code">ArrayElement</span> shown in the previous section. It has a<a id="i-590826255-2"/>
-parameter <span class="code">conts</span> whose sole purpose is to be copied into the
-<span class="code">contents</span> field. The name <span class="code">conts</span> of the parameter was chosen
-just so that it would look similar to the field name <span class="code">contents</span> without
+<p>Consider again the definition of class <pre class="code">ArrayElement</pre> shown in the previous section. It has a<a id="i-590826255-2"/>
+parameter <pre class="code">conts</pre> whose sole purpose is to be copied into the
+<pre class="code">contents</pre> field. The name <pre class="code">conts</pre> of the parameter was chosen
+just so that it would look similar to the field name <pre class="code">contents</pre> without
 actually clashing with it. This is a "code smell," a sign that there may be
 some unnecessary redundancy and repetition in your code.</p>
 
@@ -473,15 +473,15 @@ in a single <a href="glossary.html#g-1177929110"><em>parametric field</em></a> d
 </pre>
 
 
-<h5>Listing 10.5 - Defining <span class="code">contents</span> as a parametric field.</h5>
+<h5>Listing 10.5 - Defining <pre class="code">contents</pre> as a parametric field.</h5>
 
 
-<p>Note that now the <span class="code">contents</span> parameter is prefixed by <span class="code">val</span>.
+<p>Note that now the <pre class="code">contents</pre> parameter is prefixed by <pre class="code">val</pre>.
 This is a shorthand that defines at the same time
 a parameter and field with the same name. 
-Specifically, class <span class="code">ArrayElement</span> now has an (unreassignable) field <span class="code">contents</span>, which can be accessed
+Specifically, class <pre class="code">ArrayElement</pre> now has an (unreassignable) field <pre class="code">contents</pre>, which can be accessed
 from outside the class. The field is initialized with the value of the parameter.
-It's as if the class had been written as follows, where <span class="code">x123</span> is an arbitrary fresh name
+It's as if the class had been written as follows, where <pre class="code">x123</pre> is an arbitrary fresh name
 for the parameter:</p>
 
 <pre>
@@ -491,9 +491,9 @@ for the parameter:</p>
 </pre>
 
 
-<p>You can also prefix a class parameter with <span class="code">var</span>, in which case the corresponding
+<p>You can also prefix a class parameter with <pre class="code">var</pre>, in which case the corresponding
 field would be reassignable.<a id="i332825445-1"/> Finally, it is possible to add modifiers, such as
-<span class="code">private</span>, <span class="code">protected</span>,<a href="composition-and-inheritance.html#footnotemain10-5">[5]</a> or <span class="code">override</span> to these parametric fields, just as you can for any other class member.<a id="i-23781736-1"/><a id="i1026131843-1"/><a id="i1623377591-1"/> Consider, for instance, the following class definitions:</p>
+<pre class="code">private</pre>, <pre class="code">protected</pre>,<a href="composition-and-inheritance.html#footnotemain10-5">[5]</a> or <pre class="code">override</pre> to these parametric fields, just as you can for any other class member.<a id="i-23781736-1"/><a id="i1026131843-1"/><a id="i1623377591-1"/> Consider, for instance, the following class definitions:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Cat</code>&nbsp;{
@@ -506,8 +506,8 @@ field would be reassignable.<a id="i332825445-1"/> Finally, it is possible to ad
 </pre>
 
 
-<p><span class="code">Tiger</span>'s definition is a shorthand for the following alternate class definition
-with an overriding member <span class="code">dangerous</span> and a <span class="code">private</span> member <span class="code">age</span>:</p>
+<p><pre class="code">Tiger</pre>'s definition is a shorthand for the following alternate class definition
+with an overriding member <pre class="code">dangerous</pre> and a <pre class="code">private</pre> member <pre class="code">age</pre>:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">Tiger</code>(param1:&nbsp;<code class="typename">Boolean</code>,&nbsp;param2:&nbsp;<code class="typename">Int</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Cat</code>&nbsp;{
@@ -518,19 +518,19 @@ with an overriding member <span class="code">dangerous</span> and a <span class=
 
 
 <p>Both members are initialized from the corresponding parameters. We chose the
-names of those parameters, <span class="code">param1</span> and <span class="code">param2</span>, arbitrarily. The
+names of those parameters, <pre class="code">param1</pre> and <pre class="code">param2</pre>, arbitrarily. The
 important thing was that they not clash with any other name in scope.</p>
 
 <h3>10.7 Invoking superclass constructors</h3>
 
 
 <p>You now have a complete system consisting of two classes: an abstract
-class <span class="code">Element</span>, which is extended by a concrete class
-<span class="code">ArrayElement</span>.  You might also envision other ways to express an
+class <pre class="code">Element</pre>, which is extended by a concrete class
+<pre class="code">ArrayElement</pre>.  You might also envision other ways to express an
 element.<a id="i1670701927-1"/><a id="i-1862849439-1"/><a id="i685242324-1"/> For example, clients might want to create
 a layout element consisting of a single line given by a string. Object-oriented programming makes it easy to extend a system with new
-data-variants. You can simply add subclasses. For example, <a href="composition-and-inheritance.html#lst-invoking-superclass-constructor">Listing 10.6</a> shows a <span class="code">LineElement</span> class
-that extends <span class="code">ArrayElement</span>:</p>
+data-variants. You can simply add subclasses. For example, <a href="composition-and-inheritance.html#lst-invoking-superclass-constructor">Listing 10.6</a> shows a <pre class="code">LineElement</pre> class
+that extends <pre class="code">ArrayElement</pre>:</p>
 
 <p><a id="lst-invoking-superclass-constructor"/></p>
 
@@ -545,14 +545,14 @@ that extends <span class="code">ArrayElement</span>:</p>
 <h5>Listing 10.6 - Invoking a superclass constructor.</h5>
 
 
-<p>Since <span class="code">LineElement</span> extends <span class="code">ArrayElement</span>, and <span class="code">ArrayElement</span>'s constructor takes
-a parameter (an <span class="code">Array[String]</span>), 
-<span class="code">LineElement</span> needs to pass an argument to the primary constructor of its superclass.
+<p>Since <pre class="code">LineElement</pre> extends <pre class="code">ArrayElement</pre>, and <pre class="code">ArrayElement</pre>'s constructor takes
+a parameter (an <pre class="code">Array[String]</pre>), 
+<pre class="code">LineElement</pre> needs to pass an argument to the primary constructor of its superclass.
 To invoke a superclass constructor, you simply place the argument or arguments you want
 to pass in parentheses following the name of the
 superclass.<a id="i-2005725727-1"/> For example, class
-<span class="code">LineElement</span> passes <span class="code">Array(s)</span> to <span class="code">ArrayElement</span>'s primary constructor by placing it
-in parentheses after the superclass <span class="code">ArrayElement</span>'s name:</p>
+<pre class="code">LineElement</pre> passes <pre class="code">Array(s)</pre> to <pre class="code">ArrayElement</pre>'s primary constructor by placing it
+in parentheses after the superclass <pre class="code">ArrayElement</pre>'s name:</p>
 
 <pre>
   ...&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">ArrayElement</code>(<code class="typename">Array</code>(s))&nbsp;...
@@ -568,22 +568,22 @@ in parentheses after the superclass <span class="code">ArrayElement</span>'s nam
 <p><img src="images/LineElement160.png" alt="image images/LineElement160.png"/></p>
 
 </div>
-<h5> Figure 10.2 - Class diagram for <span class="code">LineElement</span>.</h5>
+<h5> Figure 10.2 - Class diagram for <pre class="code">LineElement</pre>.</h5>
 
 
-<h3 id="sec-using-override-modifiers">10.8 Using <span class="code">override</span> modifiers</h3>
+<h3 id="sec-using-override-modifiers">10.8 Using <pre class="code">override</pre> modifiers</h3>
 
 
-<p>Note that the definitions of <span class="code">width</span> and <span class="code">height</span> in <span class="code">LineElement</span>
-carry an <span class="code">override</span> modifier. In <a href="functional-objects.html#sec-reimp-tostring">Section 6.3</a>, you saw this
-modifier in the definition of a <span class="code">toString</span>
+<p>Note that the definitions of <pre class="code">width</pre> and <pre class="code">height</pre> in <pre class="code">LineElement</pre>
+carry an <pre class="code">override</pre> modifier. In <a href="functional-objects.html#sec-reimp-tostring">Section 6.3</a>, you saw this
+modifier in the definition of a <pre class="code">toString</pre>
 method.<a id="i1201360043-2"/>  Scala requires
 such a modifier for all members that override a concrete member in a
 parent class.  The modifier is optional if a member implements an
 abstract member with the same name. The modifier is forbidden if a
 member does not override or implement some other member in a
-base class. Since <span class="code">height</span> and <span class="code">width</span> in class <span class="code">LineElement</span> 
-override concrete definitions in class <span class="code">Element</span>, <span class="code">override</span> is required.</p>
+base class. Since <pre class="code">height</pre> and <pre class="code">width</pre> in class <pre class="code">LineElement</pre> 
+override concrete definitions in class <pre class="code">Element</pre>, <pre class="code">override</pre> is required.</p>
 
 <p>This rule provides useful information for the compiler that helps avoid
 some hard-to-catch errors and makes system evolution safer.  For
@@ -599,10 +599,10 @@ parameter list, the compiler will respond with an error message:<a id="i93479859
 </pre>
 
 
-<p>The <span class="code">override</span> convention is even more important when it comes to
+<p>The <pre class="code">override</pre> convention is even more important when it comes to
 system evolution. Say you defined a library of 2D drawing
 methods. You made it publicly available, and it is widely used. In
-the next version of the library you want to add to your base class <span class="code">Shape</span> a
+the next version of the library you want to add to your base class <pre class="code">Shape</pre> a
 new method with this signature:</p>
 
 <pre>
@@ -613,10 +613,10 @@ new method with this signature:</p>
 <p>Your new method will be used by various drawing methods to determine whether 
 a shape needs to be drawn. This could lead to a significant speedup, but
 you cannot do this without the risk of breaking client code. 
-After all, a client could have defined a subclass of <span class="code">Shape</span> with a
-different implementation of <span class="code">hidden</span>. Perhaps the client's method actually
+After all, a client could have defined a subclass of <pre class="code">Shape</pre> with a
+different implementation of <pre class="code">hidden</pre>. Perhaps the client's method actually
 makes the receiver object disappear instead of testing whether the object is
-hidden. Because the two versions of <span class="code">hidden</span> override each other,
+hidden. Because the two versions of <pre class="code">hidden</pre> override each other,
 your drawing methods would end up making objects disappear, which is
 certainly not what you want!</p>
 
@@ -626,11 +626,11 @@ is that if you add new members to base classes (which we usually call superclass
 class hierarchy, you risk breaking client code. Scala cannot completely solve the fragile base class problem, but
 it improves on the situation compared to Java.<a href="composition-and-inheritance.html#footnotemain10-6">[6]</a> If the drawing library and 
 its clients were written in Scala, then the client's original implementation of
-<span class="code">hidden</span> could not have had an <span class="code">override</span> modifier, because at the time
+<pre class="code">hidden</pre> could not have had an <pre class="code">override</pre> modifier, because at the time
 there was no other method with that name.</p>
 
 <p>Once you add the
-<span class="code">hidden</span> method to the second version of your shape class, a
+<pre class="code">hidden</pre> method to the second version of your shape class, a
 recompile of the client would give an error like the following:<a id="i-2133711083-1"/></p>
 
 <pre>
@@ -648,12 +648,12 @@ is usually much preferable.</p>
 <h3>10.9 Polymorphism and dynamic binding</h3>
 
 
-<p>You saw in <a href="composition-and-inheritance.html#sec-extending-classes">Section 10.4</a> that a variable of type <span class="code">Element</span> could refer
-to an object of type <span class="code">ArrayElement</span>. The name for this phenomenon is <em>polymorphism</em>, which means
-"many shapes" or "many forms." In this case, <span class="code">Element</span> objects can have many forms.<a href="composition-and-inheritance.html#footnotemain10-7">[7]</a></p>
+<p>You saw in <a href="composition-and-inheritance.html#sec-extending-classes">Section 10.4</a> that a variable of type <pre class="code">Element</pre> could refer
+to an object of type <pre class="code">ArrayElement</pre>. The name for this phenomenon is <em>polymorphism</em>, which means
+"many shapes" or "many forms." In this case, <pre class="code">Element</pre> objects can have many forms.<a href="composition-and-inheritance.html#footnotemain10-7">[7]</a></p>
 
-<p>So far, you've seen two such forms: <span class="code">ArrayElement</span> and <span class="code">LineElement</span>. You can create more forms of <span class="code">Element</span> by defining
-new <span class="code">Element</span> subclasses. For example, you could define a new form of <span class="code">Element</span> that has a given width and height,
+<p>So far, you've seen two such forms: <pre class="code">ArrayElement</pre> and <pre class="code">LineElement</pre>. You can create more forms of <pre class="code">Element</pre> by defining
+new <pre class="code">Element</pre> subclasses. For example, you could define a new form of <pre class="code">Element</pre> that has a given width and height,
 and is filled everywhere with a given character:</p>
 
 <pre>
@@ -668,7 +668,7 @@ and is filled everywhere with a given character:</p>
 </pre>
 
 
-<p>The inheritance hierarchy for class <span class="code">Element</span> now looks as shown in 
+<p>The inheritance hierarchy for class <pre class="code">Element</pre> now looks as shown in 
 <a href="composition-and-inheritance.html#fig-layout-elements">Figure 10.3</a>.
 As a result, Scala will accept all of the following assignments, because the type of the assigning expression
 conforms to the type of the defined variable:</p>
@@ -681,9 +681,9 @@ conforms to the type of the defined variable:</p>
 </pre>
 
 
-<p>If you check the inheritance hierarchy, you'll find that in each of these four <span class="code">val</span> definitions, 
+<p>If you check the inheritance hierarchy, you'll find that in each of these four <pre class="code">val</pre> definitions, 
 the type of the expression to the right of the equals sign 
-is below the type of the <span class="code">val</span> being initialized to the left of the
+is below the type of the <pre class="code">val</pre> being initialized to the left of the
 equals sign.</p>
 
 <div class="figure"><a id="fig-layout-elements"/>
@@ -699,8 +699,8 @@ equals sign.</p>
 variables and expressions are <em>dynamically bound</em>.<a id="i-1297249718-1"/>
 This means that the actual method implementation invoked is determined at run time based on the class of the object, not
 the type of the variable or expression. To demonstrate this behavior, we'll temporarily remove all existing members from our
-<span class="code">Element</span> classes and add a method named <span class="code">demo</span> to
-<span class="code">Element</span>. We'll override <span class="code">demo</span> in <span class="code">ArrayElement</span> and <span class="code">LineElement</span>, but not in <span class="code">UniformElement</span>:</p>
+<pre class="code">Element</pre> classes and add a method named <pre class="code">demo</pre> to
+<pre class="code">Element</pre>. We'll override <pre class="code">demo</pre> in <pre class="code">ArrayElement</pre> and <pre class="code">LineElement</pre>, but not in <pre class="code">UniformElement</pre>:</p>
 
 <pre>
   <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Element</code>&nbsp;{
@@ -724,7 +724,7 @@ the type of the variable or expression. To demonstrate this behavior, we'll temp
 
 
 <p>If you enter this code into the interpreter, you can then define this method that
-takes an <span class="code">Element</span> and invokes <span class="code">demo</span> on it:</p>
+takes an <pre class="code">Element</pre> and invokes <pre class="code">demo</pre> on it:</p>
 
 <pre>
   <code class="vem">def</code>&nbsp;invokeDemo(e:&nbsp;<code class="typename">Element</code>)&nbsp;=&nbsp;{
@@ -733,9 +733,9 @@ takes an <span class="code">Element</span> and invokes <span class="code">demo</
 </pre>
 
 
-<p>If you pass an <span class="code">ArrayElement</span> to <span class="code">invokeDemo</span>, you'll see a message indicating
-<span class="code">ArrayElement</span>'s implementation of <span class="code">demo</span> was invoked, even though the type of the
-variable, <span class="code">e</span>, on which <span class="code">demo</span> was invoked is <span class="code">Element</span>:</p>
+<p>If you pass an <pre class="code">ArrayElement</pre> to <pre class="code">invokeDemo</pre>, you'll see a message indicating
+<pre class="code">ArrayElement</pre>'s implementation of <pre class="code">demo</pre> was invoked, even though the type of the
+variable, <pre class="code">e</pre>, on which <pre class="code">demo</pre> was invoked is <pre class="code">Element</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;invokeDemo(<code class="vem">new</code>&nbsp;<code class="typename">ArrayElement</code>)
@@ -743,8 +743,8 @@ variable, <span class="code">e</span>, on which <span class="code">demo</span> w
 </pre>
 
 
-<p>Similarly, if you pass a <span class="code">LineElement</span> to <span class="code">invokeDemo</span>, you'll see a message that indicates
-<span class="code">LineElement</span>'s <span class="code">demo</span> implementation was invoked:</p>
+<p>Similarly, if you pass a <pre class="code">LineElement</pre> to <pre class="code">invokeDemo</pre>, you'll see a message that indicates
+<pre class="code">LineElement</pre>'s <pre class="code">demo</pre> implementation was invoked:</p>
 
 <pre>
   scala&gt;&nbsp;invokeDemo(<code class="vem">new</code>&nbsp;<code class="typename">LineElement</code>)
@@ -752,7 +752,7 @@ variable, <span class="code">e</span>, on which <span class="code">demo</span> w
 </pre>
 
 
-<p>The behavior when passing a <span class="code">UniformElement</span> may at first glance look suspicious, but it is
+<p>The behavior when passing a <pre class="code">UniformElement</pre> may at first glance look suspicious, but it is
 correct:</p>
 
 <pre>
@@ -761,17 +761,17 @@ correct:</p>
 </pre>
 
 
-<p>Because <span class="code">UniformElement</span> does not override <span class="code">demo</span>, it inherits the implementation of <span class="code">demo</span> from its superclass, <span class="code">Element</span>.
-Thus, <span class="code">Element</span>'s implementation is the correct implementation of <span class="code">demo</span> to invoke when the class of the object
-is <span class="code">UniformElement</span>.</p>
+<p>Because <pre class="code">UniformElement</pre> does not override <pre class="code">demo</pre>, it inherits the implementation of <pre class="code">demo</pre> from its superclass, <pre class="code">Element</pre>.
+Thus, <pre class="code">Element</pre>'s implementation is the correct implementation of <pre class="code">demo</pre> to invoke when the class of the object
+is <pre class="code">UniformElement</pre>.</p>
 
 <h3>10.10 Declaring final members</h3>
 
 
 <p>Sometimes when designing an inheritance hierarchy, you want to ensure that a member cannot be overridden by subclasses.
-In Scala, as in Java, you do this by adding a <span class="code">final</span> modifier to the
-member.<a id="i-34445759-1"/> As shown in <a href="composition-and-inheritance.html#lst-final-method">Listing 10.7</a>, you could place a <span class="code">final</span> modifier
-on <span class="code">ArrayElement</span>'s demo method.</p>
+In Scala, as in Java, you do this by adding a <pre class="code">final</pre> modifier to the
+member.<a id="i-34445759-1"/> As shown in <a href="composition-and-inheritance.html#lst-final-method">Listing 10.7</a>, you could place a <pre class="code">final</pre> modifier
+on <pre class="code">ArrayElement</pre>'s demo method.</p>
 
 <p><a id="lst-final-method"/></p>
 
@@ -787,7 +787,7 @@ on <span class="code">ArrayElement</span>'s demo method.</p>
 <h5>Listing 10.7 - Declaring a final method.</h5>
 
 
-<p>Given this version of <span class="code">ArrayElement</span>, an attempt to override demo in its subclass, <span class="code">LineElement</span>, would not
+<p>Given this version of <pre class="code">ArrayElement</pre>, an attempt to override demo in its subclass, <pre class="code">LineElement</pre>, would not
 compile:<a id="i-44166214-1"/></p>
 
 <pre>
@@ -800,7 +800,7 @@ compile:<a id="i-44166214-1"/></p>
 
 
 <p>You may also at times want to ensure that an entire class not be subclassed. To do this you simply declare the entire
-class final by adding a <span class="code">final</span> modifier to the class declaration. For example, <a href="composition-and-inheritance.html#lst-final-class">Listing 10.8</a> shows how you would declare <span class="code">ArrayElement</span> final:</p>
+class final by adding a <pre class="code">final</pre> modifier to the class declaration. For example, <a href="composition-and-inheritance.html#lst-final-class">Listing 10.8</a> shows how you would declare <pre class="code">ArrayElement</pre> final:</p>
 
 <p><a id="lst-final-class"/></p>
 
@@ -816,7 +816,7 @@ class final by adding a <span class="code">final</span> modifier to the class de
 <h5>Listing 10.8 - Declaring a final class.</h5>
 
 
-<p>With this version of <span class="code">ArrayElement</span>, any attempt at defining a subclass would fail to
+<p>With this version of <pre class="code">ArrayElement</pre>, any attempt at defining a subclass would fail to
 compile:<a id="i-1180851066-1"/></p>
 
 <pre>
@@ -827,8 +827,8 @@ compile:<a id="i-1180851066-1"/></p>
 </pre>
 
 
-<p>We'll now remove the <span class="code">final</span> modifiers and <span class="code">demo</span> methods, and go back to the earlier implementation of
-the <span class="code">Element</span> family. We'll focus our attention in the remainder of this chapter to completing a working version
+<p>We'll now remove the <pre class="code">final</pre> modifiers and <pre class="code">demo</pre> methods, and go back to the earlier implementation of
+the <pre class="code">Element</pre> family. We'll focus our attention in the remainder of this chapter to completing a working version
 of the layout library.</p>
 
 <h3 id="sec-using-composition-and-inheritance">10.11 Using composition and inheritance</h3>
@@ -842,17 +842,17 @@ break subclasses by changing a superclass.</p>
 
 <p>One question you can ask yourself about an inheritance relationship is whether it models an <em>is-a</em><a id="i-422624999-1"/>
 relationship.<a href="composition-and-inheritance.html#footnotemain10-8">[8]</a> For example, it would be reasonable to say that
-<span class="code">ArrayElement</span> <em>is-an</em> <span class="code">Element</span>. Another question you can ask is whether clients will
+<pre class="code">ArrayElement</pre> <em>is-an</em> <pre class="code">Element</pre>. Another question you can ask is whether clients will
 want to use the subclass type as a superclass type.<a href="composition-and-inheritance.html#footnotemain10-9">[9]</a>
-In the case of <span class="code">ArrayElement</span>, we do indeed expect clients will want to use an <span class="code">ArrayElement</span> as an <span class="code">Element</span>.</p>
+In the case of <pre class="code">ArrayElement</pre>, we do indeed expect clients will want to use an <pre class="code">ArrayElement</pre> as an <pre class="code">Element</pre>.</p>
 
 <p>If you ask these questions about the inheritance relationships shown in <a href="composition-and-inheritance.html#fig-layout-elements">Figure 10.3</a>, do
-any of the relationships seem suspicious? In particular, does it seem obvious to you that a <span class="code">LineElement</span> <em>is-an</em>
-<span class="code">ArrayElement</span>? Do you think clients would ever need to use a <span class="code">LineElement</span> as an <span class="code">ArrayElement</span>?</p>
+any of the relationships seem suspicious? In particular, does it seem obvious to you that a <pre class="code">LineElement</pre> <em>is-an</em>
+<pre class="code">ArrayElement</pre>? Do you think clients would ever need to use a <pre class="code">LineElement</pre> as an <pre class="code">ArrayElement</pre>?</p>
 
-<p>In fact, we defined <span class="code">LineElement</span> as a subclass of <span class="code">ArrayElement</span> primarily to reuse <span class="code">ArrayElement</span>'s
-definition of <span class="code">contents</span>. Perhaps it would be better, therefore, to define <span class="code">LineElement</span> as a direct subclass
-of <span class="code">Element</span>, like this:</p>
+<p>In fact, we defined <pre class="code">LineElement</pre> as a subclass of <pre class="code">ArrayElement</pre> primarily to reuse <pre class="code">ArrayElement</pre>'s
+definition of <pre class="code">contents</pre>. Perhaps it would be better, therefore, to define <pre class="code">LineElement</pre> as a direct subclass
+of <pre class="code">Element</pre>, like this:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">LineElement</code>(s:&nbsp;<code class="typename">String</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Element</code>&nbsp;{
@@ -863,10 +863,10 @@ of <span class="code">Element</span>, like this:</p>
 </pre>
 
 
-<p>In the previous version, <span class="code">LineElement</span> had an inheritance relationship with
-<span class="code">ArrayElement</span>, from which it inherited <span class="code">contents</span>. It now has a composition relationship with <span class="code">Array</span>: it holds a reference to an array
-of strings from its own <span class="code">contents</span> field.<a href="composition-and-inheritance.html#footnotemain10-10">[10]</a>
-Given this implementation of <span class="code">LineElement</span>, the inheritance hierarchy for <span class="code">Element</span> now looks as shown
+<p>In the previous version, <pre class="code">LineElement</pre> had an inheritance relationship with
+<pre class="code">ArrayElement</pre>, from which it inherited <pre class="code">contents</pre>. It now has a composition relationship with <pre class="code">Array</pre>: it holds a reference to an array
+of strings from its own <pre class="code">contents</pre> field.<a href="composition-and-inheritance.html#footnotemain10-10">[10]</a>
+Given this implementation of <pre class="code">LineElement</pre>, the inheritance hierarchy for <pre class="code">Element</pre> now looks as shown
 in <a href="composition-and-inheritance.html#fig-new-line-element">Figure 10.4</a>.</p>
 
 <div class="figure"><a id="fig-new-line-element"/>
@@ -875,15 +875,15 @@ in <a href="composition-and-inheritance.html#fig-new-line-element">Figure 10.4</
 <p><img src="images/elementFamily2160.png" alt="image images/elementFamily2160.png"/></p>
 
 </div>
-<h5> Figure 10.4 - Class hierarchy with revised <span class="code">LineElement</span>.</h5>
+<h5> Figure 10.4 - Class hierarchy with revised <pre class="code">LineElement</pre>.</h5>
 
 
-<h3 id="sec-impl-above-beside-tostring">10.12 Implementing <span class="code">above</span>, <span class="code">beside</span>, and <span class="code">toString</span></h3>
+<h3 id="sec-impl-above-beside-tostring">10.12 Implementing <pre class="code">above</pre>, <pre class="code">beside</pre>, and <pre class="code">toString</pre></h3>
 
 
-<p>As a next step, we'll implement method <span class="code">above</span> in class <span class="code">Element</span>. Putting one element
-above another means concatenating the two <span class="code">contents</span> values of the
-elements. So a first draft of method <span class="code">above</span> could look like
+<p>As a next step, we'll implement method <pre class="code">above</pre> in class <pre class="code">Element</pre>. Putting one element
+above another means concatenating the two <pre class="code">contents</pre> values of the
+elements. So a first draft of method <pre class="code">above</pre> could look like
 this:</p>
 
 <pre>
@@ -892,24 +892,24 @@ this:</p>
 </pre>
 
 
-<p>The <span class="code">++</span> operation concatenates two arrays. Arrays in Scala are
+<p>The <pre class="code">++</pre> operation concatenates two arrays. Arrays in Scala are
 represented as Java arrays, but support many more
 methods<a id="i-1409164998-1"/>.  Specifically, arrays in Scala can be converted
-to instances of a class <span class="code">scala.Seq</span>, which represents sequence-like
+to instances of a class <pre class="code">scala.Seq</pre>, which represents sequence-like
 structures and contains a number of methods for accessing and
 transforming sequences.<a id="i-161349850-1"/> Some other
 array methods will be explained in this chapter and a more comprehensive
 discussion will be given in <a href="working-with-other-collections.html">Chapter 17</a>.</p>
 
 <p>In fact, the code shown previously is not quite sufficient because it does not let you put elements of different widths on top of each other. To keep things
-simple in this section, however, we'll leave this as is and only pass elements of the same length to <span class="code">above</span>. In <a href="composition-and-inheritance.html#sec-heighten-and-widen">Section 10.14</a>, we'll make an 
-enhancement to <span class="code">above</span> so that clients can use it to combine elements of different widths.</p>
+simple in this section, however, we'll leave this as is and only pass elements of the same length to <pre class="code">above</pre>. In <a href="composition-and-inheritance.html#sec-heighten-and-widen">Section 10.14</a>, we'll make an 
+enhancement to <pre class="code">above</pre> so that clients can use it to combine elements of different widths.</p>
 
-<p>The next method to implement is <span class="code">beside</span>. To put two elements
+<p>The next method to implement is <pre class="code">beside</pre>. To put two elements
 beside each other, we'll create a new element in which every line results
 from concatenating corresponding lines of the two elements. As before,
 to keep things simple, we'll start by assuming the two elements have the same height.
-This leads to the following design of method <span class="code">beside</span>:</p>
+This leads to the following design of method <pre class="code">beside</pre>:</p>
 
 <pre>
   <code class="vem">def</code>&nbsp;beside(that:&nbsp;<code class="typename">Element</code>):&nbsp;<code class="typename">Element</code>&nbsp;=&nbsp;{
@@ -921,12 +921,12 @@ This leads to the following design of method <span class="code">beside</span>:</
 </pre>
 
 
-<p>The <span class="code">beside</span> method first allocates a new array,<a id="i-1690228669-1"/>
-<span class="code">contents</span>, and fills it with the concatenation of the
-corresponding array elements in <span class="code">this.contents</span> and <span class="code">that.contents</span>.
-It finally produces a new <span class="code">ArrayElement</span> containing the new <span class="code">contents</span>.</p>
+<p>The <pre class="code">beside</pre> method first allocates a new array,<a id="i-1690228669-1"/>
+<pre class="code">contents</pre>, and fills it with the concatenation of the
+corresponding array elements in <pre class="code">this.contents</pre> and <pre class="code">that.contents</pre>.
+It finally produces a new <pre class="code">ArrayElement</pre> containing the new <pre class="code">contents</pre>.</p>
 
-<p>Although this implementation of <span class="code">beside</span> works, it is in an imperative style, the telltale sign of
+<p>Although this implementation of <pre class="code">beside</pre> works, it is in an imperative style, the telltale sign of
 which is the loop in which we index through arrays. 
 Alternatively, the method could be abbreviated to one expression:</p>
 
@@ -939,9 +939,9 @@ Alternatively, the method could be abbreviated to one expression:</p>
 </pre>
 
 
-<p>Here, the two arrays, <span class="code">this.contents</span> and <span class="code">that.contents</span>,
-are transformed into an array of pairs (as <span class="code">Tuple2</span>s are called)<a id="i1832062192-1"/> using the
-<span class="code">zip</span> operator. The <span class="code">zip</span> operator picks corresponding elements in its two operands
+<p>Here, the two arrays, <pre class="code">this.contents</pre> and <pre class="code">that.contents</pre>,
+are transformed into an array of pairs (as <pre class="code">Tuple2</pre>s are called)<a id="i1832062192-1"/> using the
+<pre class="code">zip</pre> operator. The <pre class="code">zip</pre> operator picks corresponding elements in its two operands
 and forms an array of pairs. For instance, this expression:</p>
 
 <pre>
@@ -956,29 +956,29 @@ and forms an array of pairs. For instance, this expression:</p>
 </pre>
 
 
-<p>If one of the two operand arrays is longer than the other, <span class="code">zip</span> will drop
+<p>If one of the two operand arrays is longer than the other, <pre class="code">zip</pre> will drop
 the remaining elements. In the expression above, the third 
-element of the left operand, <span class="code">3</span>, does
+element of the left operand, <pre class="code">3</pre>, does
 not form part of the result, because it does not have a corresponding
 element in the right operand.</p>
 
-<p>The zipped array is then iterated over by a <span class="code">for</span> expression. Here, 
-the syntax "<span class="code">for</span>&nbsp;<span class="code">((line1,</span>&nbsp;<span class="code">line2)</span>&nbsp;<span class="code">&lt;-</span> ...<span class="code">)</span>" allows you to name both
-elements of a pair in one <span style="font-style:italic">pattern</span> (<i>i.e.</i>, <span class="code">line1</span> stands now for the first element of the pair, and <span class="code">line2</span> stands for the second). Scala's pattern-matching
+<p>The zipped array is then iterated over by a <pre class="code">for</pre> expression. Here, 
+the syntax "<pre class="code">for</pre>&nbsp;<pre class="code">((line1,</pre>&nbsp;<pre class="code">line2)</pre>&nbsp;<pre class="code">&lt;-</pre> ...<pre class="code">)</pre>" allows you to name both
+elements of a pair in one <span style="font-style:italic">pattern</span> (<i>i.e.</i>, <pre class="code">line1</pre> stands now for the first element of the pair, and <pre class="code">line2</pre> stands for the second). Scala's pattern-matching
 system  will be described in detail
 in <a href="case-classes-and-pattern-matching.html">Chapter 15</a>.
-For now, you can just think of this as a way to define two <span class="code">val</span>s,
-<span class="code">line1</span> and <span class="code">line2</span>, for each step of the iteration.</p>
+For now, you can just think of this as a way to define two <pre class="code">val</pre>s,
+<pre class="code">line1</pre> and <pre class="code">line2</pre>, for each step of the iteration.</p>
 
-<p>The <span class="code">for</span> expression has a <span class="code">yield</span> part and therefore yields a
+<p>The <pre class="code">for</pre> expression has a <pre class="code">yield</pre> part and therefore yields a
 result. The result is of the same kind as the expression iterated
 over (<i>i.e.</i>, it is an array). Each element of the array is the result of
-concatenating the corresponding lines, <span class="code">line1</span> and <span class="code">line2</span>.
-So the end result of this code is the same as in the first version of <span class="code">beside</span>, but because
+concatenating the corresponding lines, <pre class="code">line1</pre> and <pre class="code">line2</pre>.
+So the end result of this code is the same as in the first version of <pre class="code">beside</pre>, but because
 it avoids explicit array indexing, the result is obtained in a less error-prone way.</p>
 
 <p>You still need a way to display elements. As usual, this is done by
-defining a <span class="code">toString</span> method that returns an element formatted as a string.
+defining a <pre class="code">toString</pre> method that returns an element formatted as a string.
 Here is its definition:</p>
 
 <pre>
@@ -986,12 +986,12 @@ Here is its definition:</p>
 </pre>
 
 
-<p>The implementation of <span class="code">toString</span> makes use of <span class="code">mkString</span>, which is defined for
-all sequences, including arrays. As you saw in <a href="builtin-control-structures.html#sec-refactoring-imperative-code">Section 7.8</a>, an expression like "<span class="code">arr</span> <span class="code">mkString</span> <span class="code">sep</span>"
-returns a string consisting of all elements of the array <span class="code">arr</span>. Each
-element is mapped to a string by calling its <span class="code">toString</span> method. 
-A separator string <span class="code">sep</span> is inserted between consecutive element
-strings. So the expression, "<span class="code">contents</span> <span class="code">mkString</span> <span class="code">"\n"</span>" formats the <span class="code">contents</span>
+<p>The implementation of <pre class="code">toString</pre> makes use of <pre class="code">mkString</pre>, which is defined for
+all sequences, including arrays. As you saw in <a href="builtin-control-structures.html#sec-refactoring-imperative-code">Section 7.8</a>, an expression like "<pre class="code">arr</pre> <pre class="code">mkString</pre> <pre class="code">sep</pre>"
+returns a string consisting of all elements of the array <pre class="code">arr</pre>. Each
+element is mapped to a string by calling its <pre class="code">toString</pre> method. 
+A separator string <pre class="code">sep</pre> is inserted between consecutive element
+strings. So the expression, "<pre class="code">contents</pre> <pre class="code">mkString</pre> <pre class="code">"\n"</pre>" formats the <pre class="code">contents</pre>
 array as a string, where each array element appears on a line by itself.</p>
 
 <p><a id="lst-element-with-three-methods"/></p>
@@ -1015,12 +1015,12 @@ array as a string, where each array element appears on a line by itself.</p>
 </pre>
 
 
-<h5>Listing 10.9 - Class <span class="code">Element</span> with <span class="code">above</span>, <span class="code">beside</span>, and <span class="code">toString</span>.</h5>
+<h5>Listing 10.9 - Class <pre class="code">Element</pre> with <pre class="code">above</pre>, <pre class="code">beside</pre>, and <pre class="code">toString</pre>.</h5>
 
 
-<p>Note that <span class="code">toString</span> does not carry an empty parameter list.
+<p>Note that <pre class="code">toString</pre> does not carry an empty parameter list.
 This follows the recommendations for the uniform access principle, because
-<span class="code">toString</span> is a pure method that does not take any parameters. With the addition of these three methods, class <span class="code">Element</span> now looks as shown
+<pre class="code">toString</pre> is a pure method that does not take any parameters. With the addition of these three methods, class <pre class="code">Element</pre> now looks as shown
 in <a href="composition-and-inheritance.html#lst-element-with-three-methods">Listing 10.9</a>.</p>
 
 <h3>10.13 Defining a factory object</h3>
@@ -1030,7 +1030,7 @@ in <a href="composition-and-inheritance.html#lst-element-with-three-methods">Lis
 
 <p>A factory object
 contains methods that construct other objects. Clients would then use
-these factory methods to construct objects, rather than constructing the objects directly with <span class="code">new</span>. An advantage of this approach is
+these factory methods to construct objects, rather than constructing the objects directly with <pre class="code">new</pre>. An advantage of this approach is
 that object creation can be centralized and the details of how objects
 are represented with classes can be hidden. This hiding will both<a id="i593484137-1"/>
 make your library simpler for clients to understand, because
@@ -1042,12 +1042,12 @@ choose where the factory methods should be located. Should they be
 members of a singleton object or of a class? What should the
 containing object or class be called? There are many possibilities. 
 A straightforward solution is to create a companion object of class
-<span class="code">Element</span> and make this the factory object for layout
+<pre class="code">Element</pre> and make this the factory object for layout
 elements. That way, you need to expose only the class/object combo of
-<span class="code">Element</span> to your clients, and you can hide the three implementation classes
-<span class="code">ArrayElement</span>, <span class="code">LineElement</span>, and <span class="code">UniformElement</span>.</p>
+<pre class="code">Element</pre> to your clients, and you can hide the three implementation classes
+<pre class="code">ArrayElement</pre>, <pre class="code">LineElement</pre>, and <pre class="code">UniformElement</pre>.</p>
 
-<p><a href="composition-and-inheritance.html#lst-factory-object-and-methods">Listing 10.10</a> is a design of the <span class="code">Element</span> object that follows this scheme. The <span class="code">Element</span> object contains three overloaded variants of an <span class="code">elem</span> method and each constructs a different kind of layout object.</p>
+<p><a href="composition-and-inheritance.html#lst-factory-object-and-methods">Listing 10.10</a> is a design of the <pre class="code">Element</pre> object that follows this scheme. The <pre class="code">Element</pre> object contains three overloaded variants of an <pre class="code">elem</pre> method and each constructs a different kind of layout object.</p>
 
 <p><a id="lst-factory-object-and-methods"/></p>
 
@@ -1067,8 +1067,8 @@ elements. That way, you need to expose only the class/object combo of
 
 
 <p>With the advent of these factory methods, it makes sense to
-change the implementation of class <span class="code">Element</span> so that it goes through the <span class="code">elem</span> factory methods rather than creating new <span class="code">ArrayElement</span> instances explicitly. To call the factory methods without qualifying them with <span class="code">Element</span>, the name of the singleton object, we will import <span class="code">Element.elem</span> at the top of the source file. In other words, instead of invoking the factory methods with <span class="code">Element.elem</span> inside class <span class="code">Element</span>, we'll import <span class="code">Element.elem</span> so we can just call the factory methods
-by their simple name, <span class="code">elem</span>. <a href="composition-and-inheritance.html#lst-element-using-factory-methods">Listing 10.11</a> shows what class <span class="code">Element</span> will look like after these changes.</p>
+change the implementation of class <pre class="code">Element</pre> so that it goes through the <pre class="code">elem</pre> factory methods rather than creating new <pre class="code">ArrayElement</pre> instances explicitly. To call the factory methods without qualifying them with <pre class="code">Element</pre>, the name of the singleton object, we will import <pre class="code">Element.elem</pre> at the top of the source file. In other words, instead of invoking the factory methods with <pre class="code">Element.elem</pre> inside class <pre class="code">Element</pre>, we'll import <pre class="code">Element.elem</pre> so we can just call the factory methods
+by their simple name, <pre class="code">elem</pre>. <a href="composition-and-inheritance.html#lst-element-using-factory-methods">Listing 10.11</a> shows what class <pre class="code">Element</pre> will look like after these changes.</p>
 
 <p><a id="lst-element-using-factory-methods"/></p>
 
@@ -1092,16 +1092,16 @@ by their simple name, <span class="code">elem</span>. <a href="composition-and-i
 </pre>
 
 
-<h5>Listing 10.11 - Class <span class="code">Element</span> refactored to use factory methods.</h5>
+<h5>Listing 10.11 - Class <pre class="code">Element</pre> refactored to use factory methods.</h5>
 
 
-<p>In addition, given the factory methods, the subclasses, <span class="code">ArrayElement</span>, <span class="code">LineElement</span>, 
-and <span class="code">UniformElement</span>, could now be private because they no longer need to be accessed directly by clients. In Scala, you can define classes and singleton objects inside other classes and singleton objects.<a id="i1315254152-1"/><a id="i1968015105-1"/><a id="i-1545427464-1"/> One way to make the <span class="code">Element</span> subclasses private is to place them inside the <span class="code">Element</span> singleton object and declare them private there. The classes will still be accessible to the three <span class="code">elem</span> factory methods, where they are needed. <a href="composition-and-inheritance.html#lst-hiding-implementation">Listing 10.12</a> shows how that will look.</p>
+<p>In addition, given the factory methods, the subclasses, <pre class="code">ArrayElement</pre>, <pre class="code">LineElement</pre>, 
+and <pre class="code">UniformElement</pre>, could now be private because they no longer need to be accessed directly by clients. In Scala, you can define classes and singleton objects inside other classes and singleton objects.<a id="i1315254152-1"/><a id="i1968015105-1"/><a id="i-1545427464-1"/> One way to make the <pre class="code">Element</pre> subclasses private is to place them inside the <pre class="code">Element</pre> singleton object and declare them private there. The classes will still be accessible to the three <pre class="code">elem</pre> factory methods, where they are needed. <a href="composition-and-inheritance.html#lst-hiding-implementation">Listing 10.12</a> shows how that will look.</p>
 
 <h3 id="sec-heighten-and-widen">10.14 Heighten and widen</h3>
 
 
-<p>We need one last enhancement. The version of <span class="code">Element</span> shown in <a href="composition-and-inheritance.html#lst-element-using-factory-methods">Listing 10.11</a> is not quite sufficient because it does not allow clients to place elements of different widths on top of each other, or 
+<p>We need one last enhancement. The version of <pre class="code">Element</pre> shown in <a href="composition-and-inheritance.html#lst-element-using-factory-methods">Listing 10.11</a> is not quite sufficient because it does not allow clients to place elements of different widths on top of each other, or 
 place elements of different heights beside each other.</p>
 
 <p>For example, evaluating the following expression 
@@ -1114,7 +1114,7 @@ combined element is longer than the first:</p>
 </pre>
 
 
-<p>Similarly, evaluating the following expression would not work properly, because the first <span class="code">ArrayElement</span> has a height of two and the second a height of only one:</p>
+<p>Similarly, evaluating the following expression would not work properly, because the first <pre class="code">ArrayElement</pre> has a height of two and the second a height of only one:</p>
 
 <pre>
   <code class="vem">new</code>&nbsp;<code class="typename">ArrayElement</code>(<code class="typename">Array</code>(<code class="quotedstring">"one"</code>,&nbsp;<code class="quotedstring">"two"</code>))&nbsp;beside&nbsp;
@@ -1122,8 +1122,8 @@ combined element is longer than the first:</p>
 </pre>
 
 
-<p><a href="composition-and-inheritance.html#lst-widen-heighten-methods">Listing 10.13</a> shows a private helper method, <span class="code">widen</span>, which takes a width and returns an <span class="code">Element</span> of that width. The result contains the contents of this <span class="code">Element</span>, centered, padded to the left and right by any spaces needed to achieve the required width. 
-<a href="composition-and-inheritance.html#lst-widen-heighten-methods">Listing 10.13</a> also shows a similar method, <span class="code">heighten</span>, which performs the same function in the vertical direction. The <span class="code">widen</span> method is invoked by <span class="code">above</span> to ensure that <span class="code">Element</span>s placed above each other have the same width. Similarly, the <span class="code">heighten</span> method is invoked by <span class="code">beside</span> to ensure that elements placed beside each other have the same height. With these changes, the layout library is ready for use.</p>
+<p><a href="composition-and-inheritance.html#lst-widen-heighten-methods">Listing 10.13</a> shows a private helper method, <pre class="code">widen</pre>, which takes a width and returns an <pre class="code">Element</pre> of that width. The result contains the contents of this <pre class="code">Element</pre>, centered, padded to the left and right by any spaces needed to achieve the required width. 
+<a href="composition-and-inheritance.html#lst-widen-heighten-methods">Listing 10.13</a> also shows a similar method, <pre class="code">heighten</pre>, which performs the same function in the vertical direction. The <pre class="code">widen</pre> method is invoked by <pre class="code">above</pre> to ensure that <pre class="code">Element</pre>s placed above each other have the same width. Similarly, the <pre class="code">heighten</pre> method is invoked by <pre class="code">beside</pre> to ensure that elements placed beside each other have the same height. With these changes, the layout library is ready for use.</p>
 
 <p><a id="lst-hiding-implementation"/></p>
 
@@ -1197,7 +1197,7 @@ combined element is longer than the first:</p>
 </pre>
 
 
-<h5>Listing 10.13 - <span class="code">Element</span> with <span class="code">widen</span> and <span class="code">heighten</span> methods.</h5>
+<h5>Listing 10.13 - <pre class="code">Element</pre> with <pre class="code">widen</pre> and <pre class="code">heighten</pre> methods.</h5>
 
 
 <h3 id="sec-putting-it-together">10.15 Putting it all together</h3>
@@ -1205,7 +1205,7 @@ combined element is longer than the first:</p>
 
 <p>A fun way to exercise almost all elements of the layout library is 
 to write a program that draws a spiral with a given number of edges. 
-This <span class="code">Spiral</span> program, shown in <a href="composition-and-inheritance.html#lst-spiral-app">Listing 10.14</a>, will do just that.</p>
+This <pre class="code">Spiral</pre> program, shown in <a href="composition-and-inheritance.html#lst-spiral-app">Listing 10.14</a>, will do just that.</p>
 
 <p><a id="lst-spiral-app"/></p>
 
@@ -1239,11 +1239,11 @@ This <span class="code">Spiral</span> program, shown in <a href="composition-and
 </pre>
 
 
-<h5>Listing 10.14 - The <span class="code">Spiral</span> application.</h5>
+<h5>Listing 10.14 - The <pre class="code">Spiral</pre> application.</h5>
 
 
-<p>Because <span class="code">Spiral</span> is a standalone object with a <span class="code">main</span> method with the
-proper signature, it is a Scala application. <span class="code">Spiral</span> takes one
+<p>Because <pre class="code">Spiral</pre> is a standalone object with a <pre class="code">main</pre> method with the
+proper signature, it is a Scala application. <pre class="code">Spiral</pre> takes one
 command-line argument, an integer, and draws a spiral with the specified
 number of edges. For example, you could draw a six-edge spiral, as shown on the left, and larger spirals, as shown on the right.</p>
 
@@ -1287,10 +1287,10 @@ We'll work with the layout library again in <a href="assertions-and-tests.html">
 <p><a id="footnotemain10-1"/>[1] Meyer, <em>Object-Oriented Software Construction</em>  <a href="bibliography.html#meyer-oo-soft-con">[Mey00]</a><a id="i1013925756-1"/><a id="i730601900-1"/></p>
 
 <p><a id="footnotemain10-2"/>[2] One flaw with this design is that because the returned array is mutable, clients
-could change it. For the book we'll keep things simple, but were <span class="code">ArrayElement</span> part of a real project, you might
+could change it. For the book we'll keep things simple, but were <pre class="code">ArrayElement</pre> part of a real project, you might
 consider returning
-a <em>defensive copy</em> of the array instead. Another problem is we aren't currently ensuring that every <span class="code">String</span> element of the
-<span class="code">contents</span> array has the same length. This could be solved by checking the precondition in the primary constructor and throwing
+a <em>defensive copy</em> of the array instead. Another problem is we aren't currently ensuring that every <pre class="code">String</pre> element of the
+<pre class="code">contents</pre> array has the same length. This could be solved by checking the precondition in the primary constructor and throwing
 an exception if it is violated.</p>
 
 <p><a id="footnotemain10-3"/>[3] For more perspective on the difference between subclass and subtype, see the glossary entry for <a href="glossary.html#g-1867567750"><em>subtype</em></a>.</p>
@@ -1301,11 +1301,11 @@ to enable you to import packages (in addition to just the names of types) and th
 objects. This is also something you can't do in Java. It will
 be described in <a href="packages-and-imports.html#sec-imports">Section 13.3</a>.</p>
 
-<p><a id="footnotemain10-5"/>[5] The <span class="code">protected</span> modifier, which grants access to subclasses, will be covered in detail
+<p><a id="footnotemain10-5"/>[5] The <pre class="code">protected</pre> modifier, which grants access to subclasses, will be covered in detail
 in <a href="packages-and-imports.html">Chapter 13</a>.</p>
 
-<p><a id="footnotemain10-6"/>[6] In Java 1.5, an <span class="code">@Override</span> annotation was
-introduced that works similarly to Scala's <span class="code">override</span> modifier, but unlike Scala's <span class="code">override</span>, is
+<p><a id="footnotemain10-6"/>[6] In Java 1.5, an <pre class="code">@Override</pre> annotation was
+introduced that works similarly to Scala's <pre class="code">override</pre> modifier, but unlike Scala's <pre class="code">override</pre>, is
 not required.</p>
 
 <p><a id="footnotemain10-7"/>[7] This kind
@@ -1318,8 +1318,8 @@ kind of polymorphism in Scala called <em>universal polymorphism</em> is discusse
 <p><a id="footnotemain10-9"/>[9] Eckel, <em>Thinking in
 Java</em><a id="i1711840479-1"/><a id="i-107465203-1"/>  <a href="bibliography.html#eckel-thinking-in-java">[Eck98]</a></p>
 
-<p><a id="footnotemain10-10"/>[10] Class <span class="code">ArrayElement</span> also has a composition relationship with <span class="code">Array</span>, because its parametric
-<span class="code">contents</span> field holds a reference to an array of strings. The code for <span class="code">ArrayElement</span> is shown in <a href="composition-and-inheritance.html#lst-parametric-field">Listing 10.5</a>
+<p><a id="footnotemain10-10"/>[10] Class <pre class="code">ArrayElement</pre> also has a composition relationship with <pre class="code">Array</pre>, because its parametric
+<pre class="code">contents</pre> field holds a reference to an array of strings. The code for <pre class="code">ArrayElement</pre> is shown in <a href="composition-and-inheritance.html#lst-parametric-field">Listing 10.5</a>
  <a href="composition-and-inheritance.html#lst-parametric-field">here</a>. Its composition relationship is represented in class diagrams by a diamond, as shown, for example,
 in <a href="composition-and-inheritance.html#fig-element-family">Figure 10.1</a>  <a href="composition-and-inheritance.html#fig-element-family">here</a>.</p>
 

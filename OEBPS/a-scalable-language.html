@@ -61,7 +61,7 @@ Consider, for example, the following small Scala program:</p>
 
 
 <p>This program sets up a map from countries to their capitals, modifies the
-map by adding a new binding <span class="code">("Japan"</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">"Tokyo")</span>, and prints the
+map by adding a new binding <pre class="code">("Japan"</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">"Tokyo")</pre>, and prints the
 capital associated with the country France.<a href="a-scalable-language.html#footnotemain1-2">[2]</a>  The notation in this example is
 high level, to the point, and not cluttered with extraneous semicolons
 or type annotations.<a id="i-2107785776-1"/><a id="i1449766718-1"/> Indeed, the feel is that of a modern
@@ -79,11 +79,11 @@ way. Scala gives you this fine-grained control if you need it,
 because maps in Scala are not language syntax. They are library
 abstractions that you can extend and adapt.</p>
 
-<p>In the above program, you'll get a default <span class="code">Map</span> implementation,
+<p>In the above program, you'll get a default <pre class="code">Map</pre> implementation,
 but you can easily change that.
 You could for example specify a particular implementation, such as a
-<span class="code">HashMap</span> or a <span class="code">TreeMap</span>, or invoke the <span class="code">par</span> method to obtain
-a <span class="code">ParMap</span> that executes operations in parallel.
+<pre class="code">HashMap</pre> or a <pre class="code">TreeMap</pre>, or invoke the <pre class="code">par</pre> method to obtain
+a <pre class="code">ParMap</pre> that executes operations in parallel.
 You<a id="i-1874383620-1"/><a id="i-1964267956-1"/>
 could specify a default value for the map, or you could override any
 other method of the map you create. In each case, you can use the same easy access syntax for
@@ -122,7 +122,7 @@ constructs into your hands.<a id="i294325658-1"/></p>
 <p>Here's an example. Many applications need a type of integer
 that can become arbitrarily large without overflow or "wrap-around"
 of arithmetic operations. Scala defines such a type in library class
-<span class="code">scala.BigInt</span>.<a id="i1989635823-1"/> Here is the definition of a method using that type, which calculates
+<pre class="code">scala.BigInt</pre>.<a id="i1989635823-1"/> Here is the definition of a method using that type, which calculates
 the factorial of a passed integer value:<a href="a-scalable-language.html#footnotemain1-5">[5]</a></p>
 
 <pre>
@@ -131,21 +131,21 @@ the factorial of a passed integer value:<a href="a-scalable-language.html#footno
 </pre>
 
 
-<p>Now, if you call <span class="code">factorial(30)</span> you would get:</p>
+<p>Now, if you call <pre class="code">factorial(30)</pre> you would get:</p>
 
 <pre>
   <code class="literal">265252859812191058636308480000000</code>
 </pre>
 
 
-<p><span class="code">BigInt</span> looks like a built-in type because you can use integer
-literals and operators such as <span class="code">*</span> and <span class="code">-</span> with values of that type.
+<p><pre class="code">BigInt</pre> looks like a built-in type because you can use integer
+literals and operators such as <pre class="code">*</pre> and <pre class="code">-</pre> with values of that type.
 Yet it is just a class that happens to be defined in Scala's standard
 library.<a href="a-scalable-language.html#footnotemain1-6">[6]</a> If the
 class were missing, it would be straightforward for any Scala
 programmer to write an implementation, for instance, by wrapping
-Java's class <span class="code">java.math.BigInteger</span> (in fact that's how Scala's
-<span class="code">BigInt</span> class is implemented).<a id="i1854396478-1"/></p>
+Java's class <pre class="code">java.math.BigInteger</pre> (in fact that's how Scala's
+<pre class="code">BigInt</pre> class is implemented).<a id="i1854396478-1"/></p>
 
 <p>Of course, you could also use Java's class directly. But the result is
 not nearly as pleasant, because although Java allows you to create new types, those types don't 
@@ -161,7 +161,7 @@ feel much like native language support:</p>
 </pre>
 
 
-<p><span class="code">BigInt</span> is representative of many other 
+<p><pre class="code">BigInt</pre> is representative of many other 
 number-like types&mdash;big decimals, complex numbers, rational numbers,
 confidence intervals, polynomials&mdash;the list goes on. Some programming
 languages implement some of these types natively. For instance,
@@ -211,8 +211,8 @@ threads. They communicate by sending messages to each other.  An actor
 can perform two basic operations, message send and receive. The send
 operation, denoted by an exclamation
 point<a id="i1971465955-1"/><a id="i-1037720528-1"/>
-(<span class="code">!</span>), sends a
-message to an actor. Here's an example in which the actor is named <span class="code">recipient</span>:</p>
+(<pre class="code">!</pre>), sends a
+message to an actor. Here's an example in which the actor is named <pre class="code">recipient</pre>:</p>
 
 <pre>
   recipient&nbsp;!&nbsp;msg
@@ -223,7 +223,7 @@ message to an actor. Here's an example in which the actor is named <span class="
 immediately, without waiting for the message to be received and
 processed.  Every actor has a <span style="font-style:italic">mailbox</span> in which incoming messages
 are queued.  An actor handles messages that have arrived in its
-mailbox via a <span class="code">receive</span> block:<a id="i1209206976-1"/></p>
+mailbox via a <pre class="code">receive</pre> block:<a id="i1209206976-1"/></p>
 
 <pre>
   <code class="vem">def</code>&nbsp;receive&nbsp;=&nbsp;{
@@ -258,28 +258,28 @@ checksum calculator service:</p>
 
 
 <p>This actor 
-first defines a local variable named <span class="code">sum</span> with initial value zero. 
-It defines a <span class="code">receive</span> block that will handle messages. 
-If it receives a <span class="code">Data</span> message, it adds the contained <span class="code">byte</span>
-to the <span class="code">sum</span> variable.
-If it receives a <span class="code">GetChecksum</span> message, it calculates a checksum from the current value
-of <span class="code">sum</span> and sends the result back to the <span class="code">requester</span> using the message send 
-<span class="code">requester</span>&nbsp;<span class="code">!</span>&nbsp;<span class="code">sum</span>.
-The <span class="code">requester</span> field is embedded in the <span class="code">GetChecksum</span> message; 
+first defines a local variable named <pre class="code">sum</pre> with initial value zero. 
+It defines a <pre class="code">receive</pre> block that will handle messages. 
+If it receives a <pre class="code">Data</pre> message, it adds the contained <pre class="code">byte</pre>
+to the <pre class="code">sum</pre> variable.
+If it receives a <pre class="code">GetChecksum</pre> message, it calculates a checksum from the current value
+of <pre class="code">sum</pre> and sends the result back to the <pre class="code">requester</pre> using the message send 
+<pre class="code">requester</pre>&nbsp;<pre class="code">!</pre>&nbsp;<pre class="code">sum</pre>.
+The <pre class="code">requester</pre> field is embedded in the <pre class="code">GetChecksum</pre> message; 
 it usually refers to the actor that made the request.</p>
 
 <p>We don't expect you to fully understand the actor example at this point.
 Rather, what's significant about this example for
 the topic of scalability is that
-neither the <span class="code">receive</span> block nor message send (<span class="code">!</span>)
+neither the <pre class="code">receive</pre> block nor message send (<pre class="code">!</pre>)
 are built-in operations in Scala. Even though the
-<span class="code">receive</span> block may look and act very much like a built-in control construct,
+<pre class="code">receive</pre> block may look and act very much like a built-in control construct,
 it is in fact a method defined in Akka's actors
-library.  Likewise, even though `<span class="code">!</span>' looks like a built-in operator,
+library.  Likewise, even though `<pre class="code">!</pre>' looks like a built-in operator,
 it too is just a method defined in the Akka actors library.  Both of
 these constructs are completely independent of the Scala programming language.</p>
 
-<p>The <span class="code">receive</span> block and send (<span class="code">!</span>) syntax look in Scala much like
+<p>The <pre class="code">receive</pre> block and send (<pre class="code">!</pre>) syntax look in Scala much like
 they look in Erlang, but in Erlang, these constructs are built into
 the language. Akka also implements most of Erlang's other concurrent
 programming constructs, such as monitoring failed actors and
@@ -354,12 +354,12 @@ scalability.</p>
 
 <p>By contrast, Scala is an object-oriented language in pure form: every
 value is an object and every operation is a method call.  For example,
-when you say <span class="code">1</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">2</span> in Scala, you are actually invoking a method
-named <span class="code">+</span> defined in class <span class="code">Int</span>. You can define methods with operator-like names that
+when you say <pre class="code">1</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">2</pre> in Scala, you are actually invoking a method
+named <pre class="code">+</pre> defined in class <pre class="code">Int</pre>. You can define methods with operator-like names that
 clients of your API can then use in operator notation.  This is how
 the designer of Akka's actors<a id="i2042656-3"/><a id="i-1422944994-3"/> API enabled you to use expressions such
-as <span class="code">requester</span>&nbsp;<span class="code">!</span>&nbsp;<span class="code">sum</span> shown in the previous example: `<span class="code">!</span>' is a
-method of the <span class="code">Actor</span> class.</p>
+as <pre class="code">requester</pre>&nbsp;<pre class="code">!</pre>&nbsp;<pre class="code">sum</pre> shown in the previous example: `<pre class="code">!</pre>' is a
+method of the <pre class="code">Actor</pre> class.</p>
 
 <p>Scala is more advanced than most other languages when it comes to
 composing objects. An example is Scala's <span class="textit"><a href="glossary.html#g110621198"><em>trait</em>s</a></span>.  Traits are
@@ -401,7 +401,7 @@ also define a function inside another function, just as you can define
 an integer value inside a function.  And you can define functions
 without giving them a name, sprinkling your code with function
 literals as easily as you might write
-integer literals like <span class="code">42</span>.</p>
+integer literals like <pre class="code">42</pre>.</p>
 
 <p>Functions that are first-class values provide a convenient means for
 abstracting over operations and creating new control structures.<a id="i14092899-1"/>  This
@@ -409,7 +409,7 @@ generalization of functions provides great expressiveness, which often
 leads to very legible and concise programs. It also plays an important
 role for scalability.
 As an example, the ScalaTest<a id="i122343128-1"/> testing library offers an
-<span class="code">eventually</span><a id="i903380834-1"/> construct
+<pre class="code">eventually</pre><a id="i903380834-1"/> construct
 that takes a function as an argument. It is used like this:</p>
 
 <pre>
@@ -419,8 +419,8 @@ that takes a function as an argument. It is used like this:</p>
 </pre>
 
 
-<p>The code inside <span class="code">eventually</span>&mdash;the assertion, <span class="code">it.next()</span>&nbsp;<span class="code">shouldBe</span>&nbsp;<span class="code">3</span>&mdash;is wrapped in a function
-that is passed unexecuted to the <span class="code">eventually</span> method. For a configured amount of time, <span class="code">eventually</span> will repeatedly execute the function
+<p>The code inside <pre class="code">eventually</pre>&mdash;the assertion, <pre class="code">it.next()</pre>&nbsp;<pre class="code">shouldBe</pre>&nbsp;<pre class="code">3</pre>&mdash;is wrapped in a function
+that is passed unexecuted to the <pre class="code">eventually</pre> method. For a configured amount of time, <pre class="code">eventually</pre> will repeatedly execute the function
 until the assertion succeeds.</p>
 
 <p>In most traditional languages, by contrast, functions are not
@@ -441,8 +441,8 @@ individually. For instance you can change a semicolon character in a
 string to a period inside the same string object.  In Java
 and Scala, on the other hand, a string is a sequence of characters in
 the mathematical sense. Replacing a character in a string using
-an expression like <span class="code">s.replace(';',</span>&nbsp;<span class="code">'.')</span> yields a new string object,
-which is different from <span class="code">s</span>. Another way of expressing this is that
+an expression like <pre class="code">s.replace(';',</pre>&nbsp;<pre class="code">'.')</pre> yields a new string object,
+which is different from <pre class="code">s</pre>. Another way of expressing this is that
 strings are immutable<a id="i507699202-1"/> in Java whereas they are mutable in Ruby. So
 looking at just strings, Java is a functional language, whereas Ruby
 is not. Immutable data structures are one of the cornerstones of
@@ -453,11 +453,11 @@ instance, Scala has immutable lists, tuples, maps, and sets.</p>
 <p>Another way of stating this second idea of functional programming is
 that methods should not have any <span style="font-style:italic">side effects</span>.<a id="i18918201-1"/> They should
 communicate with their environment only by taking arguments and
-returning results. For instance, the <span class="code">replace</span> method in Java's
-<span class="code">String</span> class fits this description. It takes a string and two
+returning results. For instance, the <pre class="code">replace</pre> method in Java's
+<pre class="code">String</pre> class fits this description. It takes a string and two
 characters and yields a new string where all occurrences of one
 character are replaced by the other. There is no other effect of
-calling <span class="code">replace</span>. Methods like <span class="code">replace</span> are called
+calling <pre class="code">replace</pre>. Methods like <pre class="code">replace</pre> are called
 <a href="glossary.html#g-1825668081"><em>referentially transparent</em></a>,<a id="i-1825668081-1"/> which means that for any given input the method call could
 be replaced by its result without affecting the program's semantics.</p>
 
@@ -493,29 +493,29 @@ code.  In fact, almost all Scala code makes heavy use of Java
 libraries, often without programmers being aware of this fact.</p>
 
 <p>Another aspect of full interoperability is that Scala heavily re-uses
-Java types.  Scala's <span class="code">Int</span>s are represented as Java primitive
-integers of type <span class="code">int</span>, <span class="code">Float</span>s are represented as <span class="code">float</span>s,
-<span class="code">Boolean</span>s as <span class="code">boolean</span>s, and so on.  Scala arrays are mapped to
+Java types.  Scala's <pre class="code">Int</pre>s are represented as Java primitive
+integers of type <pre class="code">int</pre>, <pre class="code">Float</pre>s are represented as <pre class="code">float</pre>s,
+<pre class="code">Boolean</pre>s as <pre class="code">boolean</pre>s, and so on.  Scala arrays are mapped to
 Java arrays. Scala also re-uses many of the standard Java library
-types. For instance, the type of a string literal <span class="code">"abc"</span> in Scala is
-<span class="code">java.lang.String</span>, and a thrown exception must be a subclass of
-<span class="code">java.lang.Throwable</span>.</p>
+types. For instance, the type of a string literal <pre class="code">"abc"</pre> in Scala is
+<pre class="code">java.lang.String</pre>, and a thrown exception must be a subclass of
+<pre class="code">java.lang.Throwable</pre>.</p>
 
 <p>Scala not only re-uses Java's types, but also "dresses them up" to
 make them nicer.  For instance, Scala's strings support methods like
-<span class="code">toInt</span> or <span class="code">toFloat</span>, which convert the string to an integer or<a id="i2133819883-1"/>
-floating-point number.  So you can write <span class="code">str.toInt</span> instead of <span class="code">Integer.parseInt(str)</span>. How can this be achieved
-without breaking interoperability? Java's <span class="code">String</span> class certainly
-has no <span class="code">toInt</span> method! In fact, Scala has a very general solution to
+<pre class="code">toInt</pre> or <pre class="code">toFloat</pre>, which convert the string to an integer or<a id="i2133819883-1"/>
+floating-point number.  So you can write <pre class="code">str.toInt</pre> instead of <pre class="code">Integer.parseInt(str)</pre>. How can this be achieved
+without breaking interoperability? Java's <pre class="code">String</pre> class certainly
+has no <pre class="code">toInt</pre> method! In fact, Scala has a very general solution to
 solve this tension between advanced library design and
 interoperability. Scala lets you define <span style="font-style:italic">implicit conversions</span>,<a id="i456777265-1"/><a id="i-1068906551-1"/>
 which are always applied when types would not normally match up, or
 when non-existing members are selected. In the case above, when
-looking for a <span class="code">toInt</span> method on a string, the Scala compiler will
-find no such member of class <span class="code">String</span>, but it will find an implicit
-conversion that converts a Java <span class="code">String</span> to an instance of the Scala
-class <span class="code">StringOps</span>, which does define such a member. The conversion
-will then be applied implicitly before performing the <span class="code">toInt</span>
+looking for a <pre class="code">toInt</pre> method on a string, the Scala compiler will
+find no such member of class <pre class="code">String</pre>, but it will find an implicit
+conversion that converts a Java <pre class="code">String</pre> to an instance of the Scala
+class <pre class="code">StringOps</pre>, which does define such a member. The conversion
+will then be applied implicitly before performing the <pre class="code">toInt</pre>
 operation.</p>
 
 <p>Scala code can also be invoked from Java code.  This is sometimes a
@@ -563,8 +563,8 @@ In Java, a class with a constructor often looks like this:</p>
 
 
 <p>Given this code, the Scala compiler will produce a class that has two
-private instance variables, an <span class="code">Int</span> named <span class="code">index</span> and a <span class="code">String</span>
-named <span class="code">name</span>, and a constructor that takes initial values for those
+private instance variables, an <pre class="code">Int</pre> named <pre class="code">index</pre> and a <pre class="code">String</pre>
+named <pre class="code">name</pre>, and a constructor that takes initial values for those
 variables as parameters. The code of this constructor will initialize
 the two instance variables with the values passed as parameters.  In
 short, you get essentially the same functionality as the more verbose
@@ -601,8 +601,8 @@ Such complexity can't be avoided; it must instead be managed.</p>
 
 <p>Scala helps you manage complexity by letting you raise
 the level of abstraction in the interfaces you design and use.  As an
-example, imagine you have a <span class="code">String</span> variable <span class="code">name</span>, and you want
-to find out whether or not that <span class="code">String</span> contains an upper case
+example, imagine you have a <pre class="code">String</pre> variable <pre class="code">name</pre>, and you want
+to find out whether or not that <pre class="code">String</pre> contains an upper case
 character. Prior to Java 8, you might have written a loop, like this:</p>
 
 <pre>
@@ -631,7 +631,7 @@ to understand than the Java code. So the Scala code weighs less heavily
 on the total complexity budget. It also gives you less opportunity to
 make mistakes.</p>
 
-<p>The predicate <span class="code">_.isUpper</span> is an example of a function literal in Scala.<a href="a-scalable-language.html#footnotemain1-11">[11]</a>
+<p>The predicate <pre class="code">_.isUpper</pre> is an example of a function literal in Scala.<a href="a-scalable-language.html#footnotemain1-11">[11]</a>
 It describes a function that takes a character argument (represented
 by the underscore character) and tests whether it is an upper case
 letter.<a href="a-scalable-language.html#footnotemain1-12">[12]</a></p>
@@ -650,7 +650,7 @@ to perform a similar operation in Java. Here's what it might look like:</p>
 <p>Although a great improvement over earlier versions of Java, the Java 8 code is
 still more verbose than the equivalent Scala code.
 This extra "heaviness" of Java code, as well as Java's long tradition of loops, may encourage many 
-Java programmers in need of new methods like <span class="code">exists</span> to just write out
+Java programmers in need of new methods like <pre class="code">exists</pre> to just write out
 loops and live with the increased complexity in their code.</p>
 
 <p>On the other hand, function literals 
@@ -669,9 +669,9 @@ a function application with the function's right hand side (<i>i.e.</i>, its
 body, which follows the equals sign) without worrying about any hidden
 side effects.  This principle gives many useful laws that you can
 employ to better understand or to refactor your code. As an example,
-take once more the <span class="code">exists</span> method described above. This method
-should satisfy the following law: for every sequence <span class="code">s</span> and for
-every pair of predicates <span class="code">p</span> and <span class="code">q</span> it should hold that</p>
+take once more the <pre class="code">exists</pre> method described above. This method
+should satisfy the following law: for every sequence <pre class="code">s</pre> and for
+every pair of predicates <pre class="code">p</pre> and <pre class="code">q</pre> it should hold that</p>
 
 <pre>
   s.exists(p)&nbsp;||&nbsp;s.exists(q)&nbsp;==&nbsp;s.exists(x&nbsp;=&gt;&nbsp;p(x)&nbsp;||&nbsp;q(x))&nbsp;
@@ -679,12 +679,12 @@ every pair of predicates <span class="code">p</span> and <span class="code">q</s
 
 
 <p>That is,
-querying the same sequence with two predicates <span class="code">p</span> and <span class="code">q</span> and
+querying the same sequence with two predicates <pre class="code">p</pre> and <pre class="code">q</pre> and
 or-ing the results is the same as querying with a single predicate
-that tests at the same time for <span class="code">p</span> or for <span class="code">q</span>.  A law like this is
+that tests at the same time for <pre class="code">p</pre> or for <pre class="code">q</pre>.  A law like this is
 clearly useful for writing and refactoring programs. However, if
-<span class="code">exists</span> had side effects, it would in general not be correct to
-assume such a law because the left hand side executes <span class="code">exists</span> twice
+<pre class="code">exists</pre> had side effects, it would in general not be correct to
+assume such a law because the left hand side executes <pre class="code">exists</pre> twice
 for each sequence element whereas the right hand side executes it only
 once per element.  So this is an example where purely functional code
 leads to more laws that are useful for understanding and refactoring
@@ -694,7 +694,7 @@ your code.</p>
 encountered in imperative programming.  Aliasing happens when multiple
 variables refer to the same object. It gives rise to some thorny
 questions and complications.  For instance, does changing a field
-<span class="code">r.x</span> also affect <span class="code">s.x</span>? It does if <span class="code">r</span> and <span class="code">s</span> refer to the same
+<pre class="code">r.x</pre> also affect <pre class="code">s.x</pre>? It does if <pre class="code">r</pre> and <pre class="code">s</pre> refer to the same
 object. In practice it is often very difficult to trace such
 aliases. Immutable data, on the other hand, can be shared freely,
 because a copy is indistinguishable from a shared reference.  This
@@ -799,8 +799,8 @@ cannot easily derive by themselves. In a method definition like:</p>
 </pre>
 
 
-<p>it's useful to know that  <span class="code">f</span>'s 
-argument should be a <span class="code">String</span>.  On the other
+<p>it's useful to know that  <pre class="code">f</pre>'s 
+argument should be a <pre class="code">String</pre>.  On the other
 hand, at least one of the two annotations in the following example is
 annoying:</p>
 
@@ -809,8 +809,8 @@ annoying:</p>
 </pre>
 
 
-<p>Clearly, it should be enough to say just once that <span class="code">x</span> is a
-<span class="code">HashMap</span> with <span class="code">Int</span>s as keys and <span class="code">String</span>s as values; there's no
+<p>Clearly, it should be enough to say just once that <pre class="code">x</pre> is a
+<pre class="code">HashMap</pre> with <pre class="code">Int</pre>s as keys and <pre class="code">String</pre>s as values; there's no
 need to repeat the same phrase twice.</p>
 
 <p>Scala has a very sophisticated type inference system that lets you omit almost all<a id="i-219390285-1"/><a id="i-24732165-1"/>
@@ -936,12 +936,12 @@ and the Bazaar</em>.  <a href="bibliography.html#raymond-cathedral">[Ray99]</a><
 <p><a id="footnotemain1-4"/>[4] Steele,
 "Growing a language."  <a href="bibliography.html#steele-growing">[Ste99]</a><a id="i-1799668152-1"/></p>
 
-<p><a id="footnotemain1-5"/>[5] <span class="code">factorial(x)</span>, or <span class="code">x!</span>&nbsp;in mathematical notation, is the result of computing <span class="code">1</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">2</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">...</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">x</span>, with <span class="code">0!</span> defined to be <span class="code">1</span>.</p>
+<p><a id="footnotemain1-5"/>[5] <pre class="code">factorial(x)</pre>, or <pre class="code">x!</pre>&nbsp;in mathematical notation, is the result of computing <pre class="code">1</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">...</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">x</pre>, with <pre class="code">0!</pre> defined to be <pre class="code">1</pre>.</p>
 
 <p><a id="footnotemain1-6"/>[6] Scala comes with a standard library, some of which
 will be covered in this book. For more information, you can also
 consult the library's Scaladoc documentation, which is available 
-in the distribution and online at <span class="code">http://www.scala-lang.org</span>.</p>
+in the distribution and online at <pre class="code">http://www.scala-lang.org</pre>.</p>
 
 <p><a id="footnotemain1-7"/>[7] Kay, "The Early History of Smalltalk."  <a href="bibliography.html#kay-early">[Kay96]</a></p>
 
@@ -957,13 +957,13 @@ an implementation of Scala that runs on JavaScript, Scala.js,<a id="i-827373807-
   to make them non-final in <a href="composition-and-inheritance.html#sec-parametric-fields">Section 10.6</a>.</p>
 
 <p><a id="footnotemain1-11"/>[11] A function literal
-can be called a <em>predicate</em> if its result type is <span class="code">Boolean</span>.</p>
+can be called a <em>predicate</em> if its result type is <pre class="code">Boolean</pre>.</p>
 
 <p><a id="footnotemain1-12"/>[12] This use of the underscore as a placeholder for arguments
 is described in <a href="functions-and-closures.html#sec-placeholder-syntax">Section 8.5</a>.</p>
 
 <p><a id="footnotemain1-13"/>[13] Generics
-are discussed in <a href="type-parameterization.html">Chapter 19</a>; intersections (<i>e.g.</i>, <span class="code">A</span>&nbsp;<span class="code">with</span>&nbsp;<span class="code">B</span>&nbsp;<span class="code">with</span>&nbsp;<span class="code">C</span>) in <a href="traits.html">Chapter 12</a>; and abstract types
+are discussed in <a href="type-parameterization.html">Chapter 19</a>; intersections (<i>e.g.</i>, <pre class="code">A</pre>&nbsp;<pre class="code">with</pre>&nbsp;<pre class="code">B</pre>&nbsp;<pre class="code">with</pre>&nbsp;<pre class="code">C</pre>) in <a href="traits.html">Chapter 12</a>; and abstract types
 in <a href="abstract-members.html">Chapter 20</a>.</p>
 
 <p><a id="footnotemain1-14"/>[14] Kay, in an email on the meaning of
@@ -973,16 +973,16 @@ object-oriented programming.  <a href="bibliography.html#kay-dynamic">[Kay03]</a
 
 <p><a id="footnotemain1-16"/>[16]  The
 major deviation from Java concerns the syntax for type annotations: it's
-"<span class="code">variable:</span>&nbsp;<span class="code">Type</span>" instead of "<span class="code">Type</span>&nbsp;<span class="code">variable</span>" in
+"<pre class="code">variable:</pre>&nbsp;<pre class="code">Type</pre>" instead of "<pre class="code">Type</pre>&nbsp;<pre class="code">variable</pre>" in
 Java.  Scala's postfix type syntax resembles Pascal, Modula-2, or
 Eiffel.<a id="i-357661779-1"/> The main reason for this deviation has to do with type
 inference, which often lets you omit the type of a variable or the
-return type of a method.  Using the "<span class="code">variable:</span>&nbsp;<span class="code">Type</span>" syntax
+return type of a method.  Using the "<pre class="code">variable:</pre>&nbsp;<pre class="code">Type</pre>" syntax
 is easy&mdash;just leave out the colon and the type.  But in C-style
-"<span class="code">Type</span>&nbsp;<span class="code">variable</span>" syntax you cannot simply leave off the type; there
+"<pre class="code">Type</pre>&nbsp;<pre class="code">variable</pre>" syntax you cannot simply leave off the type; there
 would be no marker to start the definition anymore. You'd need
 some alternative keyword to be a placeholder for a missing type (C#
-3.0, which does some type inference, uses <span class="code">var</span> for this
+3.0, which does some type inference, uses <pre class="code">var</pre> for this
 purpose). Such an alternative keyword feels more ad-hoc and less
 regular than Scala's approach.</p>
 

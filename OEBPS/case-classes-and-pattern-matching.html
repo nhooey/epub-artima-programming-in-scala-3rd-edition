@@ -21,13 +21,13 @@ particularly helpful for tree-like recursive data.</p>
 
 <p>If you have programmed in a functional language before, then you will
 probably recognize pattern matching. But case classes will be new to you.  Case classes are Scala's way to allow pattern matching on
-objects without requiring a large amount of boilerplate. Generally, all you need to do is add a single <span class="code">case</span> keyword to
+objects without requiring a large amount of boilerplate. Generally, all you need to do is add a single <pre class="code">case</pre> keyword to
 each class that you want to be pattern matchable.</p>
 
 <p>This chapter starts with a simple example of case classes and pattern
 matching.  It then goes through all of the kinds of patterns that are
 supported, talks about the role of <em>sealed</em> classes, discusses
-the <span class="code">Option</span> type, and shows some non-obvious places in the language
+the <pre class="code">Option</pre> type, and shows some non-obvious places in the language
 where pattern matching is used.  Finally, a larger, more realistic
 example of pattern matching is shown.</p>
 
@@ -59,22 +59,22 @@ This is expressed by the hierarchy of Scala classes shown in <a href="case-class
 <h5>Listing 15.1 - Defining case classes.</h5>
 
 
-<p>The hierarchy includes an abstract base class <span class="code">Expr</span> with four subclasses, one
+<p>The hierarchy includes an abstract base class <pre class="code">Expr</pre> with four subclasses, one
 for each kind of expression being considered.<a href="case-classes-and-pattern-matching.html#footnotemain15-1">[1]</a>
 The bodies of all five classes are empty. As mentioned previously, in Scala you can leave out the 
-braces around an empty class body if you wish, so <span class="code">class</span>&nbsp;<span class="code">C</span> is the same as
-<span class="code">class</span>&nbsp;<span class="code">C</span>&nbsp;<span class="code">{}</span>.</p>
+braces around an empty class body if you wish, so <pre class="code">class</pre>&nbsp;<pre class="code">C</pre> is the same as
+<pre class="code">class</pre>&nbsp;<pre class="code">C</pre>&nbsp;<pre class="code">{}</pre>.</p>
 
 <h4>Case classes</h4>
 
 
 <p>The other noteworthy thing about the declarations of
 <a href="case-classes-and-pattern-matching.html#lst-case-classes">Listing 15.1</a> is that each subclass has<a id="i-502971380-1"/><a id="i1163509252-1"/>
-a <span class="code">case</span> modifier. Classes with such a modifier are called <span style="font-style:italic">case classes</span>.
+a <pre class="code">case</pre> modifier. Classes with such a modifier are called <span style="font-style:italic">case classes</span>.
 Using the modifier makes the Scala compiler add some syntactic conveniences to your class.</p>
 
 <p>First, it adds a factory method with the name of the class.  This means that, for instance, 
-you can write <span class="code">Var("x")</span> to construct a <span class="code">Var</span> object, instead of the slightly longer <span class="code">new</span>&nbsp;<span class="code">Var("x")</span>:<a id="i-1645439037-1"/></p>
+you can write <pre class="code">Var("x")</pre> to construct a <pre class="code">Var</pre> object, instead of the slightly longer <pre class="code">new</pre>&nbsp;<pre class="code">Var("x")</pre>:<a id="i-1645439037-1"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;v&nbsp;=&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>)
@@ -83,7 +83,7 @@ you can write <span class="code">Var("x")</span> to construct a <span class="cod
 
 
 <p>The factory methods are particularly nice when you nest them.
-Because there are no noisy <span class="code">new</span> keywords sprinkled throughout
+Because there are no noisy <pre class="code">new</pre> keywords sprinkled throughout
 the code, you can take in the expression's structure
 at a glance:</p>
 
@@ -95,7 +95,7 @@ at a glance:</p>
 
 <p>The second syntactic convenience is that
 all arguments in the parameter list of a case class implicitly get a 
-<span class="code">val</span> prefix, so they are maintained as fields:</p>
+<pre class="code">val</pre> prefix, so they are maintained as fields:</p>
 
 <pre>
   scala&gt;&nbsp;v.name
@@ -106,10 +106,10 @@ all arguments in the parameter list of a case class implicitly get a
 
 
 <p>Third, the compiler adds "natural" implementations of methods
-<span class="code">toString</span>, <span class="code">hashCode</span>, and <span class="code">equals</span> to your class. They will<a id="i311333302-1"/><a id="i-567433454-1"/><a id="i811694371-1"/>
+<pre class="code">toString</pre>, <pre class="code">hashCode</pre>, and <pre class="code">equals</pre> to your class. They will<a id="i311333302-1"/><a id="i-567433454-1"/><a id="i811694371-1"/>
 print, hash, and compare a whole tree consisting of the class and
-(recursively) all its arguments. Since <span class="code">==</span> in Scala always delegates
-to <span class="code">equals</span>, this means that elements of case classes
+(recursively) all its arguments. Since <pre class="code">==</pre> in Scala always delegates
+to <pre class="code">equals</pre>, this means that elements of case classes
 are always compared structurally:</p>
 
 <pre>
@@ -120,7 +120,7 @@ are always compared structurally:</p>
 </pre>
 
 
-<p>Finally, the compiler adds a <span class="code">copy</span> method to your class for making
+<p>Finally, the compiler adds a <pre class="code">copy</pre> method to your class for making
 modified copies.  This method is useful for making a new instance of
 the class that is the same as another one except that one or two
 attributes are different.  The method works by using named and default
@@ -128,7 +128,7 @@ parameters (see <a href="functions-and-closures.html#sec-fancy-parameters">Secti
 changes you'd like to make by using named parameters.  For any
 parameter you don't specify, the value from the old object is used.
 As an example, here is how you can make an operation just
-like <span class="code">op</span> except that the operator has changed:</p>
+like <pre class="code">op</pre> except that the operator has changed:</p>
 
 <pre>
   scala&gt;&nbsp;op.copy(operator&nbsp;=&nbsp;<code class="quotedstring">"-"</code>)
@@ -158,7 +158,7 @@ rules. The following three rules just serve as an illustration:</p>
 <p>Using pattern matching, 
 these rules can be taken almost as they are to form the core of a 
 simplification function in Scala, as shown in <a href="case-classes-and-pattern-matching.html#lst-simplify-top">Listing 15.2</a>.
-The function, <span class="code">simplifyTop</span>, can be used like this:</p>
+The function, <pre class="code">simplifyTop</pre>, can be used like this:</p>
 
 <pre>
   scala&gt;&nbsp;simplifyTop(<code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;<code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>))))
@@ -178,11 +178,11 @@ The function, <span class="code">simplifyTop</span>, can be used like this:</p>
 </pre>
 
 
-<h5>Listing 15.2 - The <span class="code">simplifyTop</span> function, which does a pattern match.</h5>
+<h5>Listing 15.2 - The <pre class="code">simplifyTop</pre> function, which does a pattern match.</h5>
 
 
-<p>The right-hand side of <span class="code">simplifyTop</span> consists of a <span class="code">match</span> expression.
-<span class="code">match</span> corresponds to <span class="code">switch</span> in Java, but it's written after
+<p>The right-hand side of <pre class="code">simplifyTop</pre> consists of a <pre class="code">match</pre> expression.
+<pre class="code">match</pre> corresponds to <pre class="code">switch</pre> in Java, but it's written after
 the selector expression. In other words, it's:<a id="i-451801752-1"/></p>
 
 <pre>
@@ -199,26 +199,26 @@ the selector expression. In other words, it's:<a id="i-451801752-1"/></p>
 
 <p>A pattern match includes a sequence
 of <em>alternatives</em>,<a id="i1524854239-2"/> each
-starting with the keyword <span class="code">case</span>.  Each alternative includes a
+starting with the keyword <pre class="code">case</pre>.  Each alternative includes a
 <em>pattern</em> and one or more expressions, which will be evaluated if the pattern
-matches.  An arrow symbol <span class="code">=&gt;</span> separates the pattern from the expressions.</p>
+matches.  An arrow symbol <pre class="code">=&gt;</pre> separates the pattern from the expressions.</p>
 
-<p>A <span class="code">match</span> expression is evaluated by trying each of the patterns in the
+<p>A <pre class="code">match</pre> expression is evaluated by trying each of the patterns in the
 order they are written.  The first pattern that matches is selected,
 and the part following the arrow is selected and executed.</p>
 
-<p>A <em>constant pattern</em> like <span class="code">"+"</span> or <span class="code">1</span> matches values that are equal<a id="i-1897505825-1"/><a id="i-612986830-1"/> to the constant with respect to <span class="code">==</span>.  A <em>variable pattern</em> like<a id="i-1540579321-1"/><a id="i-256060326-1"/> <span class="code">e</span> matches every value.  The variable then refers to that value in the
+<p>A <em>constant pattern</em> like <pre class="code">"+"</pre> or <pre class="code">1</pre> matches values that are equal<a id="i-1897505825-1"/><a id="i-612986830-1"/> to the constant with respect to <pre class="code">==</pre>.  A <em>variable pattern</em> like<a id="i-1540579321-1"/><a id="i-256060326-1"/> <pre class="code">e</pre> matches every value.  The variable then refers to that value in the
 right hand side of the case clause.  In this example, note that the
-first three alternatives evaluate to <span class="code">e</span>, a variable that is bound within
-the associated pattern.  The <em>wildcard pattern</em> (<span class="code">_</span>) also matches<a id="i-615307671-1"/><a id="i669211324-1"/>
+first three alternatives evaluate to <pre class="code">e</pre>, a variable that is bound within
+the associated pattern.  The <em>wildcard pattern</em> (<pre class="code">_</pre>) also matches<a id="i-615307671-1"/><a id="i669211324-1"/>
 every value, but it does not introduce a variable name to refer to
 that value.  
-In <a href="case-classes-and-pattern-matching.html#lst-simplify-top">Listing 15.2</a>, notice how the <span class="code">match</span> ends with a default
-case that does nothing to the expression. Instead, it just results in <span class="code">expr</span>, the expression matched upon.</p>
+In <a href="case-classes-and-pattern-matching.html#lst-simplify-top">Listing 15.2</a>, notice how the <pre class="code">match</pre> ends with a default
+case that does nothing to the expression. Instead, it just results in <pre class="code">expr</pre>, the expression matched upon.</p>
 
-<p>A <em>constructor pattern</em> looks like <span class="code">UnOp("-",</span>&nbsp;<span class="code">e)</span>.  This pattern<a id="i-881203127-1"/><a id="i-1934430442-1"/>
-matches all values of type <span class="code">UnOp</span> whose first argument matches <span class="code">"-"</span>
-and whose second argument matches <span class="code">e</span>.  Note that the arguments to
+<p>A <em>constructor pattern</em> looks like <pre class="code">UnOp("-",</pre>&nbsp;<pre class="code">e)</pre>.  This pattern<a id="i-881203127-1"/><a id="i-1934430442-1"/>
+matches all values of type <pre class="code">UnOp</pre> whose first argument matches <pre class="code">"-"</pre>
+and whose second argument matches <pre class="code">e</pre>.  Note that the arguments to
 the constructor are themselves patterns.  This allows you to write
 deep patterns using a concise notation. Here's an example:</p>
 
@@ -229,20 +229,20 @@ deep patterns using a concise notation. Here's an example:</p>
 
 <p>Imagine trying to implement this same functionality using
 the visitor design pattern!<a href="case-classes-and-pattern-matching.html#footnotemain15-2">[2]</a>  Almost as awkward, imagine implementing it as a long
-sequence of <span class="code">if</span> statements, type tests, and type casts.</p>
+sequence of <pre class="code">if</pre> statements, type tests, and type casts.</p>
 
-<h4><span class="code">match</span> compared to <span class="code">switch</span></h4>
+<h4><pre class="code">match</pre> compared to <pre class="code">switch</pre></h4>
 
 
-<p>Match expressions can be seen as a generalization of Java-style <span class="code">switch</span>es.
-A Java-style <span class="code">switch</span> can be naturally expressed as a <span class="code">match</span> expression,
+<p>Match expressions can be seen as a generalization of Java-style <pre class="code">switch</pre>es.
+A Java-style <pre class="code">switch</pre> can be naturally expressed as a <pre class="code">match</pre> expression,
 where each pattern is a constant and the last pattern may be a
-wildcard (which represents the default case of the <span class="code">switch</span>).</p>
+wildcard (which represents the default case of the <pre class="code">switch</pre>).</p>
 
-<p>However, there are three differences to keep in mind: First, <span class="code">match</span> is an <span style="font-style:italic">expression</span>
+<p>However, there are three differences to keep in mind: First, <pre class="code">match</pre> is an <span style="font-style:italic">expression</span>
 in Scala (<i>i.e.</i>, it always results in a value). Second, Scala's
 alternative expressions never "fall through" into the next case.
-Third, if none of the patterns match, an exception named <span class="code">MatchError</span><a id="i1620352635-1"/>
+Third, if none of the patterns match, an exception named <pre class="code">MatchError</pre><a id="i1620352635-1"/>
 is thrown. This means you always have to make sure that all cases are
 covered, even if it means adding a default case where there's nothing to do.</p>
 
@@ -260,11 +260,11 @@ covered, even if it means adding a default case where there's nothing to do.</p>
 <h5>Listing 15.3 - A pattern match with an empty "default" case.</h5>
 
 
-<p><a href="case-classes-and-pattern-matching.html#lst-default-case">Listing 15.3</a> shows an example. The second case is necessary because without it, the <span class="code">match</span> expression
-would throw a <span class="code">MatchError</span> for every <span class="code">expr</span> argument that is not a
-<span class="code">BinOp</span>.  In this example, no code is specified for that second case,
-so if that case runs it does nothing. The result of either case is the unit value `<span class="code">()</span>',
-which is also the result of the entire <span class="code">match</span> expression.</p>
+<p><a href="case-classes-and-pattern-matching.html#lst-default-case">Listing 15.3</a> shows an example. The second case is necessary because without it, the <pre class="code">match</pre> expression
+would throw a <pre class="code">MatchError</pre> for every <pre class="code">expr</pre> argument that is not a
+<pre class="code">BinOp</pre>.  In this example, no code is specified for that second case,
+so if that case runs it does nothing. The result of either case is the unit value `<pre class="code">()</pre>',
+which is also the result of the entire <pre class="code">match</pre> expression.</p>
 
 <h3 id="sec-kinds-of-patterns">15.2 Kinds of patterns</h3>
 
@@ -276,10 +276,10 @@ succession. Now take a minute to look at each pattern in detail.</p>
 All patterns look exactly like the corresponding expression.  
 For instance,
 given the hierarchy of <a href="case-classes-and-pattern-matching.html#lst-case-classes">Listing 15.1</a>,
-the pattern <span class="code">Var(x)</span> matches any variable expression, binding <span class="code">x</span> to the
-name of the variable.  Used as an expression, <span class="code">Var(x)</span>&mdash;exactly
+the pattern <pre class="code">Var(x)</pre> matches any variable expression, binding <pre class="code">x</pre> to the
+name of the variable.  Used as an expression, <pre class="code">Var(x)</pre>&mdash;exactly
 the same syntax&mdash;recreates an
-equivalent object, assuming <span class="code">x</span> is already bound to the variable's
+equivalent object, assuming <pre class="code">x</pre> is already bound to the variable's
 name.
 Since the syntax of patterns is so transparent,
 the main thing to pay attention to is just what kinds of
@@ -288,7 +288,7 @@ patterns are possible.</p>
 <h4>Wildcard patterns</h4>
 
 
-<p>The wildcard pattern (<span class="code">_</span>) matches any object whatsoever.  You have<a id="i669211324-2"/><a id="i-615307671-2"/>
+<p>The wildcard pattern (<pre class="code">_</pre>) matches any object whatsoever.  You have<a id="i669211324-2"/><a id="i-615307671-2"/>
 already seen it used as a default, catch-all alternative,<a id="i-149672069-1"/>
 like this:</p>
 
@@ -304,7 +304,7 @@ like this:</p>
 <p>Wildcards can also be used to ignore parts of an object that you do not care
 about.  For example, the previous example does not actually care what
 the elements of a binary operation are; it just checks whether
-or not it is a binary operation. Thus, the code can just as well use the wildcard pattern for the elements of the <span class="code">BinOp</span>, as shown in
+or not it is a binary operation. Thus, the code can just as well use the wildcard pattern for the elements of the <pre class="code">BinOp</pre>, as shown in
 <a href="case-classes-and-pattern-matching.html#lst-wildcard-patterns">Listing 15.4</a>.</p>
 
 <p><a id="lst-wildcard-patterns"/></p>
@@ -324,9 +324,9 @@ or not it is a binary operation. Thus, the code can just as well use the wildcar
 
 
 <p>A constant pattern matches only itself.  Any literal may be used as a<a id="i-1897505825-2"/><a id="i-612986830-2"/>
-constant.  For example, <span class="code">5</span>, <span class="code">true</span>, and <span class="code">"hello"</span> are all constant
-patterns.  Also, any <span class="code">val</span> or singleton object can be used as a constant.  For
-example, <span class="code">Nil</span>, a singleton object, is a pattern that matches only the empty list.  <a href="case-classes-and-pattern-matching.html#lst-constant-patterns">Listing 15.5</a>
+constant.  For example, <pre class="code">5</pre>, <pre class="code">true</pre>, and <pre class="code">"hello"</pre> are all constant
+patterns.  Also, any <pre class="code">val</pre> or singleton object can be used as a constant.  For
+example, <pre class="code">Nil</pre>, a singleton object, is a pattern that matches only the empty list.  <a href="case-classes-and-pattern-matching.html#lst-constant-patterns">Listing 15.5</a>
 shows some examples of constant patterns:</p>
 
 <p><a id="lst-constant-patterns"/></p>
@@ -390,8 +390,8 @@ pattern so that it has a name for the value, no matter what it is.</p>
 
 
 <p>Constant patterns can have symbolic names.  You saw this already
-when we used <span class="code">Nil</span> as a pattern.  Here is a related example, where a
-pattern match involves the constants <span class="code">E</span> (2.71828...) and <span class="code">Pi</span>
+when we used <pre class="code">Nil</pre> as a pattern.  Here is a related example, where a
+pattern match involves the constants <pre class="code">E</pre> (2.71828...) and <pre class="code">Pi</pre>
 (3.14159...):</p>
 
 <pre>
@@ -405,16 +405,16 @@ pattern match involves the constants <span class="code">E</span> (2.71828...) an
 </pre>
 
 
-<p>As expected, <span class="code">E</span> does not match <span class="code">Pi</span>, so the "strange math" case is
+<p>As expected, <pre class="code">E</pre> does not match <pre class="code">Pi</pre>, so the "strange math" case is
 not used.</p>
 
-<p>How does the Scala compiler know that <span class="code">Pi</span> is a
-constant imported from <span class="code">scala.math</span>, and not a
+<p>How does the Scala compiler know that <pre class="code">Pi</pre> is a
+constant imported from <pre class="code">scala.math</pre>, and not a
 variable that stands for the selector value itself? Scala uses a
 simple lexical rule for disambiguation: a simple name starting with a
 lowercase letter is taken to be a pattern variable; all other references
 are taken to be constants. To see the difference, create a lowercase
-alias for <span class="code">pi</span> and try with that:</p>
+alias for <pre class="code">pi</pre> and try with that:</p>
 
 <div style="page-break-after:always"/>
 
@@ -430,7 +430,7 @@ alias for <span class="code">pi</span> and try with that:</p>
 
 
 <p>Here the compiler will not even let you add a default case at
-all.  Since <span class="code">pi</span> is a variable pattern, it will match all inputs, and
+all.  Since <pre class="code">pi</pre> is a variable pattern, it will match all inputs, and
 so no cases following it can be reached:</p>
 
 <pre>
@@ -446,11 +446,11 @@ so no cases following it can be reached:</p>
 
 <p>You can still use a lowercase name for a pattern constant, if you need to, by using one of two tricks. First, if the constant is a field
 of some object, you can prefix it with a qualifier. For
-instance, <span class="code">pi</span> is a variable pattern, but <span class="code">this.pi</span> or <span class="code">obj.pi</span> are
+instance, <pre class="code">pi</pre> is a variable pattern, but <pre class="code">this.pi</pre> or <pre class="code">obj.pi</pre> are
 constants even though they start with lowercase letters.
-If that does not work (because <span class="code">pi</span> is a local
+If that does not work (because <pre class="code">pi</pre> is a local
 variable, say), you can alternatively enclose the variable name in
-back ticks. For instance, <span class="code">`pi`</span> would again be interpreted as a constant, 
+back ticks. For instance, <pre class="code">`pi`</pre> would again be interpreted as a constant, 
 not as a variable:<a id="i1325362414-1"/></p>
 
 <pre>
@@ -468,16 +468,16 @@ out of unusual circumstances.  Here you see that it can be used to
 treat a lowercase identifier as a constant in a pattern match.  Earlier on,
 in <a href="functional-objects.html#sec-literal-identifier">Section 6.10</a>, you saw that it can also be
 used to treat a keyword as an ordinary identifier, <i>e.g.</i>, writing
-<span class="code">Thread.`yield`()</span> treats <span class="code">yield</span> as an identifier rather
+<pre class="code">Thread.`yield`()</pre> treats <pre class="code">yield</pre> as an identifier rather
 than a keyword.</p>
 
 <h4>Constructor patterns</h4>
 
 
 <p>Constructors are where pattern matching becomes really powerful.  A<a id="i-881203127-2"/><a id="i-1934430442-2"/>
-constructor pattern looks like "<span class="code">BinOp("+",</span>&nbsp;<span class="code">e,</span>&nbsp;<span class="code">Number(0))</span>".  It
-consists of a name (<span class="code">BinOp</span>) and then a number of patterns within
-parentheses: <span class="code">"+"</span>, <span class="code">e</span>, and <span class="code">Number(0)</span>.  Assuming the name
+constructor pattern looks like "<pre class="code">BinOp("+",</pre>&nbsp;<pre class="code">e,</pre>&nbsp;<pre class="code">Number(0))</pre>".  It
+consists of a name (<pre class="code">BinOp</pre>) and then a number of patterns within
+parentheses: <pre class="code">"+"</pre>, <pre class="code">e</pre>, and <pre class="code">Number(0)</pre>.  Assuming the name
 designates a case class, such a pattern means to first check that the
 object is a member of the named case class, and then to check that the
 constructor parameters of the object match the extra patterns supplied.</p>
@@ -488,8 +488,8 @@ but also the contents of the object against further patterns.
 Since the extra patterns can themselves be constructor patterns, you
 can use them to check arbitrarily deep into an object. For example,
 the pattern shown in <a href="case-classes-and-pattern-matching.html#lst-constructor-patterns">Listing 15.7</a> checks that the top-level
-object is a <span class="code">BinOp</span>, that its third constructor parameter is a
-<span class="code">Number</span>, and that the value field of that number is <span class="code">0</span>.  This
+object is a <pre class="code">BinOp</pre>, that its third constructor parameter is a
+<pre class="code">Number</pre>, and that the value field of that number is <pre class="code">0</pre>.  This
 pattern is one line long yet checks three levels deep.</p>
 
 <p><a id="lst-constructor-patterns"/></p>
@@ -510,7 +510,7 @@ pattern is one line long yet checks three levels deep.</p>
 
 <p><a id="sec-pat-sequences"/></p>
 
-<p>You can match against sequence types, like <span class="code">List</span> or <span class="code">Array</span>, just<a id="i1331042402-1"/><a id="i-1679405899-1"/> like you match against case classes.  Use the same syntax, but now you
+<p>You can match against sequence types, like <pre class="code">List</pre> or <pre class="code">Array</pre>, just<a id="i1331042402-1"/><a id="i-1679405899-1"/> like you match against case classes.  Use the same syntax, but now you
 can specify any number of elements within the pattern. <a href="case-classes-and-pattern-matching.html#lst-fixed-sequence">Listing 15.8</a> shows a pattern that checks for a three-element list starting with zero.</p>
 
 <p><a id="lst-fixed-sequence"/></p>
@@ -527,7 +527,7 @@ can specify any number of elements within the pattern. <a href="case-classes-and
 
 
 <p>If you want to match against a sequence without specifying how long it
-can be, you can specify <span class="code">_*</span> as the last element of the pattern.
+can be, you can specify <pre class="code">_*</pre> as the last element of the pattern.
 This funny-looking pattern matches any number of elements within a
 sequence, including zero elements.  <a href="case-classes-and-pattern-matching.html#lst-arbitrary-sequence">Listing 15.9</a> shows an example that matches any
 list that starts with zero, regardless of how long the list is.</p>
@@ -548,7 +548,7 @@ list that starts with zero, regardless of how long the list is.</p>
 <h4>Tuple patterns</h4>
 
 
-<p>You can match against tuples too.  A pattern like <span class="code">(a,</span>&nbsp;<span class="code">b,</span>&nbsp;<span class="code">c)</span><a id="i-1134485445-1"/><a id="i-2090433336-1"/>
+<p>You can match against tuples too.  A pattern like <pre class="code">(a,</pre>&nbsp;<pre class="code">b,</pre>&nbsp;<pre class="code">c)</pre><a id="i-1134485445-1"/><a id="i-2090433336-1"/>
 matches an arbitrary 3-tuple. An example is shown in <a href="case-classes-and-pattern-matching.html#lst-tuple-pattern">Listing 15.10</a>.</p>
 
 <p><a id="lst-tuple-pattern"/></p>
@@ -565,7 +565,7 @@ matches an arbitrary 3-tuple. An example is shown in <a href="case-classes-and-p
 <h5>Listing 15.10 - A pattern match with a tuple pattern.</h5>
 
 
-<p>If you load the <span class="code">tupleDemo</span> method shown in <a href="case-classes-and-pattern-matching.html#lst-tuple-pattern">Listing 15.10</a> into the interpreter,
+<p>If you load the <pre class="code">tupleDemo</pre> method shown in <a href="case-classes-and-pattern-matching.html#lst-tuple-pattern">Listing 15.10</a> into the interpreter,
 and pass to it a tuple with three elements, you'll see:</p>
 
 <pre>
@@ -597,7 +597,7 @@ and pass to it a tuple with three elements, you'll see:</p>
 <h5>Listing 15.11 - A pattern match with typed patterns.</h5>
 
 
-<p>Here are a few examples of using <span class="code">generalSize</span> in the Scala interpreter:</p>
+<p>Here are a few examples of using <pre class="code">generalSize</pre> in the Scala interpreter:</p>
 
 <pre>
   scala&gt;&nbsp;generalSize(<code class="quotedstring">"abc"</code>)
@@ -609,21 +609,21 @@ and pass to it a tuple with three elements, you'll see:</p>
 </pre>
 
 
-<p>The <span class="code">generalSize</span> method returns the size or length of objects of various types.
-Its argument is of type <span class="code">Any</span>, so it could be any value.
-If the argument is a <span class="code">String</span>, the method returns the string's length.
-The pattern "<span class="code">s:</span>&nbsp;<span class="code">String</span>" is a typed pattern; it matches every (non-null) instance of <span class="code">String</span>. 
-The pattern variable <span class="code">s</span> then refers to that string.</p>
+<p>The <pre class="code">generalSize</pre> method returns the size or length of objects of various types.
+Its argument is of type <pre class="code">Any</pre>, so it could be any value.
+If the argument is a <pre class="code">String</pre>, the method returns the string's length.
+The pattern "<pre class="code">s:</pre>&nbsp;<pre class="code">String</pre>" is a typed pattern; it matches every (non-null) instance of <pre class="code">String</pre>. 
+The pattern variable <pre class="code">s</pre> then refers to that string.</p>
 
-<p>Note that even though <span class="code">s</span> and <span class="code">x</span> refer to the same value, the type
-of <span class="code">x</span> is <span class="code">Any</span>, while the type of <span class="code">s</span> is <span class="code">String</span>. So you can write
-<span class="code">s.length</span> in the alternative expression that corresponds to the
-pattern, but you could not write <span class="code">x.length</span>, because the type <span class="code">Any</span>
-does not have a <span class="code">length</span> member.<a id="i1877140953-1"/><a id="i921193062-1"/> <a id="i-378444118-1"/><a id="i1486257235-1"/> 
+<p>Note that even though <pre class="code">s</pre> and <pre class="code">x</pre> refer to the same value, the type
+of <pre class="code">x</pre> is <pre class="code">Any</pre>, while the type of <pre class="code">s</pre> is <pre class="code">String</pre>. So you can write
+<pre class="code">s.length</pre> in the alternative expression that corresponds to the
+pattern, but you could not write <pre class="code">x.length</pre>, because the type <pre class="code">Any</pre>
+does not have a <pre class="code">length</pre> member.<a id="i1877140953-1"/><a id="i921193062-1"/> <a id="i-378444118-1"/><a id="i1486257235-1"/> 
 An equivalent but more long-winded way that achieves the effect of a
 match against a typed pattern employs a type test followed by a
 type cast. Scala uses a different syntax than Java for these. 
-To test whether an expression <span class="code">expr</span> has type <span class="code">String</span>, say, 
+To test whether an expression <pre class="code">expr</pre> has type <pre class="code">String</pre>, say, 
 you write:</p>
 
 <pre>
@@ -631,7 +631,7 @@ you write:</p>
 </pre>
 
 
-<p>To cast the same expression to type <span class="code">String</span>, you use:<a id="i-1504091967-1"/><a id="i1385408228-1"/><a id="i-1701093140-1"/><a id="i-316974287-1"/></p>
+<p>To cast the same expression to type <pre class="code">String</pre>, you use:<a id="i-1504091967-1"/><a id="i1385408228-1"/><a id="i-1701093140-1"/><a id="i-316974287-1"/></p>
 
 <pre>
   expr.asInstanceOf[<code class="typename">String</code>]
@@ -639,7 +639,7 @@ you write:</p>
 
 
 <p>Using a type test and cast, you could rewrite 
-the first case of the previous <span class="code">match</span> expression as shown in <a href="case-classes-and-pattern-matching.html#lst-is-as-instanceof">Listing 15.12</a>.</p>
+the first case of the previous <pre class="code">match</pre> expression as shown in <a href="case-classes-and-pattern-matching.html#lst-is-as-instanceof">Listing 15.12</a>.</p>
 
 <p><a id="lst-is-as-instanceof"/></p>
 
@@ -651,13 +651,13 @@ the first case of the previous <span class="code">match</span> expression as sho
 </pre>
 
 
-<h5>Listing 15.12 - Using <span class="code">isInstanceOf</span> and <span class="code">asInstanceOf</span> (poor style).</h5>
+<h5>Listing 15.12 - Using <pre class="code">isInstanceOf</pre> and <pre class="code">asInstanceOf</pre> (poor style).</h5>
 
 
-<p>The operators <span class="code">isInstanceOf</span> and <span class="code">asInstanceOf</span> are treated as
-predefined methods of class <span class="code">Any</span> that take a type parameter in
-square brackets.  In fact, <span class="code">x.asInstanceOf[String]</span> is a special case of a
-method invocation with an explicit type parameter <span class="code">String</span>.</p>
+<p>The operators <pre class="code">isInstanceOf</pre> and <pre class="code">asInstanceOf</pre> are treated as
+predefined methods of class <pre class="code">Any</pre> that take a type parameter in
+square brackets.  In fact, <pre class="code">x.asInstanceOf[String]</pre> is a special case of a
+method invocation with an explicit type parameter <pre class="code">String</pre>.</p>
 
 <p>As you will have noted by now, writing type tests and casts is
 rather verbose in Scala. That's intentional because it is not
@@ -666,10 +666,10 @@ with a typed pattern. That's particularly true if you need to do both
 a type test and a type cast, because both operations are then rolled
 into a single pattern match.</p>
 
-<p>The second case of the <span class="code">match</span> expression in <a href="case-classes-and-pattern-matching.html#lst-typed-patterns">Listing 15.11</a> contains the typed
-pattern "<span class="code">m:</span>&nbsp;<span class="code">Map[_,</span>&nbsp;<span class="code">_]</span>".  This pattern matches any value that is a
-<span class="code">Map</span> of some arbitrary key and value types, and lets <span class="code">m</span> refer to
-that value. Therefore, <span class="code">m.size</span> is well typed and returns the size of
+<p>The second case of the <pre class="code">match</pre> expression in <a href="case-classes-and-pattern-matching.html#lst-typed-patterns">Listing 15.11</a> contains the typed
+pattern "<pre class="code">m:</pre>&nbsp;<pre class="code">Map[_,</pre>&nbsp;<pre class="code">_]</pre>".  This pattern matches any value that is a
+<pre class="code">Map</pre> of some arbitrary key and value types, and lets <pre class="code">m</pre> refer to
+that value. Therefore, <pre class="code">m.size</pre> is well typed and returns the size of
 the map. The underscores in the type pattern<a href="case-classes-and-pattern-matching.html#footnotemain15-3">[3]</a> are like wildcards in other
 patterns. You could have also used (lowercase) type variables instead.</p>
 
@@ -677,7 +677,7 @@ patterns. You could have also used (lowercase) type variables instead.</p>
 
 
 <p>Can you also test for a map with specific element types? This would be handy, say, for testing
-whether a given value is a map from type <span class="code">Int</span> to type <span class="code">Int</span>. Let's try:</p>
+whether a given value is a map from type <pre class="code">Int</pre> to type <pre class="code">Int</pre>. Let's try:</p>
 
 <p><a id="i-1582199503-1"/></p>
 
@@ -698,11 +698,11 @@ whether a given value is a map from type <span class="code">Int</span> to type <
 <p>Scala uses the <span style="font-style:italic">erasure</span> model of generics,<a id="i-1494561943-1"/><a id="i-557245309-1"/> just like
 Java does.  This means that no information about type arguments is
 maintained at runtime.  Consequently, there is no way to determine at
-runtime whether a given <span class="code">Map</span> object has been created with two
-<span class="code">Int</span> arguments, rather than with arguments of different types. All the
-system can do is determine that a value is a <span class="code">Map</span> of some arbitrary
-type parameters. You can verify this behavior by applying <span class="code">isIntIntMap</span> to arguments
-of different instances of class <span class="code">Map</span>:</p>
+runtime whether a given <pre class="code">Map</pre> object has been created with two
+<pre class="code">Int</pre> arguments, rather than with arguments of different types. All the
+system can do is determine that a value is a <pre class="code">Map</pre> of some arbitrary
+type parameters. You can verify this behavior by applying <pre class="code">isIntIntMap</pre> to arguments
+of different instances of class <pre class="code">Map</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;isIntIntMap(<code class="typename">Map</code>(<code class="literal">1</code>&nbsp;-&gt;&nbsp;<code class="literal">1</code>))
@@ -712,8 +712,8 @@ of different instances of class <span class="code">Map</span>:</p>
 </pre>
 
 
-<p>The first application returns <span class="code">true</span>, which looks correct, but the second application 
-also returns <span class="code">true</span>, which might be a surprise. To alert you to the possibly non-intuitive 
+<p>The first application returns <pre class="code">true</pre>, which looks correct, but the second application 
+also returns <pre class="code">true</pre>, which might be a surprise. To alert you to the possibly non-intuitive 
 runtime behavior, the compiler emits unchecked warnings like the one shown previously.</p>
 
 <p>The only exception to the erasure rule is arrays, because they
@@ -744,7 +744,7 @@ with the array value, so you can pattern match on it. Here's an example:</p>
 
 <p>In addition to the standalone variable patterns, you can also add a<a id="i-199464286-1"/><a id="i1053833551-1"/>
 variable to any other pattern.  You simply write the variable name, an
-at sign (<span class="code">@</span>), and then the pattern.  This gives you a<a id="i404534857-1"/>
+at sign (<pre class="code">@</pre>), and then the pattern.  This gives you a<a id="i404534857-1"/>
 variable-binding pattern, which means the pattern is to perform the pattern match as normal, and if the pattern succeeds, set the
 variable to the matched object just as with a simple variable pattern.</p>
 
@@ -762,14 +762,14 @@ can be simplified to only take the absolute value one time.</p>
 </pre>
 
 
-<h5>Listing 15.13 - A pattern with a variable binding (via the <span class="code">@</span> sign).</h5>
+<h5>Listing 15.13 - A pattern with a variable binding (via the <pre class="code">@</pre> sign).</h5>
 
 
-<p>The example shown in <a href="case-classes-and-pattern-matching.html#lst-variable-binding">Listing 15.13</a> includes a variable-binding pattern with <span class="code">e</span> as the
-variable and <span class="code">UnOp("abs",</span>&nbsp;<span class="code">_)</span> as the pattern.  If the entire pattern
-match succeeds, then the portion that matched the <span class="code">UnOp("abs",</span>&nbsp;<span class="code">_)</span> part
-is made available as variable <span class="code">e</span>. The result of the case is just <span class="code">e</span>, because <span class="code">e</span> has the same value
-as <span class="code">expr</span> but with one less absolute value operation.</p>
+<p>The example shown in <a href="case-classes-and-pattern-matching.html#lst-variable-binding">Listing 15.13</a> includes a variable-binding pattern with <pre class="code">e</pre> as the
+variable and <pre class="code">UnOp("abs",</pre>&nbsp;<pre class="code">_)</pre> as the pattern.  If the entire pattern
+match succeeds, then the portion that matched the <pre class="code">UnOp("abs",</pre>&nbsp;<pre class="code">_)</pre> part
+is made available as variable <pre class="code">e</pre>. The result of the case is just <pre class="code">e</pre>, because <pre class="code">e</pre> has the same value
+as <pre class="code">expr</pre> but with one less absolute value operation.</p>
 
 <h3>15.3 Pattern guards</h3>
 
@@ -777,9 +777,9 @@ as <span class="code">expr</span> but with one less absolute value operation.</p
 <p>Sometimes, syntactic pattern matching is not precise enough. 
 For instance, say you are given the task of formulating
 a simplification rule that 
-replaces sum expressions with two identical operands, such as <span class="code">e</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">e</span>,
-by multiplications of two (<i>e.g.</i>, <span class="code">e</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">2</span>). In the language
-of <span class="code">Expr</span> trees, an expression like:</p>
+replaces sum expressions with two identical operands, such as <pre class="code">e</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">e</pre>,
+by multiplications of two (<i>e.g.</i>, <pre class="code">e</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">2</pre>). In the language
+of <pre class="code">Expr</pre> trees, an expression like:</p>
 
 <pre>
   <code class="typename">BinOp</code>(<code class="quotedstring">"+"</code>,&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>),&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>))
@@ -823,13 +823,13 @@ the match with a <a href="glossary.html#g624636437"><em>pattern guard</em></a>, 
 </pre>
 
 
-<h5>Listing 15.14 - A <span class="code">match</span> expression with a pattern guard.</h5>
+<h5>Listing 15.14 - A <pre class="code">match</pre> expression with a pattern guard.</h5>
 
 
-<p>A pattern guard comes after a pattern and starts with an <span class="code">if</span>.  The
+<p>A pattern guard comes after a pattern and starts with an <pre class="code">if</pre>.  The
 guard can be an arbitrary boolean expression, which typically refers
 to variables in the pattern. If a pattern guard is present, the match
-succeeds only if the guard evaluates to <span class="code">true</span>.  Hence, the first
+succeeds only if the guard evaluates to <pre class="code">true</pre>.  Hence, the first
 case above would only match binary operations with two equal operands.</p>
 
 <p>Some other examples of guarded patterns are:</p>
@@ -846,7 +846,7 @@ case above would only match binary operations with two equal operands.</p>
 
 
 <p>Patterns are tried in the order in which they are written. 
-The version of <span class="code">simplify</span> shown in <a href="case-classes-and-pattern-matching.html#lst-case-order-matters">Listing 15.15</a> presents an example 
+The version of <pre class="code">simplify</pre> shown in <a href="case-classes-and-pattern-matching.html#lst-case-order-matters">Listing 15.15</a> presents an example 
 where the order of the cases matters.</p>
 
 <p><a id="lst-case-order-matters"/></p>
@@ -872,18 +872,18 @@ where the order of the cases matters.</p>
 
 
 <p>The version of simplify shown in <a href="case-classes-and-pattern-matching.html#lst-case-order-matters">Listing 15.15</a> will apply simplification rules everywhere
-in an expression, not just at the top, as <span class="code">simplifyTop</span> did. It can
-be derived from <span class="code">simplifyTop</span> by adding two more cases for general
+in an expression, not just at the top, as <pre class="code">simplifyTop</pre> did. It can
+be derived from <pre class="code">simplifyTop</pre> by adding two more cases for general
 unary and binary expressions (cases four and five in <a href="case-classes-and-pattern-matching.html#lst-case-order-matters">Listing 15.15</a>).</p>
 
-<p>The fourth case has the pattern <span class="code">UnOp(op,</span>&nbsp;<span class="code">e)</span>; <i>i.e.</i>, it matches
+<p>The fourth case has the pattern <pre class="code">UnOp(op,</pre>&nbsp;<pre class="code">e)</pre>; <i>i.e.</i>, it matches
 every unary operation. The operator and operand of the unary operation
-can be arbitrary. They are bound to the pattern variables <span class="code">op</span> and <span class="code">e</span>,
-respectively. The alternative in this case applies <span class="code">simplifyAll</span>
-recursively to the operand <span class="code">e</span> and then rebuilds the same unary
+can be arbitrary. They are bound to the pattern variables <pre class="code">op</pre> and <pre class="code">e</pre>,
+respectively. The alternative in this case applies <pre class="code">simplifyAll</pre>
+recursively to the operand <pre class="code">e</pre> and then rebuilds the same unary
 operation with the (possibly) simplified operand.  
 The fifth case for
-<span class="code">BinOp</span> is analogous: it is a "catch-all" case for arbitrary binary operations,
+<pre class="code">BinOp</pre> is analogous: it is a "catch-all" case for arbitrary binary operations,
 which recursively applies the simplification method to its two operands.</p>
 
 <p>In this example, it is important that the catch-all cases come
@@ -891,7 +891,7 @@ which recursively applies the simplification method to its two operands.</p>
 If you wrote them in the other order, then the catch-all case would
 be run in favor of the more specific rules.  In many cases, the
 compiler will even complain if you try.
-For example, here's a <span class="code">match</span> expression that won't compile because the first case
+For example, here's a <pre class="code">match</pre> expression that won't compile because the first case
 will match anything that would be matched by the second case:<a id="i-1756802201-1"/></p>
 
 <div style="page-break-after:always"/>
@@ -919,11 +919,11 @@ no default?  How can you ever feel safe that you covered all the
 cases?</p>
 
 <p>You can enlist the help of the Scala compiler in detecting
-missing combinations of patterns in a <span class="code">match</span> expression.  To do this, the compiler needs to be able to tell which are the possible
+missing combinations of patterns in a <pre class="code">match</pre> expression.  To do this, the compiler needs to be able to tell which are the possible
 cases. In general, this is impossible in Scala because new case
 classes can be defined at any time and in arbitrary compilation units.
 For instance, nothing would prevent you from adding a fifth case class
-to the <span class="code">Expr</span> class hierarchy in a different compilation unit from
+to the <pre class="code">Expr</pre> class hierarchy in a different compilation unit from
 the one where the other four cases are defined.</p>
 
 <p>The alternative is to make the superclass of your case classes <span style="font-style:italic">
@@ -935,12 +935,12 @@ class, the compiler will flag missing combinations of patterns with a
 warning message.</p>
 
 <p>If you write a hierarchy of classes intended to be pattern
-matched, you should consider sealing them.  Simply put the <span class="code">sealed</span>
+matched, you should consider sealing them.  Simply put the <pre class="code">sealed</pre>
 keyword in front of the class at the top of the hierarchy.
 Programmers using your class hierarchy will then feel confident in
-pattern matching against it.  The <span class="code">sealed</span> keyword, therefore, is
+pattern matching against it.  The <pre class="code">sealed</pre> keyword, therefore, is
 often a license to pattern match. <a href="case-classes-and-pattern-matching.html#lst-sealed-hierarchy">Listing 15.16</a>
-shows an example in which <span class="code">Expr</span> is turned into a sealed class.<a id="i-1485759717-1"/></p>
+shows an example in which <pre class="code">Expr</pre> is turned into a sealed class.<a id="i-1485759717-1"/></p>
 
 <div style="page-break-after:always"/>
 
@@ -981,14 +981,14 @@ possible cases are left out:</p>
 
 
 <p>Such a warning tells you that there's a risk your code might produce a
-<span class="code">MatchError</span> exception because some possible patterns (<span class="code">UnOp</span>, <span class="code">BinOp</span>)
+<pre class="code">MatchError</pre> exception because some possible patterns (<pre class="code">UnOp</pre>, <pre class="code">BinOp</pre>)
 are not handled. The warning points to a potential source of runtime faults, 
 so it is usually a welcome help in getting your program right.<a id="i738442815-1"/></p>
 
 <p>However, at times you might encounter a situation where the compiler is
 too picky in emitting the warning. For instance, you might know from
-the context that you will only ever apply the <span class="code">describe</span> method above
-to expressions that are either <span class="code">Number</span>s or <span class="code">Var</span>s, so you know that no <span class="code">MatchError</span> will be produced. To make the warning go away, 
+the context that you will only ever apply the <pre class="code">describe</pre> method above
+to expressions that are either <pre class="code">Number</pre>s or <pre class="code">Var</pre>s, so you know that no <pre class="code">MatchError</pre> will be produced. To make the warning go away, 
 you could add a third catch-all case to the method, like this:</p>
 
 <pre>
@@ -1004,7 +1004,7 @@ you could add a third catch-all case to the method, like this:</p>
 that you were forced to add code that will never be executed (or so you think), 
 just to make the compiler shut up.</p>
 
-<p>A more lightweight alternative is to add an <span class="code">@unchecked</span><a id="i-2035290207-1"/><a id="i-815574504-1"/> annotation to
+<p>A more lightweight alternative is to add an <pre class="code">@unchecked</pre><a id="i-2035290207-1"/><a id="i-815574504-1"/> annotation to
 the selector expression of the match. This is done as follows:</p>
 
 <pre>
@@ -1019,24 +1019,24 @@ the selector expression of the match. This is done as follows:</p>
 In general, you can add an annotation to an expression in the same way 
 you add a type: follow the expression with a colon and the name of the annotation
 (preceded by an at sign).
-For example, in this case you add an <span class="code">@unchecked</span> annotation to
-the variable <span class="code">e</span>, with "<span class="code">e:</span> <span class="code">@unchecked</span>".
-The <span class="code">@unchecked</span> annotation has a special meaning for pattern matching.
-If a <span class="code">match</span>'s selector expression carries this annotation, 
+For example, in this case you add an <pre class="code">@unchecked</pre> annotation to
+the variable <pre class="code">e</pre>, with "<pre class="code">e:</pre> <pre class="code">@unchecked</pre>".
+The <pre class="code">@unchecked</pre> annotation has a special meaning for pattern matching.
+If a <pre class="code">match</pre>'s selector expression carries this annotation, 
 exhaustivity checking for the patterns that follow will be suppressed.</p>
 
-<h3>15.6 The <span class="code">Option</span> type</h3>
+<h3>15.6 The <pre class="code">Option</pre> type</h3>
 
 
-<p>Scala has a standard type named <span class="code">Option</span> for optional values. Such a
-value can be of two forms: <span class="code">Some(x)</span>, where <span class="code">x</span>
-is the actual value, or the <span class="code">None</span> object, which
+<p>Scala has a standard type named <pre class="code">Option</pre> for optional values. Such a
+value can be of two forms: <pre class="code">Some(x)</pre>, where <pre class="code">x</pre>
+is the actual value, or the <pre class="code">None</pre> object, which
 represents a missing value.<a id="i118074925-1"/><a id="i-747501716-1"/><a id="i1519187207-1"/></p>
 
 <p>Optional values are produced by some of the standard operations on Scala's collections. For
-instance, the <span class="code">get</span> method of Scala's <span class="code">Map</span> produces <span class="code">Some(value)</span> if a
-<span class="code">value</span> corresponding to a given key has been found, or <span class="code">None</span> if
-the given key is not defined in the <span class="code">Map</span>. Here's an example:</p>
+instance, the <pre class="code">get</pre> method of Scala's <pre class="code">Map</pre> produces <pre class="code">Some(value)</pre> if a
+<pre class="code">value</pre> corresponding to a given key has been found, or <pre class="code">None</pre> if
+the given key is not defined in the <pre class="code">Map</pre>. Here's an example:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;capitals&nbsp;=&nbsp;
@@ -1067,46 +1067,46 @@ the given key is not defined in the <span class="code">Map</span>. Here's an exa
 </pre>
 
 
-<p>The <span class="code">Option</span> type is used frequently in Scala programs. Compare this to the dominant idiom in Java of using <span class="code">null</span> to indicate no value.<a id="i-906570700-1"/><a id="i508928486-1"/>
-For example, the <span class="code">get</span> method of <span class="code">java.util.HashMap</span> returns either
-a value stored in the <span class="code">HashMap</span> or <span class="code">null</span> if no value was found. This
+<p>The <pre class="code">Option</pre> type is used frequently in Scala programs. Compare this to the dominant idiom in Java of using <pre class="code">null</pre> to indicate no value.<a id="i-906570700-1"/><a id="i508928486-1"/>
+For example, the <pre class="code">get</pre> method of <pre class="code">java.util.HashMap</pre> returns either
+a value stored in the <pre class="code">HashMap</pre> or <pre class="code">null</pre> if no value was found. This
 approach works for Java but is error prone because it is difficult in
 practice to keep track of which variables in a program are allowed to
-be <span class="code">null</span>.</p>
+be <pre class="code">null</pre>.</p>
 
-<p>If a variable is allowed to be <span class="code">null</span>, then you must
-remember to check it for <span class="code">null</span> every time you use it. When you
+<p>If a variable is allowed to be <pre class="code">null</pre>, then you must
+remember to check it for <pre class="code">null</pre> every time you use it. When you
 forget to check, you open the possibility that a
-<span class="code">NullPointerException</span> may result at runtime. Because such exceptions<a id="i-2004250537-1"/>
+<pre class="code">NullPointerException</pre> may result at runtime. Because such exceptions<a id="i-2004250537-1"/>
 may not happen very often, it can be difficult to discover the bug
 during testing. 
 For Scala, the approach would not work at all because 
-it is possible to store value types in hash maps, and <span class="code">null</span> is not
-a legal element for a value type. For instance, a <span class="code">HashMap[Int,</span>&nbsp;<span class="code">Int]</span> cannot
-return <span class="code">null</span> to signify "no element."</p>
+it is possible to store value types in hash maps, and <pre class="code">null</pre> is not
+a legal element for a value type. For instance, a <pre class="code">HashMap[Int,</pre>&nbsp;<pre class="code">Int]</pre> cannot
+return <pre class="code">null</pre> to signify "no element."</p>
 
-<p>By contrast, Scala encourages the use of <span class="code">Option</span> to indicate an
+<p>By contrast, Scala encourages the use of <pre class="code">Option</pre> to indicate an
 optional value. This approach to optional values has several
 advantages over Java's. First, it is far more obvious to readers of
-code that a variable whose type is <span class="code">Option[String]</span> is an optional
-<span class="code">String</span> than a variable of type <span class="code">String</span>, which may sometimes be
-<span class="code">null</span>. But most importantly, that programming error described
-earlier of using a variable that may be <span class="code">null</span> without first checking
-it for <span class="code">null</span> becomes a type error in Scala. If a variable is of type
-<span class="code">Option[String]</span> and you try to use it as a <span class="code">String</span>, your Scala
+code that a variable whose type is <pre class="code">Option[String]</pre> is an optional
+<pre class="code">String</pre> than a variable of type <pre class="code">String</pre>, which may sometimes be
+<pre class="code">null</pre>. But most importantly, that programming error described
+earlier of using a variable that may be <pre class="code">null</pre> without first checking
+it for <pre class="code">null</pre> becomes a type error in Scala. If a variable is of type
+<pre class="code">Option[String]</pre> and you try to use it as a <pre class="code">String</pre>, your Scala
 program will not compile.</p>
 
 <h3 id="sec-patterns-everywhere">15.7 Patterns everywhere</h3>
 
 
 <p>Patterns are allowed in many parts of Scala, not just in standalone
-<span class="code">match</span> expressions.  Take a look at some other places you can use
+<pre class="code">match</pre> expressions.  Take a look at some other places you can use
 patterns.</p>
 
 <h4>Patterns in variable definitions</h4>
 
 
-<p>Anytime you define a <span class="code">val</span> or a <span class="code">var</span>, you can use a pattern
+<p>Anytime you define a <pre class="code">val</pre> or a <pre class="code">var</pre>, you can use a pattern
 instead of a simple identifier.  For example, you can take
 apart a tuple and assign each of its parts to its own
 variable, as shown in <a href="case-classes-and-pattern-matching.html#lst-multiple-variables">Listing 15.17</a>:<a id="i-1873919990-1"/><a id="i-467993090-1"/></p>
@@ -1162,9 +1162,9 @@ body of each entry point is the right-hand side of the case.</p>
 </pre>
 
 
-<p>The body of this function has two cases.  The first case matches a <span class="code">Some</span>,
-and returns the number inside the <span class="code">Some</span>.  The second case matches
-a <span class="code">None</span>, and returns a default value of zero.  Here is this
+<p>The body of this function has two cases.  The first case matches a <pre class="code">Some</pre>,
+and returns the number inside the <pre class="code">Some</pre>.  The second case matches
+a <pre class="code">None</pre>, and returns a default value of zero.  Here is this
 function in use:</p>
 
 <pre>
@@ -1176,7 +1176,7 @@ function in use:</p>
 
 
 <p>This facility is quite useful for the Akka actors library, because<a id="i2042656-4"/><a id="i-1422944994-4"/>
-it allows its  <span class="code">receive</span> method to be defined as a series of cases:</p>
+it allows its  <pre class="code">receive</pre> method to be defined as a series of cases:</p>
 
 <pre>
   <code class="vem">var</code>&nbsp;sum&nbsp;=&nbsp;<code class="literal">0</code>
@@ -1227,12 +1227,12 @@ not if you pass it an empty list:</p>
 
 <p>If you want to check whether a partial function is defined,
 you must first tell the compiler that you know you are
-working with partial functions.  The type <span class="code">List[Int]</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Int</span>
+working with partial functions.  The type <pre class="code">List[Int]</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">Int</pre>
 includes all functions from lists of integers to integers,
 whether or not the functions are partial.  The type that only includes
 <em>partial</em> functions from lists of integers to integers
-is written <span class="code">PartialFunction[List[Int],Int]</span>.  Here is
-the <span class="code">second</span> function again, this time written with
+is written <pre class="code">PartialFunction[List[Int],Int]</pre>.  Here is
+the <pre class="code">second</pre> function again, this time written with
 a partial function type:<a id="i-33298553-1"/></p>
 
 <pre>
@@ -1242,7 +1242,7 @@ a partial function type:<a id="i-33298553-1"/></p>
 </pre>
 
 
-<p>Partial functions have a method <span class="code">isDefinedAt</span>, which can be<a id="i1604479281-1"/>
+<p>Partial functions have a method <pre class="code">isDefinedAt</pre>, which can be<a id="i1604479281-1"/>
 used to test whether the function is defined at a particular
 value.  In this case, the function is defined for any
 list that has at least two elements:</p>
@@ -1260,7 +1260,7 @@ one in the previous example. In fact, such an expression gets translated by the 
 patterns twice&mdash;once for the implementation of the real function, and once
 to test whether the function is defined or not.</p>
 
-<p>For instance, the function literal <span class="code">{</span>&nbsp;<span class="code">case</span>&nbsp;<span class="code">x</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">y</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">_</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">y</span>&nbsp;<span class="code">}</span> gets translated to the following partial function value:<a id="i-711183731-1"/></p>
+<p>For instance, the function literal <pre class="code">{</pre>&nbsp;<pre class="code">case</pre>&nbsp;<pre class="code">x</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">y</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">_</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">y</pre>&nbsp;<pre class="code">}</pre> gets translated to the following partial function value:<a id="i-711183731-1"/></p>
 
 <pre>
   <code class="vem">new</code>&nbsp;<code class="typename">PartialFunction[List[Int],&nbsp;Int]</code>&nbsp;{
@@ -1276,8 +1276,8 @@ to test whether the function is defined or not.</p>
 
 
 <p>This translation takes effect whenever the declared type of a function
-literal is <span class="code">PartialFunction</span>.  If the declared type is just
-<span class="code">Function1</span>, or is missing, the function literal is instead
+literal is <pre class="code">PartialFunction</pre>.  If the declared type is just
+<pre class="code">Function1</pre>, or is missing, the function literal is instead
 translated to a <span class="textit">complete function</span>.<a id="i1866035935-1"/></p>
 
 <p>In general, you should try to work with complete functions whenever
@@ -1285,19 +1285,19 @@ possible, because using partial functions allows for runtime errors
 that the compiler cannot help you with.  Sometimes partial functions
 are really helpful though.  You might be sure that an unhandled value
 will never be supplied.  Alternatively, you might be using a framework
-that expects partial functions and so will always check <span class="code">isDefinedAt</span>
-before calling the function.  An example of the latter is the <span class="code">react</span>
+that expects partial functions and so will always check <pre class="code">isDefinedAt</pre>
+before calling the function.  An example of the latter is the <pre class="code">react</pre>
 example given above, where the argument is a partially defined
 function, defined precisely for those messages that the caller wants
 to handle.</p>
 
-<h4>Patterns in <span class="code">for</span> expressions</h4>
+<h4>Patterns in <pre class="code">for</pre> expressions</h4>
 
 
-<p>You can also use a pattern in a <span class="code">for</span> expression, as shown in <a href="case-classes-and-pattern-matching.html#lst-pattern-in-for">Listing 15.18</a>. 
-This <span class="code">for</span> expression retrieves all key/value pairs from the <span class="code">capitals</span> map.
-Each pair is matched against the pattern <span class="code">(country,</span>&nbsp;<span class="code">city)</span>, which 
-defines the two variables <span class="code">country</span> and <span class="code">city</span>.<a id="i-1272952554-1"/><a id="i371386352-1"/></p>
+<p>You can also use a pattern in a <pre class="code">for</pre> expression, as shown in <a href="case-classes-and-pattern-matching.html#lst-pattern-in-for">Listing 15.18</a>. 
+This <pre class="code">for</pre> expression retrieves all key/value pairs from the <pre class="code">capitals</pre> map.
+Each pair is matched against the pattern <pre class="code">(country,</pre>&nbsp;<pre class="code">city)</pre>, which 
+defines the two variables <pre class="code">country</pre> and <pre class="code">city</pre>.<a id="i-1272952554-1"/><a id="i371386352-1"/></p>
 
 <p><a id="lst-pattern-in-for"/></p>
 
@@ -1309,11 +1309,11 @@ defines the two variables <span class="code">country</span> and <span class="cod
 </pre>
 
 
-<h5>Listing 15.18 - A <span class="code">for</span> expression with a tuple pattern.</h5>
+<h5>Listing 15.18 - A <pre class="code">for</pre> expression with a tuple pattern.</h5>
 
 
 <p>The pair pattern shown in <a href="case-classes-and-pattern-matching.html#lst-pattern-in-for">Listing 15.18</a> was special because the match against it can
-never fail.  Indeed, <span class="code">capitals</span> yields a sequence of pairs, so you
+never fail.  Indeed, <pre class="code">capitals</pre> yields a sequence of pairs, so you
 can be sure that every generated pair can be matched against a pair
 pattern. But it is equally possible that a pattern might not
 match a generated value. <a href="case-classes-and-pattern-matching.html#lst-options-to-somes">Listing 15.19</a> shows an example where that is the case.</p>
@@ -1335,8 +1335,8 @@ match a generated value. <a href="case-classes-and-pattern-matching.html#lst-opt
 
 
 <p>As you can see from this example, generated values that do not match the pattern
-are discarded. For instance, the second element <span class="code">None</span> in the <span class="code">results</span> list
-does not match the pattern <span class="code">Some(fruit)</span>; therefore it does not show up in the output.</p>
+are discarded. For instance, the second element <pre class="code">None</pre> in the <pre class="code">results</pre> list
+does not match the pattern <pre class="code">Some(fruit)</pre>; therefore it does not show up in the output.</p>
 
 <h3>15.8 A larger example</h3>
 
@@ -1344,39 +1344,39 @@ does not match the pattern <span class="code">Some(fruit)</span>; therefore it d
 <p>After having learned the different forms of patterns, you might be interested
 in seeing them applied in a larger example. The proposed task is to write
 an expression formatter class that displays an arithmetic expression in a
-two-dimensional layout. Divisions such as "<span class="code">x</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">(x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">1)</span>" should be printed vertically,
+two-dimensional layout. Divisions such as "<pre class="code">x</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">(x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">1)</pre>" should be printed vertically,
 by placing the numerator on top of the denominator, like this:</p>
 
 <div style="text-align: center">
 
 
-<p><span class="code">&nbsp;&nbsp;x&nbsp;&nbsp;</span><br />
-<span class="code">-----&nbsp;</span><br />
-<span class="code">x&nbsp;+&nbsp;1</span><br /></p>
+<p><pre class="code">&nbsp;&nbsp;x&nbsp;&nbsp;</pre><br />
+<pre class="code">-----&nbsp;</pre><br />
+<pre class="code">x&nbsp;+&nbsp;1</pre><br /></p>
 
 </div>
 
 
-<p>As another example, here's the expression <span class="code">((a</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">(b</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">c)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">1</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">n)</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">3)</span> in
+<p>As another example, here's the expression <pre class="code">((a</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">(b</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">c)</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">1</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">n)</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">3)</pre> in
 two dimensional layout:</p>
 
 <div style="text-align: center">
 
 
-<p><span class="code">&nbsp;&nbsp;a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;</span><br />
-<span class="code">-----&nbsp;+&nbsp;-&nbsp;</span><br />
-<span class="code">b&nbsp;*&nbsp;c&nbsp;&nbsp;&nbsp;n&nbsp;</span><br />
-<span class="code">---------&nbsp;</span><br />
-<span class="code">&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;</span><br /></p>
+<p><pre class="code">&nbsp;&nbsp;a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;</pre><br />
+<pre class="code">-----&nbsp;+&nbsp;-&nbsp;</pre><br />
+<pre class="code">b&nbsp;*&nbsp;c&nbsp;&nbsp;&nbsp;n&nbsp;</pre><br />
+<pre class="code">---------&nbsp;</pre><br />
+<pre class="code">&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;</pre><br /></p>
 
 </div>
 
 
 <p>From these examples it looks like the class (we'll call it
-<span class="code">ExprFormatter</span>) will have to do a fair bit
+<pre class="code">ExprFormatter</pre>) will have to do a fair bit
 of layout juggling, so it makes sense to use the layout library
 developed in <a href="composition-and-inheritance.html">Chapter 10</a>.
-We'll also use the <span class="code">Expr</span> family of case classes you saw previously in this chapter, and place both <a href="composition-and-inheritance.html">Chapter 10</a>'s layout library and this chapter's
+We'll also use the <pre class="code">Expr</pre> family of case classes you saw previously in this chapter, and place both <a href="composition-and-inheritance.html">Chapter 10</a>'s layout library and this chapter's
 expression formatter into named packages.
 The full code for the example will
 be shown in <a href="case-classes-and-pattern-matching.html#lst-expr-form-top-half">Listings 15.20</a> and <a href="case-classes-and-pattern-matching.html#lst-expr-form-bottom-half"> 15.21</a>.</p>
@@ -1392,8 +1392,8 @@ be shown in <a href="case-classes-and-pattern-matching.html#lst-expr-form-top-ha
 </pre>
 
 
-<p>should print <span class="code">(x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y)</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">z</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">1</span>. Note that parentheses are mandatory
-around <span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span>, but would be optional around <span class="code">(x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y)</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">z</span>. To keep
+<p>should print <pre class="code">(x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">y)</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">z</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">1</pre>. Note that parentheses are mandatory
+around <pre class="code">x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">y</pre>, but would be optional around <pre class="code">(x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">y)</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">z</pre>. To keep
 the layout as legible as possible, your goal should be to omit parentheses wherever
 they are redundant, while ensuring that all
 necessary parentheses are present.</p>
@@ -1496,45 +1496,45 @@ precedence of each operator from that. <a href="case-classes-and-pattern-matchin
 <h5>Listing 15.21 - The bottom half of the expression formatter.</h5>
 
 
-<p>The <span class="code">precedence</span> variable is a map from operators to their
-precedences, which are integers starting with <span class="code">0</span>. 
+<p>The <pre class="code">precedence</pre> variable is a map from operators to their
+precedences, which are integers starting with <pre class="code">0</pre>. 
 It is calculated using a
-<span class="code">for</span> expression with two generators. The first generator produces
-every index <span class="code">i</span> of the <span class="code">opGroups</span> array. The second generator
-produces every operator <span class="code">op</span> in <span class="code">opGroups(i)</span>.
+<pre class="code">for</pre> expression with two generators. The first generator produces
+every index <pre class="code">i</pre> of the <pre class="code">opGroups</pre> array. The second generator
+produces every operator <pre class="code">op</pre> in <pre class="code">opGroups(i)</pre>.
 For each such
-operator the <span class="code">for</span> expression yields an association from the operator
-<span class="code">op</span> to its index <span class="code">i</span>.  Hence, the relative position of an operator
+operator the <pre class="code">for</pre> expression yields an association from the operator
+<pre class="code">op</pre> to its index <pre class="code">i</pre>.  Hence, the relative position of an operator
 in the array is taken to be its precedence.</p>
 
 <p>Associations are written with an infix arrow, <i>e.g.</i>,
-<span class="code">op</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">i</span>. So far you have seen associations only as part of map
+<pre class="code">op</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">i</pre>. So far you have seen associations only as part of map
 constructions, but they are also values in their own right. In fact,
-the association <span class="code">op</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">i</span> is nothing else but the pair <span class="code">(op,</span>&nbsp;<span class="code">i)</span>.</p>
+the association <pre class="code">op</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">i</pre> is nothing else but the pair <pre class="code">(op,</pre>&nbsp;<pre class="code">i)</pre>.</p>
 
 <p>Now that you have fixed the precedence of all binary operators except
-<span class="code">/</span>, it makes sense to generalize this concept to also cover unary operators.
+<pre class="code">/</pre>, it makes sense to generalize this concept to also cover unary operators.
 The precedence of a unary operator is higher than the
-precedence of every binary operator. Thus we can set <span class="code">unaryPrecedence</span> (shown in <a href="case-classes-and-pattern-matching.html#lst-expr-form-top-half">Listing 15.20</a>) to the length of the <span class="code">opGroups</span> array, which is
-one more than the precedence of the <span class="code">*</span> and <span class="code"><span class="texttt">%</span></span> operators.
+precedence of every binary operator. Thus we can set <pre class="code">unaryPrecedence</pre> (shown in <a href="case-classes-and-pattern-matching.html#lst-expr-form-top-half">Listing 15.20</a>) to the length of the <pre class="code">opGroups</pre> array, which is
+one more than the precedence of the <pre class="code">*</pre> and <span class="code"><span class="texttt">%</span></span> operators.
 The precedence of a fraction is treated differently from the other
 operators because fractions use vertical layout. However, it will
-prove convenient to assign to the division operator the special precedence value <span class="code">-1</span>, so
-we'll initialize <span class="code">fractionPrecedence</span> to -1 (shown in <a href="case-classes-and-pattern-matching.html#lst-expr-form-top-half">Listing 15.20</a>).</p>
+prove convenient to assign to the division operator the special precedence value <pre class="code">-1</pre>, so
+we'll initialize <pre class="code">fractionPrecedence</pre> to -1 (shown in <a href="case-classes-and-pattern-matching.html#lst-expr-form-top-half">Listing 15.20</a>).</p>
 
-<p>After these preparations, you are ready to write the main <span class="code">format</span>
-method. This method takes two arguments: an expression <span class="code">e</span>, of type <span class="code">Expr</span>, and
- the precedence <span class="code">enclPrec</span> of the operator directly enclosing
-the expression <span class="code">e</span>. (If there's no enclosing operator, <span class="code">enclPrec</span> should be zero.) The method yields a layout element that represents
+<p>After these preparations, you are ready to write the main <pre class="code">format</pre>
+method. This method takes two arguments: an expression <pre class="code">e</pre>, of type <pre class="code">Expr</pre>, and
+ the precedence <pre class="code">enclPrec</pre> of the operator directly enclosing
+the expression <pre class="code">e</pre>. (If there's no enclosing operator, <pre class="code">enclPrec</pre> should be zero.) The method yields a layout element that represents
 a two-dimensional array of characters.</p>
 
-<p><a href="case-classes-and-pattern-matching.html#lst-expr-form-bottom-half">Listing 15.21</a> shows the remainder of class <span class="code">ExprFormatter</span>, which includes three methods. The first
-method, <span class="code">stripDot</span>, is a helper method. The next
-method, the private <span class="code">format</span> method, does most of the work to format expressions.
+<p><a href="case-classes-and-pattern-matching.html#lst-expr-form-bottom-half">Listing 15.21</a> shows the remainder of class <pre class="code">ExprFormatter</pre>, which includes three methods. The first
+method, <pre class="code">stripDot</pre>, is a helper method. The next
+method, the private <pre class="code">format</pre> method, does most of the work to format expressions.
 The last method,
-also named <span class="code">format</span>, is the lone public method in the library, which takes an expression to format. The private <span class="code">format</span> method does its work by
+also named <pre class="code">format</pre>, is the lone public method in the library, which takes an expression to format. The private <pre class="code">format</pre> method does its work by
 performing a pattern match on the kind
-of expression. The <span class="code">match</span> expression has five cases.
+of expression. The <pre class="code">match</pre> expression has five cases.
 We'll discuss each  case
 individually.</p>
 
@@ -1564,9 +1564,9 @@ formed from the variable's name.</p>
 
 
 <p>If the expression is a number, the
-result is  an element formed from the number's value. The <span class="code">stripDot</span>
+result is  an element formed from the number's value. The <pre class="code">stripDot</pre>
 function cleans up the display of a floating-point number by stripping 
-any <span class="code">".0"</span> suffix from a string.</p>
+any <pre class="code">".0"</pre> suffix from a string.</p>
 
 <p>The third case is:</p>
 
@@ -1576,10 +1576,10 @@ any <span class="code">".0"</span> suffix from a string.</p>
 </pre>
 
 
-<p>If the expression is a unary operation <span class="code">UnOp(op,</span>&nbsp;<span class="code">arg)</span> the
-result is formed from the operation <span class="code">op</span> and the result of formatting the
-argument <span class="code">arg</span> with the highest-possible environment
-precedence.<a href="case-classes-and-pattern-matching.html#footnotemain15-4">[4]</a> This means that if <span class="code">arg</span> is a binary operation (but not
+<p>If the expression is a unary operation <pre class="code">UnOp(op,</pre>&nbsp;<pre class="code">arg)</pre> the
+result is formed from the operation <pre class="code">op</pre> and the result of formatting the
+argument <pre class="code">arg</pre> with the highest-possible environment
+precedence.<a href="case-classes-and-pattern-matching.html#footnotemain15-4">[4]</a> This means that if <pre class="code">arg</pre> is a binary operation (but not
 a fraction) it will always be displayed in
 parentheses.</p>
 
@@ -1597,14 +1597,14 @@ parentheses.</p>
 
 
 <p>If the expression is a fraction, an
-intermediate result <span class="code">frac</span> is formed by placing the formatted
-operands <span class="code">left</span> and <span class="code">right</span> on top of each other, separated by an
+intermediate result <pre class="code">frac</pre> is formed by placing the formatted
+operands <pre class="code">left</pre> and <pre class="code">right</pre> on top of each other, separated by an
 horizontal line element. The width of the horizontal line is the
 maximum of the widths of the formatted operands.  This intermediate
 result is also the final result unless the fraction appears itself as
 an argument of another fraction.  In the latter case, a space is added
-on each side of <span class="code">frac</span>.  To see the reason why, consider
-the expression "<span class="code">(a</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">b)</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">c</span>".</p>
+on each side of <pre class="code">frac</pre>.  To see the reason why, consider
+the expression "<pre class="code">(a</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">b)</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">c</pre>".</p>
 
 <p>Without the widening correction,
 formatting this expression would give:</p>
@@ -1612,30 +1612,30 @@ formatting this expression would give:</p>
 <div style="text-align: center">
 
 
-<p><span class="code">a</span><br />
-<span class="code">-</span><br />
-<span class="code">b</span><br />
-<span class="code">-</span><br />
-<span class="code">c</span></p>
+<p><pre class="code">a</pre><br />
+<pre class="code">-</pre><br />
+<pre class="code">b</pre><br />
+<pre class="code">-</pre><br />
+<pre class="code">c</pre></p>
 
 </div>
 
 
 <p>The problem with this layout is evident&mdash;it's not clear where the
   top-level fractional bar is. The expression above could mean either
-  "<span class="code">(a</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">b)</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">c</span>" or "<span class="code">a</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">(b</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">c)</span>". To disambiguate, a space
+  "<pre class="code">(a</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">b)</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">c</pre>" or "<pre class="code">a</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">(b</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">c)</pre>". To disambiguate, a space
   should be added on each side to the layout of the nested
-  fraction "<span class="code">a</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">b</span>". 
+  fraction "<pre class="code">a</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code">b</pre>". 
 Then the layout becomes unambiguous:</p>
 
 <div style="text-align: center">
 
 
-<p><span class="code">&nbsp;a&nbsp;</span><br />
-<span class="code">&nbsp;-&nbsp;</span><br />
-<span class="code">&nbsp;b&nbsp;</span><br />
-<span class="code">---</span><br />
-<span class="code">&nbsp;c&nbsp;</span></p>
+<p><pre class="code">&nbsp;a&nbsp;</pre><br />
+<pre class="code">&nbsp;-&nbsp;</pre><br />
+<pre class="code">&nbsp;b&nbsp;</pre><br />
+<pre class="code">---</pre><br />
+<pre class="code">&nbsp;c&nbsp;</pre></p>
 
 </div>
 
@@ -1662,11 +1662,11 @@ it comes after the case starting with:</p>
 
 
 <p>you know that the
-operator <span class="code">op</span> in the pattern <span class="code">BinOp(op,</span>&nbsp;<span class="code">left,</span>&nbsp;<span class="code">right)</span> cannot be a
+operator <pre class="code">op</pre> in the pattern <pre class="code">BinOp(op,</pre>&nbsp;<pre class="code">left,</pre>&nbsp;<pre class="code">right)</pre> cannot be a
 division. To format such a binary operation, one needs to format first
-its operands <span class="code">left</span> and <span class="code">right</span>. The precedence parameter for 
-formatting the left operand is the precedence <span class="code">opPrec</span> of the operator
-<span class="code">op</span>, while for the right operand it is one more than that. This
+its operands <pre class="code">left</pre> and <pre class="code">right</pre>. The precedence parameter for 
+formatting the left operand is the precedence <pre class="code">opPrec</pre> of the operator
+<pre class="code">op</pre>, while for the right operand it is one more than that. This
 scheme ensures that parentheses also reflect the correct
 associativity.</p>
 
@@ -1677,11 +1677,11 @@ associativity.</p>
 </pre>
 
 
-<p>would be correctly parenthesized as "<span class="code">a</span>&nbsp;<span class="code">-</span>&nbsp;<span class="code">(b</span>&nbsp;<span class="code">-</span>&nbsp;<span class="code">c)</span>". The intermediate
-result <span class="code">oper</span> is then formed by placing the formatted left and right
+<p>would be correctly parenthesized as "<pre class="code">a</pre>&nbsp;<pre class="code">-</pre>&nbsp;<pre class="code">(b</pre>&nbsp;<pre class="code">-</pre>&nbsp;<pre class="code">c)</pre>". The intermediate
+result <pre class="code">oper</pre> is then formed by placing the formatted left and right
 operands side-by-side, separated by the operator. If the precedence
 of the current operator is smaller than the precedence of the
-enclosing operator, <span class="code">oper</span> is placed between parentheses; otherwise, it
+enclosing operator, <pre class="code">oper</pre> is placed between parentheses; otherwise, it
 is returned as is.</p>
 
 <p><a id="lst-express-app"/></p>
@@ -1704,14 +1704,14 @@ is returned as is.</p>
 <h5>Listing 15.22 - An application that prints formatted expressions.</h5>
 
 
-<p>This finishes the design of the private <span class="code">format</span> function. The only
-remaining method is the public <span class="code">format</span> method, which allows client programmers to
+<p>This finishes the design of the private <pre class="code">format</pre> function. The only
+remaining method is the public <pre class="code">format</pre> method, which allows client programmers to
 format a top-level expression without passing a precedence argument.
-<a href="case-classes-and-pattern-matching.html#lst-express-app">Listing 15.22</a> shows a demo program that exercises <span class="code">ExprFormatter</span>.</p>
+<a href="case-classes-and-pattern-matching.html#lst-express-app">Listing 15.22</a> shows a demo program that exercises <pre class="code">ExprFormatter</pre>.</p>
 
-<p>Note that, even though this program does not define a <span class="code">main</span> method, it is still a 
-runnable application because it inherits from the <span class="code">App</span> trait.
-You can run the <span class="code">Express</span> program with the command:</p>
+<p>Note that, even though this program does not define a <pre class="code">main</pre> method, it is still a 
+runnable application because it inherits from the <pre class="code">App</pre> trait.
+You can run the <pre class="code">Express</pre> program with the command:</p>
 
 <pre>
   scala&nbsp;Express
@@ -1761,10 +1761,10 @@ could have also chosen to model the root of that class hierarchy as a trait. Mod
 
 <p><a id="footnotemain15-2"/>[2] Gamma, <i>et. al.</i>, <em>Design Patterns</em>  <a href="bibliography.html#gang-of-four">[Gam95]</a><a id="i978021020-1"/><a id="i-37693691-1"/></p>
 
-<p><a id="footnotemain15-3"/>[3] In the typed pattern, <span class="code">m:</span>&nbsp;<span class="code">Map[_,</span>&nbsp;<span class="code">_]</span>, the "<span class="code">Map[_,</span>&nbsp;<span class="code">_]</span>" portion is called a <span class="textit">type pattern</span>.</p>
+<p><a id="footnotemain15-3"/>[3] In the typed pattern, <pre class="code">m:</pre>&nbsp;<pre class="code">Map[_,</pre>&nbsp;<pre class="code">_]</pre>, the "<pre class="code">Map[_,</pre>&nbsp;<pre class="code">_]</pre>" portion is called a <span class="textit">type pattern</span>.</p>
 
-<p><a id="footnotemain15-4"/>[4] The value of <span class="code">unaryPrecedence</span> is the highest possible precedence, because it was initialized to
-one more than the precedence of the <span class="code">*</span> and <span class="code"><span class="texttt">%</span></span> operators.</p>
+<p><a id="footnotemain15-4"/>[4] The value of <pre class="code">unaryPrecedence</pre> is the highest possible precedence, because it was initialized to
+one more than the precedence of the <pre class="code">*</pre> and <span class="code"><span class="texttt">%</span></span> operators.</p>
 
 <div style="page-break-after:always"/>
 

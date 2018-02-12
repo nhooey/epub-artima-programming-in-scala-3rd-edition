@@ -23,8 +23,8 @@ important design principles for programs working on lists.</p>
 
 
 <p>You saw lists already in the preceding chapters, so you know that
-a list containing the elements <span class="code">'a'</span>, <span class="code">'b'</span>, and <span class="code">'c'</span> is written
-<span class="code">List('a',</span>&nbsp;<span class="code">'b',</span>&nbsp;<span class="code">'c')</span>.<a id="i-2038506824-1"/> Here are some other examples:</p>
+a list containing the elements <pre class="code">'a'</pre>, <pre class="code">'b'</pre>, and <pre class="code">'c'</pre> is written
+<pre class="code">List('a',</pre>&nbsp;<pre class="code">'b',</pre>&nbsp;<pre class="code">'c')</pre>.<a id="i-2038506824-1"/> Here are some other examples:</p>
 
 <pre>
   <code class="vem">val</code>&nbsp;fruit&nbsp;=&nbsp;<code class="typename">List</code>(<code class="quotedstring">"apples"</code>,&nbsp;<code class="quotedstring">"oranges"</code>,&nbsp;<code class="quotedstring">"pears"</code>)
@@ -46,12 +46,12 @@ lists have a recursive structure (<i>i.e.</i>, a <em>linked
 list</em><a id="i594306766-1"/>),<a href="working-with-lists.html#footnotemain16-1">[1]</a>
 whereas arrays are flat.</p>
 
-<h3>16.2 The <span class="code">List</span> type</h3>
+<h3>16.2 The <pre class="code">List</pre> type</h3>
 
 
 <p>Like arrays, lists are <span style="font-style:italic">homogeneous</span>: the elements of a
 list all have the same type.  The type of a list that has elements of type
-<span class="code">T</span> is written <span class="code">List[T]</span>. For instance, here are the same four lists
+<pre class="code">T</pre> is written <pre class="code">List[T]</pre>. For instance, here are the same four lists
 with explicit types added:</p>
 
 <pre>
@@ -68,18 +68,18 @@ with explicit types added:</p>
 
 
 <p>The list type in Scala is <span style="font-style:italic">covariant</span><a id="i-1469695991-1"/>. This means 
-that for each pair of types <span class="code">S</span> and <span class="code">T</span>, if <span class="code">S</span> is a subtype of <span class="code">T</span>, then
-<span class="code">List[S]</span> is a subtype of <span class="code">List[T]</span>. For instance, <span class="code">List[String]</span> 
-is a subtype of <span class="code">List[Object]</span>. This is natural because every list of 
+that for each pair of types <pre class="code">S</pre> and <pre class="code">T</pre>, if <pre class="code">S</pre> is a subtype of <pre class="code">T</pre>, then
+<pre class="code">List[S]</pre> is a subtype of <pre class="code">List[T]</pre>. For instance, <pre class="code">List[String]</pre> 
+is a subtype of <pre class="code">List[Object]</pre>. This is natural because every list of 
 strings can also be seen as a list of
 objects.<a href="working-with-lists.html#footnotemain16-2">[2]</a></p>
 
 <p>Note that the empty list has type
-<span class="code">List[Nothing]</span>.<a id="i-727376847-1"/> You saw in <a href="scalas-hierarchy.html#sec-bottom-types">Section 11.3</a>
-that <span class="code">Nothing</span> is the bottom type in Scala's class hierarchy. It
+<pre class="code">List[Nothing]</pre>.<a id="i-727376847-1"/> You saw in <a href="scalas-hierarchy.html#sec-bottom-types">Section 11.3</a>
+that <pre class="code">Nothing</pre> is the bottom type in Scala's class hierarchy. It
 is a subtype of every other Scala type.
-Because lists are covariant, it follows that <span class="code">List[Nothing]</span> is a subtype of <span class="code">List[T]</span> for any type <span class="code">T</span>. So the empty list object, which has type <span class="code">List[Nothing]</span>,
-can also be seen as an object of every other list type of the form  <span class="code">List[T]</span>. 
+Because lists are covariant, it follows that <pre class="code">List[Nothing]</pre> is a subtype of <pre class="code">List[T]</pre> for any type <pre class="code">T</pre>. So the empty list object, which has type <pre class="code">List[Nothing]</pre>,
+can also be seen as an object of every other list type of the form  <pre class="code">List[T]</pre>. 
 That's why it is permissible to write code like:</p>
 
 <pre>
@@ -91,10 +91,10 @@ That's why it is permissible to write code like:</p>
 <h3>16.3 Constructing lists</h3>
 
 
-<p>All lists are built from two fundamental building blocks, <span class="code">Nil</span><a id="i1899558990-2"/>
-and <span class="code">:: </span>(pronounced "cons").<a id="i1411857630-2"/><a id="i1674095775-2"/> <span class="code">Nil</span> represents the empty
-list. The infix operator, <span class="code">::</span>, expresses list extension at the front. That is,
-<span class="code">x</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">xs</span> represents a list whose first element is <span class="code">x</span>, followed by (the elements of) list <span class="code">xs</span>.  Hence, the previous
+<p>All lists are built from two fundamental building blocks, <pre class="code">Nil</pre><a id="i1899558990-2"/>
+and <pre class="code">:: </pre>(pronounced "cons").<a id="i1411857630-2"/><a id="i1674095775-2"/> <pre class="code">Nil</pre> represents the empty
+list. The infix operator, <pre class="code">::</pre>, expresses list extension at the front. That is,
+<pre class="code">x</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">xs</pre> represents a list whose first element is <pre class="code">x</pre>, followed by (the elements of) list <pre class="code">xs</pre>.  Hence, the previous
 list values could also have been defined as follows:</p>
 
 <pre>
@@ -107,13 +107,13 @@ list values could also have been defined as follows:</p>
 </pre>
 
 
-<p>In fact the previous definitions of <span class="code">fruit</span>, <span class="code">nums</span>, <span class="code">diag3</span>, and <span class="code">empty</span> 
-in terms of <span class="code">List(...)</span> are just wrappers that expand to these definitions.
-For instance, <span class="code">List(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3)</span> creates the list 
-<span class="code">1</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">(2</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">(3</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">Nil))</span>.</p>
+<p>In fact the previous definitions of <pre class="code">fruit</pre>, <pre class="code">nums</pre>, <pre class="code">diag3</pre>, and <pre class="code">empty</pre> 
+in terms of <pre class="code">List(...)</pre> are just wrappers that expand to these definitions.
+For instance, <pre class="code">List(1,</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">3)</pre> creates the list 
+<pre class="code">1</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">(2</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">(3</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">Nil))</pre>.</p>
 
-<p>Because it ends in a colon, the <span class="code">:: </span>operation associates to the right: <span class="code">A</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">B</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">C</span> is
-interpreted as <span class="code">A</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">(B</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">C)</span>.<a id="i-1491182453-2"/><a id="i620923488-2"/>  Therefore, you can drop the
+<p>Because it ends in a colon, the <pre class="code">:: </pre>operation associates to the right: <pre class="code">A</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">B</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">C</pre> is
+interpreted as <pre class="code">A</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">(B</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">C)</pre>.<a id="i-1491182453-2"/><a id="i620923488-2"/>  Therefore, you can drop the
 parentheses in the previous definitions. For instance:</p>
 
 <pre>
@@ -121,7 +121,7 @@ parentheses in the previous definitions. For instance:</p>
 </pre>
 
 
-<p>is equivalent to the previous definition of <span class="code">nums</span>.</p>
+<p>is equivalent to the previous definition of <pre class="code">nums</pre>.</p>
 
 <h3>16.4 Basic operations on lists</h3>
 
@@ -132,7 +132,7 @@ three:<a id="i-735890706-2"/><a id="i849842526-2"/><a id="i1657074897-2"/><a id=
 <table style="border-collapse: collapse">
 <tr>
   <td>
-    <span class="code">head</span>
+    <pre class="code">head</pre>
   </td>
   <td>
     returns the first element of a list
@@ -140,7 +140,7 @@ three:<a id="i-735890706-2"/><a id="i849842526-2"/><a id="i1657074897-2"/><a id=
 </tr>
 <tr>
   <td>
-    <span class="code">tail</span>
+    <pre class="code">tail</pre>
   </td>
   <td>
     returns a list consisting of all elements except the first
@@ -148,17 +148,17 @@ three:<a id="i-735890706-2"/><a id="i849842526-2"/><a id="i1657074897-2"/><a id=
 </tr>
 <tr>
   <td>
-    <span class="code">isEmpty</span>
+    <pre class="code">isEmpty</pre>
   </td>
   <td>
-    returns <span class="code">true</span> if the list is empty
+    returns <pre class="code">true</pre> if the list is empty
   </td>
 </tr>
 </table>
 
 
-<p>These operations are defined as methods of class <span class="code">List</span>.
-Some examples are shown in <a href="working-with-lists.html#tab-lists-basics">Table 16.1</a>. The <span class="code">head</span> and <span class="code">tail</span> methods are defined only for non-empty
+<p>These operations are defined as methods of class <pre class="code">List</pre>.
+Some examples are shown in <a href="working-with-lists.html#tab-lists-basics">Table 16.1</a>. The <pre class="code">head</pre> and <pre class="code">tail</pre> methods are defined only for non-empty
 lists.  When selected from an empty list, they throw an exception:</p>
 
 <pre>
@@ -170,8 +170,8 @@ lists.  When selected from an empty list, they throw an exception:</p>
 <p>As an example of how lists can be processed, consider sorting the
 elements of a list of numbers into ascending order. One simple way to
 do so is <span style="font-style:italic">insertion sort</span>,<a id="i132601811-1"/><a id="i-1814033297-1"/> which works as follows: To sort a
-non-empty list <span class="code">x</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">xs</span>, sort
-the remainder <span class="code">xs</span> and insert the first element <span class="code">x</span> at the right
+non-empty list <pre class="code">x</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">xs</pre>, sort
+the remainder <pre class="code">xs</pre> and insert the first element <pre class="code">x</pre> at the right
 position in the result. Sorting an empty list yields the
 empty list. Expressed as Scala code, the insertion sort algorithm looks like:</p>
 
@@ -204,42 +204,42 @@ empty list. Expressed as Scala code, the insertion sort algorithm looks like:</p
 </tr>
 <tr class="topline ">
   <td>
-    <span class="code">empty.isEmpty</span>
+    <pre class="code">empty.isEmpty</pre>
   </td>
   <td>
-    returns <span class="code">true</span>
-  </td>
-</tr>
-<tr>
-  <td>
-    <span class="code">fruit.isEmpty</span>
-  </td>
-  <td>
-    returns <span class="code">false</span>
+    returns <pre class="code">true</pre>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">fruit.head</span>
+    <pre class="code">fruit.isEmpty</pre>
   </td>
   <td>
-    returns <span class="code">"apples"</span>
+    returns <pre class="code">false</pre>
   </td>
 </tr>
 <tr>
   <td>
-    <span class="code">fruit.tail.head</span>
+    <pre class="code">fruit.head</pre>
   </td>
   <td>
-    returns <span class="code">"oranges"</span>
+    returns <pre class="code">"apples"</pre>
+  </td>
+</tr>
+<tr>
+  <td>
+    <pre class="code">fruit.tail.head</pre>
+  </td>
+  <td>
+    returns <pre class="code">"oranges"</pre>
   </td>
 </tr>
 <tr class="bottomline">
   <td>
-    <span class="code">diag3.head</span>
+    <pre class="code">diag3.head</pre>
   </td>
   <td>
-    returns <span class="code">List(1,</span>&nbsp;<span class="code">0,</span>&nbsp;<span class="code">0)</span>
+    returns <pre class="code">List(1,</pre>&nbsp;<pre class="code">0,</pre>&nbsp;<pre class="code">0)</pre>
   </td>
 </tr>
 </table>
@@ -253,9 +253,9 @@ empty list. Expressed as Scala code, the insertion sort algorithm looks like:</p
 
 <p>Lists can also be taken apart using pattern matching<a id="i1817770109-1"/>. List patterns
 correspond one-by-one to list expressions. You can either match on all
-elements of a list using a pattern of the form <span class="code">List(...)</span>, or you 
+elements of a list using a pattern of the form <pre class="code">List(...)</pre>, or you 
 take lists apart bit by bit using patterns composed from the
-<span class="code">::</span> operator and the <span class="code">Nil</span> constant.</p>
+<pre class="code">::</pre> operator and the <pre class="code">Nil</pre> constant.</p>
 
 <p>Here's an example of the first kind of pattern:</p>
 
@@ -267,35 +267,35 @@ take lists apart bit by bit using patterns composed from the
 </pre>
 
 
-<p>The pattern <span class="code">List(a,</span>&nbsp;<span class="code">b,</span>&nbsp;<span class="code">c)</span> matches lists of length 3, and binds the three elements
-to the pattern variables <span class="code">a</span>, <span class="code">b</span>, and <span class="code">c</span>. 
+<p>The pattern <pre class="code">List(a,</pre>&nbsp;<pre class="code">b,</pre>&nbsp;<pre class="code">c)</pre> matches lists of length 3, and binds the three elements
+to the pattern variables <pre class="code">a</pre>, <pre class="code">b</pre>, and <pre class="code">c</pre>. 
 If you don't know the number of list elements beforehand, it's better to match with 
-<span class="code">::</span> instead. For instance, the pattern <span class="code">a</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">b</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">rest</span>
+<pre class="code">::</pre> instead. For instance, the pattern <pre class="code">a</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">b</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">rest</pre>
 matches lists of length 2 or greater:</p>
 
 <div class="aside">
-<h3>About pattern matching on <span class="code">List</span>s</h3>
+<h3>About pattern matching on <pre class="code">List</pre>s</h3>
 
 
 <p>If you review the possible forms of patterns explained in 
-<a href="case-classes-and-pattern-matching.html">Chapter 15</a>, you might find that neither <span class="code">List(...)</span> nor
-<span class="code">::</span> look like it fits the kinds of patterns defined there.
-In fact, <span class="code">List(...)</span> is an instance of a library-defined
+<a href="case-classes-and-pattern-matching.html">Chapter 15</a>, you might find that neither <pre class="code">List(...)</pre> nor
+<pre class="code">::</pre> look like it fits the kinds of patterns defined there.
+In fact, <pre class="code">List(...)</pre> is an instance of a library-defined
 <em>extractor</em> pattern<a id="i-1414877783-1"/>.
 Such patterns will be discussed in <a href="extractors.html">Chapter 26</a>.
-The "cons" pattern  <span class="code">x</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">xs</span> is a special case of an infix operation pattern.
+The "cons" pattern  <pre class="code">x</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">xs</pre> is a special case of an infix operation pattern.
 As an expression, an infix operation is equivalent to a method call.
 For patterns, the rules are different: As a pattern, an infix operation
-such as <span class="code">p</span>&nbsp;<span class="code">op</span>&nbsp;<span class="code">q</span> is equivalent to <span class="code">op(p,</span>&nbsp;<span class="code">q)</span>. That is, the infix operator
-<span class="code">op</span> is treated as a constructor pattern. In particular, a cons pattern such as <span class="code">x</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">xs</span> is
-treated as <span class="code">::(x,</span>&nbsp;<span class="code">xs)</span>.</p>
+such as <pre class="code">p</pre>&nbsp;<pre class="code">op</pre>&nbsp;<pre class="code">q</pre> is equivalent to <pre class="code">op(p,</pre>&nbsp;<pre class="code">q)</pre>. That is, the infix operator
+<pre class="code">op</pre> is treated as a constructor pattern. In particular, a cons pattern such as <pre class="code">x</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">xs</pre> is
+treated as <pre class="code">::(x,</pre>&nbsp;<pre class="code">xs)</pre>.</p>
 
-<p>This hints that there should be a class named <span class="code">::</span> that 
+<p>This hints that there should be a class named <pre class="code">::</pre> that 
 corresponds to the pattern constructor. Indeed, there is such a class&mdash;it is named
-<span class="code">scala.::</span> and is exactly the class that builds non-empty lists. So <span class="code">::</span> exists twice
-in Scala, once as a name of a class in package <span class="code">scala</span> and again
-as a method in class <span class="code">List</span>. The effect of the method <span class="code">::</span> is to produce an 
-instance of the class <span class="code">scala.::</span>. You'll find out more details about how the List class
+<pre class="code">scala.::</pre> and is exactly the class that builds non-empty lists. So <pre class="code">::</pre> exists twice
+in Scala, once as a name of a class in package <pre class="code">scala</pre> and again
+as a method in class <pre class="code">List</pre>. The effect of the method <pre class="code">::</pre> is to produce an 
+instance of the class <pre class="code">scala.::</pre>. You'll find out more details about how the List class
 is implemented in <a href="implementing-lists.html">Chapter 22</a>.</p>
 
 </div>
@@ -310,7 +310,7 @@ is implemented in <a href="implementing-lists.html">Chapter 22</a>.</p>
 
 
 <p>Taking<a id="i-986649610-1"/> lists apart with patterns is an alternative to taking them apart with
-the basic methods <span class="code">head</span>, <span class="code">tail</span>, and <span class="code">isEmpty</span>. For instance, here's insertion sort<a id="i132601811-2"/><a id="i-1814033297-2"/> again, 
+the basic methods <pre class="code">head</pre>, <pre class="code">tail</pre>, and <pre class="code">isEmpty</pre>. For instance, here's insertion sort<a id="i132601811-2"/><a id="i-1814033297-2"/> again, 
 this time written with pattern matching:</p>
 
 <pre>
@@ -334,12 +334,12 @@ them correctly. However, there are also a large number of methods
 that capture common patterns of operations over lists. 
 These methods make list processing programs more concise
 and often clearer. The next two sections present the most
-important methods defined in the <span class="code">List</span> class.</p>
+important methods defined in the <pre class="code">List</pre> class.</p>
 
-<h3 id="sec-first-order-methods-on-class-list">16.6 First-order methods on class <span class="code">List</span></h3>
+<h3 id="sec-first-order-methods-on-class-list">16.6 First-order methods on class <pre class="code">List</pre></h3>
 
 
-<p>This section explains most first-order methods defined in the <span class="code">List</span><a id="i-570225502-1"/><a id="i254621440-1"/>
+<p>This section explains most first-order methods defined in the <pre class="code">List</pre><a id="i-570225502-1"/><a id="i254621440-1"/>
 class. A method is <em>first-order</em> if it does not take any functions as
 arguments<a id="i-461147607-1"/>. We will also introduce some
 recommended techniques to structure programs that operate on lists by using two examples.</p>
@@ -347,11 +347,11 @@ recommended techniques to structure programs that operate on lists by using two 
 <h4>Concatenating two lists</h4>
 
 
-<p>An operation similar to <span class="code">::</span> is list concatenation, written<a id="i-1839436249-2"/>
-`<span class="code">:::</span>'. Unlike <span class="code">::</span>, <span class="code">:::</span> takes two lists as
+<p>An operation similar to <pre class="code">::</pre> is list concatenation, written<a id="i-1839436249-2"/>
+`<pre class="code">:::</pre>'. Unlike <pre class="code">::</pre>, <pre class="code">:::</pre> takes two lists as
 operands<a id="i55390901-2"/><a id="i-1436258358-1"/>.
-The result of <span class="code">xs</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">ys</span> is a new list that contains all the elements
-of <span class="code">xs</span>, followed by all the elements of <span class="code">ys</span>.</p>
+The result of <pre class="code">xs</pre>&nbsp;<pre class="code">:::</pre>&nbsp;<pre class="code">ys</pre> is a new list that contains all the elements
+of <pre class="code">xs</pre>, followed by all the elements of <pre class="code">ys</pre>.</p>
 
 <p>Here are some examples:</p>
 
@@ -382,16 +382,16 @@ of <span class="code">xs</span>, followed by all the elements of <span class="co
 <h4>The Divide and Conquer principle</h4>
 
 
-<p>Concatenation (<span class="code">:::</span>) is implemented as a method in class <span class="code">List</span>.  It<a id="i673902975-1"/><a id="i1224006146-1"/>
+<p>Concatenation (<pre class="code">:::</pre>) is implemented as a method in class <pre class="code">List</pre>.  It<a id="i673902975-1"/><a id="i1224006146-1"/>
 would also be possible to implement concatenation "by hand," using
 pattern matching on lists. It's instructive to try to do that
 yourself, because it shows a common way to implement algorithms using lists. First, we'll settle on a signature for the concatenation
-method, which we'll call <span class="code">append</span>.  In order not to mix things up too much, assume that
-<span class="code">append</span> is defined outside the <span class="code">List</span> class, so it will take the two
+method, which we'll call <pre class="code">append</pre>.  In order not to mix things up too much, assume that
+<pre class="code">append</pre> is defined outside the <pre class="code">List</pre> class, so it will take the two
 lists to be concatenated as parameters. These two lists 
 must agree on their element type,
 but that element type can be arbitrary. This can be expressed by giving
-<span class="code">append</span> a type parameter<a href="working-with-lists.html#footnotemain16-3">[3]</a><a id="i-940554758-1"/> that represents the element type of the
+<pre class="code">append</pre> a type parameter<a href="working-with-lists.html#footnotemain16-3">[3]</a><a id="i-940554758-1"/> that represents the element type of the
 two input lists:</p>
 
 <pre>
@@ -399,7 +399,7 @@ two input lists:</p>
 </pre>
 
 
-<p>To design the implementation of <span class="code">append</span>, it pays to remember the
+<p>To design the implementation of <pre class="code">append</pre>, it pays to remember the
 "divide and conquer" design principle for programs over recursive
 data structures such as lists. Many algorithms over lists first split
 an input list into simpler cases using a pattern match. That's the
@@ -408,17 +408,17 @@ each case. If the result is a non-empty list, some of its parts may be
 constructed by recursive invocations of the same algorithm.  That's the
 <span style="font-style:italic">conquer</span> part of the principle.</p>
 
-<p>To apply this principle to the implementation of the <span class="code">append</span> method,
+<p>To apply this principle to the implementation of the <pre class="code">append</pre> method,
 the first question to ask is on which list to
-match. This is less trivial in the case of <span class="code">append</span> 
+match. This is less trivial in the case of <pre class="code">append</pre> 
 than for many other methods because there
 are two choices. However, the subsequent "conquer" phase tells you
 that you need to construct a list consisting of all elements of both
-input lists. Since lists are constructed from the back towards the front, <span class="code">ys</span> can
-remain intact, whereas <span class="code">xs</span> will need to be taken apart and prepended to <span class="code">ys</span>. Thus, it makes sense to concentrate on
-<span class="code">xs</span> as a source for a pattern match.  The most common pattern
+input lists. Since lists are constructed from the back towards the front, <pre class="code">ys</pre> can
+remain intact, whereas <pre class="code">xs</pre> will need to be taken apart and prepended to <pre class="code">ys</pre>. Thus, it makes sense to concentrate on
+<pre class="code">xs</pre> as a source for a pattern match.  The most common pattern
 match over lists simply distinguishes an empty from a non-empty
-list. So this gives the following outline of an <span class="code">append</span> method:</p>
+list. So this gives the following outline of an <pre class="code">append</pre> method:</p>
 
 <pre>
   <code class="vem">def</code>&nbsp;append[T](xs:&nbsp;<code class="typename">List[T]</code>,&nbsp;ys:&nbsp;<code class="typename">List[T]</code>):&nbsp;<code class="typename">List[T]</code>&nbsp;=
@@ -429,8 +429,8 @@ list. So this gives the following outline of an <span class="code">append</span>
 </pre>
 
 
-<p>All that remains is to fill in the two places marked with <span class="code">???</span>.<a href="working-with-lists.html#footnotemain16-4">[4]</a><a id="i883954855-1"/><a id="i1008284442-1"/>
-The first such place is the alternative where the input list <span class="code">xs</span> is empty.
+<p>All that remains is to fill in the two places marked with <pre class="code">???</pre>.<a href="working-with-lists.html#footnotemain16-4">[4]</a><a id="i883954855-1"/><a id="i1008284442-1"/>
+The first such place is the alternative where the input list <pre class="code">xs</pre> is empty.
 In this case concatenation yields the second list:</p>
 
 <pre>
@@ -438,13 +438,13 @@ In this case concatenation yields the second list:</p>
 </pre>
 
 
-<p>The second place left open is the alternative where the input list <span class="code">xs</span>
-consists of some head <span class="code">x</span> followed by a tail <span class="code">xs1</span>. In this
+<p>The second place left open is the alternative where the input list <pre class="code">xs</pre>
+consists of some head <pre class="code">x</pre> followed by a tail <pre class="code">xs1</pre>. In this
 case the result is also a non-empty list. To construct a non-empty list
 you need to know what the head and the tail of that list should be.
-You know that the first element of the result list is <span class="code">x</span>.
+You know that the first element of the result list is <pre class="code">x</pre>.
 As for the remaining elements, these can be computed by appending
-the second list, <span class="code">ys</span>, to the rest of the first list, <span class="code">xs1</span>.</p>
+the second list, <pre class="code">ys</pre>, to the rest of the first list, <pre class="code">xs1</pre>.</p>
 
 <p>This completes the design and gives:</p>
 
@@ -464,10 +464,10 @@ then compute the individual parts of that shape, using recursive invocations
 of the algorithm where appropriate. Finally, construct the output
 from these parts.</p>
 
-<h4>Taking the length of a list: <span class="code">length</span></h4>
+<h4>Taking the length of a list: <pre class="code">length</pre></h4>
 
 
-<p>The <span class="code">length</span> method computes the length of a list.<a id="i1353349876-2"/><a id="i-1852559773-2"/></p>
+<p>The <pre class="code">length</pre> method computes the length of a list.<a id="i1353349876-2"/><a id="i-1852559773-2"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>).length
@@ -475,20 +475,20 @@ from these parts.</p>
 </pre>
 
 
-<p>On lists, unlike arrays, <span class="code">length</span> is a relatively expensive operation.
+<p>On lists, unlike arrays, <pre class="code">length</pre> is a relatively expensive operation.
 It needs to traverse the whole list to find its end, and therefore takes time proportional to the number of elements in the list.
 That's why it's not a good idea to replace a test such as 
-<span class="code">xs.isEmpty</span> by <span class="code">xs.length</span>&nbsp;<span class="code">==</span>&nbsp;<span class="code">0</span>. The result of the two tests is equivalent, but
-the second one is slower, in particular if the list <span class="code">xs</span> is long.</p>
+<pre class="code">xs.isEmpty</pre> by <pre class="code">xs.length</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">0</pre>. The result of the two tests is equivalent, but
+the second one is slower, in particular if the list <pre class="code">xs</pre> is long.</p>
 
-<h4>Accessing the end of a list: <span class="code">init</span> and <span class="code">last</span></h4>
+<h4>Accessing the end of a list: <pre class="code">init</pre> and <pre class="code">last</pre></h4>
 
 
-<p>You know already the basic operations <span class="code">head</span> and <span class="code">tail</span>, which
+<p>You know already the basic operations <pre class="code">head</pre> and <pre class="code">tail</pre>, which
 respectively take the first element of a list, and the rest of the
 list except the first element. They each have a dual operation:<a id="i-1293540834-2"/><a id="i1464438076-2"/><a id="i1113811620-2"/><a id="i1464515266-2"/>
-<span class="code">last</span> returns the last element of a (non-empty) list, whereas
-<span class="code">init</span> returns a list consisting of all elements except the last one:</p>
+<pre class="code">last</pre> returns the last element of a (non-empty) list, whereas
+<pre class="code">init</pre> returns a list consisting of all elements except the last one:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;abcde&nbsp;=&nbsp;<code class="typename">List</code>(<code class="quotedstring">'a'</code>,&nbsp;<code class="quotedstring">'b'</code>,&nbsp;<code class="quotedstring">'c'</code>,&nbsp;<code class="quotedstring">'d'</code>,&nbsp;<code class="quotedstring">'e'</code>)
@@ -500,7 +500,7 @@ list except the first element. They each have a dual operation:<a id="i-12935408
 </pre>
 
 
-<p>Like <span class="code">head</span> and <span class="code">tail</span>, these methods throw an exception when 
+<p>Like <pre class="code">head</pre> and <pre class="code">tail</pre>, these methods throw an exception when 
 applied to an empty list:</p>
 
 <pre>
@@ -515,7 +515,7 @@ applied to an empty list:</p>
 </pre>
 
 
-<p>Unlike <span class="code">head</span> and <span class="code">tail</span>, which both run in constant time, <span class="code">init</span> and <span class="code">last</span> 
+<p>Unlike <pre class="code">head</pre> and <pre class="code">tail</pre>, which both run in constant time, <pre class="code">init</pre> and <pre class="code">last</pre> 
 need to traverse the whole list to compute their result. As a result, they take time proportional to the length of the list.</p>
 
 <div class="callout">
@@ -529,7 +529,7 @@ most accesses are at the head of a list, rather than the last element.
 </div>
 
 
-<h4>Reversing lists: <span class="code">reverse</span></h4>
+<h4>Reversing lists: <pre class="code">reverse</pre></h4>
 
 
 <p>If at some point in the computation an algorithm demands frequent
@@ -542,11 +542,11 @@ list first and work with the result instead. Here's how to do the reversal:<a id
 </pre>
 
 
-<p>Like all other list operations, <span class="code">reverse</span> creates a new
+<p>Like all other list operations, <pre class="code">reverse</pre> creates a new
 list rather than changing the one it operates on.  Since lists are
 immutable, such a change would not be possible anyway.  To verify
-this, check that the original value of <span class="code">abcde</span> is unchanged after the
-<span class="code">reverse</span> operation:</p>
+this, check that the original value of <pre class="code">abcde</pre> is unchanged after the
+<pre class="code">reverse</pre> operation:</p>
 
 <pre>
   scala&gt;&nbsp;abcde
@@ -554,14 +554,14 @@ this, check that the original value of <span class="code">abcde</span> is unchan
 </pre>
 
 
-<p>The <span class="code">reverse</span>, <span class="code">init</span>, and <span class="code">last</span> operations satisfy some 
+<p>The <pre class="code">reverse</pre>, <pre class="code">init</pre>, and <pre class="code">last</pre> operations satisfy some 
 laws that can be used for reasoning about computations and for
 simplifying programs.</p>
 
 <ol>
 
 
-<li><span class="code">reverse</span> is its own inverse:
+<li><pre class="code">reverse</pre> is its own inverse:
 
 
 <pre>
@@ -570,7 +570,7 @@ simplifying programs.</p>
 
 
 </li>
-<li><span class="code">reverse</span> turns <span class="code">init</span> to <span class="code">tail</span> and <span class="code">last</span> to <span class="code">head</span>,
+<li><pre class="code">reverse</pre> turns <pre class="code">init</pre> to <pre class="code">tail</pre> and <pre class="code">last</pre> to <pre class="code">head</pre>,
   except that the elements are reversed:
 
 
@@ -585,8 +585,8 @@ simplifying programs.</p>
 </li></ol>
 
 
-<p>Reverse could be implemented using concatenation (<span class="code">:::</span>), 
-like in the following method, <span class="code">rev</span>:</p>
+<p>Reverse could be implemented using concatenation (<pre class="code">:::</pre>), 
+like in the following method, <pre class="code">rev</pre>:</p>
 
 <pre>
   <code class="vem">def</code>&nbsp;rev[T](xs:&nbsp;<code class="typename">List[T]</code>):&nbsp;<code class="typename">List[T]</code>&nbsp;=&nbsp;xs&nbsp;<code class="vem">match</code>&nbsp;{
@@ -597,11 +597,11 @@ like in the following method, <span class="code">rev</span>:</p>
 
 
 <p>However, this method is less efficient than one would hope for.  To
-study the complexity of <span class="code">rev</span>, assume that the list <span class="code">xs</span> has length
-<span class="code">n</span>.  Notice that there are <span class="code">n</span> recursive calls to <span class="code">rev</span>. Each
+study the complexity of <pre class="code">rev</pre>, assume that the list <pre class="code">xs</pre> has length
+<pre class="code">n</pre>.  Notice that there are <pre class="code">n</pre> recursive calls to <pre class="code">rev</pre>. Each
 call except the last involves a list concatenation. List concatenation
-<span class="code">xs</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">ys</span> takes time proportional to the length of its first
-argument <span class="code">xs</span>. Hence, the total complexity of <span class="code">rev</span> is:</p>
+<pre class="code">xs</pre>&nbsp;<pre class="code">:::</pre>&nbsp;<pre class="code">ys</pre> takes time proportional to the length of its first
+argument <pre class="code">xs</pre>. Hence, the total complexity of <pre class="code">rev</pre> is:</p>
 
 <div style="text-align: center">
 
@@ -611,37 +611,37 @@ argument <span class="code">xs</span>. Hence, the total complexity of <span clas
 </div>
 
 
-<p>In other words, <span class="code">rev</span>'s complexity is quadratic in the length of its input
+<p>In other words, <pre class="code">rev</pre>'s complexity is quadratic in the length of its input
 argument.  This is disappointing when compared to the standard
 reversal of a mutable, linked list, which has linear
-complexity. However, the current implementation of <span class="code">rev</span> is not the
+complexity. However, the current implementation of <pre class="code">rev</pre> is not the
 best implementation possible. In the example starting  <a href="working-with-lists.html#sec-fastrev">here</a>, you will see how to speed it up.</p>
 
-<h4>Prefixes and suffixes: <span class="code">drop</span>, <span class="code">take</span>, and <span class="code">splitAt</span></h4>
+<h4>Prefixes and suffixes: <pre class="code">drop</pre>, <pre class="code">take</pre>, and <pre class="code">splitAt</pre></h4>
 
 
-<p>The <span class="code">drop</span> and <span class="code">take</span> operations<a id="i-1134266499-1"/><a id="i1464293147-2"/><a id="i425822536-1"/><a id="i-1852559773-3"/><a id="i1464753331-1"/><a id="i-567585630-1"/><a id="i-858153663-1"/> generalize <span class="code">tail</span> and <span class="code">init</span> in that they
+<p>The <pre class="code">drop</pre> and <pre class="code">take</pre> operations<a id="i-1134266499-1"/><a id="i1464293147-2"/><a id="i425822536-1"/><a id="i-1852559773-3"/><a id="i1464753331-1"/><a id="i-567585630-1"/><a id="i-858153663-1"/> generalize <pre class="code">tail</pre> and <pre class="code">init</pre> in that they
 return arbitrary prefixes or suffixes of a list.
-The expression "<span class="code">xs</span>&nbsp;<span class="code">take</span>&nbsp;<span class="code">n</span>" returns the 
-first <span class="code">n</span> elements of the list <span class="code">xs</span>.
-If <span class="code">n</span> is greater than <span class="code">xs.length</span>, the whole list <span class="code">xs</span> is returned.
-The operation "<span class="code">xs</span>&nbsp;<span class="code">drop</span>&nbsp;<span class="code">n</span>" returns all elements of the list <span class="code">xs</span>, 
-except for the first <span class="code">n</span> ones. 
-If <span class="code">n</span> is greater than <span class="code">xs.length</span>, the empty list is returned.</p>
+The expression "<pre class="code">xs</pre>&nbsp;<pre class="code">take</pre>&nbsp;<pre class="code">n</pre>" returns the 
+first <pre class="code">n</pre> elements of the list <pre class="code">xs</pre>.
+If <pre class="code">n</pre> is greater than <pre class="code">xs.length</pre>, the whole list <pre class="code">xs</pre> is returned.
+The operation "<pre class="code">xs</pre>&nbsp;<pre class="code">drop</pre>&nbsp;<pre class="code">n</pre>" returns all elements of the list <pre class="code">xs</pre>, 
+except for the first <pre class="code">n</pre> ones. 
+If <pre class="code">n</pre> is greater than <pre class="code">xs.length</pre>, the empty list is returned.</p>
 
-<p>The <span class="code">splitAt</span> operation splits the list at a given index, returning
+<p>The <pre class="code">splitAt</pre> operation splits the list at a given index, returning
 a pair of two lists.<a href="working-with-lists.html#footnotemain16-5">[5]</a>
 It is defined by the equality:</p>
 
 <div style="text-align: center">
 
 
-<p><span class="code">xs</span>&nbsp;<span class="code">splitAt</span>&nbsp;<span class="code">n</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">(xs</span>&nbsp;<span class="code">take</span>&nbsp;<span class="code">n,</span>&nbsp;<span class="code">xs</span>&nbsp;<span class="code">drop</span>&nbsp;<span class="code">n)</span></p>
+<p><pre class="code">xs</pre>&nbsp;<pre class="code">splitAt</pre>&nbsp;<pre class="code">n</pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<pre class="code">(xs</pre>&nbsp;<pre class="code">take</pre>&nbsp;<pre class="code">n,</pre>&nbsp;<pre class="code">xs</pre>&nbsp;<pre class="code">drop</pre>&nbsp;<pre class="code">n)</pre></p>
 
 </div>
 
 
-<p>However, <span class="code">splitAt</span> avoids traversing the list <span class="code">xs</span> twice.
+<p>However, <pre class="code">splitAt</pre> avoids traversing the list <pre class="code">xs</pre> twice.
 Here are some examples of these three methods:</p>
 
 <pre>
@@ -654,10 +654,10 @@ Here are some examples of these three methods:</p>
 </pre>
 
 
-<h4>Element selection: <span class="code">apply</span> and <span class="code">indices</span></h4>
+<h4>Element selection: <pre class="code">apply</pre> and <pre class="code">indices</pre></h4>
 
 
-<p>Random element selection is supported through the <span class="code">apply</span> method;<a id="i-1534184650-1"/><a id="i-1854381886-1"/> however
+<p>Random element selection is supported through the <pre class="code">apply</pre> method;<a id="i-1534184650-1"/><a id="i-1854381886-1"/> however
 it is a less common operation for lists than it
 is for arrays.</p>
 
@@ -667,7 +667,7 @@ is for arrays.</p>
 </pre>
 
 
-<p>As for all other types, <span class="code">apply</span> is implicitly inserted
+<p>As for all other types, <pre class="code">apply</pre> is implicitly inserted
 when an object appears in the function position in a method call. So the line above can be shortened to:</p>
 
 <pre>
@@ -677,20 +677,20 @@ when an object appears in the function position in a method call. So the line ab
 
 
 <p>One reason why random element selection is less popular 
-for lists than for arrays is that <span class="code">xs(n)</span> takes time proportional
-to the index <span class="code">n</span>. In fact, <span class="code">apply</span> is simply 
-defined by a combination of <span class="code">drop</span> and <span class="code">head</span>:</p>
+for lists than for arrays is that <pre class="code">xs(n)</pre> takes time proportional
+to the index <pre class="code">n</pre>. In fact, <pre class="code">apply</pre> is simply 
+defined by a combination of <pre class="code">drop</pre> and <pre class="code">head</pre>:</p>
 
 <div style="text-align: center">
 
 
-<p><span class="code">xs</span>&nbsp;<span class="code">apply</span>&nbsp;<span class="code">n</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">(xs</span>&nbsp;<span class="code">drop</span>&nbsp;<span class="code">n).head</span></p>
+<p><pre class="code">xs</pre>&nbsp;<pre class="code">apply</pre>&nbsp;<pre class="code">n</pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<pre class="code">(xs</pre>&nbsp;<pre class="code">drop</pre>&nbsp;<pre class="code">n).head</pre></p>
 
 </div>
 
 
 <p>This definition also makes clear that list indices range from
-0 up to the length of the list minus one, the same as for arrays. The <span class="code">indices</span> method<a id="i552445480-1"/><a id="i-1207917573-1"/>
+0 up to the length of the list minus one, the same as for arrays. The <pre class="code">indices</pre> method<a id="i552445480-1"/><a id="i-1207917573-1"/>
 returns a list consisting of all valid indices of a given list:</p>
 
 <pre>
@@ -700,10 +700,10 @@ returns a list consisting of all valid indices of a given list:</p>
 </pre>
 
 
-<h4>Flattening a list of lists: <span class="code">flatten</span></h4>
+<h4>Flattening a list of lists: <pre class="code">flatten</pre></h4>
 
 
-<p>The <span class="code">flatten</span> method takes a list of lists and flattens it out
+<p>The <pre class="code">flatten</pre> method takes a list of lists and flattens it out
 to a single list:<a id="i-2107840238-1"/><a id="i364853848-1"/></p>
 
 <pre>
@@ -727,10 +727,10 @@ Trying to flatten any other list will give a compilation error:<a id="i702621968
 </pre>
 
 
-<h4>Zipping lists: <span class="code">zip</span> and <span class="code">unzip</span></h4>
+<h4>Zipping lists: <pre class="code">zip</pre> and <pre class="code">unzip</pre></h4>
 
 
-<p>The <span class="code">zip</span> operation takes two lists and forms a list of pairs:<a id="i751157423-1"/><a id="i1986918773-1"/></p>
+<p>The <pre class="code">zip</pre> operation takes two lists and forms a list of pairs:<a id="i751157423-1"/><a id="i1986918773-1"/></p>
 
 <pre>
   scala&gt;&nbsp;abcde.indices&nbsp;zip&nbsp;abcde
@@ -749,7 +749,7 @@ Trying to flatten any other list will give a compilation error:<a id="i702621968
 
 <p>A useful special case is to zip a list with its index. This is 
 done most efficiently with
-the <span class="code">zipWithIndex</span> method, which pairs every element
+the <pre class="code">zipWithIndex</pre> method, which pairs every element
 of a list with the position where it appears in the
 list.<a id="i-735272059-1"/><a id="i896208311-1"/></p>
 
@@ -761,7 +761,7 @@ list.<a id="i-735272059-1"/><a id="i896208311-1"/></p>
 
 
 <p>Any list of tuples can also be changed back to a tuple of lists
-by using the <span class="code">unzip</span> method<a id="i-1730867960-1"/><a id="i-1835961540-1"/>:</p>
+by using the <pre class="code">unzip</pre> method<a id="i-1730867960-1"/><a id="i-1835961540-1"/>:</p>
 
 <pre>
   scala&gt;&nbsp;zipped.unzip
@@ -770,13 +770,13 @@ by using the <span class="code">unzip</span> method<a id="i-1730867960-1"/><a id
 </pre>
 
 
-<p>The <span class="code">zip</span> and <span class="code">unzip</span> methods provide one way to operate on multiple
+<p>The <pre class="code">zip</pre> and <pre class="code">unzip</pre> methods provide one way to operate on multiple
 lists together. See <a href="working-with-lists.html#sec-lists-zipped">Section 16.9</a> for a more concise way to do this.</p>
 
-<h4>Displaying lists: <span class="code">toString</span> and <span class="code">mkString</span></h4>
+<h4>Displaying lists: <pre class="code">toString</pre> and <pre class="code">mkString</pre></h4>
 
 
-<p>The <span class="code">toString</span> operation returns the canonical string representation
+<p>The <pre class="code">toString</pre> operation returns the canonical string representation
 of a list:<a id="i-683244392-1"/></p>
 
 <pre>
@@ -785,12 +785,12 @@ of a list:<a id="i-683244392-1"/></p>
 </pre>
 
 
-<p>If you want a different representation you can use the <span class="code">mkString</span><a id="i1357784029-2"/><a id="i746937723-2"/>
-method. The operation <span class="code">xs</span>&nbsp;<span class="code">mkString</span>&nbsp;<span class="code">(pre,</span>&nbsp;<span class="code">sep,</span>&nbsp;<span class="code">post)</span> involves four<a id="i-205371607-1"/>
+<p>If you want a different representation you can use the <pre class="code">mkString</pre><a id="i1357784029-2"/><a id="i746937723-2"/>
+method. The operation <pre class="code">xs</pre>&nbsp;<pre class="code">mkString</pre>&nbsp;<pre class="code">(pre,</pre>&nbsp;<pre class="code">sep,</pre>&nbsp;<pre class="code">post)</pre> involves four<a id="i-205371607-1"/>
 operands:
-the list <span class="code">xs</span> to be displayed, a prefix string <span class="code">pre</span> to be
-displayed in front of all elements, a separator string <span class="code">sep</span> to be displayed
-between successive elements, and a postfix string <span class="code">post</span> to be
+the list <pre class="code">xs</pre> to be displayed, a prefix string <pre class="code">pre</pre> to be
+displayed in front of all elements, a separator string <pre class="code">sep</pre> to be displayed
+between successive elements, and a postfix string <pre class="code">post</pre> to be
 displayed at the end.</p>
 
 <p>The result of the operation is the string:</p>
@@ -798,19 +798,19 @@ displayed at the end.</p>
 <div style="text-align: center">
 
 
-<p><span class="code">pre</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">xs(0)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">sep</span>&nbsp;<span class="code">+</span> ...<span class="code">+</span>&nbsp;<span class="code">sep</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">xs(xs.length</span>&nbsp;<span class="code">-</span>&nbsp;<span class="code">1)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">post</span></p>
+<p><pre class="code">pre</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">xs(0)</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">sep</pre>&nbsp;<pre class="code">+</pre> ...<pre class="code">+</pre>&nbsp;<pre class="code">sep</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">xs(xs.length</pre>&nbsp;<pre class="code">-</pre>&nbsp;<pre class="code">1)</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">post</pre></p>
 
 </div>
 
 
-<p>The <span class="code">mkString</span> method has two overloaded variants that let you drop
+<p>The <pre class="code">mkString</pre> method has two overloaded variants that let you drop
 some or all of its arguments. The first variant only takes a separator
 string:</p>
 
 <div style="text-align: center">
 
 
-<p><span class="code">xs</span>&nbsp;<span class="code">mkString</span>&nbsp;<span class="code">sep</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">xs</span>&nbsp;<span class="code">mkString</span>&nbsp;<span class="code">("",</span>&nbsp;<span class="code">sep,</span>&nbsp;<span class="code">"")</span></p>
+<p><pre class="code">xs</pre>&nbsp;<pre class="code">mkString</pre>&nbsp;<pre class="code">sep</pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<pre class="code">xs</pre>&nbsp;<pre class="code">mkString</pre>&nbsp;<pre class="code">("",</pre>&nbsp;<pre class="code">sep,</pre>&nbsp;<pre class="code">"")</pre></p>
 
 </div>
 
@@ -820,7 +820,7 @@ string:</p>
 <div style="text-align: center">
 
 
-<p><span class="code">xs.mkString</span>&nbsp;<span class="code"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">xs</span>&nbsp;<span class="code">mkString</span>&nbsp;<span class="code">""</span></p>
+<p><pre class="code">xs.mkString</pre>&nbsp;<pre class="code"></pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<pre class="code">xs</pre>&nbsp;<pre class="code">mkString</pre>&nbsp;<pre class="code">""</pre></p>
 
 </div>
 
@@ -839,9 +839,9 @@ string:</p>
 </pre>
 
 
-<p>There are also variants of the <span class="code">mkString</span> methods called
-<span class="code">addString</span><a id="i-1095177571-1"/><a id="i-454878362-1"/> which append the
-constructed string to a <span class="code">StringBuilder</span> object,<a href="working-with-lists.html#footnotemain16-6">[6]</a>
+<p>There are also variants of the <pre class="code">mkString</pre> methods called
+<pre class="code">addString</pre><a id="i-1095177571-1"/><a id="i-454878362-1"/> which append the
+constructed string to a <pre class="code">StringBuilder</pre> object,<a href="working-with-lists.html#footnotemain16-6">[6]</a>
  rather than returning
 them as a result:<a id="i-2123413502-1"/></p>
 
@@ -853,17 +853,17 @@ them as a result:<a id="i-2123413502-1"/></p>
 </pre>
 
 
-<p>The <span class="code">mkString</span> and <span class="code">addString</span> methods are inherited from <span class="code">List</span>'s
-super trait <span class="code">Traversable</span>, so they are applicable to all other
+<p>The <pre class="code">mkString</pre> and <pre class="code">addString</pre> methods are inherited from <pre class="code">List</pre>'s
+super trait <pre class="code">Traversable</pre>, so they are applicable to all other
 collections as well.</p>
 
-<h4>Converting lists: <span class="code">iterator</span>, <span class="code">toArray</span>,
-  <span class="code">copyToArray</span></h4>
+<h4>Converting lists: <pre class="code">iterator</pre>, <pre class="code">toArray</pre>,
+  <pre class="code">copyToArray</pre></h4>
 
 
 <p>To convert data between the flat world of arrays and the
-recursive world of lists, you can use method <span class="code">toArray</span>
-in class <span class="code">List</span> and <span class="code">toList</span> in class <span class="code">Array</span>:<a id="i-1473690452-1"/><a id="i-1723195748-1"/><a id="i-38723342-1"/></p>
+recursive world of lists, you can use method <pre class="code">toArray</pre>
+in class <pre class="code">List</pre> and <pre class="code">toList</pre> in class <pre class="code">Array</pre>:<a id="i-1473690452-1"/><a id="i-1723195748-1"/><a id="i-38723342-1"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;arr&nbsp;=&nbsp;abcde.toArray
@@ -873,7 +873,7 @@ in class <span class="code">List</span> and <span class="code">toList</span> in 
 </pre>
 
 
-<p>There's also a method <span class="code">copyToArray</span>,<a id="i1315859366-1"/><a id="i-1677368899-1"/> which copies list elements to
+<p>There's also a method <pre class="code">copyToArray</pre>,<a id="i1315859366-1"/><a id="i-1677368899-1"/> which copies list elements to
 successive array positions within some destination array. The
 operation:</p>
 
@@ -883,8 +883,8 @@ operation:</p>
 
 
 <p>copies all elements of the
-list <span class="code">xs</span> to the array <span class="code">arr</span>, beginning with position <span class="code">start</span>.
-You must ensure that the destination array <span class="code">arr</span> is large enough to
+list <pre class="code">xs</pre> to the array <pre class="code">arr</pre>, beginning with position <pre class="code">start</pre>.
+You must ensure that the destination array <pre class="code">arr</pre> is large enough to
 hold the list in full. Here's an example:</p>
 
 <pre>
@@ -897,7 +897,7 @@ hold the list in full. Here's an example:</p>
 
 
 <p>Finally, if you need to access list elements via an iterator, you can use the 
-<span class="code">iterator</span> method:<a id="i2075720641-1"/><a id="i-2018755942-1"/></p>
+<pre class="code">iterator</pre> method:<a id="i2075720641-1"/><a id="i-2018755942-1"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;it&nbsp;=&nbsp;abcde.iterator
@@ -967,13 +967,13 @@ implementation shown in <a href="working-with-lists.html#lst-merge-sort-function
 </pre>
 
 
-<h5>Listing 16.1 - A merge sort function for <span class="code">List</span>s.</h5>
+<h5>Listing 16.1 - A merge sort function for <pre class="code">List</pre>s.</h5>
 
 
-<p>The complexity of <span class="code">msort</span> is order (<i>n</i> <i>log</i>(<i>n</i>)), where <i>n</i> is the
+<p>The complexity of <pre class="code">msort</pre> is order (<i>n</i> <i>log</i>(<i>n</i>)), where <i>n</i> is the
 length of the input list. To see why, note that splitting a list in
 two and merging two sorted lists each take time proportional to the
-length of the argument list(s). Each recursive call of <span class="code">msort</span>
+length of the argument list(s). Each recursive call of <pre class="code">msort</pre>
 halves the number of elements in its input, so there are about <i>log</i>(<i>n</i>)
 consecutive recursive calls until the base case of lists of length 1
 is reached.  However, for longer lists each call spawns off two
@@ -989,7 +989,7 @@ of elements in the list, so the worst case cost is the same as the
 average case cost. This property makes merge sort an attractive algorithm for
 sorting lists.</p>
 
-<p>Here is an example of how <span class="code">msort</span> is used:</p>
+<p>Here is an example of how <pre class="code">msort</pre> is used:</p>
 
 <pre>
   scala&gt;&nbsp;msort((x:&nbsp;<code class="typename">Int</code>,&nbsp;y:&nbsp;<code class="typename">Int</code>)&nbsp;=&gt;&nbsp;x&nbsp;&lt;&nbsp;y)(<code class="typename">List</code>(<code class="literal">5</code>,&nbsp;<code class="literal">7</code>,&nbsp;<code class="literal">1</code>,&nbsp;<code class="literal">3</code>))
@@ -997,7 +997,7 @@ sorting lists.</p>
 </pre>
 
 
-<p>The <span class="code">msort</span> function is a classical example of the currying concept discussed
+<p>The <pre class="code">msort</pre> function is a classical example of the currying concept discussed
 in <a href="control-abstraction.html#sec-currying">Section 9.3</a>.  
 Currying<a id="i575993339-2"/> makes it easy
 to specialize the function for particular comparison functions. Here's an example:</p>
@@ -1008,7 +1008,7 @@ to specialize the function for particular comparison functions. Here's an exampl
 </pre>
 
 
-<p>The <span class="code">intSort</span> variable refers to a function that takes a list of integers and sorts them in numerical order.<a id="i1128745740-2"/><a id="i1834060518-2"/><a id="i1842232449-2"/>
+<p>The <pre class="code">intSort</pre> variable refers to a function that takes a list of integers and sorts them in numerical order.<a id="i1128745740-2"/><a id="i1834060518-2"/><a id="i1842232449-2"/>
 As described in <a href="functions-and-closures.html#sec-partially-applied-functions">Section 8.6</a>,
 an underscore stands for a missing argument list.  In this
 case, the missing argument is the list that should be sorted. As another example, here's
@@ -1021,7 +1021,7 @@ how you could define a function that sorts a list of integers in reverse numeric
 
 
 <p>Because you provided the comparison function already via currying, you now need only provide the 
-list to sort when you invoke the <span class="code">intSort</span> or <span class="code">reverseIntSort</span> functions. Here are some
+list to sort when you invoke the <pre class="code">intSort</pre> or <pre class="code">reverseIntSort</pre> functions. Here are some
 examples:</p>
 
 <pre>
@@ -1034,7 +1034,7 @@ examples:</p>
 </pre>
 
 
-<h3 id="sec-higher-order-methods">16.7 Higher-order methods on class <span class="code">List</span></h3>
+<h3 id="sec-higher-order-methods">16.7 Higher-order methods on class <pre class="code">List</pre></h3>
 
 
 <p>Many operations over lists have a similar structure. Several patterns
@@ -1043,18 +1043,18 @@ transforming every element of a list in some way,
 verifying whether a property holds for all elements of a list,
 extracting from a list elements satisfying a certain criterion, or
 combining the elements of a list using some operator.  In Java, such patterns would usually be expressed by idiomatic
-combinations of <span class="code">for</span> or <span class="code">while</span> loops. In Scala, they can be
+combinations of <pre class="code">for</pre> or <pre class="code">while</pre> loops. In Scala, they can be
 expressed more concisely and directly using higher-order operators,<a href="working-with-lists.html#footnotemain16-7">[7]</a>
-which are implemented as methods in class <span class="code">List</span>.  These higher-order operators are
+which are implemented as methods in class <pre class="code">List</pre>.  These higher-order operators are
 discussed in this section.</p>
 
-<h4>Mapping over lists: <span class="code">map</span>, <span class="code">flatMap</span> and <span class="code">foreach</span></h4>
+<h4>Mapping over lists: <pre class="code">map</pre>, <pre class="code">flatMap</pre> and <pre class="code">foreach</pre></h4>
 
 
-<p>The operation <span class="code">xs</span>&nbsp;<span class="code">map</span>&nbsp;<span class="code">f</span><a id="i395196522-2"/><a id="i1986906032-2"/>
-takes as operands a list <span class="code">xs</span> of type <span class="code">List[T]</span> 
-and a function <span class="code">f</span> of type <span class="code">T</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">U</span>. It returns the list that results
-from applying the function <span class="code">f</span> to each list element in <span class="code">xs</span>. For instance:</p>
+<p>The operation <pre class="code">xs</pre>&nbsp;<pre class="code">map</pre>&nbsp;<pre class="code">f</pre><a id="i395196522-2"/><a id="i1986906032-2"/>
+takes as operands a list <pre class="code">xs</pre> of type <pre class="code">List[T]</pre> 
+and a function <pre class="code">f</pre> of type <pre class="code">T</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">U</pre>. It returns the list that results
+from applying the function <pre class="code">f</pre> to each list element in <pre class="code">xs</pre>. For instance:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)&nbsp;map&nbsp;(_&nbsp;+&nbsp;<code class="literal">1</code>)
@@ -1068,10 +1068,10 @@ from applying the function <span class="code">f</span> to each list element in <
 </pre>
 
 
-<p>The <span class="code">flatMap</span><a id="i535160876-1"/><a id="i364816247-1"/> operator is similar to <span class="code">map</span>, but it takes a function
+<p>The <pre class="code">flatMap</pre><a id="i535160876-1"/><a id="i364816247-1"/> operator is similar to <pre class="code">map</pre>, but it takes a function
 returning a list of elements as its right operand. It applies the
 function to each list element and returns the concatenation of all function
-results. The difference between <span class="code">map</span> and <span class="code">flatMap</span> is illustrated
+results. The difference between <pre class="code">map</pre> and <pre class="code">flatMap</pre> is illustrated
 in the following example:</p>
 
 <pre>
@@ -1084,10 +1084,10 @@ in the following example:</p>
 </pre>
 
 
-<p>You see that where <span class="code">map</span> returns a list of lists, <span class="code">flatMap</span> returns
+<p>You see that where <pre class="code">map</pre> returns a list of lists, <pre class="code">flatMap</pre> returns
 a single list in which all element lists are concatenated.</p>
 
-<p>The differences and interplay between <span class="code">map</span> and <span class="code">flatMap</span> are also demonstrated by the
+<p>The differences and interplay between <pre class="code">map</pre> and <pre class="code">flatMap</pre> are also demonstrated by the
 following expression, which constructs a list of all pairs (<i>i</i>, <i>j</i>)
 such that 1 &le; <i>j</i> &lt; <i>i</i> &lt; 5:</p>
 
@@ -1100,29 +1100,29 @@ such that 1 &le; <i>j</i> &lt; <i>i</i> &lt; 5:</p>
 </pre>
 
 
-<p><span class="code">List.range</span> is a utility method that creates a list
+<p><pre class="code">List.range</pre> is a utility method that creates a list
 of all integers in some range.<a id="i2103556958-1"/><a id="i1320308892-1"/>  It is used twice in this
 example: once to generate a list of integers from 1 (including) until 5 (excluding),
 and a second time to generate a list of integers from 1
 until <i>i</i>, for each value of <i>i</i> taken from the first list.  
-The <span class="code">map</span> in this expression
+The <pre class="code">map</pre> in this expression
 generates a list of tuples (<i>i</i>, <i>j</i>) where <i>j</i> &lt; <i>i</i>.
 The outer
-<span class="code">flatMap</span> in this example generates this list for each <span class="code">i</span> between
-1 and 5, and then concatenates all the results. Alternatively, the same list can be constructed with a <span class="code">for</span> expression:</p>
+<pre class="code">flatMap</pre> in this example generates this list for each <pre class="code">i</pre> between
+1 and 5, and then concatenates all the results. Alternatively, the same list can be constructed with a <pre class="code">for</pre> expression:</p>
 
 <pre>
   <code class="vem">for</code>&nbsp;(i&nbsp;&lt;-&nbsp;List.range(<code class="literal">1</code>,&nbsp;<code class="literal">5</code>);&nbsp;j&nbsp;&lt;-&nbsp;List.range(<code class="literal">1</code>,&nbsp;i))&nbsp;<code class="vem">yield</code>&nbsp;(i,&nbsp;j)
 </pre>
 
 
-<p>You'll learn more about the interplay of <span class="code">for</span> expressions and list operations in 
+<p>You'll learn more about the interplay of <pre class="code">for</pre> expressions and list operations in 
 <a href="for-expressions-revisited.html">Chapter 23</a>.</p>
 
-<p>The third map-like operation is <span class="code">foreach</span>.<a id="i331113560-2"/><a id="i465975966-2"/> Unlike <span class="code">map</span>
-and <span class="code">flatMap</span>, however, <span class="code">foreach</span> takes a procedure (a function with result type
-<span class="code">Unit</span>) as right operand. It simply applies the procedure to each
-list element. The result of the operation itself is again <span class="code">Unit</span>; no
+<p>The third map-like operation is <pre class="code">foreach</pre>.<a id="i331113560-2"/><a id="i465975966-2"/> Unlike <pre class="code">map</pre>
+and <pre class="code">flatMap</pre>, however, <pre class="code">foreach</pre> takes a procedure (a function with result type
+<pre class="code">Unit</pre>) as right operand. It simply applies the procedure to each
+list element. The result of the operation itself is again <pre class="code">Unit</pre>; no
 list of results is assembled. As an example, here is a concise way of
 summing up all numbers in a list:</p>
 
@@ -1135,13 +1135,13 @@ summing up all numbers in a list:</p>
 </pre>
 
 
-<h4>Filtering lists: <span class="code">filter</span>, <span class="code">partition</span>, <span class="code">find</span>,
-  <span class="code">takeWhile</span>, <span class="code">dropWhile</span>, and <span class="code">span</span></h4>
+<h4>Filtering lists: <pre class="code">filter</pre>, <pre class="code">partition</pre>, <pre class="code">find</pre>,
+  <pre class="code">takeWhile</pre>, <pre class="code">dropWhile</pre>, and <pre class="code">span</pre></h4>
 
 
-<p>The operation "<span class="code">xs</span>&nbsp;<span class="code">filter</span>&nbsp;<span class="code">p</span>" takes as operands a list <span class="code">xs</span> of type <span class="code">List[T]</span><a id="i1807572102-2"/><a id="i-1514694492-2"/>
-and a predicate function <span class="code">p</span> of type <span class="code">T</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span>. It yields the list of all
-elements <span class="code">x</span> in <span class="code">xs</span> for which <span class="code">p(x)</span> is <span class="code">true</span>. For instance:</p>
+<p>The operation "<pre class="code">xs</pre>&nbsp;<pre class="code">filter</pre>&nbsp;<pre class="code">p</pre>" takes as operands a list <pre class="code">xs</pre> of type <pre class="code">List[T]</pre><a id="i1807572102-2"/><a id="i-1514694492-2"/>
+and a predicate function <pre class="code">p</pre> of type <pre class="code">T</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">Boolean</pre>. It yields the list of all
+elements <pre class="code">x</pre> in <pre class="code">xs</pre> for which <pre class="code">p(x)</pre> is <pre class="code">true</pre>. For instance:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>,&nbsp;<code class="literal">4</code>,&nbsp;<code class="literal">5</code>)&nbsp;filter&nbsp;(_&nbsp;<code class="texttt">%</code>&nbsp;<code class="literal">2</code>&nbsp;==&nbsp;<code class="literal">0</code>)
@@ -1151,13 +1151,13 @@ elements <span class="code">x</span> in <span class="code">xs</span> for which <
 </pre>
 
 
-<p>The <span class="code">partition</span><a id="i-944990523-1"/><a id="i2039424574-1"/> method is like filter but returns a pair of lists. One list contains all elements for which the predicate is true, while the other contains all elements for which the predicate is false.
+<p>The <pre class="code">partition</pre><a id="i-944990523-1"/><a id="i2039424574-1"/> method is like filter but returns a pair of lists. One list contains all elements for which the predicate is true, while the other contains all elements for which the predicate is false.
 It is defined by the equality:</p>
 
 <div style="text-align: center">
 
 
-<p><span class="code">xs</span>&nbsp;<span class="code">partition</span>&nbsp;<span class="code">p</span>&nbsp;<span class="code"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">(xs</span>&nbsp;<span class="code">filter</span>&nbsp;<span class="code">p,</span>&nbsp;<span class="code">xs</span>&nbsp;<span class="code">filter</span>&nbsp;<span class="code">(!p(_)))</span></p>
+<p><pre class="code">xs</pre>&nbsp;<pre class="code">partition</pre>&nbsp;<pre class="code">p</pre>&nbsp;<pre class="code"></pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<pre class="code">(xs</pre>&nbsp;<pre class="code">filter</pre>&nbsp;<pre class="code">p,</pre>&nbsp;<pre class="code">xs</pre>&nbsp;<pre class="code">filter</pre>&nbsp;<pre class="code">(!p(_)))</pre></p>
 
 </div>
 
@@ -1170,12 +1170,12 @@ It is defined by the equality:</p>
 </pre>
 
 
-<p>The <span class="code">find</span><a id="i383310678-1"/><a id="i1464344037-1"/> method is also similar to <span class="code">filter</span>, but it returns the
+<p>The <pre class="code">find</pre><a id="i383310678-1"/><a id="i1464344037-1"/> method is also similar to <pre class="code">filter</pre>, but it returns the
 first element satisfying a given predicate, rather than all such elements.
-The operation <span class="code">xs</span>&nbsp;<span class="code">find</span>&nbsp;<span class="code">p</span> takes a list <span class="code">xs</span> and a predicate <span class="code">p</span> as
-operands. It returns an optional value. If there is an element <span class="code">x</span>
-in <span class="code">xs</span> for which <span class="code">p(x)</span> is true, <span class="code">Some(x)</span> is returned. Otherwise,
-<span class="code">p</span> is false for all elements, and <span class="code">None</span> is returned.
+The operation <pre class="code">xs</pre>&nbsp;<pre class="code">find</pre>&nbsp;<pre class="code">p</pre> takes a list <pre class="code">xs</pre> and a predicate <pre class="code">p</pre> as
+operands. It returns an optional value. If there is an element <pre class="code">x</pre>
+in <pre class="code">xs</pre> for which <pre class="code">p(x)</pre> is true, <pre class="code">Some(x)</pre> is returned. Otherwise,
+<pre class="code">p</pre> is false for all elements, and <pre class="code">None</pre> is returned.
 Here are some examples:</p>
 
 <pre>
@@ -1186,11 +1186,11 @@ Here are some examples:</p>
 </pre>
 
 
-<p>The <span class="code">takeWhile</span><a id="i-334215483-1"/><a id="i1035564606-1"/> and <span class="code">dropWhile</span><a id="i-648573139-1"/><a id="i-976962346-1"/> operators also take a predicate as
-their right operand. The operation <span class="code">xs</span>&nbsp;<span class="code">takeWhile</span>&nbsp;<span class="code">p</span> takes the longest prefix of list
-<span class="code">xs</span> such that every element in the prefix satisfies <span class="code">p</span>.
-Analogously, the operation <span class="code">xs</span>&nbsp;<span class="code">dropWhile</span>&nbsp;<span class="code">p</span> removes the longest prefix from list
-<span class="code">xs</span> such that every element in the prefix satisfies <span class="code">p</span>. Here are some examples:</p>
+<p>The <pre class="code">takeWhile</pre><a id="i-334215483-1"/><a id="i1035564606-1"/> and <pre class="code">dropWhile</pre><a id="i-648573139-1"/><a id="i-976962346-1"/> operators also take a predicate as
+their right operand. The operation <pre class="code">xs</pre>&nbsp;<pre class="code">takeWhile</pre>&nbsp;<pre class="code">p</pre> takes the longest prefix of list
+<pre class="code">xs</pre> such that every element in the prefix satisfies <pre class="code">p</pre>.
+Analogously, the operation <pre class="code">xs</pre>&nbsp;<pre class="code">dropWhile</pre>&nbsp;<pre class="code">p</pre> removes the longest prefix from list
+<pre class="code">xs</pre> such that every element in the prefix satisfies <pre class="code">p</pre>. Here are some examples:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>,&nbsp;-<code class="literal">4</code>,&nbsp;<code class="literal">5</code>)&nbsp;takeWhile&nbsp;(_&nbsp;&gt;&nbsp;<code class="literal">0</code>)
@@ -1200,19 +1200,19 @@ Analogously, the operation <span class="code">xs</span>&nbsp;<span class="code">
 </pre>
 
 
-<p>The <span class="code">span</span><a id="i772550245-1"/><a id="i1464737654-1"/> method combines <span class="code">takeWhile</span> and <span class="code">dropWhile</span> in one
-operation, just like <span class="code">splitAt</span> combines <span class="code">take</span> and <span class="code">drop</span>.
+<p>The <pre class="code">span</pre><a id="i772550245-1"/><a id="i1464737654-1"/> method combines <pre class="code">takeWhile</pre> and <pre class="code">dropWhile</pre> in one
+operation, just like <pre class="code">splitAt</pre> combines <pre class="code">take</pre> and <pre class="code">drop</pre>.
 It returns a pair of two lists, defined by the equality:</p>
 
 <div style="text-align: center">
 
 
-<p><span class="code">xs</span>&nbsp;<span class="code">span</span>&nbsp;<span class="code">p</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">(xs</span>&nbsp;<span class="code">takeWhile</span>&nbsp;<span class="code">p,</span>&nbsp;<span class="code">xs</span>&nbsp;<span class="code">dropWhile</span>&nbsp;<span class="code">p)</span></p>
+<p><pre class="code">xs</pre>&nbsp;<pre class="code">span</pre>&nbsp;<pre class="code">p</pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<pre class="code">(xs</pre>&nbsp;<pre class="code">takeWhile</pre>&nbsp;<pre class="code">p,</pre>&nbsp;<pre class="code">xs</pre>&nbsp;<pre class="code">dropWhile</pre>&nbsp;<pre class="code">p)</pre></p>
 
 </div>
 
 
-<p>Like <span class="code">splitAt</span>, <span class="code">span</span> avoids traversing the list <span class="code">xs</span>
+<p>Like <pre class="code">splitAt</pre>, <pre class="code">span</pre> avoids traversing the list <pre class="code">xs</pre>
 twice:</p>
 
 <pre>
@@ -1221,13 +1221,13 @@ twice:</p>
 </pre>
 
 
-<h4>Predicates over lists: <span class="code">forall</span> and <span class="code">exists</span></h4>
+<h4>Predicates over lists: <pre class="code">forall</pre> and <pre class="code">exists</pre></h4>
 
 
-<p>The operation <span class="code">xs</span>&nbsp;<span class="code">forall</span>&nbsp;<span class="code">p</span><a id="i260029766-2"/><a id="i-1508992668-2"/> takes as arguments a list <span class="code">xs</span> and a
-predicate <span class="code">p</span>. Its result is <span class="code">true</span> if all elements in the list
-satisfy <span class="code">p</span>. Conversely, the operation <span class="code">xs</span>&nbsp;<span class="code">exists</span>&nbsp;<span class="code">p</span><a id="i339085162-2"/><a id="i-1529560696-2"/> returns <span class="code">true</span>
-if there is an element in <span class="code">xs</span> that satisfies the predicate <span class="code">p</span>. For
+<p>The operation <pre class="code">xs</pre>&nbsp;<pre class="code">forall</pre>&nbsp;<pre class="code">p</pre><a id="i260029766-2"/><a id="i-1508992668-2"/> takes as arguments a list <pre class="code">xs</pre> and a
+predicate <pre class="code">p</pre>. Its result is <pre class="code">true</pre> if all elements in the list
+satisfy <pre class="code">p</pre>. Conversely, the operation <pre class="code">xs</pre>&nbsp;<pre class="code">exists</pre>&nbsp;<pre class="code">p</pre><a id="i339085162-2"/><a id="i-1529560696-2"/> returns <pre class="code">true</pre>
+if there is an element in <pre class="code">xs</pre> that satisfies the predicate <pre class="code">p</pre>. For
 instance, to find out whether a matrix represented as a list of lists
 has a row with only zeroes as elements:</p>
 
@@ -1240,7 +1240,7 @@ has a row with only zeroes as elements:</p>
 </pre>
 
 
-<h4>Folding lists: <span class="code">/:</span> and <span class="code">:\</span></h4>
+<h4>Folding lists: <pre class="code">/:</pre> and <pre class="code">:\</pre></h4>
 
 
 <p>Another common kind of operation combines the elements of a list with
@@ -1249,7 +1249,7 @@ some operator.  For instance:</p>
 <div style="text-align: center">
 
 
-<p><span class="code">sum(List(a,</span>&nbsp;<span class="code">b,</span>&nbsp;<span class="code">c))</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">0</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">a</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">b</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">c</span></p>
+<p><pre class="code">sum(List(a,</pre>&nbsp;<pre class="code">b,</pre>&nbsp;<pre class="code">c))</pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<pre class="code">0</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">a</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">b</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">c</pre></p>
 
 </div>
 
@@ -1267,7 +1267,7 @@ some operator.  For instance:</p>
 <div style="text-align: center">
 
 
-<p><span class="code">product(List(a,</span>&nbsp;<span class="code">b,</span>&nbsp;<span class="code">c))</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">1</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">a</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">b</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">c</span></p>
+<p><pre class="code">product(List(a,</pre>&nbsp;<pre class="code">b,</pre>&nbsp;<pre class="code">c))</pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<pre class="code">1</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">a</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">b</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="code">c</pre></p>
 
 </div>
 
@@ -1280,15 +1280,15 @@ some operator.  For instance:</p>
 </pre>
 
 
-<p>A <span style="font-style:italic">fold left</span> operation "<span class="code">(z</span>&nbsp;<span class="code">/:</span>&nbsp;<span class="code">xs)</span>&nbsp;<span class="code">(op)</span>" involves<a id="i-1160692124-1"/><a id="i-1069108030-1"/> three objects:
-a start value <span class="code">z</span>, a list <span class="code">xs</span>, and a binary operation <span class="code">op</span>.
-The result of the fold<a id="i487604192-1"/> is <span class="code">op</span> applied between successive
-elements of the list prefixed by <span class="code">z</span>. For instance:</p>
+<p>A <span style="font-style:italic">fold left</span> operation "<pre class="code">(z</pre>&nbsp;<pre class="code">/:</pre>&nbsp;<pre class="code">xs)</pre>&nbsp;<pre class="code">(op)</pre>" involves<a id="i-1160692124-1"/><a id="i-1069108030-1"/> three objects:
+a start value <pre class="code">z</pre>, a list <pre class="code">xs</pre>, and a binary operation <pre class="code">op</pre>.
+The result of the fold<a id="i487604192-1"/> is <pre class="code">op</pre> applied between successive
+elements of the list prefixed by <pre class="code">z</pre>. For instance:</p>
 
 <div style="text-align: center">
 
 
-<p><span class="code">(z</span>&nbsp;<span class="code">/:</span>&nbsp;<span class="code">List(a,</span>&nbsp;<span class="code">b,</span>&nbsp;<span class="code">c))</span>&nbsp;<span class="code">(op)</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">op(op(op(z,</span>&nbsp;<span class="code">a),</span>&nbsp;<span class="code">b),</span>&nbsp;<span class="code">c)</span></p>
+<p><pre class="code">(z</pre>&nbsp;<pre class="code">/:</pre>&nbsp;<pre class="code">List(a,</pre>&nbsp;<pre class="code">b,</pre>&nbsp;<pre class="code">c))</pre>&nbsp;<pre class="code">(op)</pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<pre class="code">op(op(op(z,</pre>&nbsp;<pre class="code">a),</pre>&nbsp;<pre class="code">b),</pre>&nbsp;<pre class="code">c)</pre></p>
 
 </div>
 
@@ -1302,7 +1302,7 @@ elements of the list prefixed by <span class="code">z</span>. For instance:</p>
 </div>
 
 
-<p>Here's another example that illustrates how <span class="code">/:</span> is used. To concatenate all 
+<p>Here's another example that illustrates how <pre class="code">/:</pre> is used. To concatenate all 
 words in a list of strings with spaces between them and in front, you
 can write this:</p>
 
@@ -1321,15 +1321,15 @@ can use this slight variation:</p>
 </pre>
 
 
-<p>The <span class="code">/:</span> operator produces left-leaning operation trees (its syntax
+<p>The <pre class="code">/:</pre> operator produces left-leaning operation trees (its syntax
 with the slash rising forward is intended to be a reflection of that).
-The operator has <span class="code">:\</span> as an analog that produces right-leaning
+The operator has <pre class="code">:\</pre> as an analog that produces right-leaning
 trees. For instance:</p>
 
 <div style="text-align: center">
 
 
-<p><span class="code">(List(a,</span>&nbsp;<span class="code">b,</span>&nbsp;<span class="code">c)</span>&nbsp;<span class="code">:\</span>&nbsp;<span class="code">z)</span>&nbsp;<span class="code">(op)</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">op(a,</span>&nbsp;<span class="code">op(b,</span>&nbsp;<span class="code">op(c,</span>&nbsp;<span class="code">z)))</span></p>
+<p><pre class="code">(List(a,</pre>&nbsp;<pre class="code">b,</pre>&nbsp;<pre class="code">c)</pre>&nbsp;<pre class="code">:\</pre>&nbsp;<pre class="code">z)</pre>&nbsp;<pre class="code">(op)</pre>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<pre class="code">op(a,</pre>&nbsp;<pre class="code">op(b,</pre>&nbsp;<pre class="code">op(c,</pre>&nbsp;<pre class="code">z)))</pre></p>
 
 </div>
 
@@ -1343,7 +1343,7 @@ trees. For instance:</p>
 </div>
 
 
-<p>The <span class="code">:\</span> operator is pronounced <span style="font-style:italic">fold right</span>.<a id="i-1517880440-1"/><a id="i-2058478237-1"/><a id="i1039328969-1"/>
+<p>The <pre class="code">:\</pre> operator is pronounced <span style="font-style:italic">fold right</span>.<a id="i-1517880440-1"/><a id="i-2058478237-1"/><a id="i1039328969-1"/>
 It involves the same three operands as fold left, but the first two 
 appear in reversed order: The first operand is the list to
 fold, the second is the start value.</p>
@@ -1351,7 +1351,7 @@ fold, the second is the start value.</p>
 <p>For associative operations, fold left and fold right are
 equivalent, but there might be a difference in efficiency.<a id="i-1099454431-1"/>
 Consider for instance an operation corresponding 
-to the <span class="code">flatten</span> method, which
+to the <pre class="code">flatten</pre> method, which
 concatenates all
 elements in a list of lists.<a id="i-652692760-1"/><a id="i364853848-2"/>
 This could be implemented with either fold left or fold right:</p>
@@ -1365,14 +1365,14 @@ This could be implemented with either fold left or fold right:</p>
 
 
 <p><a id="exa-flatten-right-body"/>
-Because list concatenation, <span class="code">xs</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">ys</span>, takes time proportional to its
-first argument <span class="code">xs</span>, the implementation in terms of fold right in  
-<span class="code">flattenRight</span> is more efficient than the fold left implementation in
-<span class="code">flattenLeft</span>. The problem is that <span class="code">flattenLeft(xss)</span> copies the first
-element list <span class="code">xss.head</span> <i>n</i>-1 times, where <i>n</i> is the length of the
-list <span class="code">xss</span>.</p>
+Because list concatenation, <pre class="code">xs</pre>&nbsp;<pre class="code">:::</pre>&nbsp;<pre class="code">ys</pre>, takes time proportional to its
+first argument <pre class="code">xs</pre>, the implementation in terms of fold right in  
+<pre class="code">flattenRight</pre> is more efficient than the fold left implementation in
+<pre class="code">flattenLeft</pre>. The problem is that <pre class="code">flattenLeft(xss)</pre> copies the first
+element list <pre class="code">xss.head</pre> <i>n</i>-1 times, where <i>n</i> is the length of the
+list <pre class="code">xss</pre>.</p>
 
-<p>Note that both versions of <span class="code">flatten</span> require a type annotation 
+<p>Note that both versions of <pre class="code">flatten</pre> require a type annotation 
 on the empty list that is the start value of the fold. 
 This is due to a limitation in Scala's type
 inferencer, which fails to infer the correct type of the list
@@ -1393,11 +1393,11 @@ following:</p>
 <p>To find out why the type inferencer goes wrong, you'll need to know
 about the types of the fold methods and how they are implemented. More
 on this in <a href="working-with-lists.html#sec-understanding-scalas-type-inference-algorithm">Section 16.10</a>.
-Lastly, although the <span class="code">/:</span> and <span class="code">:\</span> operators have the advantage that the direction
+Lastly, although the <pre class="code">/:</pre> and <pre class="code">:\</pre> operators have the advantage that the direction
 of the slash resembles the graphical depiction of their respective left or right-leaning trees, and the associativity of
 the colon character places the start value in the same position in the
-expression as it is in the tree, some may find the resulting code less than intuitive. If you prefer, you can use the methods named <span class="code">foldLeft</span><a id="i-1740081977-1"/><a id="i1387030996-1"/>
-and <span class="code">foldRight</span><a id="i411005876-1"/> instead, which are also defined on class <span class="code">List</span>.<a id="i53948911-1"/></p>
+expression as it is in the tree, some may find the resulting code less than intuitive. If you prefer, you can use the methods named <pre class="code">foldLeft</pre><a id="i-1740081977-1"/><a id="i1387030996-1"/>
+and <pre class="code">foldRight</pre><a id="i411005876-1"/> instead, which are also defined on class <pre class="code">List</pre>.<a id="i53948911-1"/></p>
 
 <h4>Example: List reversal using fold</h4>
 
@@ -1405,8 +1405,8 @@ and <span class="code">foldRight</span><a id="i411005876-1"/> instead, which are
 <p><a id="sec-fastrev"/></p>
 
 <p>Earlier in the chapter you saw an implementation of method
-<span class="code">reverse</span>, named <span class="code">rev</span>, whose running time was quadratic in the length of the list
-to be reversed. Here is a different implementation of <span class="code">reverse</span>
+<pre class="code">reverse</pre>, named <pre class="code">rev</pre>, whose running time was quadratic in the length of the list
+to be reversed. Here is a different implementation of <pre class="code">reverse</pre>
 that has linear cost. The idea is to use a fold left
 operation based on the following scheme:</p>
 
@@ -1417,7 +1417,7 @@ operation based on the following scheme:</p>
 
 <p>What remains is to fill in the <i>startvalue</i> and <i>operation</i> parts.  In fact, you can 
 try to deduce these parts from some simple examples. To deduce the correct
-value of <i>startvalue</i>, you can start with the smallest possible list, <span class="code">List()</span>, and
+value of <i>startvalue</i>, you can start with the smallest possible list, <pre class="code">List()</pre>, and
 calculate as follows:</p>
 
 <pre>
@@ -1431,9 +1431,9 @@ calculate as follows:</p>
 </pre>
 
 
-<p>Hence, <i>startvalue</i> must be <span class="code">List()</span>. To deduce the second operand, you can
+<p>Hence, <i>startvalue</i> must be <pre class="code">List()</pre>. To deduce the second operand, you can
 pick the next smallest list as an example case. You know already that 
-<i>startvalue</i> is <span class="code">List()</span>, so you can calculate as follows:</p>
+<i>startvalue</i> is <pre class="code">List()</pre>, so you can calculate as follows:</p>
 
 <pre>
   <code class="typename">List</code>(x)
@@ -1446,11 +1446,11 @@ pick the next smallest list as an example case. You know already that
 </pre>
 
 
-<p>Hence, <i>operation</i><span class="code">(List(),</span>&nbsp;<span class="code">x)</span> equals <span class="code">List(x)</span>, which can also be written
-as <span class="code">x</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">List()</span>. This suggests taking as <i>operation</i> the
-<span class="code">::</span> operator with its operands exchanged. (This operation is
-sometimes called "snoc," in reference<a id="i3535215-1"/> to <span class="code">::</span>, which is
-called cons.) We arrive then at the following implementation for <span class="code">reverseLeft</span>:</p>
+<p>Hence, <i>operation</i><pre class="code">(List(),</pre>&nbsp;<pre class="code">x)</pre> equals <pre class="code">List(x)</pre>, which can also be written
+as <pre class="code">x</pre>&nbsp;<pre class="code">::</pre>&nbsp;<pre class="code">List()</pre>. This suggests taking as <i>operation</i> the
+<pre class="code">::</pre> operator with its operands exchanged. (This operation is
+sometimes called "snoc," in reference<a id="i3535215-1"/> to <pre class="code">::</pre>, which is
+called cons.) We arrive then at the following implementation for <pre class="code">reverseLeft</pre>:</p>
 
 <pre>
   <code class="vem">def</code>&nbsp;reverseLeft[T](xs:&nbsp;<code class="typename">List[T]</code>)&nbsp;=
@@ -1458,20 +1458,20 @@ called cons.) We arrive then at the following implementation for <span class="co
 </pre>
 
 
-<p>Again, the type annotation in <span class="code">List[T]()</span> is needed to make the
-type inferencer work. If you analyze the complexity of <span class="code">reverseLeft</span>,
+<p>Again, the type annotation in <pre class="code">List[T]()</pre> is needed to make the
+type inferencer work. If you analyze the complexity of <pre class="code">reverseLeft</pre>,
 you'll find that it applies a constant-time operation ("snoc") <i>n</i>
 times, where <i>n</i> is the length of the argument list. Thus, the
-complexity of <span class="code">reverseLeft</span> is linear.</p>
+complexity of <pre class="code">reverseLeft</pre> is linear.</p>
 
-<h4>Sorting lists: <span class="code">sortWith</span></h4>
+<h4>Sorting lists: <pre class="code">sortWith</pre></h4>
 
 
-<p>The operation <span class="code">xs</span>&nbsp;<span class="code">sortWith</span>&nbsp;<span class="code">before</span>, where "xs" is a list and
-"<span class="code">before</span>" is a function that can be used to compare two elements,
-sorts the elements of list <span class="code">xs</span>.<a id="i866528360-1"/><a id="i-1539355216-1"/>
-The expression <span class="code">x</span>&nbsp;<span class="code">before</span>&nbsp;<span class="code">y</span> should return
-<span class="code">true</span> if <span class="code">x</span> should come before <span class="code">y</span> in the intended ordering for the sort.
+<p>The operation <pre class="code">xs</pre>&nbsp;<pre class="code">sortWith</pre>&nbsp;<pre class="code">before</pre>, where "xs" is a list and
+"<pre class="code">before</pre>" is a function that can be used to compare two elements,
+sorts the elements of list <pre class="code">xs</pre>.<a id="i866528360-1"/><a id="i-1539355216-1"/>
+The expression <pre class="code">x</pre>&nbsp;<pre class="code">before</pre>&nbsp;<pre class="code">y</pre> should return
+<pre class="code">true</pre> if <pre class="code">x</pre> should come before <pre class="code">y</pre> in the intended ordering for the sort.
 For instance:</p>
 
 <pre>
@@ -1482,28 +1482,28 @@ For instance:</p>
 </pre>
 
 
-<p>Note that <span class="code">sortWith</span> performs a merge sort similar to the
-<span class="code">msort</span> algorithm shown in the last section. But <span class="code">sortWith</span> is a method of class <span class="code">List</span>, whereas <span class="code">msort</span> is defined outside lists.</p>
+<p>Note that <pre class="code">sortWith</pre> performs a merge sort similar to the
+<pre class="code">msort</pre> algorithm shown in the last section. But <pre class="code">sortWith</pre> is a method of class <pre class="code">List</pre>, whereas <pre class="code">msort</pre> is defined outside lists.</p>
 
-<h3>16.8 Methods of the <span class="code">List</span> object</h3>
+<h3>16.8 Methods of the <pre class="code">List</pre> object</h3>
 
 
 <p>So far, all operations you have seen in this chapter are implemented
-as methods of class <span class="code">List</span>, so you invoke them on individual list
+as methods of class <pre class="code">List</pre>, so you invoke them on individual list
 objects. There are also a number of methods in the globally accessible
-object <span class="code">scala.List</span>, which is the companion object of class <span class="code">List</span>.
+object <pre class="code">scala.List</pre>, which is the companion object of class <pre class="code">List</pre>.
 Some of these operations are factory methods that create lists.
 Others are operations that work on lists of some specific shape.
 Both kinds of methods will be presented in this section.</p>
 
-<h4>Creating lists from their elements: <span class="code">List.apply</span></h4>
+<h4>Creating lists from their elements: <pre class="code">List.apply</pre></h4>
 
 
 <p>You've already seen on several occasions list literals such as
-<span class="code">List(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3)</span>.
+<pre class="code">List(1,</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">3)</pre>.
 There's nothing special about their syntax. A literal like
-<span class="code">List(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3)</span><a id="i19484993-2"/><a id="i1305057997-2"/> is simply the application of the object <span class="code">List</span> to
-the elements <span class="code">1</span>, <span class="code">2</span>, <span class="code">3</span>. That is, it is equivalent to <span class="code">List.apply(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3)</span>:</p>
+<pre class="code">List(1,</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">3)</pre><a id="i19484993-2"/><a id="i1305057997-2"/> is simply the application of the object <pre class="code">List</pre> to
+the elements <pre class="code">1</pre>, <pre class="code">2</pre>, <pre class="code">3</pre>. That is, it is equivalent to <pre class="code">List.apply(1,</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">3)</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;List.apply(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)
@@ -1511,18 +1511,18 @@ the elements <span class="code">1</span>, <span class="code">2</span>, <span cla
 </pre>
 
 
-<h4>Creating a range of numbers: <span class="code">List.range</span></h4>
+<h4>Creating a range of numbers: <pre class="code">List.range</pre></h4>
 
 
-<p>The <span class="code">range</span> method, which you saw briefly earlier in the discussion of <span class="code">map</span> and <span class="code">flatmap</span>,
+<p>The <pre class="code">range</pre> method, which you saw briefly earlier in the discussion of <pre class="code">map</pre> and <pre class="code">flatmap</pre>,
 creates a list consisting of a range of numbers.
-Its simplest form is <span class="code">List.range(from,</span>&nbsp;<span class="code">until)</span>,<a id="i648409480-1"/><a id="i1320308892-2"/> which creates a list of all 
-numbers starting at <span class="code">from</span> and going up to <span class="code">until</span> minus one. So the
-end value, <span class="code">until</span>, does not form part of the range.</p>
+Its simplest form is <pre class="code">List.range(from,</pre>&nbsp;<pre class="code">until)</pre>,<a id="i648409480-1"/><a id="i1320308892-2"/> which creates a list of all 
+numbers starting at <pre class="code">from</pre> and going up to <pre class="code">until</pre> minus one. So the
+end value, <pre class="code">until</pre>, does not form part of the range.</p>
 
-<p>There's also a version of <span class="code">range</span> that takes a <span class="code">step</span> value as 
+<p>There's also a version of <pre class="code">range</pre> that takes a <pre class="code">step</pre> value as 
 third parameter. This operation will yield list elements
-that are <span class="code">step</span> values apart, starting at <span class="code">from</span>. The <span class="code">step</span> can be positive 
+that are <pre class="code">step</pre> values apart, starting at <pre class="code">from</pre>. The <pre class="code">step</pre> can be positive 
 or negative:</p>
 
 <pre>
@@ -1535,10 +1535,10 @@ or negative:</p>
 </pre>
 
 
-<h4>Creating uniform lists: <span class="code">List.fill</span></h4>
+<h4>Creating uniform lists: <pre class="code">List.fill</pre></h4>
 
 
-<p>The <span class="code">fill</span><a id="i-2061749081-1"/><a id="i-1204685244-1"/> method creates a list consisting of 
+<p>The <pre class="code">fill</pre><a id="i-2061749081-1"/><a id="i-1204685244-1"/> method creates a list consisting of 
 zero or more copies of the same element. It takes two parameters:
 the length of the list to be created, and the element to be repeated.
 Each parameter is given in a separate list:</p>
@@ -1551,7 +1551,7 @@ Each parameter is given in a separate list:</p>
 </pre>
 
 
-<p>If <span class="code">fill</span> is given more than two arguments, then it will make
+<p>If <pre class="code">fill</pre> is given more than two arguments, then it will make
 multi-dimensional lists.  That is, it will make lists of lists, lists
 of lists of lists, <i>etc.</i>  The additional arguments go in the first
 argument list.</p>
@@ -1562,12 +1562,12 @@ argument list.</p>
 </pre>
 
 
-<h4>Tabulating a function: <span class="code">List.tabulate</span></h4>
+<h4>Tabulating a function: <pre class="code">List.tabulate</pre></h4>
 
 
-<p>The <span class="code">tabulate</span><a id="i-1627924214-1"/><a id="i-1127956889-1"/>
+<p>The <pre class="code">tabulate</pre><a id="i-1627924214-1"/><a id="i-1127956889-1"/>
 method creates a list whose elements are computed according to a supplied
-function.  Its arguments are just like those of <span class="code">List.fill</span>: the
+function.  Its arguments are just like those of <pre class="code">List.fill</pre>: the
 first argument list gives the dimensions of the list to create, and
 the second describes the elements of the list.  The only difference is
 that instead of the elements being fixed, they are computed from a
@@ -1583,13 +1583,13 @@ function:</p>
 </pre>
 
 
-<h4>Concatenating multiple lists: <span class="code">List.concat</span></h4>
+<h4>Concatenating multiple lists: <pre class="code">List.concat</pre></h4>
 
 
-<p>The <span class="code">concat</span><a id="i-214121608-1"/><a id="i1858358165-1"/> method concatenates
+<p>The <pre class="code">concat</pre><a id="i-214121608-1"/><a id="i1858358165-1"/> method concatenates
 a number of element lists.
 The lists to be concatenated are supplied as direct arguments to
-<span class="code">concat</span>:</p>
+<pre class="code">concat</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;List.concat(<code class="typename">List</code>(<code class="quotedstring">'a'</code>,&nbsp;<code class="quotedstring">'b'</code>),&nbsp;<code class="typename">List</code>(<code class="quotedstring">'c'</code>))
@@ -1604,10 +1604,10 @@ The lists to be concatenated are supplied as direct arguments to
 <h3 id="sec-lists-zipped">16.9 Processing multiple lists together</h3>
 
 
-<p>The <span class="code">zipped</span> method on tuples generalizes several common operations
+<p>The <pre class="code">zipped</pre> method on tuples generalizes several common operations
 to work on multiple lists instead of just
 one.<a id="i1322859333-1"/><a id="i445487131-1"/>
-One such operation is <span class="code">map</span>.  The <span class="code">map</span> method for two zipped lists
+One such operation is <pre class="code">map</pre>.  The <pre class="code">map</pre> method for two zipped lists
 maps pairs of elements rather than individual elements.  One pair is
 for the first element of each list, another pair is for the second
 element of each list, and so on&mdash;as many pairs as the lists are
@@ -1620,10 +1620,10 @@ long. Here is an example of its use:</p>
 
 
 <p>Notice that the third element of the second list is discarded.  The
-<span class="code">zipped</span> method zips up only as many elements as appear in all the
+<pre class="code">zipped</pre> method zips up only as many elements as appear in all the
 lists together. Any extra elements on the end are discarded.</p>
 
-<p>There are also zipped analogs to <span class="code">exists</span> and <span class="code">forall</span>.  They are
+<p>There are also zipped analogs to <pre class="code">exists</pre> and <pre class="code">forall</pre>.  They are
 just like the single-list versions of those methods except they
 operate on elements from multiple lists instead of just one:</p>
 
@@ -1650,7 +1650,7 @@ operate on elements from multiple lists instead of just one:</p>
 <h3 id="sec-understanding-scalas-type-inference-algorithm">16.10 Understanding Scala's type inference algorithm</h3>
 
 
-<p>One difference<a id="i2062825537-1"/><a id="i2147374841-1"/> between the previous uses of <span class="code">sortWith</span> and <span class="code">msort</span> concerns the 
+<p>One difference<a id="i2062825537-1"/><a id="i2147374841-1"/> between the previous uses of <pre class="code">sortWith</pre> and <pre class="code">msort</pre> concerns the 
 admissible syntactic forms of the comparison function.</p>
 
 <p>Compare:</p>
@@ -1670,11 +1670,11 @@ admissible syntactic forms of the comparison function.</p>
 
 
 <p>The two expressions are equivalent, but the first uses a 
-longer form of comparison function with named parameters and explicit types. The second uses the concise form, <span class="code">(_</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">_)</span>, where named 
+longer form of comparison function with named parameters and explicit types. The second uses the concise form, <pre class="code">(_</pre>&nbsp;<pre class="code">&gt;</pre>&nbsp;<pre class="code">_)</pre>, where named 
 parameters are replaced by underscores. Of course, you could 
-also use the first, longer form of comparison with <span class="code">sortWith</span>.</p>
+also use the first, longer form of comparison with <pre class="code">sortWith</pre>.</p>
 
-<p>However, the short form cannot be used with <span class="code">msort</span>.</p>
+<p>However, the short form cannot be used with <pre class="code">msort</pre>.</p>
 
 <pre>
   scala&gt;&nbsp;msort(_&nbsp;&gt;&nbsp;_)(abcde)
@@ -1686,34 +1686,34 @@ also use the first, longer form of comparison with <span class="code">sortWith</
 
 
 <p>To understand why, you need to know some details of Scala's type inference algorithm.
-Type inference in Scala is flow based. In a method application <span class="code">m(args)</span>, 
-the inferencer first checks whether the method <span class="code">m</span> has a known type.  
+Type inference in Scala is flow based. In a method application <pre class="code">m(args)</pre>, 
+the inferencer first checks whether the method <pre class="code">m</pre> has a known type.  
 If it does, that type is used to infer the expected type of the arguments.
-For instance, in <span class="code">abcde.sortWith(_</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">_)</span>, the type of <span class="code">abcde</span> is <span class="code">List[Char]</span>. Hence, <span class="code">sortWith</span> is known to be a method that takes an argument
-of type <span class="code">(Char,</span>&nbsp;<span class="code">Char)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span> and produces a result of type <span class="code">List[Char]</span>.
+For instance, in <pre class="code">abcde.sortWith(_</pre>&nbsp;<pre class="code">&gt;</pre>&nbsp;<pre class="code">_)</pre>, the type of <pre class="code">abcde</pre> is <pre class="code">List[Char]</pre>. Hence, <pre class="code">sortWith</pre> is known to be a method that takes an argument
+of type <pre class="code">(Char,</pre>&nbsp;<pre class="code">Char)</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">Boolean</pre> and produces a result of type <pre class="code">List[Char]</pre>.
 Since the parameter types of the function arguments are known, they need not be written explicitly. 
-With what it knows about <span class="code">sortWith</span>, the inferencer can deduce 
-that <span class="code">(_</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">_)</span> should expand to <span class="code">((x:</span>&nbsp;<span class="code">Char,</span>&nbsp;<span class="code">y:</span>&nbsp;<span class="code">Char)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">x</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">y)</span> where
-<span class="code">x</span> and <span class="code">y</span> are some arbitrary fresh names.</p>
+With what it knows about <pre class="code">sortWith</pre>, the inferencer can deduce 
+that <pre class="code">(_</pre>&nbsp;<pre class="code">&gt;</pre>&nbsp;<pre class="code">_)</pre> should expand to <pre class="code">((x:</pre>&nbsp;<pre class="code">Char,</pre>&nbsp;<pre class="code">y:</pre>&nbsp;<pre class="code">Char)</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">x</pre>&nbsp;<pre class="code">&gt;</pre>&nbsp;<pre class="code">y)</pre> where
+<pre class="code">x</pre> and <pre class="code">y</pre> are some arbitrary fresh names.</p>
 
-<p>Now consider the second case, <span class="code">msort(_</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">_)(abcde)</span>. 
-The type of <span class="code">msort</span> is a curried, polymorphic method type
-that takes an argument of type <span class="code">(T,</span>&nbsp;<span class="code">T)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span> to a function from
-<span class="code">List[T]</span> to <span class="code">List[T]</span> <span style="font-style:italic">where <span class="code">T</span> is some as-yet unknown type</span>. 
-The <span class="code">msort</span> method needs to be instantiated with a type parameter 
+<p>Now consider the second case, <pre class="code">msort(_</pre>&nbsp;<pre class="code">&gt;</pre>&nbsp;<pre class="code">_)(abcde)</pre>. 
+The type of <pre class="code">msort</pre> is a curried, polymorphic method type
+that takes an argument of type <pre class="code">(T,</pre>&nbsp;<pre class="code">T)</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">Boolean</pre> to a function from
+<pre class="code">List[T]</pre> to <pre class="code">List[T]</pre> <span style="font-style:italic">where <pre class="code">T</pre> is some as-yet unknown type</span>. 
+The <pre class="code">msort</pre> method needs to be instantiated with a type parameter 
 before it can be applied to its arguments.</p>
 
-<p>Because the precise instance type of <span class="code">msort</span> in the application is not yet known, 
+<p>Because the precise instance type of <pre class="code">msort</pre> in the application is not yet known, 
 it cannot be used to infer the type of its first argument.
 The type inferencer changes its strategy 
 in this case; it first type checks method arguments to determine 
 the proper instance type of the method. However, when tasked to 
-type check the short-hand function literal, <span class="code">(_</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">_)</span>, it fails because it 
+type check the short-hand function literal, <pre class="code">(_</pre>&nbsp;<pre class="code">&gt;</pre>&nbsp;<pre class="code">_)</pre>, it fails because it 
 has no information about the 
 types of the implicit function parameters that are indicated by underscores.</p>
 
 <p>One way to resolve the problem is to pass an explicit type 
-parameter to <span class="code">msort</span>, as in:</p>
+parameter to <pre class="code">msort</pre>, as in:</p>
 
 <pre>
   scala&gt;&nbsp;msort[<code class="typename">Char</code>](_&nbsp;&gt;&nbsp;_)(abcde)
@@ -1721,8 +1721,8 @@ parameter to <span class="code">msort</span>, as in:</p>
 </pre>
 
 
-<p>Because the correct instance type of <span class="code">msort</span> is now known, 
-it can be used to infer the type of the arguments. Another possible solution is to rewrite the <span class="code">msort</span> method so 
+<p>Because the correct instance type of <pre class="code">msort</pre> is now known, 
+it can be used to infer the type of the arguments. Another possible solution is to rewrite the <pre class="code">msort</pre> method so 
 that its parameters are swapped:</p>
 
 <div style="page-break-after:always"/>
@@ -1746,14 +1746,14 @@ that its parameters are swapped:</p>
 
 
 <p>What has happened is that the inferencer used the known type of 
-the first parameter <span class="code">abcde</span> to determine the type
-parameter of <span class="code">msortSwapped</span>. Once the precise type of <span class="code">msortSwapped</span> was known, 
-it could be used in turn to infer the type of the second parameter, <span class="code">(_</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">_)</span>.</p>
+the first parameter <pre class="code">abcde</pre> to determine the type
+parameter of <pre class="code">msortSwapped</pre>. Once the precise type of <pre class="code">msortSwapped</pre> was known, 
+it could be used in turn to infer the type of the second parameter, <pre class="code">(_</pre>&nbsp;<pre class="code">&gt;</pre>&nbsp;<pre class="code">_)</pre>.</p>
 
 <p>Generally, when tasked to infer the type parameters of a polymorphic
 method, the type inferencer consults the types of all value arguments
 in the first parameter list but no arguments beyond
-that. Since <span class="code">msortSwapped</span> is a curried method with two parameter lists,
+that. Since <pre class="code">msortSwapped</pre> is a curried method with two parameter lists,
 the second argument (<i>i.e.</i>, the function value) did not need to be consulted
 to determine the type parameter of the method.</p>
 
@@ -1768,7 +1768,7 @@ information and write function literals in more compact ways.</p>
 
 <p>Now to the more complicated case of a <span style="font-style:italic">fold</span> operation. 
 Why is there the need for an explicit type parameter in an expression like 
-the body of the <span class="code">flattenRight</span> method shown  <a href="working-with-lists.html#exa-flatten-right-body">here</a>?</p>
+the body of the <pre class="code">flattenRight</pre> method shown  <a href="working-with-lists.html#exa-flatten-right-body">here</a>?</p>
 
 <pre>
   (xss&nbsp;:\&nbsp;<code class="typename">List[T]</code>())&nbsp;(_&nbsp;:::&nbsp;_)
@@ -1783,25 +1783,25 @@ Given an expression:</p>
 </pre>
 
 
-<p>The type of <span class="code">xs</span> must be a list of some arbitrary type <span class="code">A</span>, 
-say <span class="code">xs:</span>&nbsp;<span class="code">List[A]</span>. The start value <span class="code">z</span> can be of some other type <span class="code">B</span>.
-The operation <span class="code">op</span> must then take two arguments of type <span class="code">A</span> and <span class="code">B</span>, 
-and return a result of type <span class="code">B</span>, <i>i.e.</i>, <span class="code">op:</span>&nbsp;<span class="code">(A,</span>&nbsp;<span class="code">B)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">B</span>.
-Because the type of <span class="code">z</span> is not related to the type of the list
-<span class="code">xs</span>, type inference has no context information for <span class="code">z</span>.</p>
+<p>The type of <pre class="code">xs</pre> must be a list of some arbitrary type <pre class="code">A</pre>, 
+say <pre class="code">xs:</pre>&nbsp;<pre class="code">List[A]</pre>. The start value <pre class="code">z</pre> can be of some other type <pre class="code">B</pre>.
+The operation <pre class="code">op</pre> must then take two arguments of type <pre class="code">A</pre> and <pre class="code">B</pre>, 
+and return a result of type <pre class="code">B</pre>, <i>i.e.</i>, <pre class="code">op:</pre>&nbsp;<pre class="code">(A,</pre>&nbsp;<pre class="code">B)</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">B</pre>.
+Because the type of <pre class="code">z</pre> is not related to the type of the list
+<pre class="code">xs</pre>, type inference has no context information for <pre class="code">z</pre>.</p>
 
-<p>Now consider the expression in the erroneous version of <span class="code">flattenRight</span>, also shown  <a href="working-with-lists.html#exa-flatten-right-body">here</a>:</p>
+<p>Now consider the expression in the erroneous version of <pre class="code">flattenRight</pre>, also shown  <a href="working-with-lists.html#exa-flatten-right-body">here</a>:</p>
 
 <pre>
   (xss&nbsp;:\&nbsp;<code class="typename">List</code>())&nbsp;(_&nbsp;:::&nbsp;_)&nbsp;&nbsp;<code class="comment">//&nbsp;this&nbsp;won't&nbsp;compile</code>
 </pre>
 
 
-<p>The start value <span class="code">z</span> in this fold is an empty list, <span class="code">List()</span>,
+<p>The start value <pre class="code">z</pre> in this fold is an empty list, <pre class="code">List()</pre>,
 so without additional type information its type is inferred to 
-be a <span class="code">List[Nothing]</span>. 
-Hence, the inferencer will infer that the <span class="code">B</span> type of the fold is 
-<span class="code">List[Nothing]</span>. Therefore, the operation <span class="code">(_</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">_)</span> of the fold
+be a <pre class="code">List[Nothing]</pre>. 
+Hence, the inferencer will infer that the <pre class="code">B</pre> type of the fold is 
+<pre class="code">List[Nothing]</pre>. Therefore, the operation <pre class="code">(_</pre>&nbsp;<pre class="code">:::</pre>&nbsp;<pre class="code">_)</pre> of the fold
 is expected to be of the following type:</p>
 
 <pre>
@@ -1815,12 +1815,12 @@ empty list as second argument and always produces an empty list as
 result.</p>
 
 <p>In other words, the type inference settled too early on a
-type for <span class="code">List()</span>; it should have waited until it had seen
-the type of the operation <span class="code">op</span>.  So the (otherwise very useful) rule
+type for <pre class="code">List()</pre>; it should have waited until it had seen
+the type of the operation <pre class="code">op</pre>.  So the (otherwise very useful) rule
 to only consider the first argument section in a curried method
 application for determining the method's type is at the root of the
 problem here.  On the other hand, even if that rule were relaxed, the
-inferencer still could not come up with a type for <span class="code">op</span> because its
+inferencer still could not come up with a type for <pre class="code">op</pre> because its
 parameter types are not given. Hence, there is a Catch-22
 situation that can only be resolved by an explicit type annotation
 from the programmer.</p>
@@ -1845,9 +1845,9 @@ you should be able to quickly see where the real problem is.</p>
 
 
 <p>Now you have seen many ways to work with lists.  You have seen the
-basic operations like <span class="code">head</span> and <span class="code">tail</span>, the first-order operations
-like <span class="code">reverse</span>, the higher-order operations like <span class="code">map</span>, and the
-utility methods in the <span class="code">List</span> object.  Along the way, you
+basic operations like <pre class="code">head</pre> and <pre class="code">tail</pre>, the first-order operations
+like <pre class="code">reverse</pre>, the higher-order operations like <pre class="code">map</pre>, and the
+utility methods in the <pre class="code">List</pre> object.  Along the way, you
 learned a bit about how Scala's type inference works.</p>
 
 <p>Lists are a real work horse in Scala, so you will benefit from knowing
@@ -1861,21 +1861,21 @@ shows you how to use a variety of Scala's collection types.</p>
 
 
 <p><a id="footnotemain16-1"/>[1] For a graphical
-depiction of the structure of a <span class="code">List</span>, see <a href="implementing-lists.html#fig-more-fruit">Figure 22.2</a>  <a href="implementing-lists.html#fig-more-fruit">here</a>.</p>
+depiction of the structure of a <pre class="code">List</pre>, see <a href="implementing-lists.html#fig-more-fruit">Figure 22.2</a>  <a href="implementing-lists.html#fig-more-fruit">here</a>.</p>
 
 <p><a id="footnotemain16-2"/>[2] <a href="type-parameterization.html">Chapter 19</a> gives more details on covariance and other kinds of variance.</p>
 
 <p><a id="footnotemain16-3"/>[3] Type parameters will be explained in
 more detail in <a href="type-parameterization.html">Chapter 19</a>.</p>
 
-<p><a id="footnotemain16-4"/>[4] The <span class="code">???</span> method, which throws <span class="code">scala.NotImplementedError</span> and has result type <span class="code">Nothing</span>, can be
+<p><a id="footnotemain16-4"/>[4] The <pre class="code">???</pre> method, which throws <pre class="code">scala.NotImplementedError</pre> and has result type <pre class="code">Nothing</pre>, can be
 used as a temporary implementation during development.</p>
 
 <p><a id="footnotemain16-5"/>[5] As mentioned in <a href="composition-and-inheritance.html#sec-impl-above-beside-tostring">Section 10.12</a>, the term <em>pair</em> is an
-informal name for <span class="code">Tuple2</span>.</p>
+informal name for <pre class="code">Tuple2</pre>.</p>
 
 <p><a id="footnotemain16-6"/>[6] This is class 
-<span class="code">scala.StringBuilder</span>, not <span class="code">java.lang.StringBuilder</span>.</p>
+<pre class="code">scala.StringBuilder</pre>, not <pre class="code">java.lang.StringBuilder</pre>.</p>
 
 <p><a id="footnotemain16-7"/>[7] By <em>higher-order operators</em>, we mean higher-order functions used in
 operator notation. As mentioned in <a href="control-abstraction.html#sec-reducing-code-dup">Section 9.1</a>, a function is "higher-order" if it takes one or more other functions

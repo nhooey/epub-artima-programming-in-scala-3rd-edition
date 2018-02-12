@@ -24,10 +24,10 @@ more general type parameterization variance annotations.</p>
 
 <p>Type parameterization allows you to write generic classes and
 traits<a id="i-1986667706-1"/><a id="i1515783126-1"/><a id="i1083106947-1"/><a id="i1530367874-1"/>. For example, sets are generic and take a type parameter:
-they are defined as <span class="code">Set[T]</span><a id="i-906912898-1"/>. As a result, any particular set instance might be a <span class="code">Set[String]</span>, a <span class="code">Set[Int]</span>, <i>etc.</i>, but
+they are defined as <pre class="code">Set[T]</pre><a id="i-906912898-1"/>. As a result, any particular set instance might be a <pre class="code">Set[String]</pre>, a <pre class="code">Set[Int]</pre>, <i>etc.</i>, but
 it must be a set of <em>something</em>. Unlike Java, which allows raw
 types,<a id="i414933374-1"/><a id="i1163979645-1"/> Scala requires that you specify type parameters.
-Variance defines inheritance relationships of parameterized types, such as whether a <span class="code">Set[String]</span>, for example, is a subtype of <span class="code">Set[AnyRef]</span>.</p>
+Variance defines inheritance relationships of parameterized types, such as whether a <pre class="code">Set[String]</pre>, for example, is a subtype of <pre class="code">Set[AnyRef]</pre>.</p>
 
 <p>The chapter contains three parts. The first part develops a data
 structure for purely functional queues. The second part develops techniques to hide internal
@@ -43,7 +43,7 @@ hiding.</p>
 <table style="border-collapse: collapse">
 <tr>
   <td>
-    <span class="code">head</span>
+    <pre class="code">head</pre>
   </td>
   <td>
     returns the first element of the queue
@@ -51,7 +51,7 @@ hiding.</p>
 </tr>
 <tr>
   <td>
-    <span class="code">tail</span>
+    <pre class="code">tail</pre>
   </td>
   <td>
     returns a queue without its first element
@@ -59,7 +59,7 @@ hiding.</p>
 </tr>
 <tr>
   <td>
-    <span class="code">enqueue</span>
+    <pre class="code">enqueue</pre>
   </td>
   <td>
     returns a new queue with a given element
@@ -77,7 +77,7 @@ hiding.</p>
 
 <p>Unlike a mutable queue, a functional queue does not change its contents
 when an element is appended. Instead, a new queue is returned that contains the element.
-The goal of this chapter will be to create a class, which we'll name <span class="code">Queue</span>, that works like this:</p>
+The goal of this chapter will be to create a class, which we'll name <pre class="code">Queue</pre>, that works like this:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;q&nbsp;=&nbsp;<code class="typename">Queue</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)
@@ -89,28 +89,28 @@ The goal of this chapter will be to create a class, which we'll name <span class
 </pre>
 
 
-<p>If <span class="code">Queue</span> were a mutable implementation, the <span class="code">enqueue</span> operation
-in the second input line above would affect the contents of <span class="code">q</span>; 
-in fact both the result, <span class="code">q1</span>, and the original queue, <span class="code">q</span>, would contain the 
-sequence <span class="code">1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3,</span>&nbsp;<span class="code">4</span> after the operation. But for a functional queue, the 
-appended value shows up only in the result, <span class="code">q1</span>, not in the queue, <span class="code">q</span>, being operated on.</p>
+<p>If <pre class="code">Queue</pre> were a mutable implementation, the <pre class="code">enqueue</pre> operation
+in the second input line above would affect the contents of <pre class="code">q</pre>; 
+in fact both the result, <pre class="code">q1</pre>, and the original queue, <pre class="code">q</pre>, would contain the 
+sequence <pre class="code">1,</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">3,</pre>&nbsp;<pre class="code">4</pre> after the operation. But for a functional queue, the 
+appended value shows up only in the result, <pre class="code">q1</pre>, not in the queue, <pre class="code">q</pre>, being operated on.</p>
 
 <p>Purely functional queues also have some similarity with lists.  Both
 are so called <span style="font-style:italic">fully persistent</span> data structures<a id="i-1691614745-1"/>, where old
 versions remain available even after extensions or modifications.
-Both support <span class="code">head</span> and <span class="code">tail</span> operations. But where a list is
-usually extended at the front, using a <span class="code">::</span> operation, a queue is extended at the
-end, using <span class="code">enqueue</span>.</p>
+Both support <pre class="code">head</pre> and <pre class="code">tail</pre> operations. But where a list is
+usually extended at the front, using a <pre class="code">::</pre> operation, a queue is extended at the
+end, using <pre class="code">enqueue</pre>.</p>
 
 <p>How can this be implemented efficiently? Ideally, a
 functional (immutable) queue should not have a fundamentally higher
 overhead than an imperative (mutable) one. That is, all three
-operations, <span class="code">head</span>, <span class="code">tail</span>, and <span class="code">enqueue</span>, should operate in constant
+operations, <pre class="code">head</pre>, <pre class="code">tail</pre>, and <pre class="code">enqueue</pre>, should operate in constant
 time.</p>
 
 <p>One simple approach to implement a functional queue would be to use a
-list as representation type. Then <span class="code">head</span> and <span class="code">tail</span> would just
-translate into the same operations on the list, whereas <span class="code">enqueue</span>
+list as representation type. Then <pre class="code">head</pre> and <pre class="code">tail</pre> would just
+translate into the same operations on the list, whereas <pre class="code">enqueue</pre>
 would be concatenation.</p>
 
 <p>This would give the following
@@ -125,7 +125,7 @@ implementation:</p>
 </pre>
 
 
-<p>The problem with this implementation is in the <span class="code">enqueue</span> operation.
+<p>The problem with this implementation is in the <pre class="code">enqueue</pre> operation.
 It takes time proportional to the number of elements stored in the
 queue. If you want constant time append, you could also try to reverse
 the order of the elements in the representation list, so that the last element
@@ -142,7 +142,7 @@ following implementation:</p>
 </pre>
 
 
-<p>Now <span class="code">enqueue</span> is constant time, but <span class="code">head</span> and <span class="code">tail</span> are not. They
+<p>Now <pre class="code">enqueue</pre> is constant time, but <pre class="code">head</pre> and <pre class="code">tail</pre> are not. They
 now take time proportional to the number of elements stored in the
 queue.</p>
 
@@ -150,20 +150,20 @@ queue.</p>
 an implementation that's constant time for all three operations. In
 fact, it looks doubtful that this is even possible! However, by
 combining the two operations you can get very close. The idea is to
-represent a queue by two lists, called <span class="code">leading</span> and <span class="code">trailing</span>.
-The <span class="code">leading</span> list contains elements towards the front, whereas the
-<span class="code">trailing</span> list contains elements towards the back of the queue in
+represent a queue by two lists, called <pre class="code">leading</pre> and <pre class="code">trailing</pre>.
+The <pre class="code">leading</pre> list contains elements towards the front, whereas the
+<pre class="code">trailing</pre> list contains elements towards the back of the queue in
 reversed order. The contents of the whole queue are at each instant 
-equal to "<span class="code">leading</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">trailing.reverse</span>".</p>
+equal to "<pre class="code">leading</pre>&nbsp;<pre class="code">:::</pre>&nbsp;<pre class="code">trailing.reverse</pre>".</p>
 
-<p>Now, to append an element, you just cons it to the <span class="code">trailing</span> list
-using the <span class="code">::</span> operator,<a id="i1411857630-3"/>
-so <span class="code">enqueue</span> is constant time. This means that, when an initially empty queue is constructed
-from successive <span class="code">enqueue</span> operations, the <span class="code">trailing</span> list will grow whereas
-the <span class="code">leading</span> list will stay empty. Then, before the first <span class="code">head</span> or <span class="code">tail</span> operation is performed
-on an empty <span class="code">leading</span> list, the whole <span class="code">trailing</span> list is copied to
-<span class="code">leading</span>, reversing the order of the elements. 
-This is done in an operation called <span class="code">mirror</span>.
+<p>Now, to append an element, you just cons it to the <pre class="code">trailing</pre> list
+using the <pre class="code">::</pre> operator,<a id="i1411857630-3"/>
+so <pre class="code">enqueue</pre> is constant time. This means that, when an initially empty queue is constructed
+from successive <pre class="code">enqueue</pre> operations, the <pre class="code">trailing</pre> list will grow whereas
+the <pre class="code">leading</pre> list will stay empty. Then, before the first <pre class="code">head</pre> or <pre class="code">tail</pre> operation is performed
+on an empty <pre class="code">leading</pre> list, the whole <pre class="code">trailing</pre> list is copied to
+<pre class="code">leading</pre>, reversing the order of the elements. 
+This is done in an operation called <pre class="code">mirror</pre>.
 <a href="type-parameterization.html#lst-simple-functional-queues">Listing 19.1</a> 
 shows an implementation of queues that uses this approach.</p>
 
@@ -194,40 +194,40 @@ shows an implementation of queues that uses this approach.</p>
 
 
 <p>What is the complexity of this implementation of queues? 
-The <span class="code">mirror</span> operation might take time proportional to the number of queue elements,
-but only if list <span class="code">leading</span> is empty. It returns directly if <span class="code">leading</span> is non-empty. 
-Because <span class="code">head</span> and <span class="code">tail</span> call <span class="code">mirror</span>, their complexity might be
+The <pre class="code">mirror</pre> operation might take time proportional to the number of queue elements,
+but only if list <pre class="code">leading</pre> is empty. It returns directly if <pre class="code">leading</pre> is non-empty. 
+Because <pre class="code">head</pre> and <pre class="code">tail</pre> call <pre class="code">mirror</pre>, their complexity might be
 linear in the size of the queue, too. However, the longer the queue gets, the less often
-<span class="code">mirror</span> is called.</p>
+<pre class="code">mirror</pre> is called.</p>
 
-<p>Indeed, assume a queue of length <i>n</i> with an empty <span class="code">leading</span> list.
-Then <span class="code">mirror</span> has to reverse-copy a list of length <i>n</i>. However, the next time <span class="code">mirror</span> will have to do any work is once the <span class="code">leading</span> list is empty again, which will be the case after <i>n</i>
-<span class="code">tail</span> operations. This means you can "charge" each of these <i>n</i> <span class="code">tail</span> operations with one
-<i>n</i>'th of the complexity of <span class="code">mirror</span>, which means a constant amount of work.
-Assuming that <span class="code">head</span>, <span class="code">tail</span>, and <span class="code">enqueue</span> operations appear with about the same frequency,
+<p>Indeed, assume a queue of length <i>n</i> with an empty <pre class="code">leading</pre> list.
+Then <pre class="code">mirror</pre> has to reverse-copy a list of length <i>n</i>. However, the next time <pre class="code">mirror</pre> will have to do any work is once the <pre class="code">leading</pre> list is empty again, which will be the case after <i>n</i>
+<pre class="code">tail</pre> operations. This means you can "charge" each of these <i>n</i> <pre class="code">tail</pre> operations with one
+<i>n</i>'th of the complexity of <pre class="code">mirror</pre>, which means a constant amount of work.
+Assuming that <pre class="code">head</pre>, <pre class="code">tail</pre>, and <pre class="code">enqueue</pre> operations appear with about the same frequency,
 the <span style="font-style:italic">amortized</span> complexity is hence constant for each operation.
 So functional queues are asymptotically just as efficient as mutable ones.</p>
 
 <p>Now, there are some caveats that need to be attached to
 this argument. First, the discussion was only about asymptotic
 behavior; the constant factors might well be somewhat different.
-Second, the argument rested on the fact that <span class="code">head</span>, <span class="code">tail</span> and
-<span class="code">enqueue</span> are called with about the same frequency. If <span class="code">head</span> is
+Second, the argument rested on the fact that <pre class="code">head</pre>, <pre class="code">tail</pre> and
+<pre class="code">enqueue</pre> are called with about the same frequency. If <pre class="code">head</pre> is
 called much more often than the other two operations, the argument is
-not valid, as each call to <span class="code">head</span> might involve a costly
-re-organization of the list with <span class="code">mirror</span>. The second caveat can be
+not valid, as each call to <pre class="code">head</pre> might involve a costly
+re-organization of the list with <pre class="code">mirror</pre>. The second caveat can be
 avoided; it is possible to design functional queues so that in a
-sequence of successive <span class="code">head</span> operations only the first one might
+sequence of successive <pre class="code">head</pre> operations only the first one might
 require a re-organization. You will find out at the end of this
 chapter how this is done.</p>
 
 <h3>19.2 Information hiding</h3>
 
 
-<p>The implementation of <span class="code">Queue</span> shown in <a href="type-parameterization.html#lst-simple-functional-queues">Listing 19.1</a> is now quite good with regards to<a id="i374717171-2"/>
+<p>The implementation of <pre class="code">Queue</pre> shown in <a href="type-parameterization.html#lst-simple-functional-queues">Listing 19.1</a> is now quite good with regards to<a id="i374717171-2"/>
 efficiency.  You might object, though, that this efficiency
 is paid for by exposing
-a needlessly detailed implementation. The <span class="code">Queue</span> constructor, which is
+a needlessly detailed implementation. The <pre class="code">Queue</pre> constructor, which is
 globally accessible, takes two lists as parameters, where one is
 reversed&mdash;hardly an intuitive representation of a queue. 
 What's needed is a way to hide this constructor from client code. In this section, we'll
@@ -236,10 +236,10 @@ show you some ways to accomplish this in Scala.</p>
 <h4>Private constructors and factory methods</h4>
 
 
-<p>In Java, you can hide a constructor by making it <span class="code">private</span>.  In Scala, the primary constructor does
+<p>In Java, you can hide a constructor by making it <pre class="code">private</pre>.  In Scala, the primary constructor does
 not have an explicit definition;<a id="i2093291082-1"/><a id="i-1528003040-1"/> it is defined implicitly by the class
 parameters and body. Nevertheless, it is still possible to hide
-the primary constructor by adding a <span class="code">private</span> modifier in front of
+the primary constructor by adding a <pre class="code">private</pre> modifier in front of
 the class parameter list<a id="i1958480308-1"/>, as shown in <a href="type-parameterization.html#lst-private-constructor">Listing 19.2</a>:</p>
 
 <p><a id="lst-private-constructor"/></p>
@@ -255,11 +255,11 @@ the class parameter list<a id="i1958480308-1"/>, as shown in <a href="type-param
 <h5>Listing 19.2 - Hiding a primary constructor by making it private.</h5>
 
 
-<p>The <span class="code">private</span> modifier between the class name and its parameters
-indicates that the constructor of <span class="code">Queue</span> is private: it can be
+<p>The <pre class="code">private</pre> modifier between the class name and its parameters
+indicates that the constructor of <pre class="code">Queue</pre> is private: it can be
 accessed only from within the class itself and its companion
 object<a id="i-861331495-1"/>.
-The class name <span class="code">Queue</span> is still public, so you can use it as a type, but you cannot
+The class name <pre class="code">Queue</pre> is still public, so you can use it as a type, but you cannot
 call its constructor:<a id="i-1604722710-1"/></p>
 
 <pre>
@@ -271,7 +271,7 @@ call its constructor:<a id="i-1604722710-1"/></p>
 </pre>
 
 
-<p>Now that the primary constructor of class <span class="code">Queue</span> can no longer be called from client code, 
+<p>Now that the primary constructor of class <pre class="code">Queue</pre> can no longer be called from client code, 
 there needs to be some other way to create new queues.
 One possibility is to add an auxiliary constructor, like this:</p>
 
@@ -288,13 +288,13 @@ initial queue elements:</p>
 </pre>
 
 
-<p>Recall that <span class="code">T*</span> is the notation for repeated parameters, as
+<p>Recall that <pre class="code">T*</pre> is the notation for repeated parameters, as
 described in <a href="functions-and-closures.html#sec-fancy-parameters">Section 8.8</a>.</p>
 
 <p>Another possibility is to add a factory method that builds a queue
 from such a sequence of initial elements. A neat way to do this is to
-define an object <span class="code">Queue</span> that has the same name as the class being
-defined and contains an <span class="code">apply</span> method, as shown in <a href="type-parameterization.html#lst-apply-factory">Listing 19.3</a>:</p>
+define an object <pre class="code">Queue</pre> that has the same name as the class being
+defined and contains an <pre class="code">apply</pre> method, as shown in <a href="type-parameterization.html#lst-apply-factory">Listing 19.3</a>:</p>
 
 <p><a id="lst-apply-factory"/></p>
 
@@ -306,24 +306,24 @@ defined and contains an <span class="code">apply</span> method, as shown in <a h
 </pre>
 
 
-<h5>Listing 19.3 - An <span class="code">apply</span> factory method in a companion object.</h5>
+<h5>Listing 19.3 - An <pre class="code">apply</pre> factory method in a companion object.</h5>
 
 
-<p>By placing this object in the same source file as class <span class="code">Queue</span>, you make the object
+<p>By placing this object in the same source file as class <pre class="code">Queue</pre>, you make the object
 a companion object of the class. 
 You saw in <a href="packages-and-imports.html#sec-access-modifiers">Section 13.5</a> that a companion object has the same access rights 
-as its class.  Because of this, the <span class="code">apply</span> method in object <span class="code">Queue</span>
-can create a new <span class="code">Queue</span> object, even though the 
-constructor of class <span class="code">Queue</span> is private.</p>
+as its class.  Because of this, the <pre class="code">apply</pre> method in object <pre class="code">Queue</pre>
+can create a new <pre class="code">Queue</pre> object, even though the 
+constructor of class <pre class="code">Queue</pre> is private.</p>
 
-<p>Note that, because the factory method is called <span class="code">apply</span>, clients can
-create queues with an expression such as <span class="code">Queue(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3)</span>. This expression
-expands to <span class="code">Queue.apply(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3)</span> since <span class="code">Queue</span> is an object
+<p>Note that, because the factory method is called <pre class="code">apply</pre>, clients can
+create queues with an expression such as <pre class="code">Queue(1,</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">3)</pre>. This expression
+expands to <pre class="code">Queue.apply(1,</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">3)</pre> since <pre class="code">Queue</pre> is an object
 instead of a function.
-As a result, <span class="code">Queue</span> looks to clients as if it was a
+As a result, <pre class="code">Queue</pre> looks to clients as if it was a
 globally defined factory method.  In reality, Scala has no globally visible
 methods; every method must be contained in an object or a
-class. However, using methods named <span class="code">apply</span> inside global objects, 
+class. However, using methods named <pre class="code">apply</pre> inside global objects, 
 you can support usage patterns that look like invocations of global
 methods.</p>
 
@@ -371,10 +371,10 @@ way is to hide the class itself and only export a trait that reveals
 the public interface of the class. The code in 
 <a href="type-parameterization.html#lst-type-abstract-functional-queues">Listing 19.4</a>
 implements this design.
-There's a trait <span class="code">Queue</span>, which declares the methods <span class="code">head</span>, <span class="code">tail</span>,
-and <span class="code">enqueue</span>. All three methods are implemented in a subclass
-<span class="code">QueueImpl</span>, which is itself a <span class="code">private</span> inner class of object<a id="i-1543098108-1"/>
-<span class="code">Queue</span>. This exposes to clients the same information as before, but
+There's a trait <pre class="code">Queue</pre>, which declares the methods <pre class="code">head</pre>, <pre class="code">tail</pre>,
+and <pre class="code">enqueue</pre>. All three methods are implemented in a subclass
+<pre class="code">QueueImpl</pre>, which is itself a <pre class="code">private</pre> inner class of object<a id="i-1543098108-1"/>
+<pre class="code">Queue</pre>. This exposes to clients the same information as before, but
 using a different technique.
 Instead of hiding individual constructors and methods, this version
 hides the whole implementation class.</p>
@@ -382,11 +382,11 @@ hides the whole implementation class.</p>
 <h3 id="sec-first-arrays">19.3 Variance annotations</h3>
 
 
-<p><span class="code">Queue</span>, as defined in <a href="type-parameterization.html#lst-type-abstract-functional-queues">Listing 19.4</a>, is a trait, but<a id="i1555746715-1"/><a id="i935521398-1"/>
-not a type. <span class="code">Queue</span> is not a type because it takes a type parameter.</p>
+<p><pre class="code">Queue</pre>, as defined in <a href="type-parameterization.html#lst-type-abstract-functional-queues">Listing 19.4</a>, is a trait, but<a id="i1555746715-1"/><a id="i935521398-1"/>
+not a type. <pre class="code">Queue</pre> is not a type because it takes a type parameter.</p>
 
 <p>As a result,
-you cannot create variables of type <span class="code">Queue</span>:</p>
+you cannot create variables of type <pre class="code">Queue</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">def</code>&nbsp;doesNotCompile(q:&nbsp;<code class="typename">Queue</code>)&nbsp;=&nbsp;{}
@@ -396,7 +396,7 @@ you cannot create variables of type <span class="code">Queue</span>:</p>
 </pre>
 
 
-<p>Instead, trait <span class="code">Queue</span> enables you to specify <em>parameterized</em> types, such as <span class="code">Queue[String]</span>, <span class="code">Queue[Int]</span>, or <span class="code">Queue[AnyRef]</span>:</p>
+<p>Instead, trait <pre class="code">Queue</pre> enables you to specify <em>parameterized</em> types, such as <pre class="code">Queue[String]</pre>, <pre class="code">Queue[Int]</pre>, or <pre class="code">Queue[AnyRef]</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">def</code>&nbsp;doesCompile(q:&nbsp;<code class="typename">Queue[AnyRef]</code>)&nbsp;=&nbsp;{}
@@ -404,68 +404,68 @@ you cannot create variables of type <span class="code">Queue</span>:</p>
 </pre>
 
 
-<p>Thus, <span class="code">Queue</span> is a trait and <span class="code">Queue[String]</span> is a type.
-<span class="code">Queue</span> is also called a <em>type constructor</em><a id="i1905256393-1"/> because you can construct a type with it by specifying a type parameter. (This is analogous to constructing an object instance with a plain-old 
+<p>Thus, <pre class="code">Queue</pre> is a trait and <pre class="code">Queue[String]</pre> is a type.
+<pre class="code">Queue</pre> is also called a <em>type constructor</em><a id="i1905256393-1"/> because you can construct a type with it by specifying a type parameter. (This is analogous to constructing an object instance with a plain-old 
 constructor by specifying a value
-parameter.) The type constructor <span class="code">Queue</span> "generates" a family of types, which includes <span class="code">Queue[Int]</span>,
-<span class="code">Queue[String]</span>, and <span class="code">Queue[AnyRef]</span>.</p>
+parameter.) The type constructor <pre class="code">Queue</pre> "generates" a family of types, which includes <pre class="code">Queue[Int]</pre>,
+<pre class="code">Queue[String]</pre>, and <pre class="code">Queue[AnyRef]</pre>.</p>
 
-<p>You can also say that <span class="code">Queue</span> is a <em>generic</em>
+<p>You can also say that <pre class="code">Queue</pre> is a <em>generic</em>
 trait.<a id="i1530367874-2"/><a id="i-1356826384-1"/> (Classes and traits that take type
 parameters are "generic," but the types they generate are "parameterized," not generic.) The term "generic" means that you are
-defining many specific types with one generically written class or trait. For example, trait <span class="code">Queue</span> in <a href="type-parameterization.html#lst-type-abstract-functional-queues">Listing 19.4</a>
-defines a generic queue. <span class="code">Queue[Int]</span> and <span class="code">Queue[String]</span>, <i>etc.</i>, would be the specific queues.</p>
+defining many specific types with one generically written class or trait. For example, trait <pre class="code">Queue</pre> in <a href="type-parameterization.html#lst-type-abstract-functional-queues">Listing 19.4</a>
+defines a generic queue. <pre class="code">Queue[Int]</pre> and <pre class="code">Queue[String]</pre>, <i>etc.</i>, would be the specific queues.</p>
 
 <p>The combination of type parameters and subtyping poses some
 interesting questions.<a id="i-1780437500-1"/>
 For example, are there any special subtyping relationships between members of the family of types generated
-by <span class="code">Queue[T]</span>? More specifically, should a <span class="code">Queue[String]</span> be
-considered a subtype of <span class="code">Queue[AnyRef]</span>?
-Or more generally, if <span class="code">S</span> is a subtype of type <span class="code">T</span>,
-then should <span class="code">Queue[S]</span> be considered a subtype of <span class="code">Queue[T]</span>?
-If so, you could say that trait <span class="code">Queue</span> is <a href="glossary.html#g1865839257"><em>covariant</em></a> (or
-"flexible") in its type parameter <span class="code">T</span><a id="i2006441693-1"/>. Or, since it just has one type parameter, you could say simply that
-<span class="code">Queue</span>s are covariant. Covariant <span class="code">Queue</span>s would mean, for example, that you could pass a <span class="code">Queue[String]</span> to
-the <span class="code">doesCompile</span> method shown previously, which takes a value
-parameter of type <span class="code">Queue[AnyRef]</span>.</p>
+by <pre class="code">Queue[T]</pre>? More specifically, should a <pre class="code">Queue[String]</pre> be
+considered a subtype of <pre class="code">Queue[AnyRef]</pre>?
+Or more generally, if <pre class="code">S</pre> is a subtype of type <pre class="code">T</pre>,
+then should <pre class="code">Queue[S]</pre> be considered a subtype of <pre class="code">Queue[T]</pre>?
+If so, you could say that trait <pre class="code">Queue</pre> is <a href="glossary.html#g1865839257"><em>covariant</em></a> (or
+"flexible") in its type parameter <pre class="code">T</pre><a id="i2006441693-1"/>. Or, since it just has one type parameter, you could say simply that
+<pre class="code">Queue</pre>s are covariant. Covariant <pre class="code">Queue</pre>s would mean, for example, that you could pass a <pre class="code">Queue[String]</pre> to
+the <pre class="code">doesCompile</pre> method shown previously, which takes a value
+parameter of type <pre class="code">Queue[AnyRef]</pre>.</p>
 
 <p>Intuitively, all this seems OK, since a
-queue of <span class="code">String</span>s looks like a special case of a queue of
-<span class="code">AnyRef</span>s.
+queue of <pre class="code">String</pre>s looks like a special case of a queue of
+<pre class="code">AnyRef</pre>s.
 In Scala, however, generic types have by default <a href="glossary.html#g-233237224"><em>nonvariant</em></a> (or "rigid") subtyping<a id="i1359580222-1"/>. That
-is, with <span class="code">Queue</span> defined as in <a href="type-parameterization.html#lst-type-abstract-functional-queues">Listing 19.4</a>, queues with different element
+is, with <pre class="code">Queue</pre> defined as in <a href="type-parameterization.html#lst-type-abstract-functional-queues">Listing 19.4</a>, queues with different element
 types would never be in a subtype relationship.
-A <span class="code">Queue[String]</span> would not be usable as a <span class="code">Queue[AnyRef]</span>.
+A <pre class="code">Queue[String]</pre> would not be usable as a <pre class="code">Queue[AnyRef]</pre>.
 However, you can demand
 covariant (flexible) subtyping of queues by changing the first line of the
-definition of class <span class="code">Queue</span> like this:</p>
+definition of class <pre class="code">Queue</pre> like this:</p>
 
 <pre>
   <code class="vem">trait</code>&nbsp;<code class="typename">Queue[+T]</code>&nbsp;{&nbsp;...&nbsp;}
 </pre>
 
 
-<p>Prefixing a formal type parameter with a <span class="code">+</span> indicates that
+<p>Prefixing a formal type parameter with a <pre class="code">+</pre> indicates that
 subtyping is covariant (flexible) in that
 parameter<a id="i-1315578930-1"/>. 
 By adding this single character, you are telling Scala that you want
-<span class="code">Queue[String]</span>, for example, to be considered a subtype of <span class="code">Queue[AnyRef]</span>.
- The compiler will check that <span class="code">Queue</span> is defined
+<pre class="code">Queue[String]</pre>, for example, to be considered a subtype of <pre class="code">Queue[AnyRef]</pre>.
+ The compiler will check that <pre class="code">Queue</pre> is defined
 in a way that this subtyping is sound.</p>
 
-<p>Besides <span class="code">+</span>, there is also a prefix <span class="code">-</span>, which indicates
-<a href="glossary.html#g-1356412796"><em>contravariant</em></a> subtyping<a id="i973833207-1"/><a id="i900875858-1"/>. If <span class="code">Queue</span> were defined like this:</p>
+<p>Besides <pre class="code">+</pre>, there is also a prefix <pre class="code">-</pre>, which indicates
+<a href="glossary.html#g-1356412796"><em>contravariant</em></a> subtyping<a id="i973833207-1"/><a id="i900875858-1"/>. If <pre class="code">Queue</pre> were defined like this:</p>
 
 <pre>
   <code class="vem">trait</code>&nbsp;<code class="typename">Queue[-T]</code>&nbsp;{&nbsp;...&nbsp;}&nbsp;
 </pre>
 
 
-<p>then if <span class="code">T</span> is a subtype of type <span class="code">S</span>, this would imply
-that <span class="code">Queue[S]</span> is a subtype of <span class="code">Queue[T]</span> (which in the case of queues
+<p>then if <pre class="code">T</pre> is a subtype of type <pre class="code">S</pre>, this would imply
+that <pre class="code">Queue[S]</pre> is a subtype of <pre class="code">Queue[T]</pre> (which in the case of queues
 would be rather surprising!).  Whether a type parameter is covariant, contravariant, or nonvariant
 is called the parameter's
-<a href="glossary.html#g-1249575311"><em>variance</em></a><a id="i-1249575311-1"/>. The <span class="code">+</span> and <span class="code">-</span> symbols you can place next to type parameters 
+<a href="glossary.html#g-1249575311"><em>variance</em></a><a id="i-1249575311-1"/>. The <pre class="code">+</pre> and <pre class="code">-</pre> symbols you can place next to type parameters 
 are called <em>variance annotations</em>.<a id="i1554444807-1"/></p>
 
 <p>In a purely functional world, many types are naturally covariant (flexible). However,
@@ -482,13 +482,13 @@ simple type of one-element cells that can be read or written, shown in <a href="
 </pre>
 
 
-<h5>Listing 19.5 - A nonvariant (rigid) <span class="code">Cell</span> class.</h5>
+<h5>Listing 19.5 - A nonvariant (rigid) <pre class="code">Cell</pre> class.</h5>
 
 
-<p>The <span class="code">Cell</span> type of <a href="type-parameterization.html#lst-nonvariant-cell">Listing 19.5</a> is declared nonvariant (rigid). For the sake
+<p>The <pre class="code">Cell</pre> type of <a href="type-parameterization.html#lst-nonvariant-cell">Listing 19.5</a> is declared nonvariant (rigid). For the sake
 of argument,
-assume for a moment that <span class="code">Cell</span> was declared covariant instead&mdash;<i>i.e.</i>, it was declared
-<span class="code">class</span>&nbsp;<span class="code">Cell[+T]</span>&mdash;and that this passed the Scala
+assume for a moment that <pre class="code">Cell</pre> was declared covariant instead&mdash;<i>i.e.</i>, it was declared
+<pre class="code">class</pre>&nbsp;<pre class="code">Cell[+T]</pre>&mdash;and that this passed the Scala
 compiler. (It doesn't,
 and we'll explain why shortly.) 
 Then you could construct the following problematic statement sequence:</p>
@@ -502,26 +502,26 @@ Then you could construct the following problematic statement sequence:</p>
 
 
 <p>Seen by itself, each of these four lines looks OK. The first line creates a
-cell of strings and stores it in a <span class="code">val</span> named <span class="code">c1</span>. The second line defines a new
-<span class="code">val</span>, <span class="code">c2</span>, of type <span class="code">Cell[Any]</span>, which initialized with <span class="code">c1</span>. This is
-OK since <span class="code">Cell</span>s are assumed to be covariant. The third line sets the
-value of cell <span class="code">c2</span> to 1. This is also OK because the assigned value <span class="code">1</span> is an instance of
-<span class="code">c2</span>'s element type <span class="code">Any</span>. Finally, the last line assigns the element value of 
-<span class="code">c1</span> into a string. Nothing strange here, as both the sides are of the same type.
+cell of strings and stores it in a <pre class="code">val</pre> named <pre class="code">c1</pre>. The second line defines a new
+<pre class="code">val</pre>, <pre class="code">c2</pre>, of type <pre class="code">Cell[Any]</pre>, which initialized with <pre class="code">c1</pre>. This is
+OK since <pre class="code">Cell</pre>s are assumed to be covariant. The third line sets the
+value of cell <pre class="code">c2</pre> to 1. This is also OK because the assigned value <pre class="code">1</pre> is an instance of
+<pre class="code">c2</pre>'s element type <pre class="code">Any</pre>. Finally, the last line assigns the element value of 
+<pre class="code">c1</pre> into a string. Nothing strange here, as both the sides are of the same type.
 But taken together, these four lines end up
-assigning the integer <span class="code">1</span> to the string <span class="code">s</span>. This is clearly a
+assigning the integer <pre class="code">1</pre> to the string <pre class="code">s</pre>. This is clearly a
 violation of type soundness.</p>
 
 <p>Which operation is to blame for the runtime fault? It
 must be the second one, which uses covariant subtyping. 
 The other statements are too simple and fundamental.
-Thus, a <span class="code">Cell</span> of
-<span class="code">String</span> is <span style="font-style:italic">not</span> also a <span class="code">Cell</span> of <span class="code">Any</span>, because there are
-things you can do with a <span class="code">Cell</span> of <span class="code">Any</span> that you cannot do with 
-a <span class="code">Cell</span> of <span class="code">String</span>.  You cannot use <span class="code">set</span> with an <span class="code">Int</span> argument on a 
-<span class="code">Cell</span> of <span class="code">String</span>, for example.</p>
+Thus, a <pre class="code">Cell</pre> of
+<pre class="code">String</pre> is <span style="font-style:italic">not</span> also a <pre class="code">Cell</pre> of <pre class="code">Any</pre>, because there are
+things you can do with a <pre class="code">Cell</pre> of <pre class="code">Any</pre> that you cannot do with 
+a <pre class="code">Cell</pre> of <pre class="code">String</pre>.  You cannot use <pre class="code">set</pre> with an <pre class="code">Int</pre> argument on a 
+<pre class="code">Cell</pre> of <pre class="code">String</pre>, for example.</p>
 
-<p>In fact, were you to pass the covariant version of <span class="code">Cell</span> to the 
+<p>In fact, were you to pass the covariant version of <pre class="code">Cell</pre> to the 
 Scala compiler, you would get a compile-time error:<a id="i-1072664655-1"/></p>
 
 <pre>
@@ -552,8 +552,8 @@ Java arrays:</p>
 
 
 <p>If you try out this example, you will find that it compiles. But executing the program
-will cause an <span class="code">ArrayStore</span> exception to be thrown when <span class="code">a2[0]</span>
-is assigned to an <span class="code">Integer</span>:</p>
+will cause an <pre class="code">ArrayStore</pre> exception to be thrown when <pre class="code">a2[0]</pre>
+is assigned to an <pre class="code">Integer</pre>:</p>
 
 <pre>
   <code class="output">Exception&nbsp;in&nbsp;thread&nbsp;"main"&nbsp;java.lang.ArrayStoreException:&nbsp;</code>
@@ -566,14 +566,14 @@ is assigned to an <span class="code">Integer</span>:</p>
 Java stores the element type of the array at runtime. Then, every time
 an array element is updated, the new element value is checked against
 the stored type. If it is not an instance of that type, an
-<span class="code">ArrayStore</span> exception is thrown.<a id="i1807481219-1"/></p>
+<pre class="code">ArrayStore</pre> exception is thrown.<a id="i1807481219-1"/></p>
 
 <p>You might ask why Java adopted this design, which seems both
 unsafe and expensive. When asked this question, James Gosling,<a id="i1512661551-1"/>
 the principal inventor of the Java language, answered that they
 wanted to have a simple means to treat arrays generically. For
 instance, they wanted to be able to write a method to sort all
-elements of an array, using a signature like the following that takes an array of <span class="code">Object</span>:</p>
+elements of an array, using a signature like the following that takes an array of <pre class="code">Object</pre>:</p>
 
 <pre>
   void&nbsp;sort(<code class="typename">Object[]</code>&nbsp;a,&nbsp;<code class="typename">Comparator</code>&nbsp;cmp)&nbsp;{&nbsp;...&nbsp;}
@@ -581,8 +581,8 @@ elements of an array, using a signature like the following that takes an array o
 
 
 <p>Covariance of arrays was needed so that arrays of arbitrary reference
-types could be passed to this <span class="code">sort</span> method. Of course, with the
-arrival of Java generics, such a <span class="code">sort</span> method can now be written with a
+types could be passed to this <pre class="code">sort</pre> method. Of course, with the
+arrival of Java generics, such a <pre class="code">sort</pre> method can now be written with a
 type parameter, so the covariance of arrays is no longer
 necessary<a id="i1590614948-1"/>. 
 For compatibility reasons, though, it has persisted in Java to this day.</p>
@@ -607,13 +607,13 @@ example to Scala:<a id="i-677980410-3"/></p>
 
 
 <p>What happened here is that Scala treats arrays as nonvariant (rigid), so
-an <span class="code">Array[String]</span> is not considered to conform to an <span class="code">Array[Any]</span>.
+an <pre class="code">Array[String]</pre> is not considered to conform to an <pre class="code">Array[Any]</pre>.
 However, sometimes it is necessary to interact with legacy methods in
-Java that use an <span class="code">Object</span> array as a means to emulate a generic array. For
-instance, you might want to call a <span class="code">sort</span> method like the one described previously
-with an array of <span class="code">String</span>s as argument. To make this possible,
-Scala lets you cast an array of <span class="code">T</span>s to an array of any supertype of
-<span class="code">T</span>:</p>
+Java that use an <pre class="code">Object</pre> array as a means to emulate a generic array. For
+instance, you might want to call a <pre class="code">sort</pre> method like the one described previously
+with an array of <pre class="code">String</pre>s as argument. To make this possible,
+Scala lets you cast an array of <pre class="code">T</pre>s to an array of any supertype of
+<pre class="code">T</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;a2:&nbsp;<code class="typename">Array[Object]</code>&nbsp;=
@@ -625,7 +625,7 @@ Scala lets you cast an array of <span class="code">T</span>s to an array of any 
 <p>The cast is always legal at compile-time, and it will always 
 succeed at run-time because the JVM's underlying run-time model treats 
 arrays as covariant, just as Java the language does.
-But you might get <span class="code">ArrayStore</span> exceptions afterwards, 
+But you might get <pre class="code">ArrayStore</pre> exceptions afterwards, 
 again just as you would in Java.</p>
 
 <h3>19.4 Checking variance annotations</h3>
@@ -642,7 +642,7 @@ is no reassignable field.</p>
 
 <p>To set up the example, assume that queues as defined in <a href="type-parameterization.html#lst-type-abstract-functional-queues">Listing 19.4</a> are
 covariant. Then, create a subclass of queues that specializes the
-element type to <span class="code">Int</span> and overrides the <span class="code">enqueue</span> method:</p>
+element type to <pre class="code">Int</pre> and overrides the <pre class="code">enqueue</pre> method:</p>
 
 <pre>
   <code class="vem">class</code>&nbsp;<code class="typename">StrangeIntQueue</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Queue[Int]</code>&nbsp;{
@@ -654,8 +654,8 @@ element type to <span class="code">Int</span> and overrides the <span class="cod
 </pre>
 
 
-<p>The <span class="code">enqueue</span> method in
-<span class="code">StrangeIntQueue</span> prints out the square root of
+<p>The <pre class="code">enqueue</pre> method in
+<pre class="code">StrangeIntQueue</pre> prints out the square root of
 its (integer) argument before doing the append proper.</p>
 
 <p>Now, you can 
@@ -667,10 +667,10 @@ write a counterexample in two lines:</p>
 </pre>
 
 
-<p>The first of these two lines is valid because <span class="code">StrangeIntQueue</span> is a
-subclass of <span class="code">Queue[Int]</span> and, assuming covariance of queues,
-<span class="code">Queue[Int]</span> is a subtype of <span class="code">Queue[Any]</span>. The second line is valid because
-you can append a <span class="code">String</span> to a <span class="code">Queue[Any]</span>.
+<p>The first of these two lines is valid because <pre class="code">StrangeIntQueue</pre> is a
+subclass of <pre class="code">Queue[Int]</pre> and, assuming covariance of queues,
+<pre class="code">Queue[Int]</pre> is a subtype of <pre class="code">Queue[Any]</pre>. The second line is valid because
+you can append a <pre class="code">String</pre> to a <pre class="code">Queue[Any]</pre>.
 However, taken together, these two lines have the effect of applying a
 square root method to a string, which makes no sense.</p>
 
@@ -680,7 +680,7 @@ parameter type appears as the type of a method parameter, the
 containing class or trait may not be covariant in
 that type parameter.</p>
 
-<p>For queues, the <span class="code">enqueue</span>
+<p>For queues, the <pre class="code">enqueue</pre>
 method violates this condition:</p>
 
 <pre>
@@ -701,11 +701,11 @@ method violates this condition:</p>
 </pre>
 
 
-<p>Reassignable fields are a special case of the rule that disallows type parameters annotated with <span class="code">+</span>
+<p>Reassignable fields are a special case of the rule that disallows type parameters annotated with <pre class="code">+</pre>
 from being used as method parameter types. As mentioned in <a href="mutable-objects.html#sec-properties">Section 18.2</a>, a
-reassignable field, "<span class="code">var</span>&nbsp;<span class="code">x:</span>&nbsp;<span class="code">T</span>", is treated in Scala as a getter method, "<span class="code">def</span>&nbsp;<span class="code">x:</span>&nbsp;<span class="code">T</span>",
-and a setter method, "<span class="code">def</span>&nbsp;<span class="code">x_=(y:</span>&nbsp;<span class="code">T)</span>"<a id="i-1969580643-2"/>. As you can see, the setter method has a  
-parameter of the field's type <span class="code">T</span>. So that type may not be covariant.</p>
+reassignable field, "<pre class="code">var</pre>&nbsp;<pre class="code">x:</pre>&nbsp;<pre class="code">T</pre>", is treated in Scala as a getter method, "<pre class="code">def</pre>&nbsp;<pre class="code">x:</pre>&nbsp;<pre class="code">T</pre>",
+and a setter method, "<pre class="code">def</pre>&nbsp;<pre class="code">x_=(y:</pre>&nbsp;<pre class="code">T)</pre>"<a id="i-1969580643-2"/>. As you can see, the setter method has a  
+parameter of the field's type <pre class="code">T</pre>. So that type may not be covariant.</p>
 
 <div class="pointofinterest">
 <h3>The fast track</h3>
@@ -716,7 +716,7 @@ Scala compiler checks variance annotations.
 If you're not interested in such detail right now, you can safely skip to <a href="type-parameterization.html#sec-lower-bounds">Section 19.5</a>. The
 most important thing to understand is that the Scala compiler
 will check any variance annotations you place on type parameters. For example, if you try to declare a type parameter to
-be covariant (by adding a <span class="code">+</span>), but that could lead to potential runtime errors, your program
+be covariant (by adding a <pre class="code">+</pre>), but that could lead to potential runtime errors, your program
 won't compile.</p>
 
 </div>
@@ -730,9 +730,9 @@ body where a type parameter may be used. For example, every method value paramet
 a method value parameter has a type. Therefore a type parameter could appear in that position.</p>
 
 <p>The compiler checks each use of each of the class's type parameters. Type parameters
-annotated with <span class="code">+</span>
+annotated with <pre class="code">+</pre>
 may only be used in positive positions, while type parameters
-annotated with <span class="code">-</span> may only be used in negative positions.  
+annotated with <pre class="code">-</pre> may only be used in negative positions.  
 A type parameter with no variance annotation
 may be used in any position, and is, therefore, the only
 kind of type parameter that can be used in neutral
@@ -751,12 +751,12 @@ the flip of a neutral classification is still neutral.</p>
 
 <p>Besides method value parameter positions, the current classification is also flipped at the type parameters of methods.
 A classification is sometimes flipped at the type argument
-position of a type, such as the <span class="code">Arg</span> in <span class="code">C[Arg]</span>,
+position of a type, such as the <pre class="code">Arg</pre> in <pre class="code">C[Arg]</pre>,
 depending on the variance of the corresponding type parameter.
-If <span class="code">C</span>'s type
-parameter is annotated with a <span class="code">+</span> then the
+If <pre class="code">C</pre>'s type
+parameter is annotated with a <pre class="code">+</pre> then the
 classification stays the same.  If
-<span class="code">C</span>'s type parameter is annotated with a <span class="code">-</span>, then the current classification is flipped.  If <span class="code">C</span>'s
+<pre class="code">C</pre>'s type parameter is annotated with a <pre class="code">-</pre>, then the current classification is flipped.  If <pre class="code">C</pre>'s
 type parameter has no variance annotation then the current classification is changed to
 neutral.</p>
 
@@ -774,13 +774,13 @@ negative):</p>
 </pre>
 
 
-<p>The positions of the type parameter, <span class="code">W</span>, and the two value
-parameters, <span class="code">volume</span> and <span class="code">listener</span>, are all negative.
-Looking at the result type of <span class="code">meow</span>,
-the position of the first <span class="code">Cat[U,</span>&nbsp;<span class="code">T]</span> argument is
-negative because <span class="code">Cat</span>'s first type parameter, <span class="code">T</span>, is annotated with a <span class="code">-</span>.
- The type <span class="code">U</span> inside this argument is again in positive position
-(two flips), whereas the type <span class="code">T</span> inside that argument is still in negative position.</p>
+<p>The positions of the type parameter, <pre class="code">W</pre>, and the two value
+parameters, <pre class="code">volume</pre> and <pre class="code">listener</pre>, are all negative.
+Looking at the result type of <pre class="code">meow</pre>,
+the position of the first <pre class="code">Cat[U,</pre>&nbsp;<pre class="code">T]</pre> argument is
+negative because <pre class="code">Cat</pre>'s first type parameter, <pre class="code">T</pre>, is annotated with a <pre class="code">-</pre>.
+ The type <pre class="code">U</pre> inside this argument is again in positive position
+(two flips), whereas the type <pre class="code">T</pre> inside that argument is still in negative position.</p>
 
 <p>You see from this discussion that it's quite hard to keep track of
 variance positions. That's why it's a welcome relief that the Scala
@@ -788,24 +788,24 @@ compiler does this job for you.</p>
 
 <p>Once the classifications are computed, the compiler checks that each
 type parameter is only used in positions that are classified
-appropriately.  In this case, <span class="code">T</span> is only used in negative
-positions, and <span class="code">U</span> is only used in positive positions.
-So class <span class="code">Cat</span> is type correct.</p>
+appropriately.  In this case, <pre class="code">T</pre> is only used in negative
+positions, and <pre class="code">U</pre> is only used in positive positions.
+So class <pre class="code">Cat</pre> is type correct.</p>
 
 <h3 id="sec-lower-bounds">19.5 Lower bounds</h3>
 
 
-<p>Back to the <span class="code">Queue</span> class. You saw that the previous definition
-of <span class="code">Queue[T]</span> shown in <a href="type-parameterization.html#lst-type-abstract-functional-queues">Listing 19.4</a> cannot be made covariant
-in <span class="code">T</span> because <span class="code">T</span> appears
+<p>Back to the <pre class="code">Queue</pre> class. You saw that the previous definition
+of <pre class="code">Queue[T]</pre> shown in <a href="type-parameterization.html#lst-type-abstract-functional-queues">Listing 19.4</a> cannot be made covariant
+in <pre class="code">T</pre> because <pre class="code">T</pre> appears
 as a type of a parameter
-of the <span class="code">enqueue</span> method, and that's a negative
+of the <pre class="code">enqueue</pre> method, and that's a negative
 position.</p>
 
 <p>Fortunately, there's a way to get unstuck: you can generalize 
-<span class="code">enqueue</span> by making it polymorphic (<i>i.e.</i>, giving the <span class="code">enqueue</span> method itself a type parameter)
+<pre class="code">enqueue</pre> by making it polymorphic (<i>i.e.</i>, giving the <pre class="code">enqueue</pre> method itself a type parameter)
 and using a <em>lower bound</em> for its type parameter.<a id="i1770535476-1"/><a id="i1742340276-1"/> <a href="type-parameterization.html#lst-lower-bound">Listing 19.6</a> shows a new 
-formulation of <span class="code">Queue</span> that implements this idea.</p>
+formulation of <pre class="code">Queue</pre> that implements this idea.</p>
 
 <p><a id="lst-lower-bound"/></p>
 
@@ -821,26 +821,26 @@ formulation of <span class="code">Queue</span> that implements this idea.</p>
 <h5>Listing 19.6 - A type parameter with a lower bound.</h5>
 
 
-<p>The new definition gives <span class="code">enqueue</span> a type parameter <span class="code">U</span>, and with the syntax, "<span class="code">U</span>&nbsp;<span class="code">&gt;:</span>&nbsp;<span class="code">T</span>", defines <span class="code">T</span> as the lower bound
-for <span class="code">U</span>. As a result,<a id="i1800766244-1"/>
-<span class="code">U</span> is required to be a supertype of <span class="code">T</span>.<a href="type-parameterization.html#footnotemain19-1">[1]</a>
-The parameter to <span class="code">enqueue</span> is now
-of type <span class="code">U</span> instead of type <span class="code">T</span>, and the return value of the
-method is now <span class="code">Queue[U]</span> instead of <span class="code">Queue[T]</span>.</p>
+<p>The new definition gives <pre class="code">enqueue</pre> a type parameter <pre class="code">U</pre>, and with the syntax, "<pre class="code">U</pre>&nbsp;<pre class="code">&gt;:</pre>&nbsp;<pre class="code">T</pre>", defines <pre class="code">T</pre> as the lower bound
+for <pre class="code">U</pre>. As a result,<a id="i1800766244-1"/>
+<pre class="code">U</pre> is required to be a supertype of <pre class="code">T</pre>.<a href="type-parameterization.html#footnotemain19-1">[1]</a>
+The parameter to <pre class="code">enqueue</pre> is now
+of type <pre class="code">U</pre> instead of type <pre class="code">T</pre>, and the return value of the
+method is now <pre class="code">Queue[U]</pre> instead of <pre class="code">Queue[T]</pre>.</p>
 
-<p>For example, suppose there is a class <span class="code">Fruit</span> with two subclasses,
-<span class="code">Apple</span> and <span class="code">Orange</span>. With the new definition of class <span class="code">Queue</span>, it
-is possible to append an <span class="code">Orange</span> to a <span class="code">Queue[Apple]</span>. The result
-will be a <span class="code">Queue[Fruit]</span>.</p>
+<p>For example, suppose there is a class <pre class="code">Fruit</pre> with two subclasses,
+<pre class="code">Apple</pre> and <pre class="code">Orange</pre>. With the new definition of class <pre class="code">Queue</pre>, it
+is possible to append an <pre class="code">Orange</pre> to a <pre class="code">Queue[Apple]</pre>. The result
+will be a <pre class="code">Queue[Fruit]</pre>.</p>
 
-<p>This revised definition of <span class="code">enqueue</span> is type correct.  Intuitively, if
-<span class="code">T</span> is a more specific type than expected (for example, <span class="code">Apple</span> instead of
-<span class="code">Fruit</span>), a call to <span class="code">enqueue</span> will still work because <span class="code">U</span>
-(<span class="code">Fruit</span>) will still be a supertype of <span class="code">T</span> (<span class="code">Apple</span>).<a href="type-parameterization.html#footnotemain19-2">[2]</a></p>
+<p>This revised definition of <pre class="code">enqueue</pre> is type correct.  Intuitively, if
+<pre class="code">T</pre> is a more specific type than expected (for example, <pre class="code">Apple</pre> instead of
+<pre class="code">Fruit</pre>), a call to <pre class="code">enqueue</pre> will still work because <pre class="code">U</pre>
+(<pre class="code">Fruit</pre>) will still be a supertype of <pre class="code">T</pre> (<pre class="code">Apple</pre>).<a href="type-parameterization.html#footnotemain19-2">[2]</a></p>
 
-<p>The new definition of <span class="code">enqueue</span> is arguably better than the old, because it is more general.  Unlike the old version, the new
-definition allows you to append an arbitrary supertype <span class="code">U</span> of the queue
-element type <span class="code">T</span>.  The result is then a <span class="code">Queue[U]</span>. Together with
+<p>The new definition of <pre class="code">enqueue</pre> is arguably better than the old, because it is more general.  Unlike the old version, the new
+definition allows you to append an arbitrary supertype <pre class="code">U</pre> of the queue
+element type <pre class="code">T</pre>.  The result is then a <pre class="code">Queue[U]</pre>. Together with
 queue covariance, this gives the right kind of flexibility for
 modeling queues of different element types in a natural way.</p>
 
@@ -848,10 +848,10 @@ modeling queues of different element types in a natural way.</p>
 They are a good example of <span style="font-style:italic">type-driven design</span>, where the types of an
 interface guide its detailed design and implementation<a id="i819829841-1"/>. In the case of
 queues, it's likely you would not have thought of the refined
-implementation of <span class="code">enqueue</span> with a lower bound. But you might have
+implementation of <pre class="code">enqueue</pre> with a lower bound. But you might have
 decided to make queues covariant, in which case, the compiler would
-have pointed out the variance error for <span class="code">enqueue</span>. Correcting the
-variance error by adding a lower bound makes <span class="code">enqueue</span> more general and
+have pointed out the variance error for <pre class="code">enqueue</pre>. Correcting the
+variance error by adding a lower bound makes <pre class="code">enqueue</pre> more general and
 queues as a whole more usable.</p>
 
 <p>This observation is also the main reason that Scala prefers
@@ -887,43 +887,43 @@ For instance, consider the trait of output channels shown in <a href="type-param
 <h5>Listing 19.7 - A contravariant output channel.</h5>
 
 
-<p>Here, <span class="code">OutputChannel</span> is defined to be contravariant in <span class="code">T</span>.  So an output channel of
-<span class="code">AnyRef</span>s, say, is a subtype of an output channel of <span class="code">String</span>s.
+<p>Here, <pre class="code">OutputChannel</pre> is defined to be contravariant in <pre class="code">T</pre>.  So an output channel of
+<pre class="code">AnyRef</pre>s, say, is a subtype of an output channel of <pre class="code">String</pre>s.
 Although it may seem non-intuitive, it actually
  makes sense. To see why, consider what you can do with an
-<span class="code">OutputChannel[String]</span>. 
+<pre class="code">OutputChannel[String]</pre>. 
 The only supported operation is writing a
-<span class="code">String</span> to it.  The same operation can also be done on an
-<span class="code">OutputChannel[AnyRef]</span>. So it is safe to substitute an
-<span class="code">OutputChannel[AnyRef]</span> for an <span class="code">OutputChannel[String]</span>.
+<pre class="code">String</pre> to it.  The same operation can also be done on an
+<pre class="code">OutputChannel[AnyRef]</pre>. So it is safe to substitute an
+<pre class="code">OutputChannel[AnyRef]</pre> for an <pre class="code">OutputChannel[String]</pre>.
 By contrast, it would not be
-safe to substitute an <span class="code">OutputChannel[String]</span> where an
-<span class="code">OutputChannel[AnyRef]</span> is required. After all, you can send any
-object to an <span class="code">OutputChannel[AnyRef]</span>, whereas an
-<span class="code">OutputChannel[String]</span> requires that the written values are all
+safe to substitute an <pre class="code">OutputChannel[String]</pre> where an
+<pre class="code">OutputChannel[AnyRef]</pre> is required. After all, you can send any
+object to an <pre class="code">OutputChannel[AnyRef]</pre>, whereas an
+<pre class="code">OutputChannel[String]</pre> requires that the written values are all
 strings.</p>
 
 <p>This reasoning points to a general principle in type system
 design: It
-is safe to assume that a type <span class="code">T</span> is a subtype of a type <span class="code">U</span> if you
-can substitute a value of type <span class="code">T</span> wherever a value of type <span class="code">U</span> is
+is safe to assume that a type <pre class="code">T</pre> is a subtype of a type <pre class="code">U</pre> if you
+can substitute a value of type <pre class="code">T</pre> wherever a value of type <pre class="code">U</pre> is
 required. This is called the <span style="font-style:italic">Liskov Substitution
 Principle</span><a id="i1033900893-1"/>.  The
-principle holds if <span class="code">T</span> supports the same operations as <span class="code">U</span>, and all
-of <span class="code">T</span>'s operations require less and provide more than the
-corresponding operations in <span class="code">U</span>. In the case of output channels, an
-<span class="code">OutputChannel[AnyRef]</span> can be a subtype of an <span class="code">OutputChannel[String]</span> because 
-the two support the same <span class="code">write</span> operation, and this operation requires less
-in <span class="code">OutputChannel[AnyRef]</span> than in <span class="code">OutputChannel[String]</span>. "Less" means 
-the argument is only required to be an <span class="code">AnyRef</span> in the first case, 
-whereas it is required to be a <span class="code">String</span> in the second case.</p>
+principle holds if <pre class="code">T</pre> supports the same operations as <pre class="code">U</pre>, and all
+of <pre class="code">T</pre>'s operations require less and provide more than the
+corresponding operations in <pre class="code">U</pre>. In the case of output channels, an
+<pre class="code">OutputChannel[AnyRef]</pre> can be a subtype of an <pre class="code">OutputChannel[String]</pre> because 
+the two support the same <pre class="code">write</pre> operation, and this operation requires less
+in <pre class="code">OutputChannel[AnyRef]</pre> than in <pre class="code">OutputChannel[String]</pre>. "Less" means 
+the argument is only required to be an <pre class="code">AnyRef</pre> in the first case, 
+whereas it is required to be a <pre class="code">String</pre> in the second case.</p>
 
 <p>Sometimes covariance and contravariance are mixed in the same type. A
 prominent example is Scala's function traits. 
-For instance, whenever you write the function type <span class="code">A</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">B</span>,
-Scala expands this to <span class="code">Function1[A,</span>&nbsp;<span class="code">B]</span>.  The definition of
-<span class="code">Function1</span> in the standard library uses both covariance
-and contravariance: the <span class="code">Function1</span> trait is contravariant in the function argument type <span class="code">S</span> and covariant in the result type <span class="code">T</span>,<a id="i-921885027-1"/><a id="i-1806331359-1"/>
+For instance, whenever you write the function type <pre class="code">A</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">B</pre>,
+Scala expands this to <pre class="code">Function1[A,</pre>&nbsp;<pre class="code">B]</pre>.  The definition of
+<pre class="code">Function1</pre> in the standard library uses both covariance
+and contravariance: the <pre class="code">Function1</pre> trait is contravariant in the function argument type <pre class="code">S</pre> and covariant in the result type <pre class="code">T</pre>,<a id="i-921885027-1"/><a id="i-1806331359-1"/>
 as shown in <a href="type-parameterization.html#lst-function-variance">Listing 19.8</a>.
 This satisfies the Liskov Substitution Principle because arguments are something that's required, whereas results
 are something that's provided.</p>
@@ -937,16 +937,16 @@ are something that's provided.</p>
 </pre>
 
 
-<h5>Listing 19.8 - Covariance and contravariance of <span class="code">Function1</span>s.</h5>
+<h5>Listing 19.8 - Covariance and contravariance of <pre class="code">Function1</pre>s.</h5>
 
 
 <p>As an example, consider the application shown in <a href="type-parameterization.html#lst-parrot-contravariance">Listing 19.9</a>. Here, class
-<span class="code">Publication</span> contains one parametric field, <span class="code">title</span>, of type <span class="code">String</span>.
-Class <span class="code">Book</span> extends <span class="code">Publication</span> and forwards its string <span class="code">title</span> parameter to the constructor of its superclass.
-The <span class="code">Library</span> singleton object defines a set of books and a method <span class="code">printBookList</span>, which takes
-a function, named <span class="code">info</span>, of type <span class="code">Book</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">AnyRef</span>. In other words, the type of the lone parameter to <span class="code">printBookList</span> is a function
-that takes one <span class="code">Book</span> argument and returns an <span class="code">AnyRef</span>. The <span class="code">Customer</span> application defines a method, <span class="code">getTitle</span>,
-which takes a <span class="code">Publication</span> as its lone parameter and returns a <span class="code">String</span>, the title of the passed <span class="code">Publication</span>.</p>
+<pre class="code">Publication</pre> contains one parametric field, <pre class="code">title</pre>, of type <pre class="code">String</pre>.
+Class <pre class="code">Book</pre> extends <pre class="code">Publication</pre> and forwards its string <pre class="code">title</pre> parameter to the constructor of its superclass.
+The <pre class="code">Library</pre> singleton object defines a set of books and a method <pre class="code">printBookList</pre>, which takes
+a function, named <pre class="code">info</pre>, of type <pre class="code">Book</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">AnyRef</pre>. In other words, the type of the lone parameter to <pre class="code">printBookList</pre> is a function
+that takes one <pre class="code">Book</pre> argument and returns an <pre class="code">AnyRef</pre>. The <pre class="code">Customer</pre> application defines a method, <pre class="code">getTitle</pre>,
+which takes a <pre class="code">Publication</pre> as its lone parameter and returns a <pre class="code">String</pre>, the title of the passed <pre class="code">Publication</pre>.</p>
 
 <p><a id="lst-parrot-contravariance"/></p>
 
@@ -973,41 +973,41 @@ which takes a <span class="code">Publication</span> as its lone parameter and re
 <h5>Listing 19.9 - Demonstration of function type parameter variance.</h5>
 
 
-<p>Now take a look at the last line in <span class="code">Customer</span>. This line invokes <span class="code">Library</span>'s <span class="code">printBookList</span> method and passes
-<span class="code">getTitle</span>, wrapped in a function value:</p>
+<p>Now take a look at the last line in <pre class="code">Customer</pre>. This line invokes <pre class="code">Library</pre>'s <pre class="code">printBookList</pre> method and passes
+<pre class="code">getTitle</pre>, wrapped in a function value:</p>
 
 <pre>
   Library.printBookList(getTitle)
 </pre>
 
 
-<p>This line of code type checks even though <span class="code">String</span>, the function's result type, is a subtype
-of <span class="code">AnyRef</span>, the result type of <span class="code">printBookList</span>'s <span class="code">info</span> parameter. This code
-passes the compiler because function result types are declared to be covariant (the <span class="code">+T</span> in 
-<a href="type-parameterization.html#lst-function-variance">Listing 19.8</a>). If you look inside the body of <span class="code">printBookList</span>, you can
+<p>This line of code type checks even though <pre class="code">String</pre>, the function's result type, is a subtype
+of <pre class="code">AnyRef</pre>, the result type of <pre class="code">printBookList</pre>'s <pre class="code">info</pre> parameter. This code
+passes the compiler because function result types are declared to be covariant (the <pre class="code">+T</pre> in 
+<a href="type-parameterization.html#lst-function-variance">Listing 19.8</a>). If you look inside the body of <pre class="code">printBookList</pre>, you can
 get a glimpse of why this makes sense.</p>
 
-<p>The <span class="code">printBookList</span> method iterates through its book list and invokes the passed function
-on each book. It passes the <span class="code">AnyRef</span> result returned by <span class="code">info</span> to <span class="code">println</span>, which invokes <span class="code">toString</span> on it and prints the result.
-This activity will work with <span class="code">String</span> as well as any other subclass of <span class="code">AnyRef</span>, which is what
+<p>The <pre class="code">printBookList</pre> method iterates through its book list and invokes the passed function
+on each book. It passes the <pre class="code">AnyRef</pre> result returned by <pre class="code">info</pre> to <pre class="code">println</pre>, which invokes <pre class="code">toString</pre> on it and prints the result.
+This activity will work with <pre class="code">String</pre> as well as any other subclass of <pre class="code">AnyRef</pre>, which is what
 covariance of function result types means.</p>
 
-<p>Now consider the parameter type of the function being passed to the <span class="code">printBookList</span> method. Although <span class="code">printBookList</span>'s
-parameter type is declared as <span class="code">Book</span>, the <span class="code">getTitle</span> we're passing
-in takes a <span class="code">Publication</span>, a <em>supertype</em> of
-<span class="code">Book</span><a id="i-331888331-1"/>. The reason this works is that since
-<span class="code">printBookList</span>'s parameter type is <span class="code">Book</span>, the body of the <span class="code">printBookList</span> method will only be allowed
-to pass a <span class="code">Book</span> into the function. And because <span class="code">getTitle</span>'s parameter type is <span class="code">Publication</span>,
-the body of that function will only be able to access on its parameter, <span class="code">p</span>, members that are declared in
-class <span class="code">Publication</span>. Because any method declared in <span class="code">Publication</span> is also available on its subclass <span class="code">Book</span>, 
+<p>Now consider the parameter type of the function being passed to the <pre class="code">printBookList</pre> method. Although <pre class="code">printBookList</pre>'s
+parameter type is declared as <pre class="code">Book</pre>, the <pre class="code">getTitle</pre> we're passing
+in takes a <pre class="code">Publication</pre>, a <em>supertype</em> of
+<pre class="code">Book</pre><a id="i-331888331-1"/>. The reason this works is that since
+<pre class="code">printBookList</pre>'s parameter type is <pre class="code">Book</pre>, the body of the <pre class="code">printBookList</pre> method will only be allowed
+to pass a <pre class="code">Book</pre> into the function. And because <pre class="code">getTitle</pre>'s parameter type is <pre class="code">Publication</pre>,
+the body of that function will only be able to access on its parameter, <pre class="code">p</pre>, members that are declared in
+class <pre class="code">Publication</pre>. Because any method declared in <pre class="code">Publication</pre> is also available on its subclass <pre class="code">Book</pre>, 
 everything should work, which is what contravariance of function parameter types means.
 You can see all this graphically in <a href="type-parameterization.html#fig-contravariance">Figure 19.1</a>.</p>
 
 <p>The code in <a href="type-parameterization.html#lst-parrot-contravariance">Listing 19.9</a>
-compiles because <span class="code">Publication</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">String</span> is a subtype of <span class="code">Book</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">AnyRef</span>, as shown in the center of the <a href="type-parameterization.html#fig-contravariance">Figure 19.1</a>. Because
-the result type of a <span class="code">Function1</span> is defined as covariant, the inheritance relationship of the two result types, shown at the right
+compiles because <pre class="code">Publication</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">String</pre> is a subtype of <pre class="code">Book</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">AnyRef</pre>, as shown in the center of the <a href="type-parameterization.html#fig-contravariance">Figure 19.1</a>. Because
+the result type of a <pre class="code">Function1</pre> is defined as covariant, the inheritance relationship of the two result types, shown at the right
 of the diagram, is in the same direction as that of the two functions shown in the center. By contrast, because
-the parameter type of a <span class="code">Function1</span> is defined as contravariant, the inheritance relationship of the two parameter types, shown at the
+the parameter type of a <pre class="code">Function1</pre> is defined as contravariant, the inheritance relationship of the two parameter types, shown at the
 left of the diagram, is in the opposite direction as that of the two functions.</p>
 
 <div class="figure"><a id="fig-contravariance"/>
@@ -1052,31 +1052,31 @@ left of the diagram, is in the opposite direction as that of the two functions.<
 <h3 id="variance-object-local">19.7 Object private data</h3>
 
 
-<p>The <span class="code">Queue</span> class seen so far has a
-problem in that the <span class="code">mirror</span> operation will repeatedly copy the
-<span class="code">trailing</span> into the <span class="code">leading</span> list if <span class="code">head</span> is called several
-times in a row on a list where <span class="code">leading</span> is empty.  The wasteful
+<p>The <pre class="code">Queue</pre> class seen so far has a
+problem in that the <pre class="code">mirror</pre> operation will repeatedly copy the
+<pre class="code">trailing</pre> into the <pre class="code">leading</pre> list if <pre class="code">head</pre> is called several
+times in a row on a list where <pre class="code">leading</pre> is empty.  The wasteful
 copying could be avoided by adding some judicious side
 effects. <a href="type-parameterization.html#lst-optimized-functional-queues">Listing 19.10</a> presents a new
-implementation of <span class="code">Queue</span>, which performs at most one <span class="code">trailing</span> to
-<span class="code">leading</span> adjustment for any sequence of <span class="code">head</span> operations.</p>
+implementation of <pre class="code">Queue</pre>, which performs at most one <pre class="code">trailing</pre> to
+<pre class="code">leading</pre> adjustment for any sequence of <pre class="code">head</pre> operations.</p>
 
 <p>What's different with respect to the previous version is that now
-<span class="code">leading</span> and <span class="code">trailing</span> are reassignable variables, and <span class="code">mirror</span>
-performs the reverse copy from <span class="code">trailing</span> to <span class="code">leading</span> as
+<pre class="code">leading</pre> and <pre class="code">trailing</pre> are reassignable variables, and <pre class="code">mirror</pre>
+performs the reverse copy from <pre class="code">trailing</pre> to <pre class="code">leading</pre> as
 a side effect on the current queue instead of returning a new queue.
 This side effect is purely internal to the implementation of the
-<span class="code">Queue</span> operation; since <span class="code">leading</span> and <span class="code">trailing</span> are private
-variables, the effect is not visible to clients of <span class="code">Queue</span>.  
+<pre class="code">Queue</pre> operation; since <pre class="code">leading</pre> and <pre class="code">trailing</pre> are private
+variables, the effect is not visible to clients of <pre class="code">Queue</pre>.  
 So by the terminology established in <a href="mutable-objects.html">Chapter 18</a>,
-the new version of <span class="code">Queue</span> still defines purely functional objects, 
+the new version of <pre class="code">Queue</pre> still defines purely functional objects, 
 in spite of the fact that they now contain reassignable fields.</p>
 
 <p>You might wonder whether this code passes the Scala type
 checker. After all, queues now contain two reassignable fields of the
-covariant parameter type <span class="code">T</span>.  Is this not a violation of the
+covariant parameter type <pre class="code">T</pre>.  Is this not a violation of the
 variance rules? It would be indeed, except for the detail that
-<span class="code">leading</span> and <span class="code">trailing</span> have a <span class="code">private[this]</span> modifier, and are
+<pre class="code">leading</pre> and <pre class="code">trailing</pre> have a <pre class="code">private[this]</pre> modifier, and are
 thus declared to be object private.</p>
 
 <p>As mentioned in
@@ -1091,12 +1091,12 @@ defined with. For accesses to object private values, however, this is impossible
 
 <p>Scala's variance checking rules contain a special case for object private
 definitions.<a id="i-245097893-2"/>  Such definitions are omitted when it is checked that a
-type parameter with either a <span class="code">+</span> or <span class="code">-</span> annotation
+type parameter with either a <pre class="code">+</pre> or <pre class="code">-</pre> annotation
 occurs only in positions that have
 the same variance classification. Therefore, the code in 
 <a href="type-parameterization.html#lst-optimized-functional-queues">Listing 19.10</a> compiles without error.
-On the other hand, if you had left out the <span class="code">[this]</span> qualifiers from the 
-two <span class="code">private</span> modifiers, you would see two type errors:<a id="i-517711887-1"/></p>
+On the other hand, if you had left out the <pre class="code">[this]</pre> qualifiers from the 
+two <pre class="code">private</pre> modifiers, you would see two type errors:<a id="i-517711887-1"/></p>
 
 <pre>
   <code class="output">Queues.scala:1:&nbsp;error:&nbsp;covariant&nbsp;type&nbsp;T&nbsp;occurs&nbsp;in&nbsp;</code>
@@ -1118,10 +1118,10 @@ two <span class="code">private</span> modifiers, you would see two type errors:<
 <p>In <a href="working-with-lists.html#lst-merge-sort-function">Listing 16.1</a>  <a href="working-with-lists.html#lst-merge-sort-function">here</a>, we showed a merge sort function for lists
 that took a comparison function as a first argument and a list to sort
 as a second, curried argument.<a id="i-1812239373-1"/><a id="i1036774557-1"/> Another way you might
-want to organize such a sort function is by requiring the type of the list to mix in the <span class="code">Ordered</span> trait. As mentioned in
-<a href="traits.html#sec-the-ordered-trait">Section 12.4</a>, by mixing <span class="code">Ordered</span> into a class and implementing <span class="code">Ordered</span>'s one abstract method, <span class="code">compare</span>, you<a id="i1970675952-2"/><a id="i2068605051-3"/>
-enable clients to compare instances of that class with <span class="code">&lt;</span>, <span class="code">&gt;</span>, <span class="code">&lt;=</span>, and <span class="code">&gt;=</span>.  For example, <a href="type-parameterization.html#lst-ordered-person">Listing 19.11</a> shows <span class="code">Ordered</span>
-being mixed into a <span class="code">Person</span> class.</p>
+want to organize such a sort function is by requiring the type of the list to mix in the <pre class="code">Ordered</pre> trait. As mentioned in
+<a href="traits.html#sec-the-ordered-trait">Section 12.4</a>, by mixing <pre class="code">Ordered</pre> into a class and implementing <pre class="code">Ordered</pre>'s one abstract method, <pre class="code">compare</pre>, you<a id="i1970675952-2"/><a id="i2068605051-3"/>
+enable clients to compare instances of that class with <pre class="code">&lt;</pre>, <pre class="code">&gt;</pre>, <pre class="code">&lt;=</pre>, and <pre class="code">&gt;=</pre>.  For example, <a href="type-parameterization.html#lst-ordered-person">Listing 19.11</a> shows <pre class="code">Ordered</pre>
+being mixed into a <pre class="code">Person</pre> class.</p>
 
 <p>As a result, you can compare two people like this:</p>
 
@@ -1153,7 +1153,7 @@ being mixed into a <span class="code">Person</span> class.</p>
 </pre>
 
 
-<h5>Listing 19.11 - A <span class="code">Person</span> class that mixes in the <span class="code">Ordered</span> trait.</h5>
+<h5>Listing 19.11 - A <pre class="code">Person</pre> class that mixes in the <pre class="code">Ordered</pre> trait.</h5>
 
 
 <p><a id="lst-upper-bound-sort"/></p>
@@ -1184,13 +1184,13 @@ being mixed into a <span class="code">Person</span> class.</p>
 <div style="page-break-after:always"/>
 
 
-<p>To require that the type of the list passed to your new sort function mixes in <span class="code">Ordered</span>, you need to<a id="i1850759422-1"/>
-use an <em>upper bound</em>. An upper bound is specified similar to a lower bound, except instead of the <span class="code">&gt;:</span>
-symbol used for lower bounds, you use a <span class="code">&lt;:</span> symbol, as shown in <a href="type-parameterization.html#lst-upper-bound-sort">Listing 19.12</a>.</p>
+<p>To require that the type of the list passed to your new sort function mixes in <pre class="code">Ordered</pre>, you need to<a id="i1850759422-1"/>
+use an <em>upper bound</em>. An upper bound is specified similar to a lower bound, except instead of the <pre class="code">&gt;:</pre>
+symbol used for lower bounds, you use a <pre class="code">&lt;:</pre> symbol, as shown in <a href="type-parameterization.html#lst-upper-bound-sort">Listing 19.12</a>.</p>
 
-<p>With the "<span class="code">T</span>&nbsp;<span class="code">&lt;:</span>&nbsp;<span class="code">Ordered[T]</span>" syntax, you indicate that the type parameter, <span class="code">T</span>, has an upper bound, <span class="code">Ordered[T]</span>. This
-means that the element type of the list passed to <span class="code">orderedMergeSort</span> must be a subtype of <span class="code">Ordered</span>. Thus, you could pass
-a <span class="code">List[Person]</span> to <span class="code">orderedMergeSort</span> because <span class="code">Person</span> mixes in <span class="code">Ordered</span>.</p>
+<p>With the "<pre class="code">T</pre>&nbsp;<pre class="code">&lt;:</pre>&nbsp;<pre class="code">Ordered[T]</pre>" syntax, you indicate that the type parameter, <pre class="code">T</pre>, has an upper bound, <pre class="code">Ordered[T]</pre>. This
+means that the element type of the list passed to <pre class="code">orderedMergeSort</pre> must be a subtype of <pre class="code">Ordered</pre>. Thus, you could pass
+a <pre class="code">List[Person]</pre> to <pre class="code">orderedMergeSort</pre> because <pre class="code">Person</pre> mixes in <pre class="code">Ordered</pre>.</p>
 
 <p>For example, consider this
 list:<a id="i1588987823-1"/><a id="i-604737946-1"/><a id="i717131072-1"/><a id="i438821039-2"/><a id="i2020741259-1"/></p>
@@ -1208,8 +1208,8 @@ list:<a id="i1588987823-1"/><a id="i-604737946-1"/><a id="i717131072-1"/><a id="
 </pre>
 
 
-<p>Because the element type of this list, <span class="code">Person</span>, mixes in (and is therefore a subtype of) 
-<span class="code">Ordered[People]</span>, you can pass the list to <span class="code">orderedMergeSort</span>:</p>
+<p>Because the element type of this list, <pre class="code">Person</pre>, mixes in (and is therefore a subtype of) 
+<pre class="code">Ordered[People]</pre>, you can pass the list to <pre class="code">orderedMergeSort</pre>:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;sortedPeople&nbsp;=&nbsp;orderedMergeSort(people)
@@ -1220,11 +1220,11 @@ list:<a id="i1588987823-1"/><a id="i-604737946-1"/><a id="i717131072-1"/><a id="
 
 <p>Now, although the sort function shown in <a href="type-parameterization.html#lst-upper-bound-sort">Listing 19.12</a> serves as a useful illustration
 of upper bounds, it isn't actually the most general
-way in Scala to design a sort function that takes advantage of the <span class="code">Ordered</span> trait.</p>
+way in Scala to design a sort function that takes advantage of the <pre class="code">Ordered</pre> trait.</p>
 
 <p>For example, you couldn't
-use the <span class="code">orderedMergeSort</span> function to sort a list of
-integers, because class <span class="code">Int</span> is not a subtype of <span class="code">Ordered[Int]</span>:<a id="i-1803074733-1"/></p>
+use the <pre class="code">orderedMergeSort</pre> function to sort a list of
+integers, because class <pre class="code">Int</pre> is not a subtype of <pre class="code">Ordered[Int]</pre>:<a id="i-1803074733-1"/></p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;wontCompile&nbsp;=&nbsp;orderedMergeSort(<code class="typename">List</code>(<code class="literal">3</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">1</code>))
@@ -1249,19 +1249,19 @@ object private members. You also learned how to specify data type
 variance and what it implies for class implementation. Finally, you
 saw two techniques which help in obtaining flexible variance
 annotations: lower bounds for method type parameters and
-<span class="code">private[this]</span> annotations for local fields and methods.</p>
+<pre class="code">private[this]</pre> annotations for local fields and methods.</p>
 
 <hr/>
 <h4>Footnotes for Chapter 19:</h4>
 
 
 <p><a id="footnotemain19-1"/>[1] Supertype and subtype relationships are reflexive, which means a type is both
-a supertype and a subtype of itself. Even though <span class="code">T</span> is a lower bound for <span class="code">U</span>, you could still pass in a <span class="code">T</span> to <span class="code">enqueue</span>.</p>
+a supertype and a subtype of itself. Even though <pre class="code">T</pre> is a lower bound for <pre class="code">U</pre>, you could still pass in a <pre class="code">T</pre> to <pre class="code">enqueue</pre>.</p>
 
 <p><a id="footnotemain19-2"/>[2] Technically,
 what happens is a flip occurs for lower bounds.  The
-type parameter <span class="code">U</span> is in a negative position (1 flip), while the
-lower bound (<span class="code">&gt;:</span>&nbsp;<span class="code">T</span>) is in a positive position (2 flips).</p>
+type parameter <pre class="code">U</pre> is in a negative position (1 flip), while the
+lower bound (<pre class="code">&gt;:</pre>&nbsp;<pre class="code">T</pre>) is in a positive position (2 flips).</p>
 
 <div style="page-break-after:always"/>
 
