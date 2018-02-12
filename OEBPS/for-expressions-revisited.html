@@ -153,7 +153,7 @@ Instead, the element is simply discarded from the iteration.</p>
 
 <p>In the most common case,
 the pattern <span style="font-style:italic">pat</span> is just a variable <span style="font-style:italic">x</span>, as in
-<span class="code"><span style="font-style:italic">x</span></span>&nbsp;<pre class="code">&lt;-</pre>&nbsp;<span class="code"><span style="font-style:italic">expr</span></span>. In that case,
+<pre class="code"><span style="font-style:italic">x</span></pre>&nbsp;<pre class="code">&lt;-</pre>&nbsp;<pre class="code"><span style="font-style:italic">expr</span></pre>. In that case,
 the variable <span style="font-style:italic">x</span> simply iterates over all elements returned by <span style="font-style:italic">expr</span>.</p>
 
 <p>A <span style="font-style:italic">definition</span> is of the form:</p>
@@ -171,7 +171,7 @@ the variable <span style="font-style:italic">x</span> simply iterates over all e
 
 
 <p>The most common case is again where the pattern is a simple variable <pre class="code">x</pre> (<i>e.g.</i>,
-<span class="code"><span style="font-style:italic">x</span></span>&nbsp;<pre class="code">=</pre>&nbsp;<span class="code"><span style="font-style:italic">expr</span></span>). This defines <span style="font-style:italic">x</span> as a name for the value
+<pre class="code"><span style="font-style:italic">x</span></pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code"><span style="font-style:italic">expr</span></pre>). This defines <span style="font-style:italic">x</span> as a name for the value
 <span style="font-style:italic">expr</span>.</p>
 
 <p>A <span style="font-style:italic">filter</span> is of the form:</p>
@@ -533,7 +533,7 @@ by one element than the original one.</p>
 <p>Again, assume that <span style="font-style:italic">seq</span> is an arbitrary sequence of
 generators, definitions, and filters. In fact, <span style="font-style:italic">seq</span> might also be
 empty, and in that case there would not be a semicolon after
-<span class="code"><span style="font-style:italic">expr</span><sub>2</sub></span>. The translation scheme stays the same in each case. The 
+<pre class="code"><span style="font-style:italic">expr</span><sub>2</sub></pre>. The translation scheme stays the same in each case. The 
 <pre class="code">for</pre> expression above is translated to an application of <pre class="code">flatMap</pre>:</p>
 
 <pre>
@@ -647,8 +647,8 @@ This expression is translated to this one:</p>
 </pre>
 
 
-<p>So you see that <span class="code"><span style="font-style:italic">expr</span><sub>2</sub></span> is evaluated each time there is a new <i>x</i> value being generated.
-This re-evaluation is necessary because <span class="code"><span style="font-style:italic">expr</span><sub>2</sub></span> might refer to <i>x</i> and so needs
+<p>So you see that <pre class="code"><span style="font-style:italic">expr</span><sub>2</sub></pre> is evaluated each time there is a new <i>x</i> value being generated.
+This re-evaluation is necessary because <pre class="code"><span style="font-style:italic">expr</span><sub>2</sub></pre> might refer to <i>x</i> and so needs
 to be re-evaluated for changing values of <i>x</i>. For you as a programmer,
 the conclusion is that it's probably not a good idea to have definitions
 embedded in <pre class="code">for</pre> expressions that do not refer to variables bound by some 

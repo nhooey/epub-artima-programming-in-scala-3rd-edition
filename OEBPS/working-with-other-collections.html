@@ -582,7 +582,7 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 </tr>
 <tr>
   <td>
-    <pre class="code">nums</pre>&nbsp;<pre class="code">+</pre>&nbsp;<span class="code">(<span class="quotedstring">"vi"</span></span>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">6</span>)</span>
+    <pre class="code">nums</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">(<span class="quotedstring">"vi"</span></pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code"><span class="literal">6</span>)</pre>
   </td>
   <td>
     Adds an entry (returns
@@ -601,7 +601,7 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 </tr>
 <tr>
   <td>
-    <pre class="code">nums</pre>&nbsp;<pre class="code">++</pre>&nbsp;<span class="code"><span class="typename">List</span>(<span class="quotedstring">"iii"</span></span>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">3</span>,</span>&nbsp;<pre class="code"><pre class="quotedstring">"v"</pre></pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">5</span>)</span>
+    <pre class="code">nums</pre>&nbsp;<pre class="code">++</pre>&nbsp;<pre class="code"><span class="typename">List</span>(<span class="quotedstring">"iii"</span></pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code"><span class="literal">3</span>,</pre>&nbsp;<pre class="code"><pre class="quotedstring">"v"</pre></pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code"><span class="literal">5</span>)</pre>
   </td>
   <td>
     Adds multiple entries (returns <pre class="code">Map(i</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">1,</pre> <pre class="code">ii</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">iii</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">3,</pre>&nbsp;<pre class="code">v</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">5)</pre>)<a id="i-2098881509-1"/>
@@ -609,7 +609,7 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 </tr>
 <tr>
   <td>
-    <pre class="code">nums</pre>&nbsp;<pre class="code">--</pre>&nbsp;<span class="code"><span class="typename">List</span>(<span class="quotedstring">"i"</span>,</span>&nbsp;<span class="code"><span class="quotedstring">"ii"</span>)</span>
+    <pre class="code">nums</pre>&nbsp;<pre class="code">--</pre>&nbsp;<pre class="code"><span class="typename">List</span>(<span class="quotedstring">"i"</span>,</pre>&nbsp;<pre class="code"><span class="quotedstring">"ii"</span>)</pre>
   </td>
   <td>
     Removes multiple entries  (returns
@@ -626,7 +626,7 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 </tr>
 <tr>
   <td>
-    <span class="code">nums.contains(<span class="quotedstring">"ii"</span>)</span>
+    <pre class="code">nums.contains(<span class="quotedstring">"ii"</span>)</pre>
   </td>
   <td>
     Checks for inclusion (returns <pre class="code">true</pre>)<a id="i-1171514126-1"/>
@@ -634,7 +634,7 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 </tr>
 <tr>
   <td>
-    <span class="code">nums(<span class="quotedstring">"ii"</span>)</span>
+    <pre class="code">nums(<span class="quotedstring">"ii"</span>)</pre>
   </td>
   <td>
     Retrieves the value at a specified
@@ -687,7 +687,7 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 <tr>
   <td>
     <pre class="code">val</pre>&nbsp;<pre class="code">words</pre>&nbsp;<pre class="code">=</pre>&nbsp;<pre class="code"></pre> <br />
-  <span class="code">mutable.Map.empty[<span class="typename">String</span>,</span>&nbsp;<span class="code"><span class="typename">Int</span>]</span>
+  <pre class="code">mutable.Map.empty[<span class="typename">String</span>,</pre>&nbsp;<pre class="code"><span class="typename">Int</span>]</pre>
   </td>
   <td>
     Creates an empty, mutable map<a id="i-1094653291-2"/>
@@ -695,7 +695,7 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 </tr>
 <tr>
   <td>
-    <pre class="code">words</pre>&nbsp;<pre class="code">+=</pre>&nbsp;<span class="code">(<span class="quotedstring">"one"</span></span>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">1</span>)</span>
+    <pre class="code">words</pre>&nbsp;<pre class="code">+=</pre>&nbsp;<pre class="code">(<span class="quotedstring">"one"</span></pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code"><span class="literal">1</span>)</pre>
   </td>
   <td>
     Adds a map entry from <pre class="code">"one"</pre> to <pre class="code">1</pre> (<pre class="code">words.toString</pre> returns <pre class="code">Map(one</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">1)</pre>)<a id="i1314809716-1"/>
@@ -711,8 +711,8 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 </tr>
 <tr>
   <td>
-    <pre class="code">words</pre>&nbsp;<pre class="code">++=</pre>&nbsp;<span class="code"><span class="typename">List</span>(<span class="quotedstring">"one"</span></span>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">1</span>,</span>&nbsp;<pre class="code"></pre><br />
-<pre class="code"><pre class="quotedstring">"two"</pre></pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">2</span>,</span>&nbsp;<pre class="code"><pre class="quotedstring">"three"</pre></pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<span class="code"><span class="literal">3</span>)</span>
+    <pre class="code">words</pre>&nbsp;<pre class="code">++=</pre>&nbsp;<pre class="code"><span class="typename">List</span>(<span class="quotedstring">"one"</span></pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code"><span class="literal">1</span>,</pre>&nbsp;<pre class="code"></pre><br />
+<pre class="code"><pre class="quotedstring">"two"</pre></pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code"><span class="literal">2</span>,</pre>&nbsp;<pre class="code"><pre class="quotedstring">"three"</pre></pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code"><span class="literal">3</span>)</pre>
   </td>
   <td>
     Adds multiple map entries (<pre class="code">words.toString</pre> returns <pre class="code">Map(one</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">1,</pre> <pre class="code">two</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">2,</pre>&nbsp;<pre class="code">three</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">3)</pre>)<a id="i-1693229076-1"/>
@@ -720,7 +720,7 @@ used methods on both mutable and immutable maps are shown in <a href="working-wi
 </tr>
 <tr class="bottomline">
   <td>
-    <pre class="code">words</pre>&nbsp;<pre class="code">--=</pre>&nbsp;<span class="code"><span class="typename">List</span>(<span class="quotedstring">"one"</span>,</span>&nbsp;<span class="code"><span class="quotedstring">"two"</span>)</span>
+    <pre class="code">words</pre>&nbsp;<pre class="code">--=</pre>&nbsp;<pre class="code"><span class="typename">List</span>(<span class="quotedstring">"one"</span>,</pre>&nbsp;<pre class="code"><span class="quotedstring">"two"</span>)</pre>
   </td>
   <td>
     Removes multiple objects (<pre class="code">words.toString</pre> returns <pre class="code">Map(three</pre>&nbsp;<pre class="code">-&gt;</pre>&nbsp;<pre class="code">3)</pre>)<a id="i-610325776-1"/>

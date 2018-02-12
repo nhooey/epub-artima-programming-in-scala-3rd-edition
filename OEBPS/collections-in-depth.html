@@ -1263,7 +1263,7 @@ to get at the right iterator (either <pre class="code">l.iterator</pre>, or <pre
 Overall, that makes \<i>log</i>(<i>N</i>) indirections to get at a leaf of a balanced
 tree with <pre class="code">N</pre> leaves. So the cost of visiting all elements of a tree
 went up from about <pre class="code">2N</pre> for the <pre class="code">foreach</pre> traversal method to
-<pre class="code">N</pre>&nbsp;<span class="code">\<i>log</i>(N)</span> for the traversal with <pre class="code">iterator</pre>. If the tree has a 
+<pre class="code">N</pre>&nbsp;<pre class="code">\<i>log</i>(N)</pre> for the traversal with <pre class="code">iterator</pre>. If the tree has a 
 million elements that means about two million steps for <pre class="code">foreach</pre> and 
 about twenty million steps for <pre class="code">iterator</pre>. 
 So the <pre class="code">foreach</pre> solution has a clear advantage.</p>
@@ -1962,7 +1962,7 @@ yielding a new set.
 </li>
 <li><b><span style="font-style:italic">Set operations</span></b> for union, intersection, and set difference. These set operations exist in two 
 forms: alphabetic and symbolic. The alphabetic versions are <pre class="code">intersect</pre>, <pre class="code">union</pre>, and <pre class="code">diff</pre>, 
-whereas the symbolic versions are <pre class="code">&amp;</pre>, <pre class="code">|</pre>, and <span class="code">&amp;<pre class="large">~</pre></span>. The <pre class="code">++</pre> that <pre class="code">Set</pre> inherits
+whereas the symbolic versions are <pre class="code">&amp;</pre>, <pre class="code">|</pre>, and <pre class="code">&amp;<pre class="large">~</pre></pre>. The <pre class="code">++</pre> that <pre class="code">Set</pre> inherits
 from <pre class="code">Traversable</pre> can be seen
 as yet another alias of <pre class="code">union</pre> or <pre class="code">|</pre>, except that <pre class="code">++</pre> takes a
 <pre class="code">Traversable</pre> argument whereas <pre class="code">union</pre> and <pre class="code">|</pre> take sets.
@@ -2129,7 +2129,7 @@ all elements of <pre class="code">ys</pre><a id="i758428245-2"/><a id="i87266052
 </tr>
 <tr>
   <td>
-    <pre class="code">xs</pre>&nbsp;<span class="code">&amp;<pre class="large">~</pre></span>&nbsp;<pre class="code">ys</pre>
+    <pre class="code">xs</pre>&nbsp;<pre class="code">&amp;<pre class="large">~</pre></pre>&nbsp;<pre class="code">ys</pre>
   </td>
   <td>
     The set difference of <pre class="code">xs</pre> and <pre class="code">ys</pre><a id="i2003546905-1"/><a id="i-1861524116-1"/>
@@ -2140,7 +2140,7 @@ all elements of <pre class="code">ys</pre><a id="i758428245-2"/><a id="i87266052
     <pre class="code">xs</pre>&nbsp;<pre class="code">diff</pre>&nbsp;<pre class="code">ys</pre>
   </td>
   <td>
-    Same as <pre class="code">xs</pre>&nbsp;<span class="code">&amp;<pre class="large">~</pre></span>&nbsp;<pre class="code">ys</pre><a id="i-287414010-1"/><a id="i1067203364-1"/>
+    Same as <pre class="code">xs</pre>&nbsp;<pre class="code">&amp;<pre class="large">~</pre></pre>&nbsp;<pre class="code">ys</pre><a id="i-287414010-1"/><a id="i1067203364-1"/>
   </td>
 </tr>
 </table>
@@ -5948,7 +5948,7 @@ resulting from repeated application of a function to a start element.
   </td>
   <td>
     A sequence of length <pre class="code">n</pre> where the element at each index 
-                 <i>i</i> is computed by <span class="code">f(<i>i</i>)</span><a id="i-2126047930-1"/><a id="i323881813-1"/>
+                 <i>i</i> is computed by <pre class="code">f(<i>i</i>)</pre><a id="i-2126047930-1"/><a id="i323881813-1"/>
   </td>
 </tr>
 <tr>
@@ -5958,7 +5958,7 @@ resulting from repeated application of a function to a start element.
   <td>
     A sequence of sequences of dimension <pre class="code">m</pre> <span style="font-family:sans-serif">x</span> <pre class="code">n</pre> 
                  where the element at each index 
-                 (<i>i</i>, <i>j</i>) is computed by <span class="code">f(<i>i</i>,</span>&nbsp;<span class="code"><i>j</i>)</span>
+                 (<i>i</i>, <i>j</i>) is computed by <pre class="code">f(<i>i</i>,</pre>&nbsp;<pre class="code"><i>j</i>)</pre>
                  (exists also in higher dimensions)
   </td>
 </tr>
