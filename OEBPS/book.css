@@ -23,7 +23,7 @@
       }
 
       .code {
-        font-size: smaller;
+        font-size: larger;
         overflow-wrap: break-word;
         hyphens: none;
         -webkit-hyphens: none;
