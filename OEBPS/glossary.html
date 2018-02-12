@@ -199,13 +199,13 @@ or <em>results in</em> a value.
 <p>
 <a id="g-1274492040"/><span class="glossaryname">filter</span>&nbsp;&nbsp;
     An <pre class="code">if</pre> followed by a boolean expression in a <pre class="code">for</pre> expression.
-In <pre class="code">for(i</pre>&nbsp;<pre class="code">&lt;-</pre>&nbsp;<pre class="code">1</pre>&nbsp;<pre class="code">to</pre>&nbsp;<pre class="code">10;</pre>&nbsp;<pre class="code">if</pre>&nbsp;<pre class="code">i</pre>&nbsp;<span class="code"><span class="texttt">%</span></span>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">0)</pre>, the filter is "<pre class="code">if</pre>&nbsp;<pre class="code">i</pre>&nbsp;<span class="code"><span class="texttt">%</span></span>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">0</pre>".
+In <pre class="code">for(i</pre>&nbsp;<pre class="code">&lt;-</pre>&nbsp;<pre class="code">1</pre>&nbsp;<pre class="code">to</pre>&nbsp;<pre class="code">10;</pre>&nbsp;<pre class="code">if</pre>&nbsp;<pre class="code">i</pre>&nbsp;<pre class="code"><pre class="texttt">%</pre></pre>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">0)</pre>, the filter is "<pre class="code">if</pre>&nbsp;<pre class="code">i</pre>&nbsp;<pre class="code"><pre class="texttt">%</pre></pre>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">0</pre>".
 The value to the right of the <pre class="code">if</pre> is the <em>filter expression</em>.
 </p>
 <p>
 <a id="g-1577991104"/><span class="glossaryname">filter expression</span>&nbsp;&nbsp;
-    A <em>filter expression</em> is the boolean expression following an <pre class="code">if</pre> in a <pre class="code">for</pre> expression. In <pre class="code">for(i</pre>&nbsp;<pre class="code">&lt;-</pre>&nbsp;<pre class="code">1</pre>&nbsp;<pre class="code">to</pre>&nbsp;<pre class="code">10;</pre>&nbsp;<pre class="code">if</pre>&nbsp;<pre class="code">i</pre>&nbsp;<span class="code"><span class="texttt">%</span></span>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">0)</pre>, the filter expression
-is "<pre class="code">i</pre>&nbsp;<span class="code"><span class="texttt">%</span></span>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">0</pre>".
+    A <em>filter expression</em> is the boolean expression following an <pre class="code">if</pre> in a <pre class="code">for</pre> expression. In <pre class="code">for(i</pre>&nbsp;<pre class="code">&lt;-</pre>&nbsp;<pre class="code">1</pre>&nbsp;<pre class="code">to</pre>&nbsp;<pre class="code">10;</pre>&nbsp;<pre class="code">if</pre>&nbsp;<pre class="code">i</pre>&nbsp;<pre class="code"><pre class="texttt">%</pre></pre>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">0)</pre>, the filter expression
+is "<pre class="code">i</pre>&nbsp;<pre class="code"><pre class="texttt">%</pre></pre>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">0</pre>".
 </p>
 <p>
 <a id="g1589563862"/><span class="glossaryname">first-class function</span>&nbsp;&nbsp;
@@ -457,7 +457,7 @@ the <pre class="code">def</pre> to be changed into a <pre class="code">val</pre>
 <p>
 <a id="g624636437"/><span class="glossaryname">pattern guard</span>&nbsp;&nbsp;
     In a <pre class="code">match</pre> expression alternative, a <em>pattern guard</em> can follow a <em>pattern</em>.
-    For example, in "<pre class="code">case</pre>&nbsp;<pre class="code">x</pre>&nbsp;<pre class="code">if</pre>&nbsp;<pre class="code">x</pre>&nbsp;<span class="code"><span class="texttt">%</span></span>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">0</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">1</pre>", the pattern guard is "<pre class="code">if</pre>&nbsp;<pre class="code">x</pre>&nbsp;<span class="code"><span class="texttt">%</span></span>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">0</pre>". A case with a pattern guard will only
+    For example, in "<pre class="code">case</pre>&nbsp;<pre class="code">x</pre>&nbsp;<pre class="code">if</pre>&nbsp;<pre class="code">x</pre>&nbsp;<pre class="code"><pre class="texttt">%</pre></pre>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">0</pre>&nbsp;<pre class="code">=&gt;</pre>&nbsp;<pre class="code">x</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">1</pre>", the pattern guard is "<pre class="code">if</pre>&nbsp;<pre class="code">x</pre>&nbsp;<pre class="code"><pre class="texttt">%</pre></pre>&nbsp;<pre class="code">2</pre>&nbsp;<pre class="code">==</pre>&nbsp;<pre class="code">0</pre>". A case with a pattern guard will only
     be selected if the pattern matches and the pattern guard yields true. 
 </p>
 <p>

@@ -1516,7 +1516,7 @@ the association <pre class="code">op</pre>&nbsp;<pre class="code">-&gt;</pre>&nb
 <pre class="code">/</pre>, it makes sense to generalize this concept to also cover unary operators.
 The precedence of a unary operator is higher than the
 precedence of every binary operator. Thus we can set <pre class="code">unaryPrecedence</pre> (shown in <a href="case-classes-and-pattern-matching.html#lst-expr-form-top-half">Listing 15.20</a>) to the length of the <pre class="code">opGroups</pre> array, which is
-one more than the precedence of the <pre class="code">*</pre> and <span class="code"><span class="texttt">%</span></span> operators.
+one more than the precedence of the <pre class="code">*</pre> and <pre class="code"><pre class="texttt">%</pre></pre> operators.
 The precedence of a fraction is treated differently from the other
 operators because fractions use vertical layout. However, it will
 prove convenient to assign to the division operator the special precedence value <pre class="code">-1</pre>, so
@@ -1764,7 +1764,7 @@ could have also chosen to model the root of that class hierarchy as a trait. Mod
 <p><a id="footnotemain15-3"/>[3] In the typed pattern, <pre class="code">m:</pre>&nbsp;<pre class="code">Map[_,</pre>&nbsp;<pre class="code">_]</pre>, the "<pre class="code">Map[_,</pre>&nbsp;<pre class="code">_]</pre>" portion is called a <span class="textit">type pattern</span>.</p>
 
 <p><a id="footnotemain15-4"/>[4] The value of <pre class="code">unaryPrecedence</pre> is the highest possible precedence, because it was initialized to
-one more than the precedence of the <pre class="code">*</pre> and <span class="code"><span class="texttt">%</span></span> operators.</p>
+one more than the precedence of the <pre class="code">*</pre> and <pre class="code"><pre class="texttt">%</pre></pre> operators.</p>
 
 <div style="page-break-after:always"/>
 

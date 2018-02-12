@@ -63,7 +63,7 @@ are called <em>numeric types</em>.<a id="i-404482804-1"/></p>
 </tr>
 <tr class="topline ">
   <td>
-    <span class="code"><span class="typename">Byte</span></span>
+    <pre class="code"><pre class="typename">Byte</pre></pre>
   </td>
   <td>
     <span style="font-size:small">8-bit signed two's complement integer (-2<sup>7</sup> to 2<sup>7</sup> - 1, inclusive)</span>
@@ -71,7 +71,7 @@ are called <em>numeric types</em>.<a id="i-404482804-1"/></p>
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">Short</span></span>
+    <pre class="code"><pre class="typename">Short</pre></pre>
   </td>
   <td>
     <span style="font-size:small">16-bit signed two's complement integer (-2<sup>15</sup> to 2<sup>15</sup> - 1, inclusive)</span>
@@ -79,7 +79,7 @@ are called <em>numeric types</em>.<a id="i-404482804-1"/></p>
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">Int</span></span>
+    <pre class="code"><pre class="typename">Int</pre></pre>
   </td>
   <td>
     <span style="font-size:small">32-bit signed two's complement integer (-2<sup>31</sup> to 2<sup>31</sup> - 1, inclusive)</span>
@@ -87,7 +87,7 @@ are called <em>numeric types</em>.<a id="i-404482804-1"/></p>
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">Long</span></span>
+    <pre class="code"><pre class="typename">Long</pre></pre>
   </td>
   <td>
     <span style="font-size:small">64-bit signed two's complement integer (-2<sup>63</sup> to 2<sup>63</sup> - 1, inclusive)</span>
@@ -95,7 +95,7 @@ are called <em>numeric types</em>.<a id="i-404482804-1"/></p>
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">Char</span></span>
+    <pre class="code"><pre class="typename">Char</pre></pre>
   </td>
   <td>
     <span style="font-size:small">16-bit unsigned Unicode character (0 to 2<sup>16</sup> - 1, inclusive)</span>
@@ -103,7 +103,7 @@ are called <em>numeric types</em>.<a id="i-404482804-1"/></p>
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">String</span></span>
+    <pre class="code"><pre class="typename">String</pre></pre>
   </td>
   <td>
     <span style="font-size:small">a sequence of <pre class="code">Char</pre>s</span>
@@ -111,7 +111,7 @@ are called <em>numeric types</em>.<a id="i-404482804-1"/></p>
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">Float</span></span>
+    <pre class="code"><pre class="typename">Float</pre></pre>
   </td>
   <td>
     <span style="font-size:small">32-bit IEEE 754 single-precision float</span>
@@ -119,7 +119,7 @@ are called <em>numeric types</em>.<a id="i-404482804-1"/></p>
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">Double</span></span>
+    <pre class="code"><pre class="typename">Double</pre></pre>
   </td>
   <td>
     <span style="font-size:small">64-bit IEEE 754 double-precision float</span>
@@ -127,7 +127,7 @@ are called <em>numeric types</em>.<a id="i-404482804-1"/></p>
 </tr>
 <tr class="bottomline">
   <td>
-    <span class="code"><span class="typename">Boolean</span></span>
+    <pre class="code"><pre class="typename">Boolean</pre></pre>
   </td>
   <td>
     <span style="font-size:small"><pre class="code">true</pre> or <pre class="code">false</pre></span>
@@ -782,7 +782,7 @@ describes how Scala differs from Java in the area of object equality.</p>
 <p>You can invoke arithmetic methods via infix operator notation for<a id="i63774984-1"/>
 addition (<pre class="code">+</pre>),<a id="i983413923-1"/> subtraction (<pre class="code">-</pre>)<a id="i716347441-1"/>, multiplication
 (<pre class="code">*</pre>)<a id="i-1513393110-1"/>, division
-(<pre class="code">/</pre>)<a id="i1085968089-1"/>, and remainder (<span class="code"><span class="texttt">%</span></span>)<a id="i277713802-1"/> on
+(<pre class="code">/</pre>)<a id="i1085968089-1"/>, and remainder (<pre class="code"><pre class="texttt">%</pre></pre>)<a id="i277713802-1"/> on
 any numeric type. Here are some examples:</p>
 
 <pre>
@@ -806,9 +806,9 @@ any numeric type. Here are some examples:</p>
 
 
 <p>When both the left and right operands are integral types (<pre class="code">Int</pre>, <pre class="code">Long</pre>, <pre class="code">Byte</pre>, <pre class="code">Short</pre>, or <pre class="code">Char</pre>), the <pre class="code">/</pre> operator will tell
-you the whole number portion of the quotient, excluding any remainder. The <span class="code"><span class="texttt">%</span></span> operator indicates the remainder of an implied integer division.</p>
+you the whole number portion of the quotient, excluding any remainder. The <pre class="code"><pre class="texttt">%</pre></pre> operator indicates the remainder of an implied integer division.</p>
 
-<p>The floating-point remainder you get with <span class="code"><span class="texttt">%</span></span>
+<p>The floating-point remainder you get with <pre class="code"><pre class="texttt">%</pre></pre>
 is not the one defined by the IEEE 754 standard. The IEEE 754 remainder uses 
 rounding division, not truncating division, in calculating the remainder, so it is quite different from the integer remainder operation. If you really
 want an IEEE 754 remainder, you can call <pre class="code">IEEEremainder</pre> on <pre class="code">scala.math</pre>, as in:</p>
@@ -1109,7 +1109,7 @@ precedence than the <pre class="code">+++</pre> method.</p>
 </tr>
 <tr>
   <td>
-    <pre class="code">*</pre>&nbsp;<pre class="code">/</pre>&nbsp;<span class="code"><span class="texttt">%</span></span>
+    <pre class="code">*</pre>&nbsp;<pre class="code">/</pre>&nbsp;<pre class="code"><pre class="texttt">%</pre></pre>
   </td>
 </tr>
 <tr>
@@ -1240,7 +1240,7 @@ But <pre class="code">a</pre>&nbsp;<pre class="code">*</pre>&nbsp;<pre class="co
 <p>Operator precedence is part of the Scala language. You needn't be afraid to use it. Nevertheless, it is
 good style to use parentheses to clarify what operators are operating upon what expressions.
 Perhaps the only precedence you can truly count on other programmers knowing without looking up is that multiplicative operators, <pre class="code">*</pre>,
-<pre class="code">/</pre>, and <span class="code"><span class="texttt">%</span></span>, have a higher precedence than the additive ones <pre class="code">+</pre> and <pre class="code">-</pre>. Thus even if <pre class="code">a</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">b</pre>&nbsp;<pre class="code">&lt;&lt;</pre>&nbsp;<pre class="code">c</pre> yields the result you want without
+<pre class="code">/</pre>, and <pre class="code"><pre class="texttt">%</pre></pre>, have a higher precedence than the additive ones <pre class="code">+</pre> and <pre class="code">-</pre>. Thus even if <pre class="code">a</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">b</pre>&nbsp;<pre class="code">&lt;&lt;</pre>&nbsp;<pre class="code">c</pre> yields the result you want without
 parentheses, the extra clarity you get by writing <pre class="code">(a</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">b)</pre>&nbsp;<pre class="code">&lt;&lt;</pre>&nbsp;<pre class="code">c</pre> may reduce the frequency with which your peers utter
 your name in operator notation, for example, by shouting in disgust, "<pre class="code">bills</pre>  <span class="code">!*&amp;^<span class="texttt">%</span><pre class="large">~</pre></span>  <pre class="code">code!</pre>".<a href="basic-types-and-operations.html#footnotemain5-8">[8]</a></p>
 
@@ -1277,7 +1277,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr class="topline ">
   <td>
-    <span class="code"><span class="literal">0</span></span>&nbsp;<pre class="code">max</pre>&nbsp;<span class="code"><span class="literal">5</span></span>
+    <pre class="code"><pre class="literal">0</pre></pre>&nbsp;<pre class="code">max</pre>&nbsp;<pre class="code"><pre class="literal">5</pre></pre>
   </td>
   <td>
     <pre class="code">5</pre>
@@ -1285,7 +1285,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="literal">0</span></span>&nbsp;<pre class="code">min</pre>&nbsp;<span class="code"><span class="literal">5</span></span>
+    <pre class="code"><pre class="literal">0</pre></pre>&nbsp;<pre class="code">min</pre>&nbsp;<pre class="code"><pre class="literal">5</pre></pre>
   </td>
   <td>
     <pre class="code">0</pre>
@@ -1309,7 +1309,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="literal">1.5</span></span>&nbsp;<pre class="code">isInfinity</pre>
+    <pre class="code"><pre class="literal">1.5</pre></pre>&nbsp;<pre class="code">isInfinity</pre>
   </td>
   <td>
     <pre class="code">false</pre>
@@ -1325,7 +1325,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="literal">4</span></span>&nbsp;<pre class="code">to</pre>&nbsp;<span class="code"><span class="literal">6</span></span>
+    <pre class="code"><pre class="literal">4</pre></pre>&nbsp;<pre class="code">to</pre>&nbsp;<pre class="code"><pre class="literal">6</pre></pre>
   </td>
   <td>
     <pre class="code">Range(4,</pre>&nbsp;<pre class="code">5,</pre>&nbsp;<pre class="code">6)</pre>
@@ -1333,7 +1333,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="quotedstring">"bob"</span></span>&nbsp;<pre class="code">capitalize</pre>
+    <pre class="code"><pre class="quotedstring">"bob"</pre></pre>&nbsp;<pre class="code">capitalize</pre>
   </td>
   <td>
     <pre class="code">"Bob"</pre>
@@ -1341,7 +1341,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr class="bottomline">
   <td>
-    <span class="code"><span class="quotedstring">"robert"</span></span>&nbsp;<pre class="code">drop</pre>&nbsp;<span class="code"><span class="literal">2</span></span>
+    <pre class="code"><pre class="quotedstring">"robert"</pre></pre>&nbsp;<pre class="code">drop</pre>&nbsp;<pre class="code"><pre class="literal">2</pre></pre>
   </td>
   <td>
     <pre class="code">"bert"</pre>
@@ -1372,7 +1372,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr class="topline ">
   <td>
-    <span class="code"><span class="typename">Byte</span></span>
+    <pre class="code"><pre class="typename">Byte</pre></pre>
   </td>
   <td>
     <pre class="code">scala.runtime.RichByte</pre>
@@ -1380,7 +1380,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">Short</span></span>
+    <pre class="code"><pre class="typename">Short</pre></pre>
   </td>
   <td>
     <pre class="code">scala.runtime.RichShort</pre>
@@ -1388,7 +1388,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">Int</span></span>
+    <pre class="code"><pre class="typename">Int</pre></pre>
   </td>
   <td>
     <pre class="code">scala.runtime.RichInt</pre>
@@ -1396,7 +1396,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">Long</span></span>
+    <pre class="code"><pre class="typename">Long</pre></pre>
   </td>
   <td>
     <pre class="code">scala.runtime.RichLong</pre>
@@ -1404,7 +1404,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">Char</span></span>
+    <pre class="code"><pre class="typename">Char</pre></pre>
   </td>
   <td>
     <pre class="code">scala.runtime.RichChar</pre>
@@ -1412,7 +1412,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">Float</span></span>
+    <pre class="code"><pre class="typename">Float</pre></pre>
   </td>
   <td>
     <pre class="code">scala.runtime.RichFloat</pre>
@@ -1420,7 +1420,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">Double</span></span>
+    <pre class="code"><pre class="typename">Double</pre></pre>
   </td>
   <td>
     <pre class="code">scala.runtime.RichDouble</pre>
@@ -1428,7 +1428,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr>
   <td>
-    <span class="code"><span class="typename">Boolean</span></span>
+    <pre class="code"><pre class="typename">Boolean</pre></pre>
   </td>
   <td>
     <pre class="code">scala.runtime.RichBoolean</pre>
@@ -1436,7 +1436,7 @@ are listed in <a href="basic-types-and-operations.html#tab-richclasses">Table 5.
 </tr>
 <tr class="bottomline">
   <td>
-    <span class="code"><span class="typename">String</span></span>
+    <pre class="code"><pre class="typename">String</pre></pre>
   </td>
   <td>
     <pre class="code">scala.collection.immutable.StringOps</pre>
