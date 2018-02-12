@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" version="2.0"
+         unique-identifier="uid">
+  <metadata xmlns:opf="http://www.idpf.org/2007/opf"
+            xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <dc:title>Programming in Scala, Third Edition (2369)</dc:title>
+    <dc:publisher>Artima Press</dc:publisher>
+    <dc:creator opf:role="aut">Martin Odersky</dc:creator>
+    <dc:creator opf:role="aut">Lex Spoon</dc:creator>
+    <dc:creator opf:role="aut">Bill Venners</dc:creator>
+    <dc:identifier id="uid">5ae923d1-efdb-480d-9203-64e7282bc8fe</dc:identifier>
+    <dc:rights>Copyright 2007-2016 Martin Odersky, Lex Spoon, and Bill Venners. All rights reserved.</dc:rights>
+    <dc:subject>Scala</dc:subject>
+    <dc:date opf:event="original-publication">2016</dc:date>
+    <dc:language>en</dc:language>
+    <meta property="ibooks:specified-fonts">true</meta> 
+    <meta name="cover" content="cover-image" />
+  </metadata>
+
+  <manifest>
+    <item id="css" media-type="text/css"
+          href="book.css"/>
+
+    <item id="toc" media-type="application/x-dtbncx+xml"
+          href="toc.ncx"/>
+
+    <item id="cover-image" media-type="image/jpeg" 
+          href="images/cover.jpg"/>
+
+    <item id="cover-page" media-type="application/xhtml+xml" 
+          href="cover.html"/>
+
+    <item id="item1" media-type="application/xhtml+xml"
+          href="index.html"/>
+
+    <item id="item2" media-type="application/xhtml+xml"
+          href="praise-for-the-earlier-editions-of-programming-in-scala.html"/>
+
+    <item id="item3" media-type="application/xhtml+xml"
+          href="table-of-contents.html"/>
+
+    <item id="item4" media-type="application/xhtml+xml"
+          href="foreword.html"/>
+
+    <item id="item5" media-type="application/xhtml+xml"
+          href="acknowledgments.html"/>
+
+    <item id="item6" media-type="application/xhtml+xml"
+          href="introduction.html"/>
+
+    <item id="item7" media-type="application/xhtml+xml"
+          href="a-scalable-language.html"/>
+
+    <item id="item8" media-type="application/xhtml+xml"
+          href="first-steps-in-scala.html"/>
+
+    <item id="item9" media-type="application/xhtml+xml"
+          href="next-steps-in-scala.html"/>
+
+    <item id="item10" media-type="application/xhtml+xml"
+          href="classes-and-objects.html"/>
+
+    <item id="item11" media-type="application/xhtml+xml"
+          href="basic-types-and-operations.html"/>
+
+    <item id="item12" media-type="application/xhtml+xml"
+          href="functional-objects.html"/>
+
+    <item id="item13" media-type="application/xhtml+xml"
+          href="builtin-control-structures.html"/>
+
+    <item id="item14" media-type="application/xhtml+xml"
+          href="functions-and-closures.html"/>
+
+    <item id="item15" media-type="application/xhtml+xml"
+          href="control-abstraction.html"/>
+
+    <item id="item16" media-type="application/xhtml+xml"
+          href="composition-and-inheritance.html"/>
+
+    <item id="item17" media-type="application/xhtml+xml"
+          href="scalas-hierarchy.html"/>
+
+    <item id="item18" media-type="application/xhtml+xml"
+          href="traits.html"/>
+
+    <item id="item19" media-type="application/xhtml+xml"
+          href="packages-and-imports.html"/>
+
+    <item id="item20" media-type="application/xhtml+xml"
+          href="assertions-and-tests.html"/>
+
+    <item id="item21" media-type="application/xhtml+xml"
+          href="case-classes-and-pattern-matching.html"/>
+
+    <item id="item22" media-type="application/xhtml+xml"
+          href="working-with-lists.html"/>
+
+    <item id="item23" media-type="application/xhtml+xml"
+          href="working-with-other-collections.html"/>
+
+    <item id="item24" media-type="application/xhtml+xml"
+          href="mutable-objects.html"/>
+
+    <item id="item25" media-type="application/xhtml+xml"
+          href="type-parameterization.html"/>
+
+    <item id="item26" media-type="application/xhtml+xml"
+          href="abstract-members.html"/>
+
+    <item id="item27" media-type="application/xhtml+xml"
+          href="implicit-conversions-and-parameters.html"/>
+
+    <item id="item28" media-type="application/xhtml+xml"
+          href="implementing-lists.html"/>
+
+    <item id="item29" media-type="application/xhtml+xml"
+          href="for-expressions-revisited.html"/>
+
+    <item id="item30" media-type="application/xhtml+xml"
+          href="collections-in-depth.html"/>
+
+    <item id="item31" media-type="application/xhtml+xml"
+          href="the-architecture-of-scala-collections.html"/>
+
+    <item id="item32" media-type="application/xhtml+xml"
+          href="extractors.html"/>
+
+    <item id="item33" media-type="application/xhtml+xml"
+          href="annotations.html"/>
+
+    <item id="item34" media-type="application/xhtml+xml"
+          href="working-with-xml.html"/>
+
+    <item id="item35" media-type="application/xhtml+xml"
+          href="modular-programming-using-objects.html"/>
+
+    <item id="item36" media-type="application/xhtml+xml"
+          href="object-equality.html"/>
+
+    <item id="item37" media-type="application/xhtml+xml"
+          href="combining-scala-and-java.html"/>
+
+    <item id="item38" media-type="application/xhtml+xml"
+          href="futures-and-concurrency.html"/>
+
+    <item id="item39" media-type="application/xhtml+xml"
+          href="combinator-parsing.html"/>
+
+    <item id="item40" media-type="application/xhtml+xml"
+          href="gui-programming.html"/>
+
+    <item id="item41" media-type="application/xhtml+xml"
+          href="the-scells-spreadsheet.html"/>
+
+    <item id="item42" media-type="application/xhtml+xml"
+          href="scala-scripts-on-unix-and-windows.html"/>
+
+    <item id="item43" media-type="application/xhtml+xml"
+          href="glossary.html"/>
+
+    <item id="item44" media-type="application/xhtml+xml"
+          href="bibliography.html"/>
+
+    <item id="item45" media-type="application/xhtml+xml"
+          href="about-the-authors.html"/>
+
+    <item id="item46" media-type="application/xhtml+xml"
+          href="book-index.html"/>
+
+    <item id="img1" media-type="image/png"
+          href="images/FurryLine160.png"/>
+
+    <item id="img2" media-type="image/png"
+          href="images/sevenClicks2Gray96.png"/>
+
+    <item id="img3" media-type="image/png"
+          href="images/AnimalLine160.png"/>
+
+    <item id="img4" media-type="image/png"
+          href="images/operatorNotation80.png"/>
+
+    <item id="img5" media-type="image/png"
+          href="images/moreFruit160.png"/>
+
+    <item id="img6" media-type="image/png"
+          href="images/scalaHierarchy160.png"/>
+
+    <item id="img7" media-type="image/png"
+          href="images/maps85.png"/>
+
+    <item id="img8" media-type="image/png"
+          href="images/sets85.png"/>
+
+    <item id="img9" media-type="image/png"
+          href="images/FourLeggedLine160.png"/>
+
+    <item id="img10" media-type="image/png"
+          href="images/scells1Gray96.png"/>
+
+    <item id="img11" media-type="image/png"
+          href="images/fulladder160.png"/>
+
+    <item id="img12" media-type="image/png"
+          href="images/halfadder160.png"/>
+
+    <item id="img13" media-type="image/png"
+          href="images/cc3dd0160.png"/>
+
+    <item id="img14" media-type="image/png"
+          href="images/scalaTestOutput53.png"/>
+
+    <item id="img15" media-type="image/png"
+          href="images/CatLine160.png"/>
+
+    <item id="img16" media-type="image/png"
+          href="images/tryHierarchy85.png"/>
+
+    <item id="img17" media-type="image/png"
+          href="images/artimaPress160.png"/>
+
+    <item id="img18" media-type="image/png"
+          href="images/tempConverterGray112.png"/>
+
+    <item id="img19" media-type="image/png"
+          href="images/functionLiteral96.png"/>
+
+    <item id="img20" media-type="image/png"
+          href="images/ArrayElement160.png"/>
+
+    <item id="img21" media-type="image/png"
+          href="images/variance160.png"/>
+
+    <item id="img22" media-type="image/png"
+          href="images/scells2Gray96.png"/>
+
+    <item id="img23" media-type="image/png"
+          href="images/optree1160.png"/>
+
+    <item id="img24" media-type="image/png"
+          href="images/csaObject160.png"/>
+
+    <item id="img25" media-type="image/png"
+          href="images/cover160.png"/>
+
+    <item id="img26" media-type="image/png"
+          href="images/basicgates160.png"/>
+
+    <item id="img27" media-type="image/png"
+          href="images/noClicks2Gray96.png"/>
+
+    <item id="img28" media-type="image/png"
+          href="images/cc0dd0160.png"/>
+
+    <item id="img29" media-type="image/png"
+          href="images/scells3Gray96.png"/>
+
+    <item id="img30" media-type="image/png"
+          href="images/patricia160.png"/>
+
+    <item id="img31" media-type="image/png"
+          href="images/elementFamily2160.png"/>
+
+    <item id="img32" media-type="image/png"
+          href="images/LineElement160.png"/>
+
+    <item id="img33" media-type="image/png"
+          href="images/optree2160.png"/>
+
+    <item id="img34" media-type="image/png"
+          href="images/linearization160.png"/>
+
+    <item id="img35" media-type="image/png"
+          href="images/methodForm144.png"/>
+
+    <item id="img36" media-type="image/png"
+          href="images/firstSwingAppBigGray96.png"/>
+
+    <item id="img37" media-type="image/png"
+          href="images/listHierarchy85.png"/>
+
+    <item id="img38" media-type="image/png"
+          href="images/Book-Ads/scalaPuzzlersJustFrontWithBorder64.png"/>
+
+    <item id="img39" media-type="image/png"
+          href="images/Book-Ads/scalaCheckCoverJustFrontWithBorder32.png"/>
+
+    <item id="img40" media-type="image/png"
+          href="images/Book-Ads/akkaConcurrencyCoverJustFrontWithBorder32.png"/>
+
+    <item id="img41" media-type="image/png"
+          href="images/elementFamily160.png"/>
+
+    <item id="img42" media-type="image/png"
+          href="images/firstSwingAppLittleGray96.png"/>
+
+    <item id="img43" media-type="image/png"
+          href="images/scells4Gray96.png"/>
+  </manifest>
+
+
+  <spine toc="toc">
+    <itemref idref="cover-page"/>
+    <itemref idref="item1"/>
+    <itemref idref="item2"/>
+    <itemref idref="item3"/>
+    <itemref idref="item4"/>
+    <itemref idref="item5"/>
+    <itemref idref="item6"/>
+    <itemref idref="item7"/>
+    <itemref idref="item8"/>
+    <itemref idref="item9"/>
+    <itemref idref="item10"/>
+    <itemref idref="item11"/>
+    <itemref idref="item12"/>
+    <itemref idref="item13"/>
+    <itemref idref="item14"/>
+    <itemref idref="item15"/>
+    <itemref idref="item16"/>
+    <itemref idref="item17"/>
+    <itemref idref="item18"/>
+    <itemref idref="item19"/>
+    <itemref idref="item20"/>
+    <itemref idref="item21"/>
+    <itemref idref="item22"/>
+    <itemref idref="item23"/>
+    <itemref idref="item24"/>
+    <itemref idref="item25"/>
+    <itemref idref="item26"/>
+    <itemref idref="item27"/>
+    <itemref idref="item28"/>
+    <itemref idref="item29"/>
+    <itemref idref="item30"/>
+    <itemref idref="item31"/>
+    <itemref idref="item32"/>
+    <itemref idref="item33"/>
+    <itemref idref="item34"/>
+    <itemref idref="item35"/>
+    <itemref idref="item36"/>
+    <itemref idref="item37"/>
+    <itemref idref="item38"/>
+    <itemref idref="item39"/>
+    <itemref idref="item40"/>
+    <itemref idref="item41"/>
+    <itemref idref="item42"/>
+    <itemref idref="item43"/>
+    <itemref idref="item44"/>
+    <itemref idref="item45"/>
+    <itemref idref="item46"/>
+  </spine>
+
+
+  <guide>
+    <reference type="cover" href="cover.html"/>
+    <reference type="title-page" href="index.html"/>
+    <reference type="text" href="praise-for-the-earlier-editions-of-programming-in-scala.html"/>
+    <reference type="toc" href="table-of-contents.html"/>
+    <reference type="foreword" href="foreword.html"/>
+    <reference type="acknowledgements" href="acknowledgments.html"/>
+    <reference type="text" href="introduction.html"/>
+    <reference type="text" href="a-scalable-language.html"/>
+    <reference type="text" href="first-steps-in-scala.html"/>
+    <reference type="text" href="next-steps-in-scala.html"/>
+    <reference type="text" href="classes-and-objects.html"/>
+    <reference type="text" href="basic-types-and-operations.html"/>
+    <reference type="text" href="functional-objects.html"/>
+    <reference type="text" href="builtin-control-structures.html"/>
+    <reference type="text" href="functions-and-closures.html"/>
+    <reference type="text" href="control-abstraction.html"/>
+    <reference type="text" href="composition-and-inheritance.html"/>
+    <reference type="text" href="scalas-hierarchy.html"/>
+    <reference type="text" href="traits.html"/>
+    <reference type="text" href="packages-and-imports.html"/>
+    <reference type="text" href="assertions-and-tests.html"/>
+    <reference type="text" href="case-classes-and-pattern-matching.html"/>
+    <reference type="text" href="working-with-lists.html"/>
+    <reference type="text" href="working-with-other-collections.html"/>
+    <reference type="text" href="mutable-objects.html"/>
+    <reference type="text" href="type-parameterization.html"/>
+    <reference type="text" href="abstract-members.html"/>
+    <reference type="text" href="implicit-conversions-and-parameters.html"/>
+    <reference type="text" href="implementing-lists.html"/>
+    <reference type="text" href="for-expressions-revisited.html"/>
+    <reference type="text" href="collections-in-depth.html"/>
+    <reference type="text" href="the-architecture-of-scala-collections.html"/>
+    <reference type="text" href="extractors.html"/>
+    <reference type="text" href="annotations.html"/>
+    <reference type="text" href="working-with-xml.html"/>
+    <reference type="text" href="modular-programming-using-objects.html"/>
+    <reference type="text" href="object-equality.html"/>
+    <reference type="text" href="combining-scala-and-java.html"/>
+    <reference type="text" href="futures-and-concurrency.html"/>
+    <reference type="text" href="combinator-parsing.html"/>
+    <reference type="text" href="gui-programming.html"/>
+    <reference type="text" href="the-scells-spreadsheet.html"/>
+    <reference type="text" href="scala-scripts-on-unix-and-windows.html"/>
+    <reference type="glossary" href="glossary.html"/>
+    <reference type="bibliography" href="bibliography.html"/>
+    <reference type="text" href="about-the-authors.html"/>
+    <reference type="index" href="book-index.html"/>
+  </guide>
+
+</package>

@@ -1,0 +1,1775 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-case-classes-and-pattern-matching">Chapter 15</a></h2>
+<h1>Case Classes and Pattern Matching</h1>
+
+
+<p>This chapter introduces <em>case classes</em> and <em>pattern
+matching</em>, twin constructs that support you when writing
+regular, non-encapsulated data structures.  These two constructs are
+particularly helpful for tree-like recursive data.</p>
+
+<p>If you have programmed in a functional language before, then you will
+probably recognize pattern matching. But case classes will be new to you.  Case classes are Scala's way to allow pattern matching on
+objects without requiring a large amount of boilerplate. Generally, all you need to do is add a single <span class="code">case</span> keyword to
+each class that you want to be pattern matchable.</p>
+
+<p>This chapter starts with a simple example of case classes and pattern
+matching.  It then goes through all of the kinds of patterns that are
+supported, talks about the role of <em>sealed</em> classes, discusses
+the <span class="code">Option</span> type, and shows some non-obvious places in the language
+where pattern matching is used.  Finally, a larger, more realistic
+example of pattern matching is shown.</p>
+
+<h3>15.1 A simple example</h3>
+
+
+<p>Before delving into all the rules and nuances of pattern matching,
+it is worth looking at a simple example to get the general idea.
+Let's say you need to write a library that manipulates
+arithmetic expressions, perhaps as part of a domain-specific language you are designing.</p>
+
+<p>A first step to tackling this problem is the definition of the input data. To
+keep things simple, we'll concentrate on arithmetic expressions
+consisting of variables, numbers, and unary and binary operations.
+This is expressed by the hierarchy of Scala classes shown in <a href="case-classes-and-pattern-matching.html#lst-case-classes">Listing 15.1</a>.</p>
+
+<p><a id="lst-case-classes"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Expr</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Var</code>(name:&nbsp;<code class="typename">String</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Expr</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Number</code>(num:&nbsp;<code class="typename">Double</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Expr</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">UnOp</code>(operator:&nbsp;<code class="typename">String</code>,&nbsp;arg:&nbsp;<code class="typename">Expr</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Expr</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">BinOp</code>(operator:&nbsp;<code class="typename">String</code>,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left:&nbsp;<code class="typename">Expr</code>,&nbsp;right:&nbsp;<code class="typename">Expr</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Expr</code>
+</pre>
+
+
+<h5>Listing 15.1 - Defining case classes.</h5>
+
+
+<p>The hierarchy includes an abstract base class <span class="code">Expr</span> with four subclasses, one
+for each kind of expression being considered.<a href="case-classes-and-pattern-matching.html#footnotemain15-1">[1]</a>
+The bodies of all five classes are empty. As mentioned previously, in Scala you can leave out the 
+braces around an empty class body if you wish, so <span class="code">class</span>&nbsp;<span class="code">C</span> is the same as
+<span class="code">class</span>&nbsp;<span class="code">C</span>&nbsp;<span class="code">{}</span>.</p>
+
+<h4>Case classes</h4>
+
+
+<p>The other noteworthy thing about the declarations of
+<a href="case-classes-and-pattern-matching.html#lst-case-classes">Listing 15.1</a> is that each subclass has<a id="i-502971380-1"/><a id="i1163509252-1"/>
+a <span class="code">case</span> modifier. Classes with such a modifier are called <span style="font-style:italic">case classes</span>.
+Using the modifier makes the Scala compiler add some syntactic conveniences to your class.</p>
+
+<p>First, it adds a factory method with the name of the class.  This means that, for instance, 
+you can write <span class="code">Var("x")</span> to construct a <span class="code">Var</span> object, instead of the slightly longer <span class="code">new</span>&nbsp;<span class="code">Var("x")</span>:<a id="i-1645439037-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;v&nbsp;=&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>)
+  <code class="output">v:&nbsp;Var&nbsp;=&nbsp;Var(x)</code>
+</pre>
+
+
+<p>The factory methods are particularly nice when you nest them.
+Because there are no noisy <span class="code">new</span> keywords sprinkled throughout
+the code, you can take in the expression's structure
+at a glance:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;op&nbsp;=&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"+"</code>,&nbsp;<code class="typename">Number</code>(<code class="literal">1</code>),&nbsp;v)
+  <code class="output">op:&nbsp;BinOp&nbsp;=&nbsp;BinOp(+,Number(1.0),Var(x))</code>
+</pre>
+
+
+<p>The second syntactic convenience is that
+all arguments in the parameter list of a case class implicitly get a 
+<span class="code">val</span> prefix, so they are maintained as fields:</p>
+
+<pre>
+  scala&gt;&nbsp;v.name
+  <code class="output">res0:&nbsp;String&nbsp;=&nbsp;x</code>
+  <br />  scala&gt;&nbsp;op.left
+  <code class="output">res1:&nbsp;Expr&nbsp;=&nbsp;Number(1.0)</code>
+</pre>
+
+
+<p>Third, the compiler adds "natural" implementations of methods
+<span class="code">toString</span>, <span class="code">hashCode</span>, and <span class="code">equals</span> to your class. They will<a id="i311333302-1"/><a id="i-567433454-1"/><a id="i811694371-1"/>
+print, hash, and compare a whole tree consisting of the class and
+(recursively) all its arguments. Since <span class="code">==</span> in Scala always delegates
+to <span class="code">equals</span>, this means that elements of case classes
+are always compared structurally:</p>
+
+<pre>
+  scala&gt;&nbsp;println(op)
+  <code class="output">BinOp(+,Number(1.0),Var(x))</code>
+  <br />  scala&gt;&nbsp;op.right&nbsp;==&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>)
+  <code class="output">res3:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+</pre>
+
+
+<p>Finally, the compiler adds a <span class="code">copy</span> method to your class for making
+modified copies.  This method is useful for making a new instance of
+the class that is the same as another one except that one or two
+attributes are different.  The method works by using named and default
+parameters (see <a href="functions-and-closures.html#sec-fancy-parameters">Section 8.8</a>).  You specify the
+changes you'd like to make by using named parameters.  For any
+parameter you don't specify, the value from the old object is used.
+As an example, here is how you can make an operation just
+like <span class="code">op</span> except that the operator has changed:</p>
+
+<pre>
+  scala&gt;&nbsp;op.copy(operator&nbsp;=&nbsp;<code class="quotedstring">"-"</code>)
+  <code class="output">res4:&nbsp;BinOp&nbsp;=&nbsp;BinOp(-,Number(1.0),Var(x))</code>
+</pre>
+
+
+<p>All these conventions add a lot of convenience&mdash;at a small price. You have to write the case modifier, and your classes and objects become a bit larger. They are larger because  additional methods are generated
+and an implicit field is added for each constructor parameter.
+However, the biggest advantage of case classes is that they support
+pattern matching.</p>
+
+<h4>Pattern matching</h4>
+
+
+<p>Say you want to simplify arithmetic expressions of the kinds<a id="i-1124185517-1"/><a id="i-174768992-1"/>
+just presented. There is a multitude of possible simplification
+rules. The following three rules just serve as an illustration:</p>
+
+<pre>
+  <code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;<code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;<i>e</i>))&nbsp;&nbsp;=&gt;&nbsp;<i>e</i>&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Double&nbsp;negation</code>
+  <code class="typename">BinOp</code>(<code class="quotedstring">"+"</code>,&nbsp;<i>e</i>,&nbsp;<code class="typename">Number</code>(<code class="literal">0</code>))&nbsp;=&gt;&nbsp;<i>e</i>&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Adding&nbsp;zero</code>
+  <code class="typename">BinOp</code>(<code class="quotedstring">"*"</code>,&nbsp;<i>e</i>,&nbsp;<code class="typename">Number</code>(<code class="literal">1</code>))&nbsp;=&gt;&nbsp;<i>e</i>&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Multiplying&nbsp;by&nbsp;one</code>
+</pre>
+
+
+<p>Using pattern matching, 
+these rules can be taken almost as they are to form the core of a 
+simplification function in Scala, as shown in <a href="case-classes-and-pattern-matching.html#lst-simplify-top">Listing 15.2</a>.
+The function, <span class="code">simplifyTop</span>, can be used like this:</p>
+
+<pre>
+  scala&gt;&nbsp;simplifyTop(<code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;<code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>))))
+  <code class="output">res4:&nbsp;Expr&nbsp;=&nbsp;Var(x)</code>
+</pre>
+
+
+<p><a id="lst-simplify-top"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;simplifyTop(expr:&nbsp;<code class="typename">Expr</code>):&nbsp;<code class="typename">Expr</code>&nbsp;=&nbsp;expr&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;<code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;e))&nbsp;&nbsp;=&gt;&nbsp;e&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Double&nbsp;negation</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"+"</code>,&nbsp;e,&nbsp;<code class="typename">Number</code>(<code class="literal">0</code>))&nbsp;=&gt;&nbsp;e&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Adding&nbsp;zero</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"*"</code>,&nbsp;e,&nbsp;<code class="typename">Number</code>(<code class="literal">1</code>))&nbsp;=&gt;&nbsp;e&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Multiplying&nbsp;by&nbsp;one</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;expr
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 15.2 - The <span class="code">simplifyTop</span> function, which does a pattern match.</h5>
+
+
+<p>The right-hand side of <span class="code">simplifyTop</span> consists of a <span class="code">match</span> expression.
+<span class="code">match</span> corresponds to <span class="code">switch</span> in Java, but it's written after
+the selector expression. In other words, it's:<a id="i-451801752-1"/></p>
+
+<pre>
+  <code style="font-style:italic">selector</code>&nbsp;<code class="vem">match</code>&nbsp;{&nbsp;<code style="font-style:italic">alternatives</code>&nbsp;}
+</pre>
+
+
+<p>instead of:</p>
+
+<pre>
+  switch&nbsp;(<code style="font-style:italic">selector</code>)&nbsp;{&nbsp;<code style="font-style:italic">alternatives</code>&nbsp;}
+</pre>
+
+
+<p>A pattern match includes a sequence
+of <em>alternatives</em>,<a id="i1524854239-2"/> each
+starting with the keyword <span class="code">case</span>.  Each alternative includes a
+<em>pattern</em> and one or more expressions, which will be evaluated if the pattern
+matches.  An arrow symbol <span class="code">=&gt;</span> separates the pattern from the expressions.</p>
+
+<p>A <span class="code">match</span> expression is evaluated by trying each of the patterns in the
+order they are written.  The first pattern that matches is selected,
+and the part following the arrow is selected and executed.</p>
+
+<p>A <em>constant pattern</em> like <span class="code">"+"</span> or <span class="code">1</span> matches values that are equal<a id="i-1897505825-1"/><a id="i-612986830-1"/> to the constant with respect to <span class="code">==</span>.  A <em>variable pattern</em> like<a id="i-1540579321-1"/><a id="i-256060326-1"/> <span class="code">e</span> matches every value.  The variable then refers to that value in the
+right hand side of the case clause.  In this example, note that the
+first three alternatives evaluate to <span class="code">e</span>, a variable that is bound within
+the associated pattern.  The <em>wildcard pattern</em> (<span class="code">_</span>) also matches<a id="i-615307671-1"/><a id="i669211324-1"/>
+every value, but it does not introduce a variable name to refer to
+that value.  
+In <a href="case-classes-and-pattern-matching.html#lst-simplify-top">Listing 15.2</a>, notice how the <span class="code">match</span> ends with a default
+case that does nothing to the expression. Instead, it just results in <span class="code">expr</span>, the expression matched upon.</p>
+
+<p>A <em>constructor pattern</em> looks like <span class="code">UnOp("-",</span>&nbsp;<span class="code">e)</span>.  This pattern<a id="i-881203127-1"/><a id="i-1934430442-1"/>
+matches all values of type <span class="code">UnOp</span> whose first argument matches <span class="code">"-"</span>
+and whose second argument matches <span class="code">e</span>.  Note that the arguments to
+the constructor are themselves patterns.  This allows you to write
+deep patterns using a concise notation. Here's an example:</p>
+
+<pre>
+  <code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;<code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;e))
+</pre>
+
+
+<p>Imagine trying to implement this same functionality using
+the visitor design pattern!<a href="case-classes-and-pattern-matching.html#footnotemain15-2">[2]</a>  Almost as awkward, imagine implementing it as a long
+sequence of <span class="code">if</span> statements, type tests, and type casts.</p>
+
+<h4><span class="code">match</span> compared to <span class="code">switch</span></h4>
+
+
+<p>Match expressions can be seen as a generalization of Java-style <span class="code">switch</span>es.
+A Java-style <span class="code">switch</span> can be naturally expressed as a <span class="code">match</span> expression,
+where each pattern is a constant and the last pattern may be a
+wildcard (which represents the default case of the <span class="code">switch</span>).</p>
+
+<p>However, there are three differences to keep in mind: First, <span class="code">match</span> is an <span style="font-style:italic">expression</span>
+in Scala (<i>i.e.</i>, it always results in a value). Second, Scala's
+alternative expressions never "fall through" into the next case.
+Third, if none of the patterns match, an exception named <span class="code">MatchError</span><a id="i1620352635-1"/>
+is thrown. This means you always have to make sure that all cases are
+covered, even if it means adding a default case where there's nothing to do.</p>
+
+<p><a id="lst-default-case"/></p>
+
+<pre>
+  &nbsp;&nbsp;expr&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(op,&nbsp;left,&nbsp;right)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(expr&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;is&nbsp;a&nbsp;binary&nbsp;operation"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 15.3 - A pattern match with an empty "default" case.</h5>
+
+
+<p><a href="case-classes-and-pattern-matching.html#lst-default-case">Listing 15.3</a> shows an example. The second case is necessary because without it, the <span class="code">match</span> expression
+would throw a <span class="code">MatchError</span> for every <span class="code">expr</span> argument that is not a
+<span class="code">BinOp</span>.  In this example, no code is specified for that second case,
+so if that case runs it does nothing. The result of either case is the unit value `<span class="code">()</span>',
+which is also the result of the entire <span class="code">match</span> expression.</p>
+
+<h3 id="sec-kinds-of-patterns">15.2 Kinds of patterns</h3>
+
+
+<p>The previous example showed several kinds of patterns in quick
+succession. Now take a minute to look at each pattern in detail.</p>
+
+<p>The syntax of patterns is easy, so do not worry about that too much.
+All patterns look exactly like the corresponding expression.  
+For instance,
+given the hierarchy of <a href="case-classes-and-pattern-matching.html#lst-case-classes">Listing 15.1</a>,
+the pattern <span class="code">Var(x)</span> matches any variable expression, binding <span class="code">x</span> to the
+name of the variable.  Used as an expression, <span class="code">Var(x)</span>&mdash;exactly
+the same syntax&mdash;recreates an
+equivalent object, assuming <span class="code">x</span> is already bound to the variable's
+name.
+Since the syntax of patterns is so transparent,
+the main thing to pay attention to is just what kinds of
+patterns are possible.</p>
+
+<h4>Wildcard patterns</h4>
+
+
+<p>The wildcard pattern (<span class="code">_</span>) matches any object whatsoever.  You have<a id="i669211324-2"/><a id="i-615307671-2"/>
+already seen it used as a default, catch-all alternative,<a id="i-149672069-1"/>
+like this:</p>
+
+<pre>
+  expr&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(op,&nbsp;left,&nbsp;right)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;println(expr&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;is&nbsp;a&nbsp;binary&nbsp;operation"</code>)
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="comment">//&nbsp;handle&nbsp;the&nbsp;default&nbsp;case</code>
+  }
+</pre>
+
+
+<p>Wildcards can also be used to ignore parts of an object that you do not care
+about.  For example, the previous example does not actually care what
+the elements of a binary operation are; it just checks whether
+or not it is a binary operation. Thus, the code can just as well use the wildcard pattern for the elements of the <span class="code">BinOp</span>, as shown in
+<a href="case-classes-and-pattern-matching.html#lst-wildcard-patterns">Listing 15.4</a>.</p>
+
+<p><a id="lst-wildcard-patterns"/></p>
+
+<pre>
+  expr&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(_,&nbsp;_,&nbsp;_)&nbsp;=&gt;&nbsp;println(expr&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;is&nbsp;a&nbsp;binary&nbsp;operation"</code>)
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;println(<code class="quotedstring">"It's&nbsp;something&nbsp;else"</code>)
+  }
+</pre>
+
+
+<h5>Listing 15.4 - A pattern match with wildcard patterns.</h5>
+
+
+<h4>Constant patterns</h4>
+
+
+<p>A constant pattern matches only itself.  Any literal may be used as a<a id="i-1897505825-2"/><a id="i-612986830-2"/>
+constant.  For example, <span class="code">5</span>, <span class="code">true</span>, and <span class="code">"hello"</span> are all constant
+patterns.  Also, any <span class="code">val</span> or singleton object can be used as a constant.  For
+example, <span class="code">Nil</span>, a singleton object, is a pattern that matches only the empty list.  <a href="case-classes-and-pattern-matching.html#lst-constant-patterns">Listing 15.5</a>
+shows some examples of constant patterns:</p>
+
+<p><a id="lst-constant-patterns"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;describe(x:&nbsp;<code class="typename">Any</code>)&nbsp;=&nbsp;x&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="literal">5</code>&nbsp;=&gt;&nbsp;<code class="quotedstring">"five"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">true</code>&nbsp;=&gt;&nbsp;<code class="quotedstring">"truth"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="quotedstring">"hello"</code>&nbsp;=&gt;&nbsp;<code class="quotedstring">"hi!"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Nil</code>&nbsp;=&gt;&nbsp;<code class="quotedstring">"the&nbsp;empty&nbsp;list"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="quotedstring">"something&nbsp;else"</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 15.5 - A pattern match with constant patterns.</h5>
+
+
+<p>Here is how the pattern match shown in <a href="case-classes-and-pattern-matching.html#lst-constant-patterns">Listing 15.5</a> looks in action:</p>
+
+<pre>
+  scala&gt;&nbsp;describe(<code class="literal">5</code>)
+  <code class="output">res6:&nbsp;String&nbsp;=&nbsp;five</code>
+  <br />  scala&gt;&nbsp;describe(<code class="vem">true</code>)
+  <code class="output">res7:&nbsp;String&nbsp;=&nbsp;truth</code>
+  <br />  scala&gt;&nbsp;describe(<code class="quotedstring">"hello"</code>)
+  <code class="output">res8:&nbsp;String&nbsp;=&nbsp;hi!</code>
+  <br />  scala&gt;&nbsp;describe(<code class="typename">Nil</code>)
+  <code class="output">res9:&nbsp;String&nbsp;=&nbsp;the&nbsp;empty&nbsp;list</code>
+  <br />  scala&gt;&nbsp;describe(<code class="typename">List</code>(<code class="literal">1</code>,<code class="literal">2</code>,<code class="literal">3</code>))
+  <code class="output">res10:&nbsp;String&nbsp;=&nbsp;something&nbsp;else</code>
+</pre>
+
+
+<h4>Variable patterns</h4>
+
+
+<p><a id="subsec-kinds-of-patterns-variables"/></p>
+
+<p>A variable pattern matches any object, just like a wildcard. But unlike a<a id="i-1540579321-2"/><a id="i-256060326-2"/>
+wildcard, Scala binds the variable to whatever the object is.  You can
+then use this variable to act on the object further.  For example,
+<a href="case-classes-and-pattern-matching.html#lst-variable-pattern">Listing 15.6</a> shows a pattern match that has a special case for zero, and a
+default case for all other values.  The default case uses a variable
+pattern so that it has a name for the value, no matter what it is.</p>
+
+<p><a id="lst-variable-pattern"/></p>
+
+<pre>
+  &nbsp;&nbsp;expr&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="literal">0</code>&nbsp;=&gt;&nbsp;<code class="quotedstring">"zero"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;somethingElse&nbsp;=&gt;&nbsp;<code class="quotedstring">"not&nbsp;zero:&nbsp;"</code>&nbsp;+&nbsp;somethingElse
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 15.6 - A pattern match with a variable pattern.</h5>
+
+
+<h5>Variable or constant?</h5>
+
+
+<p>Constant patterns can have symbolic names.  You saw this already
+when we used <span class="code">Nil</span> as a pattern.  Here is a related example, where a
+pattern match involves the constants <span class="code">E</span> (2.71828...) and <span class="code">Pi</span>
+(3.14159...):</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">import</code>&nbsp;math.{E,&nbsp;<code class="typename">Pi</code>}
+  <code class="output">import&nbsp;math.{E,&nbsp;Pi}</code>
+  <br />  scala&gt;&nbsp;E&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Pi</code>&nbsp;=&gt;&nbsp;<code class="quotedstring">"strange&nbsp;math?&nbsp;Pi&nbsp;=&nbsp;"</code>&nbsp;+&nbsp;<code class="typename">Pi</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="quotedstring">"OK"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">res11:&nbsp;String&nbsp;=&nbsp;OK</code>
+</pre>
+
+
+<p>As expected, <span class="code">E</span> does not match <span class="code">Pi</span>, so the "strange math" case is
+not used.</p>
+
+<p>How does the Scala compiler know that <span class="code">Pi</span> is a
+constant imported from <span class="code">scala.math</span>, and not a
+variable that stands for the selector value itself? Scala uses a
+simple lexical rule for disambiguation: a simple name starting with a
+lowercase letter is taken to be a pattern variable; all other references
+are taken to be constants. To see the difference, create a lowercase
+alias for <span class="code">pi</span> and try with that:</p>
+
+<div style="page-break-after:always"/>
+
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;pi&nbsp;=&nbsp;<code class="typename">math.Pi</code>
+  <code class="output">pi:&nbsp;Double&nbsp;=&nbsp;3.141592653589793</code>
+  <br />  scala&gt;&nbsp;E&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;pi&nbsp;=&gt;&nbsp;<code class="quotedstring">"strange&nbsp;math?&nbsp;Pi&nbsp;=&nbsp;"</code>&nbsp;+&nbsp;pi
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">res12:&nbsp;String&nbsp;=&nbsp;strange&nbsp;math?&nbsp;Pi&nbsp;=&nbsp;2.718281828459045</code>
+</pre>
+
+
+<p>Here the compiler will not even let you add a default case at
+all.  Since <span class="code">pi</span> is a variable pattern, it will match all inputs, and
+so no cases following it can be reached:</p>
+
+<pre>
+  scala&gt;&nbsp;E&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;pi&nbsp;=&gt;&nbsp;<code class="quotedstring">"strange&nbsp;math?&nbsp;Pi&nbsp;=&nbsp;"</code>&nbsp;+&nbsp;pi
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="quotedstring">"OK"</code>&nbsp;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">&lt;console&gt;:12:&nbsp;warning:&nbsp;unreachable&nbsp;code</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;_&nbsp;=&gt;&nbsp;"OK"</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>You can still use a lowercase name for a pattern constant, if you need to, by using one of two tricks. First, if the constant is a field
+of some object, you can prefix it with a qualifier. For
+instance, <span class="code">pi</span> is a variable pattern, but <span class="code">this.pi</span> or <span class="code">obj.pi</span> are
+constants even though they start with lowercase letters.
+If that does not work (because <span class="code">pi</span> is a local
+variable, say), you can alternatively enclose the variable name in
+back ticks. For instance, <span class="code">`pi`</span> would again be interpreted as a constant, 
+not as a variable:<a id="i1325362414-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;E&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;`pi`&nbsp;=&gt;&nbsp;<code class="quotedstring">"strange&nbsp;math?&nbsp;Pi&nbsp;=&nbsp;"</code>&nbsp;+&nbsp;pi
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="quotedstring">"OK"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">res14:&nbsp;String&nbsp;=&nbsp;OK</code>
+</pre>
+
+
+<p>As you can see, the back-tick syntax for identifiers is used for
+two different purposes in Scala to help you code your way
+out of unusual circumstances.  Here you see that it can be used to
+treat a lowercase identifier as a constant in a pattern match.  Earlier on,
+in <a href="functional-objects.html#sec-literal-identifier">Section 6.10</a>, you saw that it can also be
+used to treat a keyword as an ordinary identifier, <i>e.g.</i>, writing
+<span class="code">Thread.`yield`()</span> treats <span class="code">yield</span> as an identifier rather
+than a keyword.</p>
+
+<h4>Constructor patterns</h4>
+
+
+<p>Constructors are where pattern matching becomes really powerful.  A<a id="i-881203127-2"/><a id="i-1934430442-2"/>
+constructor pattern looks like "<span class="code">BinOp("+",</span>&nbsp;<span class="code">e,</span>&nbsp;<span class="code">Number(0))</span>".  It
+consists of a name (<span class="code">BinOp</span>) and then a number of patterns within
+parentheses: <span class="code">"+"</span>, <span class="code">e</span>, and <span class="code">Number(0)</span>.  Assuming the name
+designates a case class, such a pattern means to first check that the
+object is a member of the named case class, and then to check that the
+constructor parameters of the object match the extra patterns supplied.</p>
+
+<p>These extra patterns mean that Scala patterns support <em>deep
+matches</em>.  Such patterns not only check the top-level object supplied,
+but also the contents of the object against further patterns.
+Since the extra patterns can themselves be constructor patterns, you
+can use them to check arbitrarily deep into an object. For example,
+the pattern shown in <a href="case-classes-and-pattern-matching.html#lst-constructor-patterns">Listing 15.7</a> checks that the top-level
+object is a <span class="code">BinOp</span>, that its third constructor parameter is a
+<span class="code">Number</span>, and that the value field of that number is <span class="code">0</span>.  This
+pattern is one line long yet checks three levels deep.</p>
+
+<p><a id="lst-constructor-patterns"/></p>
+
+<pre>
+  &nbsp;&nbsp;expr&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"+"</code>,&nbsp;e,&nbsp;<code class="typename">Number</code>(<code class="literal">0</code>))&nbsp;=&gt;&nbsp;println(<code class="quotedstring">"a&nbsp;deep&nbsp;match"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 15.7 - A pattern match with a constructor pattern.</h5>
+
+
+<h4>Sequence patterns</h4>
+
+
+<p><a id="sec-pat-sequences"/></p>
+
+<p>You can match against sequence types, like <span class="code">List</span> or <span class="code">Array</span>, just<a id="i1331042402-1"/><a id="i-1679405899-1"/> like you match against case classes.  Use the same syntax, but now you
+can specify any number of elements within the pattern. <a href="case-classes-and-pattern-matching.html#lst-fixed-sequence">Listing 15.8</a> shows a pattern that checks for a three-element list starting with zero.</p>
+
+<p><a id="lst-fixed-sequence"/></p>
+
+<pre>
+  &nbsp;&nbsp;expr&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>(<code class="literal">0</code>,&nbsp;_,&nbsp;_)&nbsp;=&gt;&nbsp;println(<code class="quotedstring">"found&nbsp;it"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 15.8 - A sequence pattern with a fixed length.</h5>
+
+
+<p>If you want to match against a sequence without specifying how long it
+can be, you can specify <span class="code">_*</span> as the last element of the pattern.
+This funny-looking pattern matches any number of elements within a
+sequence, including zero elements.  <a href="case-classes-and-pattern-matching.html#lst-arbitrary-sequence">Listing 15.9</a> shows an example that matches any
+list that starts with zero, regardless of how long the list is.</p>
+
+<p><a id="lst-arbitrary-sequence"/></p>
+
+<pre>
+  &nbsp;&nbsp;expr&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>(<code class="literal">0</code>,&nbsp;_*)&nbsp;=&gt;&nbsp;println(<code class="quotedstring">"found&nbsp;it"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 15.9 - A sequence pattern with an arbitrary length.</h5>
+
+
+<h4>Tuple patterns</h4>
+
+
+<p>You can match against tuples too.  A pattern like <span class="code">(a,</span>&nbsp;<span class="code">b,</span>&nbsp;<span class="code">c)</span><a id="i-1134485445-1"/><a id="i-2090433336-1"/>
+matches an arbitrary 3-tuple. An example is shown in <a href="case-classes-and-pattern-matching.html#lst-tuple-pattern">Listing 15.10</a>.</p>
+
+<p><a id="lst-tuple-pattern"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;tupleDemo(expr:&nbsp;<code class="typename">Any</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;expr&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;(a,&nbsp;b,&nbsp;c)&nbsp;&nbsp;=&gt;&nbsp;&nbsp;println(<code class="quotedstring">"matched&nbsp;"</code>&nbsp;+&nbsp;a&nbsp;+&nbsp;b&nbsp;+&nbsp;c)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 15.10 - A pattern match with a tuple pattern.</h5>
+
+
+<p>If you load the <span class="code">tupleDemo</span> method shown in <a href="case-classes-and-pattern-matching.html#lst-tuple-pattern">Listing 15.10</a> into the interpreter,
+and pass to it a tuple with three elements, you'll see:</p>
+
+<pre>
+  scala&gt;&nbsp;tupleDemo((<code class="quotedstring">"a&nbsp;"</code>,&nbsp;<code class="literal">3</code>,&nbsp;<code class="quotedstring">"-tuple"</code>))
+  <code class="output">matched&nbsp;a&nbsp;3-tuple</code>
+</pre>
+
+
+<h4>Typed patterns</h4>
+
+
+<p>You can use a <em>typed pattern</em> as a convenient replacement for type tests and type casts.
+<a href="case-classes-and-pattern-matching.html#lst-typed-patterns">Listing 15.11</a> shows an example.</p>
+
+<div style="page-break-after:always"/>
+
+
+<p><a id="lst-typed-patterns"/></p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;generalSize(x:&nbsp;<code class="typename">Any</code>)&nbsp;=&nbsp;x&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;s:&nbsp;<code class="typename">String</code>&nbsp;=&gt;&nbsp;s.length
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;m:&nbsp;<code class="typename">Map[_,&nbsp;_]</code>&nbsp;=&gt;&nbsp;m.size
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;-<code class="literal">1</code>
+  }
+</pre>
+
+
+<h5>Listing 15.11 - A pattern match with typed patterns.</h5>
+
+
+<p>Here are a few examples of using <span class="code">generalSize</span> in the Scala interpreter:</p>
+
+<pre>
+  scala&gt;&nbsp;generalSize(<code class="quotedstring">"abc"</code>)
+  <code class="output">res16:&nbsp;Int&nbsp;=&nbsp;3</code>
+  <br />  scala&gt;&nbsp;generalSize(<code class="typename">Map</code>(<code class="literal">1</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">'a'</code>,&nbsp;<code class="literal">2</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">'b'</code>))
+  <code class="output">res17:&nbsp;Int&nbsp;=&nbsp;2</code>
+  <br />  scala&gt;&nbsp;generalSize(<code class="typename">math.Pi</code>)
+  <code class="output">res18:&nbsp;Int&nbsp;=&nbsp;-1</code>
+</pre>
+
+
+<p>The <span class="code">generalSize</span> method returns the size or length of objects of various types.
+Its argument is of type <span class="code">Any</span>, so it could be any value.
+If the argument is a <span class="code">String</span>, the method returns the string's length.
+The pattern "<span class="code">s:</span>&nbsp;<span class="code">String</span>" is a typed pattern; it matches every (non-null) instance of <span class="code">String</span>. 
+The pattern variable <span class="code">s</span> then refers to that string.</p>
+
+<p>Note that even though <span class="code">s</span> and <span class="code">x</span> refer to the same value, the type
+of <span class="code">x</span> is <span class="code">Any</span>, while the type of <span class="code">s</span> is <span class="code">String</span>. So you can write
+<span class="code">s.length</span> in the alternative expression that corresponds to the
+pattern, but you could not write <span class="code">x.length</span>, because the type <span class="code">Any</span>
+does not have a <span class="code">length</span> member.<a id="i1877140953-1"/><a id="i921193062-1"/> <a id="i-378444118-1"/><a id="i1486257235-1"/> 
+An equivalent but more long-winded way that achieves the effect of a
+match against a typed pattern employs a type test followed by a
+type cast. Scala uses a different syntax than Java for these. 
+To test whether an expression <span class="code">expr</span> has type <span class="code">String</span>, say, 
+you write:</p>
+
+<pre>
+  expr.isInstanceOf[<code class="typename">String</code>]
+</pre>
+
+
+<p>To cast the same expression to type <span class="code">String</span>, you use:<a id="i-1504091967-1"/><a id="i1385408228-1"/><a id="i-1701093140-1"/><a id="i-316974287-1"/></p>
+
+<pre>
+  expr.asInstanceOf[<code class="typename">String</code>]
+</pre>
+
+
+<p>Using a type test and cast, you could rewrite 
+the first case of the previous <span class="code">match</span> expression as shown in <a href="case-classes-and-pattern-matching.html#lst-is-as-instanceof">Listing 15.12</a>.</p>
+
+<p><a id="lst-is-as-instanceof"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(x.isInstanceOf[<code class="typename">String</code>])&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;s&nbsp;=&nbsp;x.asInstanceOf[<code class="typename">String</code>]
+  &nbsp;&nbsp;&nbsp;&nbsp;s.length
+  &nbsp;&nbsp;}&nbsp;<code class="vem">else</code>&nbsp;...
+</pre>
+
+
+<h5>Listing 15.12 - Using <span class="code">isInstanceOf</span> and <span class="code">asInstanceOf</span> (poor style).</h5>
+
+
+<p>The operators <span class="code">isInstanceOf</span> and <span class="code">asInstanceOf</span> are treated as
+predefined methods of class <span class="code">Any</span> that take a type parameter in
+square brackets.  In fact, <span class="code">x.asInstanceOf[String]</span> is a special case of a
+method invocation with an explicit type parameter <span class="code">String</span>.</p>
+
+<p>As you will have noted by now, writing type tests and casts is
+rather verbose in Scala. That's intentional because it is not
+encouraged practice.  You are usually better off using a pattern match
+with a typed pattern. That's particularly true if you need to do both
+a type test and a type cast, because both operations are then rolled
+into a single pattern match.</p>
+
+<p>The second case of the <span class="code">match</span> expression in <a href="case-classes-and-pattern-matching.html#lst-typed-patterns">Listing 15.11</a> contains the typed
+pattern "<span class="code">m:</span>&nbsp;<span class="code">Map[_,</span>&nbsp;<span class="code">_]</span>".  This pattern matches any value that is a
+<span class="code">Map</span> of some arbitrary key and value types, and lets <span class="code">m</span> refer to
+that value. Therefore, <span class="code">m.size</span> is well typed and returns the size of
+the map. The underscores in the type pattern<a href="case-classes-and-pattern-matching.html#footnotemain15-3">[3]</a> are like wildcards in other
+patterns. You could have also used (lowercase) type variables instead.</p>
+
+<h5>Type erasure</h5>
+
+
+<p>Can you also test for a map with specific element types? This would be handy, say, for testing
+whether a given value is a map from type <span class="code">Int</span> to type <span class="code">Int</span>. Let's try:</p>
+
+<p><a id="i-1582199503-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;isIntIntMap(x:&nbsp;<code class="typename">Any</code>)&nbsp;=&nbsp;x&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;m:&nbsp;<code class="typename">Map[Int,&nbsp;Int]</code>&nbsp;=&gt;&nbsp;<code class="vem">true</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="vem">false</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">&lt;console&gt;:9:&nbsp;warning:&nbsp;non-variable&nbsp;type&nbsp;argument&nbsp;Int&nbsp;in&nbsp;type&nbsp;</code>
+  <code class="output">pattern&nbsp;scala.collection.immutable.Map[Int,Int]&nbsp;(the&nbsp;</code>
+  <code class="output">underlying&nbsp;of&nbsp;Map[Int,Int])&nbsp;is&nbsp;unchecked&nbsp;since&nbsp;it&nbsp;is&nbsp;</code>
+  <code class="output">eliminated&nbsp;by&nbsp;erasure</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;m:&nbsp;Map[Int,&nbsp;Int]&nbsp;=&gt;&nbsp;true</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>Scala uses the <span style="font-style:italic">erasure</span> model of generics,<a id="i-1494561943-1"/><a id="i-557245309-1"/> just like
+Java does.  This means that no information about type arguments is
+maintained at runtime.  Consequently, there is no way to determine at
+runtime whether a given <span class="code">Map</span> object has been created with two
+<span class="code">Int</span> arguments, rather than with arguments of different types. All the
+system can do is determine that a value is a <span class="code">Map</span> of some arbitrary
+type parameters. You can verify this behavior by applying <span class="code">isIntIntMap</span> to arguments
+of different instances of class <span class="code">Map</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;isIntIntMap(<code class="typename">Map</code>(<code class="literal">1</code>&nbsp;-&gt;&nbsp;<code class="literal">1</code>))
+  <code class="output">res19:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+  <br />  scala&gt;&nbsp;isIntIntMap(<code class="typename">Map</code>(<code class="quotedstring">"abc"</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"abc"</code>))
+  <code class="output">res20:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+</pre>
+
+
+<p>The first application returns <span class="code">true</span>, which looks correct, but the second application 
+also returns <span class="code">true</span>, which might be a surprise. To alert you to the possibly non-intuitive 
+runtime behavior, the compiler emits unchecked warnings like the one shown previously.</p>
+
+<p>The only exception to the erasure rule is arrays, because they
+are handled specially in Java as well as in Scala. The element type of an array is stored 
+with the array value, so you can pattern match on it. Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;isStringArray(x:&nbsp;<code class="typename">Any</code>)&nbsp;=&nbsp;x&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;a:&nbsp;<code class="typename">Array[String]</code>&nbsp;=&gt;&nbsp;<code class="quotedstring">"yes"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="quotedstring">"no"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">isStringArray:&nbsp;(x:&nbsp;Any)String</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;as&nbsp;=&nbsp;<code class="typename">Array</code>(<code class="quotedstring">"abc"</code>)
+  <code class="output">as:&nbsp;Array[String]&nbsp;=&nbsp;Array(abc)</code>
+  <br />  scala&gt;&nbsp;isStringArray(as)
+  <code class="output">res21:&nbsp;String&nbsp;=&nbsp;yes</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;ai&nbsp;=&nbsp;<code class="typename">Array</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)
+  <code class="output">ai:&nbsp;Array[Int]&nbsp;=&nbsp;Array(1,&nbsp;2,&nbsp;3)</code>
+  <br />  scala&gt;&nbsp;isStringArray(ai)
+  <code class="output">res22:&nbsp;String&nbsp;=&nbsp;no</code>
+</pre>
+
+
+<h4>Variable binding</h4>
+
+
+<p><a id="sec-var-binding"/></p>
+
+<p>In addition to the standalone variable patterns, you can also add a<a id="i-199464286-1"/><a id="i1053833551-1"/>
+variable to any other pattern.  You simply write the variable name, an
+at sign (<span class="code">@</span>), and then the pattern.  This gives you a<a id="i404534857-1"/>
+variable-binding pattern, which means the pattern is to perform the pattern match as normal, and if the pattern succeeds, set the
+variable to the matched object just as with a simple variable pattern.</p>
+
+<p>As an example, <a href="case-classes-and-pattern-matching.html#lst-variable-binding">Listing 15.13</a> shows a pattern match that looks for the absolute
+value operation being applied twice in a row.  Such an expression
+can be simplified to only take the absolute value one time.</p>
+
+<p><a id="lst-variable-binding"/></p>
+
+<pre>
+  &nbsp;&nbsp;expr&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">UnOp</code>(<code class="quotedstring">"abs"</code>,&nbsp;e&nbsp;@&nbsp;<code class="typename">UnOp</code>(<code class="quotedstring">"abs"</code>,&nbsp;_))&nbsp;=&gt;&nbsp;e
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 15.13 - A pattern with a variable binding (via the <span class="code">@</span> sign).</h5>
+
+
+<p>The example shown in <a href="case-classes-and-pattern-matching.html#lst-variable-binding">Listing 15.13</a> includes a variable-binding pattern with <span class="code">e</span> as the
+variable and <span class="code">UnOp("abs",</span>&nbsp;<span class="code">_)</span> as the pattern.  If the entire pattern
+match succeeds, then the portion that matched the <span class="code">UnOp("abs",</span>&nbsp;<span class="code">_)</span> part
+is made available as variable <span class="code">e</span>. The result of the case is just <span class="code">e</span>, because <span class="code">e</span> has the same value
+as <span class="code">expr</span> but with one less absolute value operation.</p>
+
+<h3>15.3 Pattern guards</h3>
+
+
+<p>Sometimes, syntactic pattern matching is not precise enough. 
+For instance, say you are given the task of formulating
+a simplification rule that 
+replaces sum expressions with two identical operands, such as <span class="code">e</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">e</span>,
+by multiplications of two (<i>e.g.</i>, <span class="code">e</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">2</span>). In the language
+of <span class="code">Expr</span> trees, an expression like:</p>
+
+<pre>
+  <code class="typename">BinOp</code>(<code class="quotedstring">"+"</code>,&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>),&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>))
+</pre>
+
+
+<p>would be transformed by this rule to:</p>
+
+<pre>
+  <code class="typename">BinOp</code>(<code class="quotedstring">"*"</code>,&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>),&nbsp;<code class="typename">Number</code>(<code class="literal">2</code>))
+</pre>
+
+
+<p>You might try 
+to define this rule as follows:<a id="i1430878475-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;simplifyAdd(e:&nbsp;<code class="typename">Expr</code>)&nbsp;=&nbsp;e&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"+"</code>,&nbsp;x,&nbsp;x)&nbsp;=&gt;&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"*"</code>,&nbsp;x,&nbsp;<code class="typename">Number</code>(<code class="literal">2</code>))
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;e
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">&lt;console&gt;:14:&nbsp;error:&nbsp;x&nbsp;is&nbsp;already&nbsp;defined&nbsp;as&nbsp;value&nbsp;x</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;BinOp("+",&nbsp;x,&nbsp;x)&nbsp;=&gt;&nbsp;BinOp("*",&nbsp;x,&nbsp;Number(2))</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>This fails because Scala restricts patterns to be <span style="font-style:italic">linear</span>: 
+a pattern variable may only appear once in a pattern. However, you can re-formulate<a id="i-2111106818-1"/>
+the match with a <a href="glossary.html#g624636437"><em>pattern guard</em></a>, as shown in <a href="case-classes-and-pattern-matching.html#lst-pattern-guard">Listing 15.14</a>:</p>
+
+<p><a id="lst-pattern-guard"/></p>
+
+<pre>
+  &nbsp;&nbsp;scala&gt;&nbsp;<code class="vem">def</code>&nbsp;simplifyAdd(e:&nbsp;<code class="typename">Expr</code>)&nbsp;=&nbsp;e&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"+"</code>,&nbsp;x,&nbsp;y)&nbsp;<code class="vem">if</code>&nbsp;x&nbsp;==&nbsp;y&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"*"</code>,&nbsp;x,&nbsp;<code class="typename">Number</code>(<code class="literal">2</code>))
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;e
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">&nbsp;&nbsp;simplifyAdd:&nbsp;(e:&nbsp;Expr)Expr</code>
+</pre>
+
+
+<h5>Listing 15.14 - A <span class="code">match</span> expression with a pattern guard.</h5>
+
+
+<p>A pattern guard comes after a pattern and starts with an <span class="code">if</span>.  The
+guard can be an arbitrary boolean expression, which typically refers
+to variables in the pattern. If a pattern guard is present, the match
+succeeds only if the guard evaluates to <span class="code">true</span>.  Hence, the first
+case above would only match binary operations with two equal operands.</p>
+
+<p>Some other examples of guarded patterns are:</p>
+
+<pre>
+  <code class="comment">//&nbsp;match&nbsp;only&nbsp;positive&nbsp;integers</code>
+  <code class="vem">case</code>&nbsp;n:&nbsp;<code class="typename">Int</code>&nbsp;<code class="vem">if</code>&nbsp;<code class="literal">0</code>&nbsp;&lt;&nbsp;n&nbsp;=&gt;&nbsp;...&nbsp;&nbsp;
+  <br />  <code class="comment">//&nbsp;match&nbsp;only&nbsp;strings&nbsp;starting&nbsp;with&nbsp;the&nbsp;letter&nbsp;`a'</code>
+  <code class="vem">case</code>&nbsp;s:&nbsp;<code class="typename">String</code>&nbsp;<code class="vem">if</code>&nbsp;s(<code class="literal">0</code>)&nbsp;==&nbsp;<code class="quotedstring">'a'</code>&nbsp;=&gt;&nbsp;...&nbsp;
+</pre>
+
+
+<h3>15.4 Pattern overlaps</h3>
+
+
+<p>Patterns are tried in the order in which they are written. 
+The version of <span class="code">simplify</span> shown in <a href="case-classes-and-pattern-matching.html#lst-case-order-matters">Listing 15.15</a> presents an example 
+where the order of the cases matters.</p>
+
+<p><a id="lst-case-order-matters"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;simplifyAll(expr:&nbsp;<code class="typename">Expr</code>):&nbsp;<code class="typename">Expr</code>&nbsp;=&nbsp;expr&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;<code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;e))&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;simplifyAll(e)&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;`-'&nbsp;is&nbsp;its&nbsp;own&nbsp;inverse</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"+"</code>,&nbsp;e,&nbsp;<code class="typename">Number</code>(<code class="literal">0</code>))&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;simplifyAll(e)&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;`0'&nbsp;is&nbsp;a&nbsp;neutral&nbsp;element&nbsp;for&nbsp;`+'</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"*"</code>,&nbsp;e,&nbsp;<code class="typename">Number</code>(<code class="literal">1</code>))&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;simplifyAll(e)&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;`1'&nbsp;is&nbsp;a&nbsp;neutral&nbsp;element&nbsp;for&nbsp;`*'</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">UnOp</code>(op,&nbsp;e)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">UnOp</code>(op,&nbsp;simplifyAll(e))
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(op,&nbsp;l,&nbsp;r)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">BinOp</code>(op,&nbsp;simplifyAll(l),&nbsp;simplifyAll(r))
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;expr
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 15.15 - Match expression in which case order matters.</h5>
+
+
+<p>The version of simplify shown in <a href="case-classes-and-pattern-matching.html#lst-case-order-matters">Listing 15.15</a> will apply simplification rules everywhere
+in an expression, not just at the top, as <span class="code">simplifyTop</span> did. It can
+be derived from <span class="code">simplifyTop</span> by adding two more cases for general
+unary and binary expressions (cases four and five in <a href="case-classes-and-pattern-matching.html#lst-case-order-matters">Listing 15.15</a>).</p>
+
+<p>The fourth case has the pattern <span class="code">UnOp(op,</span>&nbsp;<span class="code">e)</span>; <i>i.e.</i>, it matches
+every unary operation. The operator and operand of the unary operation
+can be arbitrary. They are bound to the pattern variables <span class="code">op</span> and <span class="code">e</span>,
+respectively. The alternative in this case applies <span class="code">simplifyAll</span>
+recursively to the operand <span class="code">e</span> and then rebuilds the same unary
+operation with the (possibly) simplified operand.  
+The fifth case for
+<span class="code">BinOp</span> is analogous: it is a "catch-all" case for arbitrary binary operations,
+which recursively applies the simplification method to its two operands.</p>
+
+<p>In this example, it is important that the catch-all cases come
+<span style="font-style:italic">after</span> the more specific simplification rules. 
+If you wrote them in the other order, then the catch-all case would
+be run in favor of the more specific rules.  In many cases, the
+compiler will even complain if you try.
+For example, here's a <span class="code">match</span> expression that won't compile because the first case
+will match anything that would be matched by the second case:<a id="i-1756802201-1"/></p>
+
+<div style="page-break-after:always"/>
+
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;simplifyBad(expr:&nbsp;<code class="typename">Expr</code>):&nbsp;<code class="typename">Expr</code>&nbsp;=&nbsp;expr&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">UnOp</code>(op,&nbsp;e)&nbsp;=&gt;&nbsp;<code class="typename">UnOp</code>(op,&nbsp;simplifyBad(e))
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;<code class="typename">UnOp</code>(<code class="quotedstring">"-"</code>,&nbsp;e))&nbsp;=&gt;&nbsp;e
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">&lt;console&gt;:21:&nbsp;warning:&nbsp;unreachable&nbsp;code</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;UnOp("-",&nbsp;UnOp("-",&nbsp;e))&nbsp;=&gt;&nbsp;e</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<h3 id="sec-sealed-classes">15.5 Sealed classes</h3>
+
+
+<p>Whenever you write a pattern match, you need to make sure you have<a id="i1902128432-1"/><a id="i-975567006-1"/>
+covered all of the possible cases.  Sometimes you can do this by
+adding a default case at the end of the match, but that only applies
+if there is a sensible default behavior.  What do you do if there is
+no default?  How can you ever feel safe that you covered all the
+cases?</p>
+
+<p>You can enlist the help of the Scala compiler in detecting
+missing combinations of patterns in a <span class="code">match</span> expression.  To do this, the compiler needs to be able to tell which are the possible
+cases. In general, this is impossible in Scala because new case
+classes can be defined at any time and in arbitrary compilation units.
+For instance, nothing would prevent you from adding a fifth case class
+to the <span class="code">Expr</span> class hierarchy in a different compilation unit from
+the one where the other four cases are defined.</p>
+
+<p>The alternative is to make the superclass of your case classes <span style="font-style:italic">
+sealed</span>.  A sealed class cannot have any new subclasses added except
+the ones in the same file.  This is very useful for pattern matching because it means you only need to worry about the subclasses you
+already know about. What's more, you get better compiler support as
+well.  If you match against case classes that inherit from a sealed
+class, the compiler will flag missing combinations of patterns with a
+warning message.</p>
+
+<p>If you write a hierarchy of classes intended to be pattern
+matched, you should consider sealing them.  Simply put the <span class="code">sealed</span>
+keyword in front of the class at the top of the hierarchy.
+Programmers using your class hierarchy will then feel confident in
+pattern matching against it.  The <span class="code">sealed</span> keyword, therefore, is
+often a license to pattern match. <a href="case-classes-and-pattern-matching.html#lst-sealed-hierarchy">Listing 15.16</a>
+shows an example in which <span class="code">Expr</span> is turned into a sealed class.<a id="i-1485759717-1"/></p>
+
+<div style="page-break-after:always"/>
+
+
+<p><a id="lst-sealed-hierarchy"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">sealed</code>&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Expr</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Var</code>(name:&nbsp;<code class="typename">String</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Expr</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Number</code>(num:&nbsp;<code class="typename">Double</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Expr</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">UnOp</code>(operator:&nbsp;<code class="typename">String</code>,&nbsp;arg:&nbsp;<code class="typename">Expr</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Expr</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">BinOp</code>(operator:&nbsp;<code class="typename">String</code>,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left:&nbsp;<code class="typename">Expr</code>,&nbsp;right:&nbsp;<code class="typename">Expr</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Expr</code>
+</pre>
+
+
+<h5>Listing 15.16 - A sealed hierarchy of case classes.</h5>
+
+
+<p>Now define a pattern match where some of the 
+possible cases are left out:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;describe(e:&nbsp;<code class="typename">Expr</code>):&nbsp;<code class="typename">String</code>&nbsp;=&nbsp;e&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Number</code>(_)&nbsp;=&gt;&nbsp;<code class="quotedstring">"a&nbsp;number"</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Var</code>(_)&nbsp;&nbsp;&nbsp;&nbsp;=&gt;&nbsp;<code class="quotedstring">"a&nbsp;variable"</code>
+  }
+</pre>
+
+
+<p>You will get a compiler warning like the following:</p>
+
+<pre>
+  <code class="output">warning:&nbsp;match&nbsp;is&nbsp;not&nbsp;exhaustive!</code>
+  <code class="output">missing&nbsp;combination&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UnOp</code>
+  <code class="output">missing&nbsp;combination&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BinOp</code>
+</pre>
+
+
+<p>Such a warning tells you that there's a risk your code might produce a
+<span class="code">MatchError</span> exception because some possible patterns (<span class="code">UnOp</span>, <span class="code">BinOp</span>)
+are not handled. The warning points to a potential source of runtime faults, 
+so it is usually a welcome help in getting your program right.<a id="i738442815-1"/></p>
+
+<p>However, at times you might encounter a situation where the compiler is
+too picky in emitting the warning. For instance, you might know from
+the context that you will only ever apply the <span class="code">describe</span> method above
+to expressions that are either <span class="code">Number</span>s or <span class="code">Var</span>s, so you know that no <span class="code">MatchError</span> will be produced. To make the warning go away, 
+you could add a third catch-all case to the method, like this:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;describe(e:&nbsp;<code class="typename">Expr</code>):&nbsp;<code class="typename">String</code>&nbsp;=&nbsp;e&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Number</code>(_)&nbsp;=&gt;&nbsp;<code class="quotedstring">"a&nbsp;number"</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Var</code>(_)&nbsp;=&gt;&nbsp;<code class="quotedstring">"a&nbsp;variable"</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="vem">throw</code>&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">RuntimeException</code>&nbsp;<code class="comment">//&nbsp;Should&nbsp;not&nbsp;happen</code>
+  }
+</pre>
+
+
+<p>That works, but it is not ideal. You will probably not be very happy 
+that you were forced to add code that will never be executed (or so you think), 
+just to make the compiler shut up.</p>
+
+<p>A more lightweight alternative is to add an <span class="code">@unchecked</span><a id="i-2035290207-1"/><a id="i-815574504-1"/> annotation to
+the selector expression of the match. This is done as follows:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;describe(e:&nbsp;<code class="typename">Expr</code>):&nbsp;<code class="typename">String</code>&nbsp;=&nbsp;(e:&nbsp;@unchecked)&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Number</code>(_)&nbsp;=&gt;&nbsp;<code class="quotedstring">"a&nbsp;number"</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Var</code>(_)&nbsp;&nbsp;&nbsp;&nbsp;=&gt;&nbsp;<code class="quotedstring">"a&nbsp;variable"</code>
+  }
+</pre>
+
+
+<p>Annotations are described in <a href="annotations.html">Chapter 27</a>.
+In general, you can add an annotation to an expression in the same way 
+you add a type: follow the expression with a colon and the name of the annotation
+(preceded by an at sign).
+For example, in this case you add an <span class="code">@unchecked</span> annotation to
+the variable <span class="code">e</span>, with "<span class="code">e:</span> <span class="code">@unchecked</span>".
+The <span class="code">@unchecked</span> annotation has a special meaning for pattern matching.
+If a <span class="code">match</span>'s selector expression carries this annotation, 
+exhaustivity checking for the patterns that follow will be suppressed.</p>
+
+<h3>15.6 The <span class="code">Option</span> type</h3>
+
+
+<p>Scala has a standard type named <span class="code">Option</span> for optional values. Such a
+value can be of two forms: <span class="code">Some(x)</span>, where <span class="code">x</span>
+is the actual value, or the <span class="code">None</span> object, which
+represents a missing value.<a id="i118074925-1"/><a id="i-747501716-1"/><a id="i1519187207-1"/></p>
+
+<p>Optional values are produced by some of the standard operations on Scala's collections. For
+instance, the <span class="code">get</span> method of Scala's <span class="code">Map</span> produces <span class="code">Some(value)</span> if a
+<span class="code">value</span> corresponding to a given key has been found, or <span class="code">None</span> if
+the given key is not defined in the <span class="code">Map</span>. Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;capitals&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Map</code>(<code class="quotedstring">"France"</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"Paris"</code>,&nbsp;<code class="quotedstring">"Japan"</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"Tokyo"</code>)
+  <code class="output">capitals:&nbsp;scala.collection.immutable.Map[String,String]&nbsp;=&nbsp;</code>
+  <code class="output">Map(France&nbsp;-&gt;&nbsp;Paris,&nbsp;Japan&nbsp;-&gt;&nbsp;Tokyo)</code>
+  <br />  scala&gt;&nbsp;capitals&nbsp;get&nbsp;<code class="quotedstring">"France"</code>
+  <code class="output">res23:&nbsp;Option[String]&nbsp;=&nbsp;Some(Paris)</code>
+  <br />  scala&gt;&nbsp;capitals&nbsp;get&nbsp;<code class="quotedstring">"North&nbsp;Pole"</code>
+  <code class="output">res24:&nbsp;Option[String]&nbsp;=&nbsp;None</code>
+</pre>
+
+
+<p>The most common way to take optional values apart is through a pattern match. For instance:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;show(x:&nbsp;<code class="typename">Option[String]</code>)&nbsp;=&nbsp;x&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Some</code>(s)&nbsp;=&gt;&nbsp;s
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">None</code>&nbsp;=&gt;&nbsp;<code class="quotedstring">"?"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">show:&nbsp;(x:&nbsp;Option[String])String</code>
+  <br />  scala&gt;&nbsp;show(capitals&nbsp;get&nbsp;<code class="quotedstring">"Japan"</code>)
+  <code class="output">res25:&nbsp;String&nbsp;=&nbsp;Tokyo</code>
+  <br />  scala&gt;&nbsp;show(capitals&nbsp;get&nbsp;<code class="quotedstring">"France"</code>)
+  <code class="output">res26:&nbsp;String&nbsp;=&nbsp;Paris</code>
+  <br />  scala&gt;&nbsp;show(capitals&nbsp;get&nbsp;<code class="quotedstring">"North&nbsp;Pole"</code>)
+  <code class="output">res27:&nbsp;String&nbsp;=&nbsp;?</code>
+</pre>
+
+
+<p>The <span class="code">Option</span> type is used frequently in Scala programs. Compare this to the dominant idiom in Java of using <span class="code">null</span> to indicate no value.<a id="i-906570700-1"/><a id="i508928486-1"/>
+For example, the <span class="code">get</span> method of <span class="code">java.util.HashMap</span> returns either
+a value stored in the <span class="code">HashMap</span> or <span class="code">null</span> if no value was found. This
+approach works for Java but is error prone because it is difficult in
+practice to keep track of which variables in a program are allowed to
+be <span class="code">null</span>.</p>
+
+<p>If a variable is allowed to be <span class="code">null</span>, then you must
+remember to check it for <span class="code">null</span> every time you use it. When you
+forget to check, you open the possibility that a
+<span class="code">NullPointerException</span> may result at runtime. Because such exceptions<a id="i-2004250537-1"/>
+may not happen very often, it can be difficult to discover the bug
+during testing. 
+For Scala, the approach would not work at all because 
+it is possible to store value types in hash maps, and <span class="code">null</span> is not
+a legal element for a value type. For instance, a <span class="code">HashMap[Int,</span>&nbsp;<span class="code">Int]</span> cannot
+return <span class="code">null</span> to signify "no element."</p>
+
+<p>By contrast, Scala encourages the use of <span class="code">Option</span> to indicate an
+optional value. This approach to optional values has several
+advantages over Java's. First, it is far more obvious to readers of
+code that a variable whose type is <span class="code">Option[String]</span> is an optional
+<span class="code">String</span> than a variable of type <span class="code">String</span>, which may sometimes be
+<span class="code">null</span>. But most importantly, that programming error described
+earlier of using a variable that may be <span class="code">null</span> without first checking
+it for <span class="code">null</span> becomes a type error in Scala. If a variable is of type
+<span class="code">Option[String]</span> and you try to use it as a <span class="code">String</span>, your Scala
+program will not compile.</p>
+
+<h3 id="sec-patterns-everywhere">15.7 Patterns everywhere</h3>
+
+
+<p>Patterns are allowed in many parts of Scala, not just in standalone
+<span class="code">match</span> expressions.  Take a look at some other places you can use
+patterns.</p>
+
+<h4>Patterns in variable definitions</h4>
+
+
+<p>Anytime you define a <span class="code">val</span> or a <span class="code">var</span>, you can use a pattern
+instead of a simple identifier.  For example, you can take
+apart a tuple and assign each of its parts to its own
+variable, as shown in <a href="case-classes-and-pattern-matching.html#lst-multiple-variables">Listing 15.17</a>:<a id="i-1873919990-1"/><a id="i-467993090-1"/></p>
+
+<p><a id="lst-multiple-variables"/></p>
+
+<pre>
+  &nbsp;&nbsp;scala&gt;&nbsp;<code class="vem">val</code>&nbsp;myTuple&nbsp;=&nbsp;(<code class="literal">123</code>,&nbsp;<code class="quotedstring">"abc"</code>)
+  <code class="output">&nbsp;&nbsp;myTuple:&nbsp;(Int,&nbsp;String)&nbsp;=&nbsp;(123,abc)</code>
+  <br />  &nbsp;&nbsp;scala&gt;&nbsp;<code class="vem">val</code>&nbsp;(number,&nbsp;string)&nbsp;=&nbsp;myTuple
+  <code class="output">&nbsp;&nbsp;number:&nbsp;Int&nbsp;=&nbsp;123</code>
+  <code class="output">&nbsp;&nbsp;string:&nbsp;String&nbsp;=&nbsp;abc</code>
+</pre>
+
+
+<h5>Listing 15.17 - Defining multiple variables with one assignment.</h5>
+
+
+<p>This construct is quite useful when working with case classes.  If you
+know the precise case class you are working with, then you can
+deconstruct it with a pattern. Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;exp&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"*"</code>,&nbsp;<code class="typename">Number</code>(<code class="literal">5</code>),&nbsp;<code class="typename">Number</code>(<code class="literal">1</code>))
+  <code class="output">exp:&nbsp;BinOp&nbsp;=&nbsp;BinOp(*,Number(5.0),Number(1.0))</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">BinOp</code>(op,&nbsp;left,&nbsp;right)&nbsp;=&nbsp;exp
+  <code class="output">op:&nbsp;String&nbsp;=&nbsp;*</code>
+  <code class="output">left:&nbsp;Expr&nbsp;=&nbsp;Number(5.0)</code>
+  <code class="output">right:&nbsp;Expr&nbsp;=&nbsp;Number(1.0)</code>
+</pre>
+
+
+<h4>Case sequences as partial functions</h4>
+
+
+<p><a id="sec-partial-functions"/></p>
+
+<p>A sequence of cases (<i>i.e.</i>, alternatives) in curly braces can be used anywhere a function literal can be used.<a id="i773900220-1"/><a id="i-422039390-1"/>
+Essentially, a case sequence <em>is</em> a function literal,<a id="i525081623-1"/>
+only more general.  Instead of having a single entry point and list of
+parameters, a case sequence has multiple entry points, each with
+their own list of parameters.  Each case is an entry point to
+the function, and the parameters are specified with the pattern.  The
+body of each entry point is the right-hand side of the case.</p>
+
+<p>Here is a simple example:<a id="i844888422-1"/></p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;withDefault:&nbsp;<code class="typename">Option[Int]</code>&nbsp;=&gt;&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Some</code>(x)&nbsp;=&gt;&nbsp;x
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">None</code>&nbsp;=&gt;&nbsp;<code class="literal">0</code>
+  }
+</pre>
+
+
+<p>The body of this function has two cases.  The first case matches a <span class="code">Some</span>,
+and returns the number inside the <span class="code">Some</span>.  The second case matches
+a <span class="code">None</span>, and returns a default value of zero.  Here is this
+function in use:</p>
+
+<pre>
+  scala&gt;&nbsp;withDefault(<code class="typename">Some</code>(<code class="literal">10</code>))
+  <code class="output">res28:&nbsp;Int&nbsp;=&nbsp;10</code>
+  <br />  scala&gt;&nbsp;withDefault(<code class="typename">None</code>)
+  <code class="output">res29:&nbsp;Int&nbsp;=&nbsp;0</code>
+</pre>
+
+
+<p>This facility is quite useful for the Akka actors library, because<a id="i2042656-4"/><a id="i-1422944994-4"/>
+it allows its  <span class="code">receive</span> method to be defined as a series of cases:</p>
+
+<pre>
+  <code class="vem">var</code>&nbsp;sum&nbsp;=&nbsp;<code class="literal">0</code>
+  <br />  <code class="vem">def</code>&nbsp;receive&nbsp;=&nbsp;{
+  <br />  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Data</code>(byte)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;sum&nbsp;+=&nbsp;byte
+  <br />  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">GetChecksum</code>(requester)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;checksum&nbsp;=&nbsp;<code style="font-size:large">~</code>(sum&nbsp;&amp;&nbsp;<code class="literal">0xFF</code>)&nbsp;+&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;requester&nbsp;!&nbsp;checksum
+  }
+</pre>
+
+
+<p>One other generalization is worth noting: a sequence of cases gives you
+a <em>partial</em> function.  If you apply such a function on a value it
+does not support, it will generate a run-time exception.  For example,
+here is a partial function that returns the second element of a list
+of integers:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;second:&nbsp;<code class="typename">List[Int]</code>&nbsp;=&gt;&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;x&nbsp;::&nbsp;y&nbsp;::&nbsp;_&nbsp;=&gt;&nbsp;y
+  }
+</pre>
+
+
+<p>When you compile this, the compiler will correctly warn that
+the match is not exhaustive:<a id="i-160448460-1"/></p>
+
+<pre>
+  <code class="output">&lt;console&gt;:17:&nbsp;warning:&nbsp;match&nbsp;is&nbsp;not&nbsp;exhaustive!</code>
+  <code class="output">missing&nbsp;combination&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Nil</code>
+</pre>
+
+
+<p>This function will succeed if you pass it a three-element list, but
+not if you pass it an empty list:</p>
+
+<pre>
+  scala&gt;&nbsp;second(<code class="typename">List</code>(<code class="literal">5</code>,&nbsp;<code class="literal">6</code>,&nbsp;<code class="literal">7</code>))
+  <code class="output">res24:&nbsp;Int&nbsp;=&nbsp;6</code>
+  <br />  scala&gt;&nbsp;second(<code class="typename">List</code>())
+  <code class="output">scala.MatchError:&nbsp;List()</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;$anonfun$1.apply(&lt;console&gt;:17)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;$anonfun$1.apply(&lt;console&gt;:17)</code>
+</pre>
+
+
+<p>If you want to check whether a partial function is defined,
+you must first tell the compiler that you know you are
+working with partial functions.  The type <span class="code">List[Int]</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Int</span>
+includes all functions from lists of integers to integers,
+whether or not the functions are partial.  The type that only includes
+<em>partial</em> functions from lists of integers to integers
+is written <span class="code">PartialFunction[List[Int],Int]</span>.  Here is
+the <span class="code">second</span> function again, this time written with
+a partial function type:<a id="i-33298553-1"/></p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;second:&nbsp;<code class="typename">PartialFunction[List[Int],Int]</code>&nbsp;=&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;x&nbsp;::&nbsp;y&nbsp;::&nbsp;_&nbsp;=&gt;&nbsp;y
+  }
+</pre>
+
+
+<p>Partial functions have a method <span class="code">isDefinedAt</span>, which can be<a id="i1604479281-1"/>
+used to test whether the function is defined at a particular
+value.  In this case, the function is defined for any
+list that has at least two elements:</p>
+
+<pre>
+  scala&gt;&nbsp;second.isDefinedAt(<code class="typename">List</code>(<code class="literal">5</code>,<code class="literal">6</code>,<code class="literal">7</code>))
+  <code class="output">res30:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+  <br />  scala&gt;&nbsp;second.isDefinedAt(<code class="typename">List</code>())
+  <code class="output">res31:&nbsp;Boolean&nbsp;=&nbsp;false</code>
+</pre>
+
+
+<p>The typical example of a partial function is a pattern matching function literal like the 
+one in the previous example. In fact, such an expression gets translated by the Scala compiler to a partial function by translating the
+patterns twice&mdash;once for the implementation of the real function, and once
+to test whether the function is defined or not.</p>
+
+<p>For instance, the function literal <span class="code">{</span>&nbsp;<span class="code">case</span>&nbsp;<span class="code">x</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">y</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">_</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">y</span>&nbsp;<span class="code">}</span> gets translated to the following partial function value:<a id="i-711183731-1"/></p>
+
+<pre>
+  <code class="vem">new</code>&nbsp;<code class="typename">PartialFunction[List[Int],&nbsp;Int]</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;apply(xs:&nbsp;<code class="typename">List[Int]</code>)&nbsp;=&nbsp;xs&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;x&nbsp;::&nbsp;y&nbsp;::&nbsp;_&nbsp;=&gt;&nbsp;y&nbsp;
+  &nbsp;&nbsp;}
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;isDefinedAt(xs:&nbsp;<code class="typename">List[Int]</code>)&nbsp;=&nbsp;xs&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;x&nbsp;::&nbsp;y&nbsp;::&nbsp;_&nbsp;=&gt;&nbsp;<code class="vem">true</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="vem">false</code>
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>This translation takes effect whenever the declared type of a function
+literal is <span class="code">PartialFunction</span>.  If the declared type is just
+<span class="code">Function1</span>, or is missing, the function literal is instead
+translated to a <span class="textit">complete function</span>.<a id="i1866035935-1"/></p>
+
+<p>In general, you should try to work with complete functions whenever
+possible, because using partial functions allows for runtime errors
+that the compiler cannot help you with.  Sometimes partial functions
+are really helpful though.  You might be sure that an unhandled value
+will never be supplied.  Alternatively, you might be using a framework
+that expects partial functions and so will always check <span class="code">isDefinedAt</span>
+before calling the function.  An example of the latter is the <span class="code">react</span>
+example given above, where the argument is a partially defined
+function, defined precisely for those messages that the caller wants
+to handle.</p>
+
+<h4>Patterns in <span class="code">for</span> expressions</h4>
+
+
+<p>You can also use a pattern in a <span class="code">for</span> expression, as shown in <a href="case-classes-and-pattern-matching.html#lst-pattern-in-for">Listing 15.18</a>. 
+This <span class="code">for</span> expression retrieves all key/value pairs from the <span class="code">capitals</span> map.
+Each pair is matched against the pattern <span class="code">(country,</span>&nbsp;<span class="code">city)</span>, which 
+defines the two variables <span class="code">country</span> and <span class="code">city</span>.<a id="i-1272952554-1"/><a id="i371386352-1"/></p>
+
+<p><a id="lst-pattern-in-for"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">for</code>&nbsp;((country,&nbsp;city)&nbsp;&lt;-&nbsp;capitals)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"The&nbsp;capital&nbsp;of&nbsp;"</code>&nbsp;+&nbsp;country&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;is&nbsp;"</code>&nbsp;+&nbsp;city)
+  <code class="output">The&nbsp;capital&nbsp;of&nbsp;France&nbsp;is&nbsp;Paris</code>
+  <code class="output">The&nbsp;capital&nbsp;of&nbsp;Japan&nbsp;is&nbsp;Tokyo</code>
+</pre>
+
+
+<h5>Listing 15.18 - A <span class="code">for</span> expression with a tuple pattern.</h5>
+
+
+<p>The pair pattern shown in <a href="case-classes-and-pattern-matching.html#lst-pattern-in-for">Listing 15.18</a> was special because the match against it can
+never fail.  Indeed, <span class="code">capitals</span> yields a sequence of pairs, so you
+can be sure that every generated pair can be matched against a pair
+pattern. But it is equally possible that a pattern might not
+match a generated value. <a href="case-classes-and-pattern-matching.html#lst-options-to-somes">Listing 15.19</a> shows an example where that is the case.</p>
+
+<p><a id="lst-options-to-somes"/></p>
+
+<pre>
+  &nbsp;&nbsp;scala&gt;&nbsp;<code class="vem">val</code>&nbsp;results&nbsp;=&nbsp;<code class="typename">List</code>(<code class="typename">Some</code>(<code class="quotedstring">"apple"</code>),&nbsp;<code class="typename">None</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Some</code>(<code class="quotedstring">"orange"</code>))
+  <code class="output">&nbsp;&nbsp;results:&nbsp;List[Option[String]]&nbsp;=&nbsp;List(Some(apple),&nbsp;None,&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;Some(orange))</code>
+  <br />  &nbsp;&nbsp;scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(<code class="typename">Some</code>(fruit)&nbsp;&lt;-&nbsp;results)&nbsp;println(fruit)
+  <code class="output">&nbsp;&nbsp;apple</code>
+  <code class="output">&nbsp;&nbsp;orange</code>
+</pre>
+
+
+<h5>Listing 15.19 - Picking elements of a list that match a pattern.</h5>
+
+
+<p>As you can see from this example, generated values that do not match the pattern
+are discarded. For instance, the second element <span class="code">None</span> in the <span class="code">results</span> list
+does not match the pattern <span class="code">Some(fruit)</span>; therefore it does not show up in the output.</p>
+
+<h3>15.8 A larger example</h3>
+
+
+<p>After having learned the different forms of patterns, you might be interested
+in seeing them applied in a larger example. The proposed task is to write
+an expression formatter class that displays an arithmetic expression in a
+two-dimensional layout. Divisions such as "<span class="code">x</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">(x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">1)</span>" should be printed vertically,
+by placing the numerator on top of the denominator, like this:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">&nbsp;&nbsp;x&nbsp;&nbsp;</span><br />
+<span class="code">-----&nbsp;</span><br />
+<span class="code">x&nbsp;+&nbsp;1</span><br /></p>
+
+</div>
+
+
+<p>As another example, here's the expression <span class="code">((a</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">(b</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">c)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">1</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">n)</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">3)</span> in
+two dimensional layout:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">&nbsp;&nbsp;a&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;</span><br />
+<span class="code">-----&nbsp;+&nbsp;-&nbsp;</span><br />
+<span class="code">b&nbsp;*&nbsp;c&nbsp;&nbsp;&nbsp;n&nbsp;</span><br />
+<span class="code">---------&nbsp;</span><br />
+<span class="code">&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;</span><br /></p>
+
+</div>
+
+
+<p>From these examples it looks like the class (we'll call it
+<span class="code">ExprFormatter</span>) will have to do a fair bit
+of layout juggling, so it makes sense to use the layout library
+developed in <a href="composition-and-inheritance.html">Chapter 10</a>.
+We'll also use the <span class="code">Expr</span> family of case classes you saw previously in this chapter, and place both <a href="composition-and-inheritance.html">Chapter 10</a>'s layout library and this chapter's
+expression formatter into named packages.
+The full code for the example will
+be shown in <a href="case-classes-and-pattern-matching.html#lst-expr-form-top-half">Listings 15.20</a> and <a href="case-classes-and-pattern-matching.html#lst-expr-form-bottom-half"> 15.21</a>.</p>
+
+<p>A useful first step is to concentrate on horizontal layout. A structured expression like:</p>
+
+<pre>
+  <code class="typename">BinOp</code>(<code class="quotedstring">"+"</code>,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"*"</code>,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"+"</code>,&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>),&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"y"</code>)),&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"z"</code>)),&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Number</code>(<code class="literal">1</code>))
+</pre>
+
+
+<p>should print <span class="code">(x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y)</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">z</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">1</span>. Note that parentheses are mandatory
+around <span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span>, but would be optional around <span class="code">(x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y)</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">z</span>. To keep
+the layout as legible as possible, your goal should be to omit parentheses wherever
+they are redundant, while ensuring that all
+necessary parentheses are present.</p>
+
+<p>To know where to put parentheses, the code needs to know about the
+relative precedence of each operator, so it's a good idea to tackle
+this first. You could express the relative precedence directly as a
+map literal of the following form:</p>
+
+<pre>
+  <code class="typename">Map</code>(
+  &nbsp;&nbsp;<code class="quotedstring">"|"</code>&nbsp;-&gt;&nbsp;<code class="literal">0</code>,&nbsp;<code class="quotedstring">"||"</code>&nbsp;-&gt;&nbsp;<code class="literal">0</code>,
+  &nbsp;&nbsp;<code class="quotedstring">"&amp;"</code>&nbsp;-&gt;&nbsp;<code class="literal">1</code>,&nbsp;<code class="quotedstring">"&amp;&amp;"</code>&nbsp;-&gt;&nbsp;<code class="literal">1</code>,&nbsp;...
+  )
+</pre>
+
+
+<p>However, this would involve some amount of pre-computation of precedences
+on your part.  A more convenient approach is to just define
+groups of operators of increasing precedence and then calculate the
+precedence of each operator from that. <a href="case-classes-and-pattern-matching.html#lst-expr-form-top-half">Listing 15.20</a> shows the code.</p>
+
+<p><a id="lst-expr-form-top-half"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;org.stairwaybook.expr
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;org.stairwaybook.layout.Element.elem
+  <br />  &nbsp;&nbsp;<code class="vem">sealed</code>&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Expr</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Var</code>(name:&nbsp;<code class="typename">String</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Expr</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Number</code>(num:&nbsp;<code class="typename">Double</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Expr</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">UnOp</code>(operator:&nbsp;<code class="typename">String</code>,&nbsp;arg:&nbsp;<code class="typename">Expr</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Expr</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">BinOp</code>(operator:&nbsp;<code class="typename">String</code>,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;left:&nbsp;<code class="typename">Expr</code>,&nbsp;right:&nbsp;<code class="typename">Expr</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Expr</code>
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">ExprFormatter</code>&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Contains&nbsp;operators&nbsp;in&nbsp;groups&nbsp;of&nbsp;increasing&nbsp;precedence</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">val</code>&nbsp;opGroups&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Array</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Set</code>(<code class="quotedstring">"|"</code>,&nbsp;<code class="quotedstring">"||"</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Set</code>(<code class="quotedstring">"&amp;"</code>,&nbsp;<code class="quotedstring">"&amp;&amp;"</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Set</code>(<code class="quotedstring">"^"</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Set</code>(<code class="quotedstring">"=="</code>,&nbsp;<code class="quotedstring">"!="</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Set</code>(<code class="quotedstring">"&lt;"</code>,&nbsp;<code class="quotedstring">"&lt;="</code>,&nbsp;<code class="quotedstring">"&gt;"</code>,&nbsp;<code class="quotedstring">"&gt;="</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Set</code>(<code class="quotedstring">"+"</code>,&nbsp;<code class="quotedstring">"-"</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Set</code>(<code class="quotedstring">"*"</code>,&nbsp;<code class="quotedstring">"<code class="texttt">%</code>"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;A&nbsp;mapping&nbsp;from&nbsp;operators&nbsp;to&nbsp;their&nbsp;precedence</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">val</code>&nbsp;precedence&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;assocs&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i&nbsp;&lt;-&nbsp;<code class="literal">0</code>&nbsp;until&nbsp;opGroups.length
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op&nbsp;&lt;-&nbsp;opGroups(i)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<code class="vem">yield</code>&nbsp;op&nbsp;-&gt;&nbsp;i
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assocs.toMap
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">val</code>&nbsp;unaryPrecedence&nbsp;=&nbsp;opGroups.length
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">val</code>&nbsp;fractionPrecedence&nbsp;=&nbsp;-<code class="literal">1</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;continued&nbsp;in&nbsp;Listing&nbsp;15.21...</code>
+</pre>
+
+
+<h5>Listing 15.20 - The top half of the expression formatter.</h5>
+
+
+<p><a id="lst-expr-form-bottom-half"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="comment">//&nbsp;...continued&nbsp;from&nbsp;Listing&nbsp;15.20</code>
+  <br />  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;org.stairwaybook.layout.Element
+  <br />  &nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">def</code>&nbsp;format(e:&nbsp;<code class="typename">Expr</code>,&nbsp;enclPrec:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">Element</code>&nbsp;=
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;e&nbsp;<code class="vem">match</code>&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Var</code>(name)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;elem(name)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Number</code>(num)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;stripDot(s:&nbsp;<code class="typename">String</code>)&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(s&nbsp;endsWith&nbsp;<code class="quotedstring">".0"</code>)&nbsp;s.substring(<code class="literal">0</code>,&nbsp;s.length&nbsp;-&nbsp;<code class="literal">2</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;s
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;elem(stripDot(num.toString))
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">UnOp</code>(op,&nbsp;arg)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;elem(op)&nbsp;beside&nbsp;format(arg,&nbsp;unaryPrecedence)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"/"</code>,&nbsp;left,&nbsp;right)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;top&nbsp;=&nbsp;format(left,&nbsp;fractionPrecedence)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;bot&nbsp;=&nbsp;format(right,&nbsp;fractionPrecedence)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;line&nbsp;=&nbsp;elem(<code class="quotedstring">'-'</code>,&nbsp;top.width&nbsp;max&nbsp;bot.width,&nbsp;<code class="literal">1</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;frac&nbsp;=&nbsp;top&nbsp;above&nbsp;line&nbsp;above&nbsp;bot
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(enclPrec&nbsp;!=&nbsp;fractionPrecedence)&nbsp;frac
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;elem(<code class="quotedstring">"&nbsp;"</code>)&nbsp;beside&nbsp;frac&nbsp;beside&nbsp;elem(<code class="quotedstring">"&nbsp;"</code>)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(op,&nbsp;left,&nbsp;right)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;opPrec&nbsp;=&nbsp;precedence(op)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;l&nbsp;=&nbsp;format(left,&nbsp;opPrec)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;r&nbsp;=&nbsp;format(right,&nbsp;opPrec&nbsp;+&nbsp;<code class="literal">1</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;oper&nbsp;=&nbsp;l&nbsp;beside&nbsp;elem(<code class="quotedstring">"&nbsp;"</code>&nbsp;+&nbsp;op&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;"</code>)&nbsp;beside&nbsp;r&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(enclPrec&nbsp;&lt;=&nbsp;opPrec)&nbsp;oper
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;elem(<code class="quotedstring">"("</code>)&nbsp;beside&nbsp;oper&nbsp;beside&nbsp;elem(<code class="quotedstring">")"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;format(e:&nbsp;<code class="typename">Expr</code>):&nbsp;<code class="typename">Element</code>&nbsp;=&nbsp;format(e,&nbsp;<code class="literal">0</code>)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 15.21 - The bottom half of the expression formatter.</h5>
+
+
+<p>The <span class="code">precedence</span> variable is a map from operators to their
+precedences, which are integers starting with <span class="code">0</span>. 
+It is calculated using a
+<span class="code">for</span> expression with two generators. The first generator produces
+every index <span class="code">i</span> of the <span class="code">opGroups</span> array. The second generator
+produces every operator <span class="code">op</span> in <span class="code">opGroups(i)</span>.
+For each such
+operator the <span class="code">for</span> expression yields an association from the operator
+<span class="code">op</span> to its index <span class="code">i</span>.  Hence, the relative position of an operator
+in the array is taken to be its precedence.</p>
+
+<p>Associations are written with an infix arrow, <i>e.g.</i>,
+<span class="code">op</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">i</span>. So far you have seen associations only as part of map
+constructions, but they are also values in their own right. In fact,
+the association <span class="code">op</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">i</span> is nothing else but the pair <span class="code">(op,</span>&nbsp;<span class="code">i)</span>.</p>
+
+<p>Now that you have fixed the precedence of all binary operators except
+<span class="code">/</span>, it makes sense to generalize this concept to also cover unary operators.
+The precedence of a unary operator is higher than the
+precedence of every binary operator. Thus we can set <span class="code">unaryPrecedence</span> (shown in <a href="case-classes-and-pattern-matching.html#lst-expr-form-top-half">Listing 15.20</a>) to the length of the <span class="code">opGroups</span> array, which is
+one more than the precedence of the <span class="code">*</span> and <span class="code"><span class="texttt">%</span></span> operators.
+The precedence of a fraction is treated differently from the other
+operators because fractions use vertical layout. However, it will
+prove convenient to assign to the division operator the special precedence value <span class="code">-1</span>, so
+we'll initialize <span class="code">fractionPrecedence</span> to -1 (shown in <a href="case-classes-and-pattern-matching.html#lst-expr-form-top-half">Listing 15.20</a>).</p>
+
+<p>After these preparations, you are ready to write the main <span class="code">format</span>
+method. This method takes two arguments: an expression <span class="code">e</span>, of type <span class="code">Expr</span>, and
+ the precedence <span class="code">enclPrec</span> of the operator directly enclosing
+the expression <span class="code">e</span>. (If there's no enclosing operator, <span class="code">enclPrec</span> should be zero.) The method yields a layout element that represents
+a two-dimensional array of characters.</p>
+
+<p><a href="case-classes-and-pattern-matching.html#lst-expr-form-bottom-half">Listing 15.21</a> shows the remainder of class <span class="code">ExprFormatter</span>, which includes three methods. The first
+method, <span class="code">stripDot</span>, is a helper method. The next
+method, the private <span class="code">format</span> method, does most of the work to format expressions.
+The last method,
+also named <span class="code">format</span>, is the lone public method in the library, which takes an expression to format. The private <span class="code">format</span> method does its work by
+performing a pattern match on the kind
+of expression. The <span class="code">match</span> expression has five cases.
+We'll discuss each  case
+individually.</p>
+
+<div style="page-break-after:always"/>
+
+
+<p>The first case is:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="typename">Var</code>(name)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;elem(name)
+</pre>
+
+
+<p>If the expression is a variable, the result is an element
+formed from the variable's name.</p>
+
+<p>The second case is:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="typename">Number</code>(num)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;stripDot(s:&nbsp;<code class="typename">String</code>)&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(s&nbsp;endsWith&nbsp;<code class="quotedstring">".0"</code>)&nbsp;s.substring(<code class="literal">0</code>,&nbsp;s.length&nbsp;-&nbsp;<code class="literal">2</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;s
+  &nbsp;&nbsp;elem(stripDot(num.toString))
+</pre>
+
+
+<p>If the expression is a number, the
+result is  an element formed from the number's value. The <span class="code">stripDot</span>
+function cleans up the display of a floating-point number by stripping 
+any <span class="code">".0"</span> suffix from a string.</p>
+
+<p>The third case is:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="typename">UnOp</code>(op,&nbsp;arg)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;elem(op)&nbsp;beside&nbsp;format(arg,&nbsp;unaryPrecedence)
+</pre>
+
+
+<p>If the expression is a unary operation <span class="code">UnOp(op,</span>&nbsp;<span class="code">arg)</span> the
+result is formed from the operation <span class="code">op</span> and the result of formatting the
+argument <span class="code">arg</span> with the highest-possible environment
+precedence.<a href="case-classes-and-pattern-matching.html#footnotemain15-4">[4]</a> This means that if <span class="code">arg</span> is a binary operation (but not
+a fraction) it will always be displayed in
+parentheses.</p>
+
+<p>The fourth case is:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"/"</code>,&nbsp;left,&nbsp;right)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;top&nbsp;=&nbsp;format(left,&nbsp;fractionPrecedence)
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;bot&nbsp;=&nbsp;format(right,&nbsp;fractionPrecedence)
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;line&nbsp;=&nbsp;elem(<code class="quotedstring">'-'</code>,&nbsp;top.width&nbsp;max&nbsp;bot.width,&nbsp;<code class="literal">1</code>)
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;frac&nbsp;=&nbsp;top&nbsp;above&nbsp;line&nbsp;above&nbsp;bot
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(enclPrec&nbsp;!=&nbsp;fractionPrecedence)&nbsp;frac
+  &nbsp;&nbsp;<code class="vem">else</code>&nbsp;elem(<code class="quotedstring">"&nbsp;"</code>)&nbsp;beside&nbsp;frac&nbsp;beside&nbsp;elem(<code class="quotedstring">"&nbsp;"</code>)
+</pre>
+
+
+<p>If the expression is a fraction, an
+intermediate result <span class="code">frac</span> is formed by placing the formatted
+operands <span class="code">left</span> and <span class="code">right</span> on top of each other, separated by an
+horizontal line element. The width of the horizontal line is the
+maximum of the widths of the formatted operands.  This intermediate
+result is also the final result unless the fraction appears itself as
+an argument of another fraction.  In the latter case, a space is added
+on each side of <span class="code">frac</span>.  To see the reason why, consider
+the expression "<span class="code">(a</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">b)</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">c</span>".</p>
+
+<p>Without the widening correction,
+formatting this expression would give:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">a</span><br />
+<span class="code">-</span><br />
+<span class="code">b</span><br />
+<span class="code">-</span><br />
+<span class="code">c</span></p>
+
+</div>
+
+
+<p>The problem with this layout is evident&mdash;it's not clear where the
+  top-level fractional bar is. The expression above could mean either
+  "<span class="code">(a</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">b)</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">c</span>" or "<span class="code">a</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">(b</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">c)</span>". To disambiguate, a space
+  should be added on each side to the layout of the nested
+  fraction "<span class="code">a</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">b</span>". 
+Then the layout becomes unambiguous:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">&nbsp;a&nbsp;</span><br />
+<span class="code">&nbsp;-&nbsp;</span><br />
+<span class="code">&nbsp;b&nbsp;</span><br />
+<span class="code">---</span><br />
+<span class="code">&nbsp;c&nbsp;</span></p>
+
+</div>
+
+
+<p>The fifth and last case is:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(op,&nbsp;left,&nbsp;right)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;opPrec&nbsp;=&nbsp;precedence(op)
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;l&nbsp;=&nbsp;format(left,&nbsp;opPrec)&nbsp;
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;r&nbsp;=&nbsp;format(right,&nbsp;opPrec&nbsp;+&nbsp;<code class="literal">1</code>)
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;oper&nbsp;=&nbsp;l&nbsp;beside&nbsp;elem(<code class="quotedstring">"&nbsp;"</code>&nbsp;+&nbsp;op&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;"</code>)&nbsp;beside&nbsp;r&nbsp;
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(enclPrec&nbsp;&lt;=&nbsp;opPrec)&nbsp;oper
+  &nbsp;&nbsp;<code class="vem">else</code>&nbsp;elem(<code class="quotedstring">"("</code>)&nbsp;beside&nbsp;oper&nbsp;beside&nbsp;elem(<code class="quotedstring">")"</code>)
+</pre>
+
+
+<p>This case applies for all other binary operations. Since
+it comes after the case starting with:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"/"</code>,&nbsp;left,&nbsp;right)&nbsp;=&gt;&nbsp;...
+</pre>
+
+
+<p>you know that the
+operator <span class="code">op</span> in the pattern <span class="code">BinOp(op,</span>&nbsp;<span class="code">left,</span>&nbsp;<span class="code">right)</span> cannot be a
+division. To format such a binary operation, one needs to format first
+its operands <span class="code">left</span> and <span class="code">right</span>. The precedence parameter for 
+formatting the left operand is the precedence <span class="code">opPrec</span> of the operator
+<span class="code">op</span>, while for the right operand it is one more than that. This
+scheme ensures that parentheses also reflect the correct
+associativity.</p>
+
+<p>For instance, the operation:</p>
+
+<pre>
+  <code class="typename">BinOp</code>(<code class="quotedstring">"-"</code>,&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"a"</code>),&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"-"</code>,&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"b"</code>),&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"c"</code>)))
+</pre>
+
+
+<p>would be correctly parenthesized as "<span class="code">a</span>&nbsp;<span class="code">-</span>&nbsp;<span class="code">(b</span>&nbsp;<span class="code">-</span>&nbsp;<span class="code">c)</span>". The intermediate
+result <span class="code">oper</span> is then formed by placing the formatted left and right
+operands side-by-side, separated by the operator. If the precedence
+of the current operator is smaller than the precedence of the
+enclosing operator, <span class="code">oper</span> is placed between parentheses; otherwise, it
+is returned as is.</p>
+
+<p><a id="lst-express-app"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;org.stairwaybook.expr._
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Express</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">App</code>&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;f&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">ExprFormatter</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;e1&nbsp;=&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"*"</code>,&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"/"</code>,&nbsp;<code class="typename">Number</code>(<code class="literal">1</code>),&nbsp;<code class="typename">Number</code>(<code class="literal">2</code>)),&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"+"</code>,&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>),&nbsp;<code class="typename">Number</code>(<code class="literal">1</code>)))
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;e2&nbsp;=&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"+"</code>,&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"/"</code>,&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>),&nbsp;<code class="typename">Number</code>(<code class="literal">2</code>)),&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"/"</code>,&nbsp;<code class="typename">Number</code>(<code class="literal">1.5</code>),&nbsp;<code class="typename">Var</code>(<code class="quotedstring">"x"</code>)))
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;e3&nbsp;=&nbsp;<code class="typename">BinOp</code>(<code class="quotedstring">"/"</code>,&nbsp;e1,&nbsp;e2)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;show(e:&nbsp;<code class="typename">Expr</code>)&nbsp;=&nbsp;println(f.format(e)+&nbsp;<code class="quotedstring">"\n\n"</code>)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(e&nbsp;&lt;-&nbsp;<code class="typename">Array</code>(e1,&nbsp;e2,&nbsp;e3))&nbsp;show(e)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 15.22 - An application that prints formatted expressions.</h5>
+
+
+<p>This finishes the design of the private <span class="code">format</span> function. The only
+remaining method is the public <span class="code">format</span> method, which allows client programmers to
+format a top-level expression without passing a precedence argument.
+<a href="case-classes-and-pattern-matching.html#lst-express-app">Listing 15.22</a> shows a demo program that exercises <span class="code">ExprFormatter</span>.</p>
+
+<p>Note that, even though this program does not define a <span class="code">main</span> method, it is still a 
+runnable application because it inherits from the <span class="code">App</span> trait.
+You can run the <span class="code">Express</span> program with the command:</p>
+
+<pre>
+  scala&nbsp;Express
+</pre>
+
+
+<p>This will give the following output:</p>
+
+<p><span class="code">
+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+-&nbsp;*&nbsp;(x&nbsp;+&nbsp;1)<br />
+2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+<br />
+<br />
+x&nbsp;&nbsp;&nbsp;1.5<br />
+-&nbsp;+&nbsp;---<br />
+2&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;<br />
+<br />
+<br />
+1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+-&nbsp;*&nbsp;(x&nbsp;+&nbsp;1)<br />
+2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br />
+-----------<br />
+&nbsp;&nbsp;x&nbsp;&nbsp;&nbsp;1.5&nbsp;&nbsp;<br />
+&nbsp;&nbsp;-&nbsp;+&nbsp;---&nbsp;&nbsp;<br />
+&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;&nbsp;&nbsp;
+</span></p>
+
+<h3>15.9 Conclusion</h3>
+
+
+<p>In this chapter, you learned about Scala's case classes and pattern matching
+in detail. By using them, you can take advantage of several concise
+idioms not normally available in object-oriented languages.
+However, Scala's pattern matching goes further than this chapter describes. If you want to use pattern matching on one of your classes,
+but you do not want to open access to your classes the way case
+classes do, you can use the <em>extractors</em> described in
+<a href="extractors.html">Chapter 26</a>. In the next chapter, we'll turn our
+attention to lists.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 15:</h4>
+
+
+<p><a id="footnotemain15-1"/>[1] Instead of an abstract class, we
+could have also chosen to model the root of that class hierarchy as a trait. Modeling it as an abstract class may be slightly more efficient.<a id="i991539031-1"/></p>
+
+<p><a id="footnotemain15-2"/>[2] Gamma, <i>et. al.</i>, <em>Design Patterns</em>  <a href="bibliography.html#gang-of-four">[Gam95]</a><a id="i978021020-1"/><a id="i-37693691-1"/></p>
+
+<p><a id="footnotemain15-3"/>[3] In the typed pattern, <span class="code">m:</span>&nbsp;<span class="code">Map[_,</span>&nbsp;<span class="code">_]</span>, the "<span class="code">Map[_,</span>&nbsp;<span class="code">_]</span>" portion is called a <span class="textit">type pattern</span>.</p>
+
+<p><a id="footnotemain15-4"/>[4] The value of <span class="code">unaryPrecedence</span> is the highest possible precedence, because it was initialized to
+one more than the precedence of the <span class="code">*</span> and <span class="code"><span class="texttt">%</span></span> operators.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

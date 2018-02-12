@@ -1,0 +1,1206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-the-scells-spreadsheet">Chapter 35</a></h2>
+<h1>The <span class="code">SCells</span> Spreadsheet</h1>
+
+
+<p>In the previous chapters you saw many different constructs of
+the Scala programming language.  In this chapter you'll see how these
+constructs play together in the implementation of a sizable
+application. The task is to write a spreadsheet application, which
+will be named <span class="code">SCells</span>.<a id="i-1325982169-1"/></p>
+
+<p>There are several reasons why this task is
+interesting. First, everybody knows spreadsheets, so it is easy to
+understand what the application should do. Second, spreadsheets are
+programs that exercise a large range of different computing
+tasks. There's the visual aspect, where a spreadsheet is seen as a
+rich GUI application.<a id="i1275390415-2"/> There's the symbolic aspect, having to do with
+formulas and how to parse and interpret them. There's the
+calculational aspect, dealing with how to update possibly large tables
+incrementally. There's the reactive aspect, where spreadsheets are
+seen as programs that react in intricate ways to events. Finally,
+there's the component aspect where the application is constructed as a
+set of reusable components.<a id="i-421431555-1"/> All these aspects will be treated in
+depth in this chapter.</p>
+
+<div class="figure"><a id="fig-scells1"/>
+
+
+<p><img src="images/scells1Gray96.png" alt="image images/scells1Gray96.png"/></p>
+
+</div>
+<h5> Figure 35.1 - A simple spreadsheet table.</h5>
+
+
+<h3>35.1 The visual framework</h3>
+
+
+<p>We'll start by writing the basic visual framework of the application.
+<a href="the-scells-spreadsheet.html#fig-scells1">Figure 35.1</a> shows the first iteration of the user interface.
+You can see that a spreadsheet is a scrollable table.  It has rows
+going from <span class="code">0</span> to <span class="code">99</span> and columns going from <span class="code">A</span> to <span class="code">Z</span>.  You
+express this in Swing by defining a spreadsheet as a <span class="code">ScrollPane</span>
+containing a <span class="code">Table</span>. <a href="the-scells-spreadsheet.html#lst-scells-Spreadsheet1">Listing 35.1</a> shows the
+code.<a id="i870227341-1"/><a id="i455478918-1"/></p>
+
+<p><a id="lst-scells-Spreadsheet1"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;org.stairwaybook.scells
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;swing._
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Spreadsheet</code>(<code class="vem">val</code>&nbsp;height:&nbsp;<code class="typename">Int</code>,&nbsp;<code class="vem">val</code>&nbsp;width:&nbsp;<code class="typename">Int</code>)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">ScrollPane</code>&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;table&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Table</code>(height,&nbsp;width)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rowHeight&nbsp;=&nbsp;<code class="literal">25</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;autoResizeMode&nbsp;=&nbsp;<code class="typename">Table.AutoResizeMode.Off</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;showGrid&nbsp;=&nbsp;<code class="vem">true</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gridColor&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">java.awt.Color</code>(<code class="literal">150</code>,&nbsp;<code class="literal">150</code>,&nbsp;<code class="literal">150</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;rowHeader&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">ListView</code>((<code class="literal">0</code>&nbsp;until&nbsp;height)&nbsp;map&nbsp;(_.toString))&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fixedCellWidth&nbsp;=&nbsp;<code class="literal">30</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fixedCellHeight&nbsp;=&nbsp;table.rowHeight
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;viewportView&nbsp;=&nbsp;table
+  &nbsp;&nbsp;&nbsp;&nbsp;rowHeaderView&nbsp;=&nbsp;rowHeader
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 35.1 - Code for spreadsheet in <a href="the-scells-spreadsheet.html#fig-scells1">Figure 35.1</a>.</h5>
+
+
+<p>The spreadsheet component shown in <a href="the-scells-spreadsheet.html#lst-scells-Spreadsheet1">Listing 35.1</a> is defined in package <span class="code">org.stairwaybook.scells</span>, which 
+will contain all classes, traits, and objects needed for the application. It imports
+from package <span class="code">scala.swing</span> 
+essential elements of Scala's Swing wrapper. <span class="code">Spreadsheet</span> itself is a class that takes
+<span class="code">height</span> and <span class="code">width</span> (in numbers of cells) as parameters. The class extends <span class="code">ScrollPane</span>, 
+which gives it the scroll-bars at the bottom and right in <a href="the-scells-spreadsheet.html#fig-scells1">Figure 35.1</a>.
+It contains two sub-components named <span class="code">table</span> and <span class="code">rowHeader</span>.</p>
+
+<p>The <span class="code">table</span> component is an instance of an anonymous subclass of class <span class="code">scala.swing.Table</span>. The four lines in
+its body set some of its attributes: <span class="code">rowHeight</span> for the height of a
+table row in points, <span class="code">autoResizeMode</span> to turn auto-sizing the table
+off, <span class="code">showGrid</span> to show a grid of lines between cells, and
+<span class="code">gridColor</span> to set the color of the grid to a dark gray.</p>
+
+<p>The <span class="code">rowHeader</span> component, which contains the row-number headers at the left of the
+spreadsheet in <a href="the-scells-spreadsheet.html#fig-scells1">Figure 35.1</a>, is a <span class="code">ListView</span> that
+displays in its elements the strings <span class="code">0</span> through
+<span class="code">99</span>.<a id="i1410352259-1"/> The two
+lines in its body fix the width of a cell to be 30 points
+and the height to be the same as the <span class="code">table</span>'s <span class="code">rowHeight</span>.</p>
+
+<p>The whole spreadsheet is assembled by setting two fields in
+<span class="code">ScrollPane</span>.  The field <span class="code">viewportView</span> is set to the <span class="code">table</span>, and
+the field <span class="code">rowHeaderView</span> is set to the <span class="code">rowHeader</span>
+list.<a id="i-184785362-1"/><a id="i-1248398867-1"/><a id="i870227341-2"/>
+The difference
+between the two views is that a view port of a scroll pane
+is the area that scrolls with the two bars, whereas the row header
+on the left stays fixed when you move the horizontal scroll bar.  By
+some quirk, Swing already supplies by default a column header
+at the top of the table, so there's no need to define one explicitly.</p>
+
+<p><a id="lst-scells-Main"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;org.stairwaybook.scells
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;swing._
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Main</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">SimpleSwingApplication</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;top&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">MainFrame</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;title&nbsp;=&nbsp;<code class="quotedstring">"ScalaSheet"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Spreadsheet</code>(<code class="literal">100</code>,&nbsp;<code class="literal">26</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 35.2 - The main program for the spreadsheet application.</h5>
+
+
+<p>To try out the rudimentary spreadsheet shown in <a href="the-scells-spreadsheet.html#lst-scells-Spreadsheet1">Listing 35.1</a>, you 
+just need to define a main program that creates the <span class="code">Spreadsheet</span> component. Such a program is shown in <a href="the-scells-spreadsheet.html#lst-scells-Main">Listing 35.2</a>.</p>
+
+<p>Program <span class="code">Main</span> inherits from <span class="code">SimpleSwingApplication</span>, which takes care of all the 
+low-level details that need to be set up before a Swing application can
+be run.<a id="i980116412-2"/>
+You only need to define the top-level window of the application in the 
+<span class="code">top</span> method. In our example, <span class="code">top</span> is a <span class="code">MainFrame</span> that has two elements defined:  
+its <span class="code">title</span>, set to "ScalaSheet," and its <span class="code">contents</span>, set to
+an instance of class <span class="code">Spreadsheet</span> with <span class="code">100</span> rows and <span class="code">26</span> columns. 
+That's all. 
+If you launch this application with <span class="code">scala</span>&nbsp;<span class="code">org.stairwaybook.scells.Main</span>,
+you should see the spreadsheet in <a href="the-scells-spreadsheet.html#fig-scells1">Figure 35.1</a>.</p>
+
+<h3>35.2 Disconnecting data entry and display</h3>
+
+
+<p>If you play a bit with the spreadsheet written so far, you'll quickly notice
+that the output that's displayed in a cell is always exactly what you
+entered in the cell. A real spreadsheet does not behave like that.  In
+a real spreadsheet, you would enter a formula and you'd see its value. So
+what is entered into a cell is different from what is displayed.</p>
+
+<p><a id="lst-scells-Spreadsheet2"/></p>
+
+<pre>
+  <code class="vem">package</code>&nbsp;org.stairwaybook.scells
+  <code class="vem">import</code>&nbsp;swing._
+  <br />  <code class="vem">class</code>&nbsp;<code class="typename">Spreadsheet</code>(<code class="vem">val</code>&nbsp;height:&nbsp;<code class="typename">Int</code>,&nbsp;<code class="vem">val</code>&nbsp;width:&nbsp;<code class="typename">Int</code>)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">ScrollPane</code>&nbsp;{
+  <br />  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;cellModel&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Model</code>(height,&nbsp;width)
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;cellModel._
+  <br />  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;table&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Table</code>(height,&nbsp;width)&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;settings&nbsp;as&nbsp;before...&nbsp;</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;rendererComponent(isSelected:&nbsp;<code class="typename">Boolean</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hasFocus:&nbsp;<code class="typename">Boolean</code>,&nbsp;row:&nbsp;<code class="typename">Int</code>,&nbsp;column:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">Component</code>&nbsp;=
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(hasFocus)&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">TextField</code>(userData(row,&nbsp;column))
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Label</code>(cells(row)(column).toString)&nbsp;{&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xAlignment&nbsp;=&nbsp;<code class="typename">Alignment.Right</code>&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;userData(row:&nbsp;<code class="typename">Int</code>,&nbsp;column:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">String</code>&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;v&nbsp;=&nbsp;<code class="vem">this</code>(row,&nbsp;column)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(v&nbsp;==&nbsp;<code class="vem">null</code>)&nbsp;<code class="quotedstring">""</code>&nbsp;<code class="vem">else</code>&nbsp;v.toString
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+  &nbsp;&nbsp;<code class="comment">//&nbsp;rest&nbsp;as&nbsp;before...&nbsp;</code>
+  }&nbsp;
+</pre>
+
+
+<h5>Listing 35.3 - A spreadsheet with a <span class="code">rendererComponent</span> method.</h5>
+
+
+<p>As a first step to a real spreadsheet application, you should
+concentrate on disentangling data entry and display. The basic
+mechanism for display is contained in the <span class="code">rendererComponent</span> method of class
+<span class="code">Table</span>.<a id="i455478918-2"/><a id="i-1871849869-1"/> By default, <span class="code">rendererComponent</span> always displays what's entered. If you
+want to change that, you need to override <span class="code">rendererComponent</span> to do something
+different. <a href="the-scells-spreadsheet.html#lst-scells-Spreadsheet2">Listing 35.3</a> shows
+a new version of <span class="code">Spreadsheet</span> with a <span class="code">rendererComponent</span> method.</p>
+
+<p>The <span class="code">rendererComponent</span> method overrides a default method in
+class <span class="code">Table</span>. It takes four parameters. The <span class="code">isSelected</span> and <span class="code">hasFocus</span> parameters are <span class="code">Boolean</span>s
+that indicate whether the cell has been selected and whether it has
+focus, meaning that keyboard events will go into the cell.
+The remaining two parameters, <span class="code">row</span> and <span class="code">column</span>, give the cell's coordinates.</p>
+
+<p>The new <span class="code">rendererComponent</span> method checks whether the cell has input
+focus.
+If <span class="code">hasFocus</span> is true, the cell is used for editing. In this case
+you want to display an editable <span class="code">TextField</span> that contains the data the 
+user has entered so far.<a id="i942981037-1"/> This data is returned by the helper method <span class="code">userData</span>,
+which displays the contents of the table at a given <span class="code">row</span> and
+<span class="code">column</span>. The contents are retrieved by the call 
+<span class="code">this(row,</span>&nbsp;<span class="code">column)</span>.<a href="the-scells-spreadsheet.html#footnotemain35-1">[1]</a>
+The <span class="code">userData</span> method also takes care to display
+a <span class="code">null</span> element as the empty string instead of "<span class="code">null</span>."</p>
+
+<div style="page-break-after:always"/>
+
+
+<p>So far so good. But what should be displayed if the cell does not have
+focus? In a real spreadsheet this would be the value of a cell. Thus, there are really two tables at work. The first table, named
+<span class="code">table</span> contains what the user entered. A second "shadow" table
+contains the internal representation of cells and what should be
+displayed. In the spreadsheet example, this table is a two-dimensional
+array called <span class="code">cells</span>.
+If a cell at a given <span class="code">row</span> and <span class="code">column</span> does not have editing focus,
+the <span class="code">rendererComponent</span> method will display the element
+<span class="code">cells(row)(column)</span>. The element cannot be edited, so it should be
+displayed in a <span class="code">Label</span> instead of in an editable
+<span class="code">TextField</span>.<a id="i73174740-1"/></p>
+
+<p>It remains to define the internal array of cells. You could do this
+directly in the <span class="code">Spreadsheet</span> class, but it's generally preferable
+to separate the view of a GUI component from its internal model.
+That's why in the example above the <span class="code">cells</span> array is defined in a
+separate class named <span class="code">Model</span>. The model is integrated into the
+<span class="code">Spreadsheet</span> by defining a value <span class="code">cellModel</span> of type <span class="code">Model</span>.  The
+<span class="code">import</span> clause that follows this <span class="code">val</span> definition makes the
+members of <span class="code">cellModel</span> available inside <span class="code">Spreadsheet</span> without having to prefix them.
+<a href="the-scells-spreadsheet.html#lst-scells-Model1">Listing 35.4</a> shows 
+a first simplified version of a <span class="code">Model</span> class.
+The class defines an inner class,<a id="i178325035-1"/> <span class="code">Cell</span>, and a two-dimensional array, <span class="code">cells</span>, of 
+<span class="code">Cell</span> elements. Each element is initialized to be a fresh <span class="code">Cell</span>.</p>
+
+<p><a id="lst-scells-Model1"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;org.stairwaybook.scells
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Model</code>(<code class="vem">val</code>&nbsp;height:&nbsp;<code class="typename">Int</code>,&nbsp;<code class="vem">val</code>&nbsp;width:&nbsp;<code class="typename">Int</code>)&nbsp;{&nbsp;
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Cell</code>(row:&nbsp;<code class="typename">Int</code>,&nbsp;column:&nbsp;<code class="typename">Int</code>)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;cells&nbsp;=&nbsp;Array.ofDim[<code class="typename">Cell</code>](height,&nbsp;width)&nbsp;
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(i&nbsp;&lt;-&nbsp;<code class="literal">0</code>&nbsp;until&nbsp;height;&nbsp;j&nbsp;&lt;-&nbsp;<code class="literal">0</code>&nbsp;until&nbsp;width)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cells(i)(j)&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Cell</code>(i,&nbsp;j)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 35.4 - First version of the <span class="code">Model</span> class.</h5>
+
+
+<div class="figure"><a id="fig-scells2"/>
+
+
+<p><img src="images/scells2Gray96.png" alt="image images/scells2Gray96.png"/></p>
+
+</div>
+<h5> Figure 35.2 - Cells displaying themselves.</h5>
+
+
+<p>That's it. If you compile the modified <span class="code">Spreadsheet</span> class with the
+<span class="code">Model</span> class and run the <span class="code">Main</span> application you should see a window
+as in <a href="the-scells-spreadsheet.html#fig-scells2">Figure 35.2</a>.</p>
+
+<p>The objective of this section was to arrive at a design where the
+displayed value of a cell is different from the string that was
+entered into it. This objective has clearly been met, albeit in a very
+crude way. In the new spreadsheet you can enter anything you want into
+a cell, but it will always display just its coordinates once it loses
+focus.  Clearly, we are not done yet.</p>
+
+<h3>35.3 Formulas</h3>
+
+
+<p>In reality, a spreadsheet cell holds two things: An actual <span style="font-style:italic">value</span>
+and a <span style="font-style:italic">formula</span> to compute this value. There are three types of formulas
+in a spreadsheet:</p>
+
+<ol>
+
+
+<li>Numeric values such as <span class="code">1.22</span>, <span class="code">-3</span>, or <span class="code">0</span>.
+
+
+</li>
+<li>Textual labels such as <span class="code">Annual</span>&nbsp;<span class="code">sales</span>, <span class="code">Deprecation</span>, or <span class="code">total</span>.
+
+
+</li>
+<li>Formulas that compute a new value from the contents of cells, such as
+"<span class="code">=add(A1,B2)</span>", or "<span class="code">=sum(mul(2,</span>&nbsp;<span class="code">A2),</span>&nbsp;<span class="code">C1:D16)</span>"
+
+
+</li></ol>
+
+
+<p>A formula that computes a value always starts with an equals sign and
+is followed by an arithmetic expression. The <span class="code">SCells</span> spreadsheet has
+a particularly simple and uniform convention for
+arithmetic expressions: every expression is an application of some function to a
+list of arguments. The function name is an identifier such as <span class="code">add</span>
+for binary addition, or <span class="code">sum</span> for summation of an arbitrary number of
+operands. A function argument can be a number, a reference to a cell,
+a reference to a range of cells such as <span class="code">C1:D16</span>, or another function
+application. You'll see later that <span class="code">SCells</span> has an open architecture
+that makes it easy to install your own functions via mixin
+composition.</p>
+
+<p>The first step to handling formulas is writing down the types that
+represent them. As you might expect, the different kinds of formulas
+are represented by case classes. <a href="the-scells-spreadsheet.html#lst-scells-Formulas">Listing 35.5</a> shows the contents of a file
+named <span class="code">Formulas.scala</span>, where these case classes are defined:<a id="i1927236622-1"/></p>
+
+<p><a id="lst-scells-Formulas"/></p>
+
+<pre>
+  <code class="vem">package</code>&nbsp;org.stairwaybook.scells
+  <br />  <code class="vem">trait</code>&nbsp;<code class="typename">Formula</code>&nbsp;&nbsp;
+  <br />  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Coord</code>(row:&nbsp;<code class="typename">Int</code>,&nbsp;column:&nbsp;<code class="typename">Int</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Formula</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;(<code class="quotedstring">'A'</code>&nbsp;+&nbsp;column).toChar.toString&nbsp;+&nbsp;row
+  }
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Range</code>(c1:&nbsp;<code class="typename">Coord</code>,&nbsp;c2:&nbsp;<code class="typename">Coord</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Formula</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;c1.toString&nbsp;+&nbsp;<code class="quotedstring">":"</code>&nbsp;+&nbsp;c2.toString
+  }
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Number</code>(value:&nbsp;<code class="typename">Double</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Formula</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;value.toString&nbsp;
+  }
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Textual</code>(value:&nbsp;<code class="typename">String</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Formula</code>&nbsp;{&nbsp;
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;value
+  }
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Application</code>(function:&nbsp;<code class="typename">String</code>,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;arguments:&nbsp;<code class="typename">List[Formula]</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Formula</code>&nbsp;{&nbsp;
+  <br />  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;function&nbsp;+&nbsp;arguments.mkString(<code class="quotedstring">"("</code>,&nbsp;<code class="quotedstring">","</code>,&nbsp;<code class="quotedstring">")"</code>)
+  }
+  <code class="vem">object</code>&nbsp;<code class="typename">Empty</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Textual</code>(<code class="quotedstring">""</code>)
+</pre>
+
+
+<h5>Listing 35.5 - Classes representing formulas.</h5>
+
+
+<p>Trait <span class="code">Formula</span>, shown in <a href="the-scells-spreadsheet.html#lst-scells-Formulas">Listing 35.5</a>, has five case classes
+as children:</p>
+
+<table style="border-collapse: collapse">
+<tr>
+  <td>
+    <span class="code">Coord</span>
+  </td>
+  <td>
+    for cell coordinates such as <span class="code">A3</span>,
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">Range</span>
+  </td>
+  <td>
+    for cell ranges such as <span class="code">A3:B17</span>,
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">Number</span>
+  </td>
+  <td>
+    for floating-point numbers such as <span class="code">3.1415</span>,
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">Textual</span>
+  </td>
+  <td>
+    for textual labels such as <span class="code">Deprecation</span>,
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">Application</span>
+  </td>
+  <td>
+    for function applications such as <span class="code">sum(A1,A2)</span>.
+  </td>
+</tr>
+</table>
+
+
+<p>Each case class overrides the <span class="code">toString</span> method so that it displays
+its kind of formula in the standard way shown above. For convenience
+there's also an <span class="code">Empty</span> object that represents the contents of an
+empty cell.  The <span class="code">Empty</span> object is an instance
+of the <span class="code">Textual</span> class with an empty string argument.</p>
+
+<h3>35.4 Parsing formulas</h3>
+
+
+<p>In the previous section you saw the different kinds of formulas
+and how they display as strings.<a id="i-2095840458-2"/> In this section you'll see how to
+reverse the process: to transform a user input string into
+a <span class="code">Formula</span> tree. The rest of this section explains one by one the
+different elements of a class <span class="code">FormulaParsers</span>, which contains the
+parsers that do the transformation. The class builds on the combinator
+framework given in <a href="combinator-parsing.html">Chapter 33</a>. Specifically,
+formula parsers are an instance of the <span class="code">RegexParsers</span> class explained
+in that chapter:<a id="i519257659-3"/></p>
+
+<pre>
+  <code class="vem">package</code>&nbsp;org.stairwaybook.scells
+  <code class="vem">import</code>&nbsp;scala.util.parsing.combinator._
+  <br />  <code class="vem">object</code>&nbsp;<code class="typename">FormulaParsers</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">RegexParsers</code>&nbsp;{&nbsp;
+</pre>
+
+
+<p>The first two elements of object <span class="code">FormulaParsers</span> are
+auxiliary parsers for identifiers and decimal numbers:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;ident:&nbsp;<code class="typename">Parser[String]</code>&nbsp;=&nbsp;<code class="quotedstring">"""[a-zA-Z_]\w*"""</code>.r
+  <code class="vem">def</code>&nbsp;decimal:&nbsp;<code class="typename">Parser[String]</code>&nbsp;=&nbsp;<code class="quotedstring">"""-?\d+(\.\d*)?"""</code>.r
+</pre>
+
+
+<p>As you can see from the first regular expression above, an identifier starts
+with a letter or underscore.<a id="i-2139156663-2"/> This is followed by an arbitrary number
+of "word" characters represented by the regular expression code <span class="code">\w</span>, which recognizes letters, digits or
+underscores.  The second regular expression describes decimal numbers, which consist
+of an optional minus sign, one or more digits that are represented by regular expression code <span class="code">\d</span>, 
+and an optional decimal part consisting of a period followed by zero or more digits.</p>
+
+<p>The next element of object <span class="code">FormulaParsers</span> is the <span class="code">cell</span> parser,
+which recognizes the coordinates of a cell, such as <span class="code">C11</span> or <span class="code">B2</span>. It first
+calls a regular expression parser that determines the form of a
+coordinate: a single letter followed by one or more digits.  The
+string returned from that parser is then converted to a cell
+coordinate by separating the letter from the numerical part and
+converting the two parts to indices for the cell's column and row:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;cell:&nbsp;<code class="typename">Parser[Coord]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;<code class="quotedstring">"""[A-Za-z]\d+"""</code>.r&nbsp;^^&nbsp;{&nbsp;s&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;column&nbsp;=&nbsp;s.charAt(<code class="literal">0</code>).toUpper&nbsp;-&nbsp;<code class="quotedstring">'A'</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;row&nbsp;=&nbsp;s.substring(<code class="literal">1</code>).toInt
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Coord</code>(row,&nbsp;column)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<p>Note that the <span class="code">cell</span> parser is a bit restrictive in that it allows
+only column coordinates consisting of a single letter. Hence the number of
+spreadsheet columns is in effect restricted to be at most 26, because
+further columns cannot be parsed. It's a good idea to generalize the
+parser so that it accepts cells with several leading letters. This is
+left as an exercise to you.</p>
+
+<p>The <span class="code">range</span> parser recognizes a range of cells. Such a range is composed
+of two cell coordinates with a colon between them:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;range:&nbsp;<code class="typename">Parser[Range]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;cell<code style="font-size:large">~</code><code class="quotedstring">":"</code><code style="font-size:large">~</code>cell&nbsp;^^&nbsp;{&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;c1<code style="font-size:large">~</code><code class="quotedstring">":"</code><code style="font-size:large">~</code>c2&nbsp;=&gt;&nbsp;<code class="typename">Range</code>(c1,&nbsp;c2)&nbsp;
+  &nbsp;&nbsp;}
+</pre>
+
+
+<p>The <span class="code">number</span> parser recognizes a decimal number, which is converted to
+a <span class="code">Double</span> and wrapped in an instance of the <span class="code">Number</span> class:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;number:&nbsp;<code class="typename">Parser[Number]</code>&nbsp;=
+  &nbsp;&nbsp;decimal&nbsp;^^&nbsp;(d&nbsp;=&gt;&nbsp;<code class="typename">Number</code>(d.toDouble))
+</pre>
+
+
+<p>The <span class="code">application</span> parser recognizes a function application. Such an
+application is composed of an identifier followed by a list of
+argument expressions in parentheses:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;application:&nbsp;<code class="typename">Parser[Application]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;ident<code style="font-size:large">~</code><code class="quotedstring">"("</code><code style="font-size:large">~</code>repsep(expr,&nbsp;<code class="quotedstring">","</code>)<code style="font-size:large">~</code><code class="quotedstring">")"</code>&nbsp;^^&nbsp;{&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;f<code style="font-size:large">~</code><code class="quotedstring">"("</code><code style="font-size:large">~</code>ps<code style="font-size:large">~</code><code class="quotedstring">")"</code>&nbsp;=&gt;&nbsp;<code class="typename">Application</code>(f,&nbsp;ps)&nbsp;
+  &nbsp;&nbsp;}
+</pre>
+
+
+<p>The <span class="code">expr</span> parser recognizes a formula expression&mdash;either a top-level formula
+following an `<span class="code">=</span>', or an argument to a function. Such a formula expression
+is defined to be a cell, a range of cells, a number, or an application:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;expr:&nbsp;<code class="typename">Parser[Formula]</code>&nbsp;=
+  &nbsp;&nbsp;range&nbsp;|&nbsp;cell&nbsp;|&nbsp;number&nbsp;|&nbsp;application
+</pre>
+
+
+<p>This definition of the <span class="code">expr</span> parser contains a slight
+oversimplification because ranges of cells should
+only appear as function arguments; they should not be allowed as
+top-level formulas. You could change the formula grammar so that the
+two uses of expressions are separated, and ranges are excluded
+syntactically from top-level formulas. In the spreadsheet presented
+here such an error is instead detected once an expression is
+evaluated.</p>
+
+<p>The <span class="code">textual</span> parser recognizes an arbitrary input string, as long
+as it does not start with an equals sign (recall that strings that
+start with `<span class="code">=</span>' are considered to be formulas):</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;textual:&nbsp;<code class="typename">Parser[Textual]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;<code class="quotedstring">"""[^=].*"""</code>.r&nbsp;^^&nbsp;<code class="typename">Textual</code>
+</pre>
+
+
+<p>The <span class="code">formula</span> parser recognizes all kinds of legal inputs into a cell.
+A formula is either a <span class="code">number</span>, or a <span class="code">textual</span> entry, or a formula starting 
+with an equals sign:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;formula:&nbsp;<code class="typename">Parser[Formula]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;number&nbsp;|&nbsp;textual&nbsp;|&nbsp;<code class="quotedstring">"="</code><code style="font-size:large">~</code>&gt;expr
+</pre>
+
+
+<p>This concludes the grammar for spreadsheet cells. The final method
+<span class="code">parse</span> uses this grammar in a method that converts an input string into a 
+<span class="code">Formula</span> tree:</p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;parse(input:&nbsp;<code class="typename">String</code>):&nbsp;<code class="typename">Formula</code>&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;parseAll(formula,&nbsp;input)&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Success</code>(e,&nbsp;_)&nbsp;=&gt;&nbsp;e
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;f:&nbsp;<code class="typename">NoSuccess</code>&nbsp;=&gt;&nbsp;<code class="typename">Textual</code>(<code class="quotedstring">"["</code>&nbsp;+&nbsp;f.msg&nbsp;+&nbsp;<code class="quotedstring">"]"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  }&nbsp;<code class="comment">//end&nbsp;FormulaParsers</code>
+</pre>
+
+
+<p>The <span class="code">parse</span> method parses all of the input with the <span class="code">formula</span> parser.
+If that succeeds, the resulting formula is returned. If it fails,
+a <span class="code">Textual</span> object with an error message is returned instead.</p>
+
+<p><a id="lst-spreadsheet-parses-formulas"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;org.stairwaybook.scells
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;swing._
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;event._
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Spreadsheet</code>(<code class="vem">val</code>&nbsp;height:&nbsp;<code class="typename">Int</code>,&nbsp;<code class="vem">val</code>&nbsp;width:&nbsp;<code class="typename">Int</code>)&nbsp;...&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;table&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Table</code>(height,&nbsp;width)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reactions&nbsp;+=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">TableUpdated</code>(table,&nbsp;rows,&nbsp;column)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(row&nbsp;&lt;-&nbsp;rows)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cells(row)(column).formula&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FormulaParsers.parse(userData(row,&nbsp;column))
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 35.6 - A spreadsheet that parses formulas.</h5>
+
+
+<p>That's everything there is to parsing formulas. The only thing that remains is to
+integrate the parser into the spreadsheet. To do this, you can enrich
+the <span class="code">Cell</span> class in class <span class="code">Model</span> by a <span class="code">formula</span> field:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Cell</code>(row:&nbsp;<code class="typename">Int</code>,&nbsp;column:&nbsp;<code class="typename">Int</code>)&nbsp;{
+  &nbsp;&nbsp;<code class="vem">var</code>&nbsp;formula:&nbsp;<code class="typename">Formula</code>&nbsp;=&nbsp;<code class="typename">Empty</code>
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;formula.toString
+  }
+</pre>
+
+
+<p>In the new version of the <span class="code">Cell</span> class, the <span class="code">toString</span> method is
+defined to display the cell's <span class="code">formula</span>. That way you can check
+whether formulas have been correctly parsed.</p>
+
+<p>The last step in this section is to integrate the parser into the
+spreadsheet. Parsing a formula happens as a reaction to the user's
+input into a cell. A completed cell input is modeled in the Swing
+library by a <span class="code">TableUpdated</span>
+event.<a id="i1392790829-1"/> The <span class="code">TableUpdated</span> class is
+contained in package <span class="code">scala.swing.event</span>.
+The event is of the form:</p>
+
+<pre>
+  <code class="typename">TableUpdated</code>(table,&nbsp;rows,&nbsp;column)
+</pre>
+
+
+<p>It contains the <span class="code">table</span> that was changed, as well as a set of coordinates of
+affected cells given by <span class="code">rows</span> and <span class="code">column</span>.  The <span class="code">rows</span> parameter
+is a range value of type <span class="code">Range[Int]</span>.<a href="the-scells-spreadsheet.html#footnotemain35-2">[2]</a> The <span class="code">column</span> parameter is an integer.  
+So in general a <span class="code">TableUpdated</span> event can refer to several affected cells,
+but they would be on a consecutive range of rows and share the same
+column.</p>
+
+<div class="figure"><a id="fig-scells3"/>
+
+
+<p><img src="images/scells3Gray96.png" alt="image images/scells3Gray96.png"/></p>
+
+</div>
+<h5> Figure 35.3 - Cells displaying their formulas.</h5>
+
+
+<p>Once a table is changed, the affected cells need to be re-parsed.  To
+react to a <span class="code">TableUpdated</span> event, you add a case to the <span class="code">reactions</span>
+value of the <span class="code">table</span> component, as is shown in
+<a href="the-scells-spreadsheet.html#lst-spreadsheet-parses-formulas">Listing 35.6</a>.<a id="i-1242645043-1"/>
+Now, whenever the table is edited the formulas of all affected cells
+will be updated by parsing the corresponding user data.
+When compiling the classes discussed so far and launching the
+<span class="code">scells.Main</span> application you should see a spreadsheet application like the one
+shown in <a href="the-scells-spreadsheet.html#fig-scells3">Figure 35.3</a>.  You can edit cells by typing into
+them. After editing is done, a cell displays the formula it
+contains. You can also try to type some illegal input such as the one
+reading <span class="code">=add(1,</span>&nbsp;<span class="code">X)</span> in the field that has the editing focus in
+<a href="the-scells-spreadsheet.html#fig-scells3">Figure 35.3</a>. Illegal input will show up as an error
+message. For instance, once you'd leave the edited field in
+<a href="the-scells-spreadsheet.html#fig-scells3">Figure 35.3</a>
+you should see the error message <span class="code">[`('</span>&nbsp;<span class="code">expected]</span> in the cell (to see
+all of the error message you
+might need to widen the column by dragging the separation between the
+column headers to the right).</p>
+
+<h3>35.5 Evaluation</h3>
+
+
+<p>Of course, in the end a spreadsheet should evaluate formulas, not just
+display them. In this section, we'll add the necessary components to
+achieve this.</p>
+
+<p>What's needed is a method, <span class="code">evaluate</span>, which takes a formula and returns
+the value of that formula in the current spreadsheet, represented as a
+<span class="code">Double</span>. We'll place this method in a new trait, <span class="code">Evaluator</span>.  The
+method needs to access the <span class="code">cells</span> field in class <span class="code">Model</span> to find
+out about the current values of cells that are referenced in a
+formula. On the other hand, the <span class="code">Model</span> class needs to call
+<span class="code">evaluate</span>. Hence, there's a mutual dependency between the <span class="code">Model</span>
+and the <span class="code">Evaluator</span>. A good way to express such mutual dependencies
+between classes was shown in <a href="modular-programming-using-objects.html">Chapter 29</a>:
+you use inheritance in one direction and self types in the
+other.<a id="i1009253694-1"/><a id="i1609470629-1"/><a id="i-560124499-2"/></p>
+
+<p>In the spreadsheet example, class <span class="code">Model</span> inherits from
+<span class="code">Evaluator</span> and thus gains access to its <span class="code">evaluation</span> method.  To go
+the other way, class <span class="code">Evaluator</span> defines its self type to be
+<span class="code">Model</span>, like this:</p>
+
+<pre>
+  <code class="vem">package</code>&nbsp;org.stairwaybook.scells
+  <code class="vem">trait</code>&nbsp;<code class="typename">Evaluator</code>&nbsp;{&nbsp;<code class="vem">this</code>:&nbsp;<code class="typename">Model</code>&nbsp;=&gt;&nbsp;...
+</pre>
+
+
+<p>That way, the <span class="code">this</span> value inside class <span class="code">Evaluator</span> is assumed to be
+<span class="code">Model</span> and the <span class="code">cells</span> array is accessible by writing either <span class="code">cells</span> or
+<span class="code">this.cells</span>.</p>
+
+<p>Now that the wiring is done, we'll concentrate on defining the
+contents of class <span class="code">Evaluator</span>. <a href="the-scells-spreadsheet.html#lst-evaluate-method">Listing 35.7</a> shows the implementation of the
+<span class="code">evaluate</span> method.
+As you might expect,  the method contains a pattern match over the
+different types of formulas.<a id="i1154860961-2"/> For a coordinate <span class="code">Coord(row,</span>&nbsp;<span class="code">column)</span>,
+it returns the value of the <span class="code">cells</span> array at that coordinate.
+For a number <span class="code">Number(v)</span>, it returns the value <span class="code">v</span>. For a textual
+label <span class="code">Textual(s)</span>, it returns zero. Finally, for an application
+<span class="code">Application(function,</span>&nbsp;<span class="code">arguments)</span>, it computes the values of
+all arguments, retrieves a function object corresponding to the
+<span class="code">function</span> name from an <span class="code">operations</span> table and applies that
+function to all argument values. 
+<a id="lst-evaluate-method"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;evaluate(e:&nbsp;<code class="typename">Formula</code>):&nbsp;<code class="typename">Double</code>&nbsp;=&nbsp;<code class="vem">try</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;e&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Coord</code>(row,&nbsp;column)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cells(row)(column).value
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Number</code>(v)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Textual</code>(_)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="literal">0</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Application</code>(function,&nbsp;arguments)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;argvals&nbsp;=&nbsp;arguments&nbsp;flatMap&nbsp;evalList
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;operations(function)(argvals)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}&nbsp;<code class="vem">catch</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;ex:&nbsp;<code class="typename">Exception</code>&nbsp;=&gt;&nbsp;<code class="typename">Double.NaN</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 35.7 - The <span class="code">evaluate</span> method of trait <span class="code">Evaluator</span>.</h5>
+
+
+<p>The <span class="code">operations</span> table maps function names
+to function objects. It is defined as follows:</p>
+
+<pre>
+  <code class="vem">type</code>&nbsp;<code class="typename">Op</code>&nbsp;=&nbsp;<code class="typename">List[Double]</code>&nbsp;=&gt;&nbsp;<code class="typename">Double</code>
+  <code class="vem">val</code>&nbsp;operations&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">collection.mutable.HashMap[String,&nbsp;Op]</code>
+</pre>
+
+
+<p>As you can see from this definition, operations are modeled as
+functions from lists of values to values. The <span class="code">Op</span> type introduces a
+convenient alias for the type of an operation.</p>
+
+<p>The computation in <span class="code">evaluate</span> is wrapped in a try-catch to guard
+against input errors. There are actually quite a few things that can
+go wrong when evaluating a cell formula: coordinates might be out of
+range; function names might be undefined; functions might have the
+wrong number of arguments; arithmetic operations might be illegal or
+overflow.  The reaction to any of these errors is the same: a
+"not-a-number" value is returned. The returned value,
+<span class="code">Double.NaN</span>, is the IEEE representation for a computation that
+does not have a representable floating-point
+value.<a id="i995050225-1"/> This might happen
+because of an overflow or a division by zero, for example. The
+<span class="code">evaluate</span> method of <a href="the-scells-spreadsheet.html#lst-evaluate-method">Listing 35.7</a> chooses to return the same value also for all
+other kinds of errors. The advantage of this scheme is that it's
+simple to understand and doesn't require much code to
+implement. Its disadvantage is that all kinds of errors are lumped
+together, so a spreadsheet user does not get any detailed
+feedback on what went wrong.  If you wish you can experiment with more
+refined ways of representing errors in the <span class="code">SCells</span> application.</p>
+
+<p>The evaluation of arguments is different from the evaluation of
+top-level formulas. Arguments may be lists whereas top-level
+functions may not. For instance, the argument expression <span class="code">A1:A3</span> in
+<span class="code">sum(A1:A3)</span> returns the values of cells <span class="code">A1</span>, <span class="code">A2</span>, <span class="code">A3</span> in a
+list. This list is then passed to the <span class="code">sum</span> operation. It's also
+possible to mix lists and single values in argument expressions, for
+instance the operation <span class="code">sum(A1:A3,</span>&nbsp;<span class="code">1.0,</span>&nbsp;<span class="code">C7)</span>, which would sum up five
+values. To handle arguments that might evaluate to lists, there's
+another evaluation function, called <span class="code">evalList</span>, which
+takes a formula and returns a list of values:</p>
+
+<pre>
+  <code class="vem">private</code>&nbsp;<code class="vem">def</code>&nbsp;evalList(e:&nbsp;<code class="typename">Formula</code>):&nbsp;<code class="typename">List[Double]</code>&nbsp;=&nbsp;e&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Range</code>(_,&nbsp;_)&nbsp;=&gt;&nbsp;references(e)&nbsp;map&nbsp;(_.value)
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="typename">List</code>(evaluate(e))
+  }
+</pre>
+
+
+<p>If the formula argument passed to <span class="code">evalList</span> is a <span class="code">Range</span>, the
+returned value is a list consisting of the values of all cells
+referenced by the range. For every other formula the result is a list
+consisting of the single result value of that formula.
+The  cells referenced by a formula are computed by a third function,
+<span class="code">references</span>. Here is its definition:</p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;references(e:&nbsp;<code class="typename">Formula</code>):&nbsp;<code class="typename">List[Cell]</code>&nbsp;=&nbsp;e&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Coord</code>(row,&nbsp;column)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">List</code>(cells(row)(column))
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Range</code>(<code class="typename">Coord</code>(r1,&nbsp;c1),&nbsp;<code class="typename">Coord</code>(r2,&nbsp;c2))&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(row&nbsp;&lt;-&nbsp;(r1&nbsp;to&nbsp;r2).toList;&nbsp;column&nbsp;&lt;-&nbsp;c1&nbsp;to&nbsp;c2)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">yield</code>&nbsp;cells(row)(column)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Application</code>(function,&nbsp;arguments)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arguments&nbsp;flatMap&nbsp;references
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">List</code>()
+  &nbsp;&nbsp;}
+  }&nbsp;<code class="comment">//&nbsp;end&nbsp;Evaluator</code>
+</pre>
+
+
+<p>The <span class="code">references</span> method is actually more general than needed right now in that
+it computes the list of cells referenced by any sort of formula, not
+just a <span class="code">Range</span> formula. It will turn out later that the added
+functionality is needed to compute the sets of cells that need
+updating. The body of the method is a straightforward pattern match on 
+kinds of formulas. For a coordinate <span class="code">Coord(row,</span>&nbsp;<span class="code">column)</span>, it returns
+a single-element list containing the cell at that coordinate. For a range expression
+<span class="code">Range(coord1,</span>&nbsp;<span class="code">coord2)</span>, it returns all cells
+between the two coordinates, computed by a <span class="code">for</span> expression. For a
+function application <span class="code">Application(function,</span>&nbsp;<span class="code">arguments)</span>, it returns
+the cells referenced by each argument expression, concatenated via
+<span class="code">flatMap</span> into a single list. For the other two types of formulas,
+<span class="code">Textual</span> and <span class="code">Number</span>, it returns an empty list.</p>
+
+<h3>35.6 Operation libraries</h3>
+
+
+<p>The class <span class="code">Evaluator</span> itself defines no operations that can be
+performed on cells: its <span class="code">operations</span> table is initially empty.
+The idea is to define such operations in other traits, which are then
+mixed into the <span class="code">Model</span> class.<a id="i464307868-1"/> <a href="the-scells-spreadsheet.html#lst-scells-Arithmetic">Listing 35.8</a>
+shows an example trait that implements 
+common arithmetic operations:</p>
+
+<p><a id="lst-scells-Arithmetic"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;org.stairwaybook.scells
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">Arithmetic</code>&nbsp;{&nbsp;<code class="vem">this</code>:&nbsp;<code class="typename">Evaluator</code>&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;operations&nbsp;+=&nbsp;(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"add"</code>&nbsp;&nbsp;-&gt;&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>(x,&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y&nbsp;},
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"sub"</code>&nbsp;&nbsp;-&gt;&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>(x,&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;-&nbsp;y&nbsp;},
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"div"</code>&nbsp;&nbsp;-&gt;&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>(x,&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;/&nbsp;y&nbsp;},
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"mul"</code>&nbsp;&nbsp;-&gt;&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>(x,&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;*&nbsp;y&nbsp;},
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"mod"</code>&nbsp;&nbsp;-&gt;&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>(x,&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;<code class="texttt">%</code>&nbsp;y&nbsp;},
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"sum"</code>&nbsp;&nbsp;-&gt;&nbsp;{&nbsp;xs&nbsp;=&gt;&nbsp;(<code class="literal">0.0</code>&nbsp;/:&nbsp;xs)(_&nbsp;+&nbsp;_)&nbsp;},
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"prod"</code>&nbsp;-&gt;&nbsp;{&nbsp;xs&nbsp;=&gt;&nbsp;(<code class="literal">1.0</code>&nbsp;/:&nbsp;xs)(_&nbsp;*&nbsp;_)&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 35.8 - A library for arithmetic operations.</h5>
+
+
+<p>Interestingly, this trait has no exported members. The only thing it
+does is populate the <span class="code">operations</span> table during its initialization. It
+gets access to that table by using a self type <span class="code">Evaluator</span>, <i>i.e.</i>, by the
+same technique the <span class="code">Arithmetic</span> class uses to get access to the
+model.<a id="i1609470629-2"/><a id="i-560124499-3"/></p>
+
+<p>Of the seven operations that are defined by the <span class="code">Arithmetic</span>
+trait, five are binary operations and two take an arbitrary
+number of arguments.  The binary operations all follow the same
+schema. For instance, the addition operation <span class="code">add</span> is defined by
+the expression:</p>
+
+<pre>
+  {&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>(x,&nbsp;y)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y&nbsp;}
+</pre>
+
+
+<p>That is, it expects an argument list consisting of two elements <span class="code">x</span>
+and <span class="code">y</span> and returns the sum of <span class="code">x</span> and <span class="code">y</span>. If the argument list
+contains a number of elements different from two, a <span class="code">MatchError</span> is
+thrown. This corresponds to the general "let it crash" philosophy 
+of <span class="code">SCell</span>'s evaluation model, where incorrect input is expected to lead to a
+runtime exception that then gets caught by the try-catch inside the <span class="code">evaluation</span>
+method.</p>
+
+<p>The last two operations, <span class="code">sum</span> and <span class="code">prod</span>, take a list of arguments
+of arbitrary length and insert a binary operation between successive
+elements. So they are instances of the "fold left" schema that's
+expressed in class <span class="code">List</span> by the <span class="code">/:</span> operation. For instance, to
+<span class="code">sum</span> a list of numbers <span class="code">List(x,</span>&nbsp;<span class="code">y,</span>&nbsp;<span class="code">z)</span>, the operation
+computes <span class="code">0</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">z</span>. The first operand, <span class="code">0</span>, is the result
+ if the list is empty.</p>
+
+<p>You can integrate this operation library into the spreadsheet
+application by mixing the <span class="code">Arithmetic</span> trait into the <span class="code">Model</span> class, like this:</p>
+
+<pre>
+  <code class="vem">package</code>&nbsp;org.stairwaybook.scells
+  <br />  <code class="vem">class</code>&nbsp;<code class="typename">Model</code>(<code class="vem">val</code>&nbsp;height:&nbsp;<code class="typename">Int</code>,&nbsp;<code class="vem">val</code>&nbsp;width:&nbsp;<code class="typename">Int</code>)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Evaluator</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Arithmetic</code>&nbsp;{&nbsp;
+  <br />  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Cell</code>(row:&nbsp;<code class="typename">Int</code>,&nbsp;column:&nbsp;<code class="typename">Int</code>)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">var</code>&nbsp;formula:&nbsp;<code class="typename">Formula</code>&nbsp;=&nbsp;<code class="typename">Empty</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;value&nbsp;=&nbsp;evaluate(formula)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;formula&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Textual</code>(s)&nbsp;=&gt;&nbsp;s
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;value.toString
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;...&nbsp;<code class="comment">//&nbsp;rest&nbsp;as&nbsp;before</code>
+  }
+</pre>
+
+
+<p>Another change in the <span class="code">Model</span> class concerns the way cells display
+themselves. In the new version, the displayed value of a cell depends
+on its formula. If the formula is a <span class="code">Textual</span> field, the contents of
+the field are displayed literally. In all other cases, the formula is
+evaluated and the result <span class="code">value</span> of that evaluation is displayed.</p>
+
+<div class="figure"><a id="fig-scells4"/>
+
+
+<p><img src="images/scells4Gray96.png" alt="image images/scells4Gray96.png"/></p>
+
+</div>
+<h5> Figure 35.4 - Cells that evaluate.</h5>
+
+
+<p>If you compile the changed traits and classes and relaunch the
+<span class="code">Main</span> program you get something that starts to resemble a real
+spreadsheet. <a href="the-scells-spreadsheet.html#fig-scells4">Figure 35.4</a> shows an example.
+You can enter formulas into cells and get them to evaluate themselves. For instance,
+once you close the editing focus on cell <span class="code">C5</span> in
+<a href="the-scells-spreadsheet.html#fig-scells4">Figure 35.4</a>, you should see <span class="code">86.0</span>, the result of
+evaluating the formula <span class="code">sum(C1:C4)</span>.</p>
+
+<p>However, there's a crucial element still missing. If you change the
+value of cell <span class="code">C1</span> in <a href="the-scells-spreadsheet.html#fig-scells4">Figure 35.4</a> from 20 to 100, the
+sum in cell <span class="code">C5</span> will not be automatically updated to 166. You'll
+have to click on <span class="code">C5</span> manually to see a change in its value. What's still
+missing is a way to have cells recompute their values automatically
+after a change.</p>
+
+<h3>35.7 Change propagation</h3>
+
+
+<p>If a cell's value has changed, all cells that depend on that value
+should have their results recomputed and redisplayed. The simplest way
+to achieve this would be to recompute the value of every cell in
+the spreadsheet after each change. However such an approach does not
+scale well as the spreadsheet grows in size.</p>
+
+<p>A better approach is to recompute the values of only those cells that
+refer to a changed cell in their formula. The idea is to use an
+event-based publish/subscribe framework for change propagation: once a
+cell gets assigned a formula, it will subscribe to be notified of all
+value changes in cells to which the formula refers. A value
+change in one of these cells will trigger a re-evaluation of the
+subscriber cell. If such a re-evaluation causes a change in the
+value of the cell, it will in turn notify all cells that depend on it.
+The process continues until all cell values have stabilized, <i>i.e.</i>,
+there are no more changes in the values of any cell.<a href="the-scells-spreadsheet.html#footnotemain35-3">[3]</a></p>
+
+<p>The publish/subscribe framework is implemented in class <span class="code">Model</span> using
+the standard event mechanism of Scala's Swing framework. Here's a new (and
+final) version of this class:</p>
+
+<pre>
+  <code class="vem">package</code>&nbsp;org.stairwaybook.scells
+  <code class="vem">import</code>&nbsp;swing._
+  <br />  <code class="vem">class</code>&nbsp;<code class="typename">Model</code>(<code class="vem">val</code>&nbsp;height:&nbsp;<code class="typename">Int</code>,&nbsp;<code class="vem">val</code>&nbsp;width:&nbsp;<code class="typename">Int</code>)&nbsp;
+  <code class="vem">extends</code>&nbsp;<code class="typename">Evaluator</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Arithmetic</code>&nbsp;{&nbsp;
+</pre>
+
+
+<p>Compared to the previous version of <span class="code">Model</span>, this version adds a new import of
+<span class="code">swing._</span>, which makes Swing's event abstractions directly
+available.<a id="i1245010859-2"/></p>
+
+<p>The main modifications of class <span class="code">Model</span> concern the nested class
+<span class="code">Cell</span>. Class <span class="code">Cell</span> now inherits from <span class="code">Publisher</span>, so that it can publish
+events.<a id="i-843595300-1"/> The event-handling logic is completely contained in the setters of
+two properties: <span class="code">value</span> and <span class="code">formula</span>.
+Here is <span class="code">Cell</span>'s new version:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Cell</code>(row:&nbsp;<code class="typename">Int</code>,&nbsp;column:&nbsp;<code class="typename">Int</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Publisher</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;formula&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Textual</code>(s)&nbsp;=&gt;&nbsp;s
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;value.toString
+  &nbsp;&nbsp;}
+</pre>
+
+
+<p>To the outside, it looks like
+<span class="code">value</span> and <span class="code">formula</span> are two variables in class <span class="code">Cell</span>. Their
+actual implementation is in terms of two private fields
+that are equipped with public getters, <span class="code">value</span> and <span class="code">formula</span>, and
+setters, <span class="code">value_=</span> and <span class="code">formula_=</span>. 
+Here are the definitions implementing the <span class="code">value</span> property:</p>
+
+<pre>
+  <code class="vem">private</code>&nbsp;<code class="vem">var</code>&nbsp;v:&nbsp;<code class="typename">Double</code>&nbsp;=&nbsp;<code class="literal">0</code>
+  <code class="vem">def</code>&nbsp;value:&nbsp;<code class="typename">Double</code>&nbsp;=&nbsp;v
+  <code class="vem">def</code>&nbsp;value_=(w:&nbsp;<code class="typename">Double</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(!(v&nbsp;==&nbsp;w&nbsp;||&nbsp;v.isNaN&nbsp;&amp;&amp;&nbsp;w.isNaN))&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;v&nbsp;=&nbsp;w
+  &nbsp;&nbsp;&nbsp;&nbsp;publish(<code class="typename">ValueChanged</code>(<code class="vem">this</code>))
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>The <span class="code">value_=</span> setter assigns a new value <span class="code">w</span> to the private field
+<span class="code">v</span>. If the new value is different from the old one, it also
+publishes a <span class="code">ValueChanged</span> event with the cell itself as
+argument.<a id="i1571974179-1"/>
+Note that the test whether the value has changed is a bit tricky
+because it involves the value <span class="code">NaN</span>.<a id="i995050225-2"/>
+The Java spec says that <span class="code">NaN</span>
+is different from every other value, including itself! Therefore, 
+a test whether two values are the same has to treat <span class="code">NaN</span> specially:
+two values <span class="code">v</span>, <span class="code">w</span> are the same if they are equal with respect to <span class="code">==</span>, or
+they are both the value <span class="code">NaN</span>, <i>i.e.</i>, <span class="code">v.isNaN</span> and <span class="code">w.isNaN</span> both
+yield <span class="code">true</span>.</p>
+
+<p>Whereas the <span class="code">value_=</span> setter does the publishing in the
+publish/subscribe framework, the <span class="code">formula_=</span> setter does the
+subscribing:</p>
+
+<pre>
+  <code class="vem">private</code>&nbsp;<code class="vem">var</code>&nbsp;f:&nbsp;<code class="typename">Formula</code>&nbsp;=&nbsp;<code class="typename">Empty</code>
+  <code class="vem">def</code>&nbsp;formula:&nbsp;<code class="typename">Formula</code>&nbsp;=&nbsp;f
+  <code class="vem">def</code>&nbsp;formula_=(f:&nbsp;<code class="typename">Formula</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(c&nbsp;&lt;-&nbsp;references(formula))&nbsp;deafTo(c)
+  &nbsp;&nbsp;<code class="vem">this</code>.f&nbsp;=&nbsp;f
+  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(c&nbsp;&lt;-&nbsp;references(formula))&nbsp;listenTo(c)
+  &nbsp;&nbsp;value&nbsp;=&nbsp;evaluate(f)
+  }
+</pre>
+
+
+<p>If a cell is assigned a new formula, it first
+unsubscribes with <span class="code">deafTo</span> from all cells referenced by the previous <span class="code">formula</span>
+value. It then stores the new formula in the private variable <span class="code">f</span> and 
+subscribes with <span class="code">listenTo</span> to all cells referenced by
+it.<a id="i-2118281873-2"/>
+Finally, it recomputes its <span class="code">value</span> using the new formula.</p>
+
+<p>The last piece of code in the revised class <span class="code">Cell</span> specifies how to react to a
+<span class="code">ValueChanged</span> event:</p>
+
+<pre>
+  &nbsp;&nbsp;reactions&nbsp;+=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">ValueChanged</code>(_)&nbsp;=&gt;&nbsp;value&nbsp;=&nbsp;evaluate(formula)
+  &nbsp;&nbsp;}
+  }&nbsp;<code class="comment">//&nbsp;end&nbsp;class&nbsp;Cell</code>
+</pre>
+
+
+<p>The <span class="code">ValueChanged</span> class is also contained in class <span class="code">Model</span>:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">ValueChanged</code>(cell:&nbsp;<code class="typename">Cell</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">event.Event</code>
+</pre>
+
+
+<p>The rest of class <span class="code">Model</span> is as before:</p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;cells&nbsp;=&nbsp;Array.ofDim[<code class="typename">Cell</code>](height,&nbsp;width)&nbsp;
+  <br />  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(i&nbsp;&lt;-&nbsp;<code class="literal">0</code>&nbsp;until&nbsp;height;&nbsp;j&nbsp;&lt;-&nbsp;<code class="literal">0</code>&nbsp;until&nbsp;width)
+  &nbsp;&nbsp;&nbsp;&nbsp;cells(i)(j)&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Cell</code>(i,&nbsp;j)
+  }&nbsp;<code class="comment">//&nbsp;end&nbsp;class&nbsp;Model</code>
+</pre>
+
+
+<p><a id="lst-scells-Spreadsheet3"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;org.stairwaybook.scells
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;swing._,&nbsp;event._
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Spreadsheet</code>(<code class="vem">val</code>&nbsp;height:&nbsp;<code class="typename">Int</code>,&nbsp;<code class="vem">val</code>&nbsp;width:&nbsp;<code class="typename">Int</code>)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">ScrollPane</code>&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;cellModel&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Model</code>(height,&nbsp;width)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">import</code>&nbsp;cellModel._
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;table&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Table</code>(height,&nbsp;width)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...&nbsp;<code class="comment">//&nbsp;settings&nbsp;as&nbsp;in&nbsp;<a href="the-scells-spreadsheet.html#lst-scells-Spreadsheet1">Listing ???</a></code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;rendererComponent(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;isSelected:&nbsp;<code class="typename">Boolean</code>,&nbsp;hasFocus:&nbsp;<code class="typename">Boolean</code>,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;row:&nbsp;<code class="typename">Int</code>,&nbsp;column:&nbsp;<code class="typename">Int</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...&nbsp;<code class="comment">//&nbsp;as&nbsp;in&nbsp;<a href="the-scells-spreadsheet.html#lst-scells-Spreadsheet2">Listing ???</a></code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;userData(row:&nbsp;<code class="typename">Int</code>,&nbsp;column:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">String</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...&nbsp;<code class="comment">//&nbsp;as&nbsp;in&nbsp;<a href="the-scells-spreadsheet.html#lst-scells-Spreadsheet2">Listing ???</a></code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reactions&nbsp;+=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">TableUpdated</code>(table,&nbsp;rows,&nbsp;column)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(row&nbsp;&lt;-&nbsp;rows)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;cells(row)(column).formula&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FormulaParsers.parse(userData(row,&nbsp;column))
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">ValueChanged</code>(cell)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;updateCell(cell.row,&nbsp;cell.column)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(row&nbsp;&lt;-&nbsp;cells;&nbsp;cell&nbsp;&lt;-&nbsp;row)&nbsp;listenTo(cell)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;rowHeader&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">ListView</code>(<code class="literal">0</code>&nbsp;until&nbsp;height)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fixedCellWidth&nbsp;=&nbsp;<code class="literal">30</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fixedCellHeight&nbsp;=&nbsp;table.rowHeight
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;viewportView&nbsp;=&nbsp;table
+  &nbsp;&nbsp;&nbsp;&nbsp;rowHeaderView&nbsp;=&nbsp;rowHeader
+  &nbsp;&nbsp;}</pre>
+
+
+<h5>Listing 35.9 - The finished spreadsheet component.</h5>
+
+
+<p>The spreadsheet code is now almost complete. The final piece missing
+is the re-display of modified cells. So far, all value propagation
+concerned the internal <span class="code">Cell</span> values only; the visible table was not
+affected. One way to change this would be to add a redraw command to
+the <span class="code">value_=</span> setter. However, this would undermine the strict
+separation between model and view that you have seen so far. A more modular
+solution is to notify the table of all <span class="code">ValueChanged</span> events
+and let it do the redrawing
+itself. <a href="the-scells-spreadsheet.html#lst-scells-Spreadsheet3">Listing 35.9</a> shows the final
+spreadsheet component, which implements this scheme.</p>
+
+<p>Class <span class="code">Spreadsheet</span> of
+<a href="the-scells-spreadsheet.html#lst-scells-Spreadsheet3">Listing 35.9</a> has only two new revisions. First, the <span class="code">table</span> component now subscribes with <span class="code">listenTo</span> to all cells in
+the model. Second, there's a new case in the table's reactions: 
+if it is notified of a <span class="code">ValueChanged(cell)</span> event, it
+demands a redraw of the corresponding cell with a call of
+<span class="code">updateCell(cell.row,</span>&nbsp;<span class="code">cell.column)</span>.</p>
+
+<h3>35.8 Conclusion</h3>
+
+
+<p>The spreadsheet developed in this chapter
+is fully functional, even though at some
+points it adopts the simplest solution to implement rather than the most convenient
+one for the user. That way, it could be written in just under 200 lines of code.
+Nevertheless, the architecture of the spreadsheet makes modifications
+and extensions easy. In case you would like to experiment with the
+code a bit further, here are some suggestions of what you could change or add:</p>
+
+<ol>
+
+
+<li>
+  You could make the spreadsheet resizable, so that the number of rows and
+  columns can be changed interactively.   
+
+
+</li>
+<li>
+  You could add new kinds of formulas, for instance binary operations, or other
+  functions.
+
+
+</li>
+<li>
+  You might think about what to do when cells refer recursively to themselves. 
+  For instance, if cell <span class="code">A1</span> holds the formula
+  <span class="code">add(B1,</span>&nbsp;<span class="code">1)</span> and cell <span class="code">B1</span> holds the formula <span class="code">mul(A1,</span>&nbsp;<span class="code">2)</span>, a re-evaluation
+  of either cell will trigger a stack-overflow. 
+  Clearly, that's not a very good solution. As alternatives,
+  you could either disallow such a situation, or
+  just compute one iteration each time one of the cells is touched. 
+
+
+</li>
+<li>
+  You could enhance error handling, giving more detailed messages describing what went
+  wrong.
+
+
+</li>
+<li>
+  You could add a formula entry field at the top of the spreadsheet, 
+  so that long formulas could be entered more conveniently.
+
+
+</li></ol>
+
+
+<p>At the beginning of this book we stressed the scalability aspect of
+Scala.<a id="i-885663216-3"/><a id="i-2079231610-1"/>  We claimed that the combination of Scala's object-oriented and
+functional constructs makes it suitable for programs ranging from
+small scripts to very large systems. The spreadsheet presented here
+is clearly still a small system, even though it would probably 
+take up much more than 200 lines in most other languages. Nevertheless,
+you can see many of the details that make Scala scalable at play in
+this application.</p>
+
+<p>The spreadsheet uses Scala's classes and traits with their mixin
+composition to combine its components in flexible ways.<a id="i1953973959-1"/> Recursive
+dependencies between components are expressed using self
+types. The
+need for static state is completely eliminated&mdash;the only top-level
+components that are not classes are formula trees and formula parsers,
+and both of these are purely functional.  The application also uses
+higher-order functions and pattern matching extensively, both for
+accessing formulas and for event handling. So it is a good showcase of
+how functional and object-oriented programming can be combined
+smoothly.</p>
+
+<p>One important reason why the spreadsheet application is so concise is
+that it can base itself on powerful libraries. The parser combinator
+library provides in effect an internal domain-specific language for
+writing parsers.<a id="i-218658218-1"/><a id="i-640692980-1"/> Without it, parsing formulas would have been much
+more difficult. The event handling in Scala's Swing libraries is a good
+example of the power of control abstractions. If you know Java's Swing
+libraries, you probably appreciate the conciseness of Scala's
+reactions concept, particularly when compared to the tedium of
+writing notify methods and implementing listener interfaces in the
+classical publish/subscribe design pattern.<a id="i851179987-1"/> So the spreadsheet
+demonstrates the benefits of extensibility, where high-level libraries
+can be made to look just like language extensions.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 35:</h4>
+
+
+<p><a id="footnotemain35-1"/>[1] Although "<span class="code">this(row,</span>&nbsp;<span class="code">column)</span>" may look similar to a constructor invocation, it is in this case an invocation
+of the <span class="code">apply</span> method on the current <span class="code">Table</span> instance.</p>
+
+<p><a id="footnotemain35-2"/>[2] <span class="code">Range[Int]</span> is also the type of a
+Scala expression such as "<span class="code">1</span>&nbsp;<span class="code">to</span>&nbsp;<span class="code">N</span>".</p>
+
+<p><a id="footnotemain35-3"/>[3] This
+  assumes that there are no cyclic dependencies between cells. We
+  discuss dropping this assumption at the end of this chapter.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

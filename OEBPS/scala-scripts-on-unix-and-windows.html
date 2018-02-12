@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="appen-scala-scripts-on-unix-and-windows">Appendix A</a></h2>
+<h1>Scala Scripts on Unix and Windows</h1>
+
+
+<p>If you're on some flavor of Unix, you can run a Scala script as a shell script by prepending a "pound bang"
+directive at the top of the file.<a id="i345477272-1"/> For example, type the following into a file named <span class="code">helloarg</span>:</p>
+
+<pre>
+  #!/bin/sh
+  exec&nbsp;scala&nbsp;"$0"&nbsp;"$@"
+  !#
+  //&nbsp;Say&nbsp;hello&nbsp;to&nbsp;the&nbsp;first&nbsp;argument
+  println("Hello,&nbsp;"&nbsp;+&nbsp;args(0)&nbsp;+&nbsp;"!")
+</pre>
+
+
+<p>The initial <span class="code">#!/bin/sh</span> must be the very first line in the file. Once you set its execute permission:</p>
+
+<pre>
+  $&nbsp;chmod&nbsp;+x&nbsp;helloarg
+</pre>
+
+
+<p>You can run the Scala script as a shell script by simply saying:</p>
+
+<pre>
+  $&nbsp;./helloarg&nbsp;globe
+</pre>
+
+
+<p>If you're on Windows,<a id="i-1287204493-1"/> you can achieve the same effect by naming
+the file <span class="code">helloarg.bat</span> and placing this at the top of your script:</p>
+
+<pre>
+  ::#!
+  @echo&nbsp;off
+  call&nbsp;scala&nbsp;<code class="texttt">%</code>0&nbsp;<code class="texttt">%</code>*
+  goto&nbsp;:eof
+  ::!#
+</pre>
+
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-gui-programming">Chapter 34</a></h2>
+<h1>GUI Programming</h1>
+
+
+<p>In this chapter you'll learn how to develop in Scala applications that
+use a graphical user interface (GUI). The applications we'll develop are based on a Scala library that provides access to
+Java's Swing framework of GUI classes.<a id="i80301790-1"/><a id="i1756438818-1"/> Conceptually, the Scala library
+resembles the underlying Swing classes, but hides much of their
+complexity. You'll find out that developing GUI applications
+using the framework is actually quite easy.<a id="i1275390415-1"/></p>
+
+<p>Even with Scala's simplifications, a framework like Swing is quite
+rich, with many different classes and many methods in each class. To
+find your way in such a rich library, it helps to use an IDE such as
+Scala's Eclipse plugin.<a id="i-1327804143-2"/> The advantage is that the IDE can show you
+interactively with its command completion which classes are available
+in a package and which methods are available for objects you
+reference. This speeds up your learning considerably when you first
+explore an unknown library space.</p>
+
+<div class="figure"><a id="fig-swing1"/>
+
+
+<table style="border-collapse: collapse">
+<tr>
+  <td>
+<img src="images/firstSwingAppLittleGray96.png" alt="image images/firstSwingAppLittleGray96.png"/>
+
+
+  </td>
+  <td>
+<img src="images/firstSwingAppBigGray96.png" alt="image images/firstSwingAppBigGray96.png"/>
+
+
+  </td>
+</tr>
+</table>
+</div>
+<h5> Figure 34.1 - A simple Swing application: initial (left) and resized (right).</h5>
+
+
+<h3>34.1 A first Swing application</h3>
+
+
+<p>As a first Swing application, we'll start with a window containing a
+single button.  To program with Swing, you need to import various
+classes from Scala's Swing API package:</p>
+
+<pre>
+  <code class="vem">import</code>&nbsp;scala.swing._
+</pre>
+
+
+<p><a href="gui-programming.html#lst-first-swing-app">Listing 34.1</a> shows the code of your first Swing application in Scala.
+If you compile and run that file, you should see a window as shown on the left
+of <a href="gui-programming.html#fig-swing1">Figure 34.1</a>. The window can be resized to a larger size
+as shown on the right of <a href="gui-programming.html#fig-swing1">Figure 34.1</a>.
+<a id="lst-first-swing-app"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;scala.swing._
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">FirstSwingApp</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">SimpleSwingApplication</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;top&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">MainFrame</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;title&nbsp;=&nbsp;<code class="quotedstring">"First&nbsp;Swing&nbsp;App"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Button</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;<code class="quotedstring">"Click&nbsp;me"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 34.1 - A simple Swing application in Scala.</h5>
+
+
+<p>If you analyze the code in <a href="gui-programming.html#lst-first-swing-app">Listing 34.1</a> line by line, you'll notice the
+following elements:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">FirstSwingApp</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">SimpleSwingApplication</code>&nbsp;{
+</pre>
+
+
+<p>In the first line after the import, the <span class="code">FirstSwingApp</span> object inherits from
+<span class="code">scala.swing.SimpleSwingApplication</span>.<a id="i980116412-1"/> This application differs
+from traditional command-line applications, which may
+inherit from <span class="code">scala.App</span>.<a id="i2043724591-2"/> The <span class="code">SimpleSwingApplication</span>
+class already defines a <span class="code">main</span> method that contains some setup code
+for Java's Swing framework. The <span class="code">main</span> method then proceeds to call 
+the <span class="code">top</span> method, which you
+supply:<a id="i673279455-1"/><a id="i1222409213-1"/></p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;top&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">MainFrame</code>&nbsp;{
+</pre>
+
+
+<p>The next line implements the <span class="code">top</span> method.  This method contains the code that defines your top-level
+GUI component. This is usually some kind of <span class="code">Frame</span>&mdash;<i>i.e.</i>,
+a window that can contain arbitrary data.  In <a href="gui-programming.html#lst-first-swing-app">Listing 34.1</a>, we chose
+a <span class="code">MainFrame</span> as the top-level component. 
+A <span class="code">MainFrame</span> is like a normal Swing <span class="code">Frame</span> except that closing 
+it will also close the whole GUI
+application.<a id="i1729789716-1"/></p>
+
+<pre>
+  title&nbsp;=&nbsp;<code class="quotedstring">"First&nbsp;Swing&nbsp;App"</code>
+</pre>
+
+
+<p>Frames have a number of attributes. Two of the most important are the
+frame's <span class="code">title</span>, which will be written in the title bar,  and its
+<span class="code">contents</span>, which will be displayed in the window
+itself.<a id="i-1539619709-1"/><a id="i872532101-1"/>  In Scala's
+Swing API, such attributes are modeled as properties.  You know from
+<a href="mutable-objects.html#sec-properties">Section 18.2</a> that properties are encoded in Scala as
+pairs of getter and setter methods. For instance, the <span class="code">title</span>
+property of a <span class="code">Frame</span> object is modeled as a getter
+method:<a id="i553650449-4"/><a id="i-1969580643-5"/><a id="i-926053069-3"/></p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;title:&nbsp;<code class="typename">String</code>
+</pre>
+
+
+<p>and a setter method:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;title_=(s:&nbsp;<code class="typename">String</code>)
+</pre>
+
+
+<p>It is this setter method that gets invoked by the above assignment to <span class="code">title</span>.
+The effect of the assignment is that the chosen title is shown in the 
+header of the window. If you leave it out, the window will have an empty 
+title.</p>
+
+<pre>
+  contents&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Button</code>&nbsp;{
+</pre>
+
+
+<p>The <span class="code">top</span> frame is the root component of the Swing application.
+It is a <span class="code">Container</span>, which means that further components can be defined
+in it.<a id="i-2044598897-1"/><a id="i1014658637-1"/>
+Every Swing container has a <span class="code">contents</span> property, which allows you to get and set the components it contains.
+The getter <span class="code">contents</span> of this property has type <span class="code">Seq[Component]</span>,<a id="i1009131637-1"/> indicating that a component can in general have several objects as its contents.
+Frames, however, always have just a single component as their <span class="code">contents</span>. This component is 
+set and potentially changed using the setter <span class="code">contents_=</span>. 
+For example, in <a href="gui-programming.html#lst-first-swing-app">Listing 34.1</a> a single <span class="code">Button</span> constitutes the <span class="code">contents</span>
+of the <span class="code">top</span> frame.</p>
+
+<pre>
+  text&nbsp;=&nbsp;<code class="quotedstring">"Click&nbsp;me"</code>
+</pre>
+
+
+<p>The button also gets a title, in this case "Click me."</p>
+
+<h3>34.2 Panels and layouts</h3>
+
+
+<p>As next step, we'll add some text as a second content element to the
+<span class="code">top</span> frame of the application.  
+The left part of <a href="gui-programming.html#fig-swing2">Figure 34.2</a> shows what the 
+application should look like.</p>
+
+<div class="figure"><a id="fig-swing2"/>
+
+
+<table style="border-collapse: collapse">
+<tr>
+  <td>
+<img src="images/noClicks2Gray96.png" alt="image images/noClicks2Gray96.png"/>
+
+
+  </td>
+  <td>
+<img src="images/sevenClicks2Gray96.png" alt="image images/sevenClicks2Gray96.png"/>
+
+
+  </td>
+</tr>
+</table>
+</div>
+<h5> Figure 34.2 - A reactive Swing application: initial (left) after clicks (right).</h5>
+
+
+<p><a id="lst-first-swing-app-modified"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;scala.swing._
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">SecondSwingApp</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">SimpleSwingApplication</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;top&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">MainFrame</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;title&nbsp;=&nbsp;<code class="quotedstring">"Second&nbsp;Swing&nbsp;App"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;button&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Button</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;<code class="quotedstring">"Click&nbsp;me"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;label&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Label</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;<code class="quotedstring">"No&nbsp;button&nbsp;clicks&nbsp;registered"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}	
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">BoxPanel</code>(<code class="typename">Orientation.Vertical</code>)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents&nbsp;+=&nbsp;button
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents&nbsp;+=&nbsp;label
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border&nbsp;=&nbsp;<code class="typename">Swing.EmptyBorder</code>(<code class="literal">30</code>,&nbsp;<code class="literal">30</code>,&nbsp;<code class="literal">10</code>,&nbsp;<code class="literal">30</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}&nbsp;&nbsp;
+</pre>
+
+
+<h5>Listing 34.2 - Component assembly on a panel.</h5>
+
+
+<p>You saw in the last section that a frame contains exactly one
+child component. Hence, to make a frame with both a button and a label,
+you need to create a different container component that holds both.
+That's what <span style="font-style:italic">panels</span> are used for.<a id="i76880356-1"/> A <span class="code">Panel</span> is a container that displays all the components it
+contains according to some fixed layout rules.  
+There are a number of different possible layouts that are implemented by various subclasses
+of class <span class="code">Panel</span>, ranging from simple to quite intricate. In fact, one of the hardest parts of a
+complex GUI application can be getting the layouts right&mdash;it's not
+easy to come up with something that displays reasonably well on all
+sorts of devices and for all window sizes.<a id="i51441782-1"/></p>
+
+<p><a href="gui-programming.html#lst-first-swing-app-modified">Listing 34.2</a> shows a complete
+implementation. 
+In this class, the two sub-components of the <span class="code">top</span> frame are
+named <span class="code">button</span> and <span class="code">label</span>. The <span class="code">button</span> is defined as before.
+The <span class="code">label</span> is a displayed text field that can't be edited:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;label&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Label</code>&nbsp;{
+  &nbsp;&nbsp;text&nbsp;=&nbsp;<code class="quotedstring">"No&nbsp;button&nbsp;clicks&nbsp;registered"</code>
+  }	
+</pre>
+
+
+<p>The code in
+<a href="gui-programming.html#lst-first-swing-app-modified">Listing 34.2</a> picks a simple vertical layout 
+where components are stacked on top of each other in a <span class="code">BoxPanel</span>:</p>
+
+<pre>
+  contents&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">BoxPanel</code>(<code class="typename">Orientation.Vertical</code>)&nbsp;{
+</pre>
+
+
+<p>The <span class="code">contents</span> property of the <span class="code">BoxPanel</span> is an (initially empty) buffer, to which the <span class="code">button</span> and <span class="code">label</span> 
+elements are added with the <span class="code">+=</span> operator:</p>
+
+<pre>
+  &nbsp;&nbsp;contents&nbsp;+=&nbsp;button
+  &nbsp;&nbsp;contents&nbsp;+=&nbsp;label
+</pre>
+
+
+<p>We also add a border around the two objects by assigning to the <span class="code">border</span> property of the panel:</p>
+
+<pre>
+  &nbsp;&nbsp;border&nbsp;=&nbsp;<code class="typename">Swing.EmptyBorder</code>(<code class="literal">30</code>,&nbsp;<code class="literal">30</code>,&nbsp;<code class="literal">10</code>,&nbsp;<code class="literal">30</code>)
+</pre>
+
+
+<p>As is the  case with other GUI components, borders are represented as
+objects. <span class="code">EmptyBorder</span> is a factory method 
+in object <span class="code">Swing</span> that takes four parameters indicating the width of the borders on the top, right, bottom, and
+left sides of the objects to be drawn.<a id="i80301790-2"/><a id="i1673765513-1"/></p>
+
+<p>Simple as it is, the example has already shown the basic way to
+structure a GUI application.  It is built from components, which are
+instances of <span class="code">scala.swing</span> classes such as <span class="code">Frame</span>, <span class="code">Panel</span>,
+<span class="code">Label</span> or <span class="code">Button</span>. Components have properties, which can be
+customized by the application.  <span class="code">Panel</span> components can contain several other
+components in their <span class="code">contents</span> property, so that in the end a GUI
+application consists of a tree of components.</p>
+
+<h3>34.3 Handling events</h3>
+
+
+<p>On the other hand, the application still misses an essential
+property.<a id="i1245010859-1"/>
+If you run the code in <a href="gui-programming.html#lst-first-swing-app-modified">Listing 34.2</a> and click on the
+displayed button, nothing happens.  In fact, the application is
+completely static; it does not react in any way to user events except
+for the close button of the <span class="code">top</span> frame, which terminates the
+application. So as a next step, we'll refine the application so that
+it displays together with the button a label that indicates how often
+the button was clicked. The right part of <a href="gui-programming.html#fig-swing2">Figure 34.2</a>
+contains a snapshot of what the application should look like after a
+few button clicks.</p>
+
+<p>To achieve this behavior, you need to connect a user-input event (the
+button was clicked) with an action (the displayed label is
+updated). Java and Scala have fundamentally the same
+"publish/subscribe" approach to event handling: Components may be
+publishers and/or subscribers. A publisher publishes events.  A
+subscriber subscribes with a publisher to be notified of any published
+events. Publishers are also called "event sources," and subscribers
+are also called "event listeners".<a id="i-1342345159-1"/><a id="i547853576-1"/>  For instance a <span class="code">Button</span> is an event
+source, which publishes an event, <span class="code">ButtonClicked</span>, indicating that the
+button was clicked.<a id="i-1378806667-1"/></p>
+
+<p>In Scala, subscribing to an event source <span class="code">source</span> is done by the call
+<span class="code">listenTo(source)</span>. There's also a way to unsubscribe from an event
+source using <span class="code">deafTo(source)</span>.<a id="i-1549919358-1"/><a id="i-2118281873-1"/><a id="i-1623449564-1"/>  In the current example application,
+the first thing to do is to get the <span class="code">top</span> frame to listen to its
+button, so that it gets notified of any events that the button
+issues. To do that you need to add the following call to the body of the <span class="code">top</span>
+frame:</p>
+
+<pre>
+  listenTo(button)
+</pre>
+
+
+<p>Being notified of events is only half the story; the other half
+is handling them. It is here that the Scala Swing framework is most
+different from (and radically simpler than) the Java Swing API's. In
+Java, signaling an event means
+calling a "notify" method in an object that has to implement some
+<span class="code">Listener</span> interfaces. Usually, this involves a fair amount of
+indirection and boiler-plate code, which makes event-handling
+applications hard to write and read.  By contrast, in Scala, an
+event is a real object that gets sent to subscribing components much
+like messages are sent to actors. For instance, pressing a button
+will create an event which is an instance of the following case class:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">ButtonClicked</code>(source:&nbsp;<code class="typename">Button</code>)
+</pre>
+
+
+<p>The parameter of the case class refers to the button that was clicked.
+As with all other Scala Swing events, this event class is contained in a package
+named <span class="code">scala.swing.event</span>.</p>
+
+<p>To have your component react to
+incoming events you need to add a handler to a property called
+<span class="code">reactions</span>.<a id="i-49046473-1"/> Here's the code that does this:</p>
+
+<pre>
+  <code class="vem">var</code>&nbsp;nClicks&nbsp;=&nbsp;<code class="literal">0</code>
+  reactions&nbsp;+=&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">ButtonClicked</code>(b)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;nClicks&nbsp;+=&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;label.text&nbsp;=&nbsp;<code class="quotedstring">"Number&nbsp;of&nbsp;button&nbsp;clicks:&nbsp;"</code>&nbsp;+&nbsp;nClicks
+  }
+</pre>
+
+
+<p>The first line above defines a variable, <span class="code">nClicks</span>, which holds the
+number of times a button was clicked.  The remaining lines add
+the code between braces as a <span style="font-style:italic">handler</span> to the <span class="code">reactions</span> property of the <span class="code">top</span>
+frame.  Handlers are functions defined by pattern matching on events,
+much like Akka actor <span class="code">receive</span> methods are defined by pattern matching on
+messages.<a id="i-729007015-1"/><a id="i-1422944994-5"/><a id="i2042656-5"/> The handler above matches events of the form <span class="code">ButtonClicked(b)</span>, 
+<i>i.e.</i>, any event which is an instance of class <span class="code">ButtonClicked</span>. The
+pattern variable <span class="code">b</span> refers to the actual button that was clicked.
+The action that corresponds to this event in the code above
+increments <span class="code">nClicks</span> and updates the text of the label.</p>
+
+<p>Generally, a handler is a <span class="code">PartialFunction</span> that matches on
+events and performs some
+actions.<a id="i-33298553-2"/> It is also possible to match on more
+than one kind of event in a single handler by using multiple cases.</p>
+
+<p><a id="listing-reactive-swing-app"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;scala.swing._
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;scala.swing.event._
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">ReactiveSwingApp</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">SimpleSwingApplication</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;top&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">MainFrame</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;title&nbsp;=&nbsp;<code class="quotedstring">"Reactive&nbsp;Swing&nbsp;App"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;button&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Button</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;<code class="quotedstring">"Click&nbsp;me"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;label&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Label</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text&nbsp;=&nbsp;<code class="quotedstring">"No&nbsp;button&nbsp;clicks&nbsp;registered"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}	
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">BoxPanel</code>(<code class="typename">Orientation.Vertical</code>)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents&nbsp;+=&nbsp;button
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents&nbsp;+=&nbsp;label
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border&nbsp;=&nbsp;<code class="typename">Swing.EmptyBorder</code>(<code class="literal">30</code>,&nbsp;<code class="literal">30</code>,&nbsp;<code class="literal">10</code>,&nbsp;<code class="literal">30</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;listenTo(button)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">var</code>&nbsp;nClicks&nbsp;=&nbsp;<code class="literal">0</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reactions&nbsp;+=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">ButtonClicked</code>(b)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nClicks&nbsp;+=&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;label.text&nbsp;=&nbsp;<code class="quotedstring">"Number&nbsp;of&nbsp;button&nbsp;clicks:&nbsp;"</code>&nbsp;+&nbsp;nClicks
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}&nbsp;&nbsp;
+</pre>
+
+
+<h5>Listing 34.3 - Implementing a reactive Swing application.</h5>
+
+
+<p>The <span class="code">reactions</span> property implements a collection, just like the
+<span class="code">contents</span> property does. Some components come with predefined
+reactions. For instance, a <span class="code">Frame</span> has a predefined reaction that it
+will close if the user presses the close button on the upper right.
+If you install your own reactions by adding them with <span class="code">+=</span> to the
+<span class="code">reactions</span> property, the reactions you define will be considered in
+addition to the standard ones. Conceptually, the handlers 
+installed in <span class="code">reactions</span>
+form a stack.  In the current example, if the <span class="code">top</span> frame receives an
+event, the first handler tried will be the one that matches on
+<span class="code">ButtonClicked</span>, because it was the last handler installed
+for the frame.  If the received event is of type <span class="code">ButtonClicked</span>, the
+code associated with the pattern will be invoked. After that code has
+completed, the system will search for further handlers in the event
+stack that might also be applicable. If the received event is not of
+type <span class="code">ButtonClicked</span>, the event is immediately propagated to the rest
+of the installed handler stack.  It's also possible to remove handlers
+from the <span class="code">reaction</span> property, using the
+<span class="code">-=</span> operator.</p>
+
+<p><a href="gui-programming.html#listing-reactive-swing-app">Listing 34.3</a> shows the completed
+application, including reactions. The code illustrates the essential
+elements of a GUI application in Scala's Swing framework: The
+application consists of a tree of components, starting with the <span class="code">top</span>
+frame.  The components shown in the code are <span class="code">Frame</span>, <span class="code">BoxPanel</span>,
+<span class="code">Button</span>, and <span class="code">Label</span>, but there are many other kinds of components
+defined in the Swing libraries.  Each component is customized by
+setting attributes. Two important attributes are <span class="code">contents</span>, which
+fixes the children of a component in the tree, and <span class="code">reactions</span>, which
+determines how the component reacts to events.</p>
+
+<div class="figure"><a id="fig-swing3"/>
+
+
+<p><img src="images/tempConverterGray112.png" alt="image images/tempConverterGray112.png"/></p>
+
+</div>
+<h5> Figure 34.3 - A converter between degrees Celsius and Fahrenheit.</h5>
+
+
+<p><a id="listing-converter"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;swing._
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;event._
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">TempConverter</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">SimpleSwingApplication</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;top&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">MainFrame</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;title&nbsp;=&nbsp;<code class="quotedstring">"Celsius/Fahrenheit&nbsp;Converter"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">object</code>&nbsp;celsius&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">TextField</code>&nbsp;{&nbsp;columns&nbsp;=&nbsp;<code class="literal">5</code>&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">object</code>&nbsp;fahrenheit&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">TextField</code>&nbsp;{&nbsp;columns&nbsp;=&nbsp;<code class="literal">5</code>&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">FlowPanel</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents&nbsp;+=&nbsp;celsius
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents&nbsp;+=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Label</code>(<code class="quotedstring">"&nbsp;Celsius&nbsp;&nbsp;=&nbsp;&nbsp;"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents&nbsp;+=&nbsp;fahrenheit
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;contents&nbsp;+=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Label</code>(<code class="quotedstring">"&nbsp;Fahrenheit"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;border&nbsp;=&nbsp;<code class="typename">Swing.EmptyBorder</code>(<code class="literal">15</code>,&nbsp;<code class="literal">10</code>,&nbsp;<code class="literal">10</code>,&nbsp;<code class="literal">10</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;listenTo(celsius,&nbsp;fahrenheit)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reactions&nbsp;+=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">EditDone</code>(`fahrenheit`)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;f&nbsp;=&nbsp;fahrenheit.text.toInt
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;c&nbsp;=&nbsp;(f&nbsp;-&nbsp;<code class="literal">32</code>)&nbsp;*&nbsp;<code class="literal">5</code>&nbsp;/&nbsp;<code class="literal">9</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;celsius.text&nbsp;=&nbsp;c.toString
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">EditDone</code>(`celsius`)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;c&nbsp;=&nbsp;celsius.text.toInt
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;f&nbsp;=&nbsp;c&nbsp;*&nbsp;<code class="literal">9</code>&nbsp;/&nbsp;<code class="literal">5</code>&nbsp;+&nbsp;<code class="literal">32</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fahrenheit.text&nbsp;=&nbsp;f.toString
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 34.4 - An implementation of the temperature converter.</h5>
+
+
+<h3>34.4 Example: Celsius/Fahrenheit converter</h3>
+
+
+<p>As another example, we'll write a GUI program that converts between
+temperature degrees in Celsius and Fahrenheit. The user interface of
+the program is shown in <a href="gui-programming.html#fig-swing3">Figure 34.3</a>. It consists of two
+text fields (shown in white) with a label following each. One text
+field shows temperatures in degrees Celsius, the other in degrees
+Fahrenheit. Each of the two fields can be edited by the user of the
+application. Once the user has changed the temperature in either
+field, the temperature in the other field should automatically update.</p>
+
+<p><a href="gui-programming.html#listing-converter">Listing 34.4</a> shows the complete code that implements
+this application.
+The imports at the top of the code use a short-hand:</p>
+
+<pre>
+  <code class="vem">import</code>&nbsp;swing._
+  <code class="vem">import</code>&nbsp;event._
+</pre>
+
+
+<p>This is in fact equivalent to the imports used before:</p>
+
+<pre>
+  <code class="vem">import</code>&nbsp;scala.swing._
+  <code class="vem">import</code>&nbsp;scala.swing.event._
+</pre>
+
+
+<p>The reason you can use the shorthand is that packages nest in Scala.
+Because package <span class="code">scala.swing</span> is contained in package <span class="code">scala</span>, and
+everything in that package imported automatically, you can write just
+<span class="code">swing</span> to refer to the package. Likewise, package
+<span class="code">scala.swing.event</span>, is contained as subpackage <span class="code">event</span> in package
+<span class="code">scala.swing</span>. Because you have imported everything in <span class="code">scala.swing</span>
+in the first import, you can refer to the event package with just
+<span class="code">event</span> thereafter.</p>
+
+<p>The two components <span class="code">celsius</span> and
+<span class="code">fahrenheit</span> in <span class="code">TempConverter</span> are objects of class <span class="code">TextField</span>. 
+A <span class="code">TextField</span> in Swing is a component that lets you edit a single line of text.
+It has a default width, which is given in the <span class="code">columns</span> property measured in characters (set to 5 for both fields).</p>
+
+<p>The <span class="code">contents</span> of <span class="code">TempConverter</span> are assembled into a panel,
+which includes the two text fields and two labels that explain what the
+fields are. The panel is of class <span class="code">FlowPanel</span>, which means it 
+displays all its elements one after another,
+in one or more rows, depending on the width of the frame.</p>
+
+<p>The <span class="code">reactions</span> of <span class="code">TempConverter</span> are defined by a handler that
+contains two cases. Each case matches an <span class="code">EditDone</span> event for one
+of the two text fields.<a id="i1666208972-1"/> Such an event gets issued when a text field has
+been edited by the user.  Note the form of the patterns, which include back ticks around the element names:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="typename">EditDone</code>(`celsius`)
+</pre>
+
+
+<p>As was explained in
+<a href="case-classes-and-pattern-matching.html#sec-kinds-of-patterns">Section 15.2</a>, the back ticks
+around <span class="code">celsius</span> ensure that the pattern matches only if the source of the event was 
+the <span class="code">celsius</span> object. If you had omitted the back ticks and just written
+<span class="code">case</span>&nbsp;<span class="code">EditDone(celsius)</span>, the pattern would have matched every event of 
+class <span class="code">EditDone</span>. The changed field would then be stored in the pattern variable
+<span class="code">celsius</span>. Obviously, this is not what you want. Alternatively, you could have defined
+the two <span class="code">TextField</span> objects starting with upper case characters, <i>i.e.</i>, <span class="code">Celsius</span> and <span class="code">Fahrenheit</span>. In that case 
+you could have matched them directly without back ticks,
+ as in 
+<span class="code">case</span>&nbsp;<span class="code">EditDone(Celsius)</span>.</p>
+
+<p>The two actions of the <span class="code">EditDone</span> events convert one quantity to
+another.  Each starts by reading out the contents of the modified
+field and converting it to an <span class="code">Int</span>. It then applies the formula for
+converting one temperature degree to the other, and stores the result
+back as a string in the other text field.</p>
+
+<h3>34.5 Conclusion</h3>
+
+
+<p>This chapter has given you a first taste of GUI programming, using
+Scala's wrappers for the Swing framework. It has shown how to assemble
+GUI components, how to customize their properties, and how to handle
+events. For space reasons, we could discuss only a small number of
+simple components. There are many more kinds of components. You can
+find out about them by consulting the Scala documentation of the
+package <span class="code">scala.swing</span>. The next section will develop an example of a
+more complicated Swing application.</p>
+
+<p>There are also many tutorials on the original Java Swing framework, on
+which the Scala wrapper is based.<a href="gui-programming.html#footnotemain34-1">[1]</a>
+The Scala wrappers resemble the underlying Swing
+classes, but try to simplify concepts where possible and make them
+more uniform. The simplification makes extensive use of the properties
+of the Scala language. For instance, Scala's emulation of properties
+and its operator overloading allow convenient property definitions
+using assignments and <span class="code">+=</span> operations. Its "everything is an
+object" philosophy makes it possible to inherit the main method of a
+GUI application.  The method can thus be hidden from user
+applications, including the boilerplate code for setting things up
+that comes with it. Finally, and most importantly, Scala's first-class
+functions and pattern matching make it possible to formulate event handling as
+the <span class="code">reactions</span> component property, which greatly simplifies life for
+the application developer.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 34:</h4>
+
+
+<p><a id="footnotemain34-1"/>[1] See, for instance, <em>The Java Tutorials</em>.  <a href="bibliography.html#JavaTutorials">[Jav]</a></p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

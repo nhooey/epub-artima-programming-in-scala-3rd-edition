@@ -1,0 +1,1224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-built-in-control-structures">Chapter 7</a></h2>
+<h1>Built-in Control Structures</h1>
+
+
+<p>Scala has only a handful of built-in control structures. The only
+control structures are <span class="code">if</span>, <span class="code">while</span>, <span class="code">for</span>, <span class="code">try</span>,
+<span class="code">match</span>, and function calls.  The reason Scala has so few is that it has
+included function literals since its inception.  Instead of accumulating one
+higher-level control structure after another in the base syntax, Scala
+accumulates them in libraries. (<a href="control-abstraction.html">Chapter 9</a> will show precisely how that is done.) This chapter will show those few control structures that
+are built in.</p>
+
+<p>One thing you will notice is that almost all of Scala's control
+structures result in some value.  This is the approach taken by
+functional languages, where programs are viewed as computing a value, thus the components of a program should also compute values. You can also view this approach as the logical
+conclusion of a trend already present in imperative languages.  In
+imperative languages, function calls can return a value, even though 
+having the called function update an output variable passed as an argument
+would work just as well. In addition, imperative languages often have a ternary
+operator (such as the <span class="code">?:</span> operator of C, C++, and Java), which behaves exactly like
+<span class="code">if</span>, but results in a value. Scala adopts this ternary operator model, but calls it <span class="code">if</span>. In other words, Scala's <span class="code">if</span> can result in a value. Scala then
+continues this trend by having <span class="code">for</span>, <span class="code">try</span>, and <span class="code">match</span> also result in values.</p>
+
+<p>Programmers can use these result values to simplify their code, just
+as they use return values of functions.  Without this
+facility, the programmer must create temporary variables just to hold
+results that are calculated inside a control structure.  Removing
+these temporary variables makes the code a little simpler, and it also
+prevents many bugs where you set the variable in one branch but forget
+to set it in another.</p>
+
+<p>Overall, Scala's basic control structures, minimal as they are, provide all of the essentials from imperative languages. Further, they allow you to shorten your code by consistently having result values. To show you how this works, we'll take a closer look at each of Scala's basic control structures.</p>
+
+<h3 id="sec-if-expressions">7.1 If expressions</h3>
+
+
+<p>Scala's <span class="code">if</span> works just like in many other languages.<a id="i-1395149224-3"/> It tests a
+condition and then executes one of two code branches depending on
+whether the condition holds true.  Here is a common example, written
+in an imperative style:</p>
+
+<pre>
+  <code class="vem">var</code>&nbsp;filename&nbsp;=&nbsp;<code class="quotedstring">"default.txt"</code>
+  <code class="vem">if</code>&nbsp;(!args.isEmpty)
+  &nbsp;&nbsp;filename&nbsp;=&nbsp;args(<code class="literal">0</code>)
+</pre>
+
+
+<p>This code declares a variable, <span class="code">filename</span>, and initializes it to a
+default value.  It then uses an <span class="code">if</span> expression to check whether any
+arguments were supplied to the program.  If so, it 
+changes the variable to hold the value specified in the argument
+list.  If no arguments were supplied, it leaves the variable set to
+the default value.</p>
+
+<p>This code can be written more nicely because, as mentioned in <a href="first-steps-in-scala.html#step3">Step 3</a> in <a href="first-steps-in-scala.html">Chapter 2</a>, Scala's <span class="code">if</span>
+is an expression that results in a value.
+<a href="builtin-control-structures.html#lst-if-else-init">Listing 7.1</a> shows how you can accomplish the same effect as the
+previous example, without using any <span class="code">var</span>s:<a id="i1218979943-1"/></p>
+
+<p><a id="lst-if-else-init"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;filename&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(!args.isEmpty)&nbsp;args(<code class="literal">0</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;<code class="quotedstring">"default.txt"</code>
+</pre>
+
+
+<h5>Listing 7.1 - Scala's idiom for conditional initialization.</h5>
+
+
+<p>This time, the <span class="code">if</span> has two branches.  If <span class="code">args</span> is not empty,
+the initial element, <span class="code">args(0)</span>, is chosen; otherwise, the default value is chosen.<a id="i1150746877-1"/>
+The <span class="code">if</span> expression results in the chosen value, and the <span class="code">filename</span> variable is initialized with 
+that value. This code is slightly shorter, but its real advantage is that it uses
+a <span class="code">val</span> instead of a <span class="code">var</span>.  Using a <span class="code">val</span> is the functional
+style, and it helps you in much the same way
+as a <span class="code">final</span> variable in Java<a id="i-168967627-1"/>.  It tells readers of the code
+that the variable will never change, saving them from
+scanning all code in the variable's scope to see if it ever changes.</p>
+
+<p>A second advantage to using a <span class="code">val</span> instead of a <span class="code">var</span> is that it
+better supports <em>equational reasoning</em>.  The introduced
+variable is <em>equal</em> to the expression that computes it, assuming
+that expression has no side effects.  Thus, any time you are about
+to write the variable name, you could instead write the expression.
+Instead of <span class="code">println(filename)</span>, for example, you could just write this:</p>
+
+<pre>
+  println(<code class="vem">if</code>&nbsp;(!args.isEmpty)&nbsp;args(<code class="literal">0</code>)&nbsp;<code class="vem">else</code>&nbsp;<code class="quotedstring">"default.txt"</code>)
+</pre>
+
+
+<p>The choice is yours. You can write it either way.  Using <span class="code">val</span>s
+helps you safely make this kind of refactoring as your code evolves<a id="i204271861-1"/>
+over time.</p>
+
+<div class="callout">
+
+
+<p><br />
+Look for opportunities to use <span class="code">val</span>s.  They can make your code both easier to read and
+easier to refactor.
+<br /></p>
+
+</div>
+
+
+<h3 id="sec-while-loops">7.2 While loops</h3>
+
+
+<p>Scala's <span class="code">while</span> loop behaves as in other languages.<a id="i852231328-2"/>  It has a condition and a body, and the body is executed
+over and over as long as the condition holds
+true. <a href="builtin-control-structures.html#lst-gcdloop">Listing 7.2</a> shows an example:</p>
+
+<p><a id="lst-gcdloop"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;gcdLoop(x:&nbsp;<code class="typename">Long</code>,&nbsp;y:&nbsp;<code class="typename">Long</code>):&nbsp;<code class="typename">Long</code>&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">var</code>&nbsp;a&nbsp;=&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">var</code>&nbsp;b&nbsp;=&nbsp;y
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">while</code>&nbsp;(a&nbsp;!=&nbsp;<code class="literal">0</code>)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;temp&nbsp;=&nbsp;a
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;=&nbsp;b&nbsp;<code class="texttt">%</code>&nbsp;a
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b&nbsp;=&nbsp;temp
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;b
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 7.2 - Calculating greatest common divisor with a <span class="code">while</span> loop.</h5>
+
+
+<p>Scala also has a <span class="code">do</span>-<span class="code">while</span> loop. This works like the <span class="code">while</span> loop except that it tests the condition after the loop body instead of before.<a id="i846768734-1"/>
+<a href="builtin-control-structures.html#lst-do-while">Listing 7.3</a> shows a Scala script that uses a <span class="code">do-while</span> to echo lines read from the standard input, until
+an empty line is entered:
+<a id="lst-do-while"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">var</code>&nbsp;line&nbsp;=&nbsp;<code class="quotedstring">""</code>
+  &nbsp;&nbsp;<code class="vem">do</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;=&nbsp;readLine()
+  &nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"Read:&nbsp;"</code>&nbsp;+&nbsp;line)
+  &nbsp;&nbsp;}&nbsp;<code class="vem">while</code>&nbsp;(line&nbsp;!=&nbsp;<code class="quotedstring">""</code>)
+</pre>
+
+
+<h5>Listing 7.3 - Reading from the standard input with <span class="code">do-while</span>.<a id="i-504023058-1"/><a id="i-379989681-1"/></h5>
+
+
+<p>The <span class="code">while</span> and <span class="code">do-while</span> constructs are called "loops," not expressions, because
+they don't result in an interesting value. The type of the result is <span class="code">Unit</span>. It turns out
+that a value (and in fact, only one value) exists whose type is <span class="code">Unit</span>. It is called the <em>unit value</em> and
+is written <span class="code">()</span>.<a id="i737037269-1"/><a id="i-1932805493-1"/> The existence of <span class="code">()</span> is how Scala's <span class="code">Unit</span> differs from Java's <span class="code">void</span>.
+Try this in the interpreter:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;greet()&nbsp;=&nbsp;{&nbsp;println(<code class="quotedstring">"hi"</code>)&nbsp;}
+  <code class="output">greet:&nbsp;()Unit</code>
+  <br />  scala&gt;&nbsp;()&nbsp;==&nbsp;greet()
+  <code class="output">hi</code>
+  <code class="output">res0:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+</pre>
+
+
+<p>Because no equals sign precedes its body, <span class="code">greet</span> is defined to be a procedure with a result type of <span class="code">Unit</span>. Therefore,
+<span class="code">greet</span> returns the unit value, <span class="code">()</span>.
+This is confirmed in the next line: comparing the <span class="code">greet</span>'s result for equality
+with the unit value, <span class="code">()</span>, yields <span class="code">true</span>.</p>
+
+<p>One other construct that results in the unit value, which is
+relevant here,
+is reassignment to <span class="code">var</span>s. For example, were you to attempt to read lines in Scala using the following
+<span class="code">while</span> loop idiom from Java (and C and C++), you'll run into trouble:</p>
+
+<pre>
+  <code class="vem">var</code>&nbsp;line&nbsp;=&nbsp;<code class="quotedstring">""</code>
+  <code class="vem">while</code>&nbsp;((line&nbsp;=&nbsp;readLine())&nbsp;!=&nbsp;<code class="quotedstring">""</code>)&nbsp;<code class="comment">//&nbsp;This&nbsp;doesn't&nbsp;work!</code>
+  &nbsp;&nbsp;println(<code class="quotedstring">"Read:&nbsp;"</code>&nbsp;+&nbsp;line)
+</pre>
+
+
+<p>When you compile this code, Scala will give you a warning that comparing values of
+type <span class="code">Unit</span> and <span class="code">String</span> using
+<span class="code">!=</span> will always yield true. Whereas in Java, assignment results
+in the value assigned (in this case a line from the standard input), in Scala assignment<a id="i1918232661-1"/>
+always results in the unit value, <span class="code">()</span>. Thus, the value of the
+assignment "<span class="code">line</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code">readLine()</span>" will always be <span class="code">()</span> and never be <span class="code">""</span>. As a result,
+this <span class="code">while</span> loop's condition will never be false, and the loop will, therefore, never terminate.</p>
+
+<p>Because the <span class="code">while</span> loop results in no value, it is often left out of pure
+functional languages. Such languages have expressions, not loops.
+Scala includes the <span class="code">while</span> loop nonetheless because sometimes an
+imperative solution can be more readable, especially to programmers with
+a predominantly imperative background.  For example, if you want to code an
+algorithm that repeats a process until some condition changes, a
+<span class="code">while</span> loop can express it directly while the functional alternative, which
+likely uses recursion, may be less obvious to some readers of the code.</p>
+
+<p>For example, <a href="builtin-control-structures.html#lst-gcd-recursive">Listing 7.4</a> shows an alternate way to determine a greatest common divisor
+of two numbers.<a href="builtin-control-structures.html#footnotemain7-1">[1]</a>
+Given the same two values for <span class="code">x</span> and <span class="code">y</span>, the <span class="code">gcd</span> function shown in <a href="builtin-control-structures.html#lst-gcd-recursive">Listing 7.4</a> will return
+the same result as the <span class="code">gcdLoop</span> function, shown in <a href="builtin-control-structures.html#lst-gcdloop">Listing 7.2</a>. The difference between these two approaches
+is that <span class="code">gcdLoop</span> is written in an imperative style, using <span class="code">var</span>s and
+and a <span class="code">while</span> loop, whereas <span class="code">gcd</span> is written in  a more functional style that involves
+recursion (<span class="code">gcd</span> calls itself) and requires no <span class="code">var</span>s.</p>
+
+<p><a id="lst-gcd-recursive"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;gcd(x:&nbsp;<code class="typename">Long</code>,&nbsp;y:&nbsp;<code class="typename">Long</code>):&nbsp;<code class="typename">Long</code>&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(y&nbsp;==&nbsp;<code class="literal">0</code>)&nbsp;x&nbsp;<code class="vem">else</code>&nbsp;gcd(y,&nbsp;x&nbsp;<code class="texttt">%</code>&nbsp;y)&nbsp;
+</pre>
+
+
+<h5>Listing 7.4 - Calculating greatest common divisor with recursion.</h5>
+
+
+<p>In general, we recommend you challenge <span class="code">while</span> loops in your code
+in the same way you challenge <span class="code">var</span>s. In fact, <span class="code">while</span> loops and <span class="code">var</span>s often go hand in hand. 
+Because <span class="code">while</span> loops don't result in a value, to make any kind of difference to
+your program, a <span class="code">while</span> loop will usually either need to update <span class="code">var</span>s
+or perform I/O. You can see
+this in action in the <span class="code">gcdLoop</span> example shown previously. As that <span class="code">while</span> loop
+does its business, it updates <span class="code">var</span>s <span class="code">a</span> and <span class="code">b</span>.
+Thus, we suggest you be a bit suspicious of <span class="code">while</span> loops in your code.
+If there isn't a good justification for a particular <span class="code">while</span> or <span class="code">do-while</span> loop,
+try to find a way to do the same thing without it.</p>
+
+<h3 id="sec-for-expressions">7.3 For expressions</h3>
+
+
+<p>Scala's <span class="code">for</span> expression is a Swiss army knife of
+iteration<a id="i-207940604-2"/>.  It lets
+you combine a few simple ingredients in different ways to express a
+wide variety of iterations.  Simple uses enable common tasks such as
+iterating through a sequence of integers.  More advanced expressions
+can iterate over multiple collections of different kinds, filter
+out elements based on arbitrary conditions, and produce new
+collections.</p>
+
+<h4>Iteration through collections</h4>
+
+
+<p>The simplest thing you can do with <span class="code">for</span> is to iterate through all
+the elements of a collection.  For example, <a href="builtin-control-structures.html#lst-listing-file-names">Listing 7.5</a> shows some code
+that prints out all files in the current directory.
+The I/O is performed using the Java API.  First, we create a <span class="code">java.io.File</span> on the current directory, <span class="code">"."</span>, and call its <span class="code">listFiles</span> method. This method returns an array of <span class="code">File</span> objects, one per directory and file contained in
+the current directory. We store the resulting array in the <span class="code">filesHere</span> variable.</p>
+
+<p><a id="lst-listing-file-names"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;filesHere&nbsp;=&nbsp;(<code class="vem">new</code>&nbsp;<code class="typename">java.io.File</code>(<code class="quotedstring">"."</code>)).listFiles
+  <br />  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(file&nbsp;&lt;-&nbsp;filesHere)
+  &nbsp;&nbsp;&nbsp;&nbsp;println(file)
+</pre>
+
+
+<h5>Listing 7.5 - Listing files in a directory with a <span class="code">for</span> expression.</h5>
+
+
+<p>With the "<span class="code">file</span>&nbsp;<span class="code">&lt;-</span>&nbsp;<span class="code">filesHere</span>" syntax, which is called a <a href="glossary.html#g286956243"><em>generator</em></a>, we 
+iterate through the elements of <span class="code">filesHere</span>. In each iteration, a new <span class="code">val</span> named <span class="code">file</span> is initialized with an element value.
+The compiler infers the type of <span class="code">file</span> to be <span class="code">File</span>, because <span class="code">filesHere</span> is an <span class="code">Array[File]</span>. For each
+iteration, the body of the <span class="code">for</span> expression, <span class="code">println(file)</span>, will be executed. Because <span class="code">File</span>'s <span class="code">toString</span> method
+yields the name of the file or directory, the names of all the files and directories in the current directory will
+be printed.</p>
+
+<p>The <span class="code">for</span> expression syntax works for any kind of collection, not just arrays.<a href="builtin-control-structures.html#footnotemain7-2">[2]</a> One
+convenient special case is the <span class="code">Range</span> type, which you briefly saw in
+<a href="basic-types-and-operations.html#tab-richops">Table 5.4</a>  <a href="basic-types-and-operations.html#tab-richops">here</a>.  You can create <span class="code">Range</span>s using
+syntax like "<span class="code">1</span>&nbsp;<span class="code">to</span>&nbsp;<span class="code">5</span>" and can iterate through them with
+a <span class="code">for</span>.  Here is a simple example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(i&nbsp;&lt;-&nbsp;<code class="literal">1</code>&nbsp;to&nbsp;<code class="literal">4</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"Iteration&nbsp;"</code>&nbsp;+&nbsp;i)
+  <code class="output">Iteration&nbsp;1</code>
+  <code class="output">Iteration&nbsp;2</code>
+  <code class="output">Iteration&nbsp;3</code>
+  <code class="output">Iteration&nbsp;4</code>
+</pre>
+
+
+<p>If you don't want to include the upper bound of 
+the range in the values that are iterated over, use
+<span class="code">until</span> instead of <span class="code">to</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(i&nbsp;&lt;-&nbsp;<code class="literal">1</code>&nbsp;until&nbsp;<code class="literal">4</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"Iteration&nbsp;"</code>&nbsp;+&nbsp;i)
+  <code class="output">Iteration&nbsp;1</code>
+  <code class="output">Iteration&nbsp;2</code>
+  <code class="output">Iteration&nbsp;3</code>
+</pre>
+
+
+<p>Iterating through integers like this is common in Scala, but not
+nearly as much as in other languages.  In other languages, you might
+use this facility to iterate through an array, like this:</p>
+
+<pre>
+  <code class="comment">//&nbsp;Not&nbsp;common&nbsp;in&nbsp;Scala...</code>
+  <code class="vem">for</code>&nbsp;(i&nbsp;&lt;-&nbsp;<code class="literal">0</code>&nbsp;to&nbsp;filesHere.length&nbsp;-&nbsp;<code class="literal">1</code>)
+  &nbsp;&nbsp;println(filesHere(i))
+</pre>
+
+
+<p>This <span class="code">for</span> expression introduces a variable <span class="code">i</span>, sets it in turn to each integer between
+<span class="code">0</span> and <span class="code">filesHere.length</span>&nbsp;<span class="code">-</span>&nbsp;<span class="code">1</span>, and executes the body of the <span class="code">for</span> expression for
+each setting of <span class="code">i</span>.  For each setting of <span class="code">i</span>, the <span class="code">i</span>'th element
+of <span class="code">filesHere</span> is extracted and processed.</p>
+
+<p>The reason this kind of iteration is less common in Scala is that you
+can just iterate over the collection directly. When you do, your code becomes shorter and you sidestep many of the off-by-one errors that can arise when
+iterating through arrays.  Should you start at 0 or 1?  Should you add
+-1, +1, or nothing to the final index?  Such questions are easily
+answered, but also easily answered wrong.  It is safer to avoid such
+questions entirely.</p>
+
+<h4>Filtering</h4>
+
+
+<p>Sometimes you don't want to iterate through a collection in its
+entirety;<a id="i1946581356-1"/> you want to filter it down to some subset.  You can do this with a <span class="code">for</span> expression by adding a <a href="glossary.html#g-1274492040"><em>filter</em></a>, an <span class="code">if</span> clause inside the <span class="code">for</span>'s parentheses.  For example, the code shown in <a href="builtin-control-structures.html#lst-list-scala-files">Listing 7.6</a> lists only those
+files in the current directory whose names end with "<span class="texttt">.scala</span>":</p>
+
+<p><a id="lst-list-scala-files"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;filesHere&nbsp;=&nbsp;(<code class="vem">new</code>&nbsp;<code class="typename">java.io.File</code>(<code class="quotedstring">"."</code>)).listFiles
+  <br />  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(file&nbsp;&lt;-&nbsp;filesHere&nbsp;<code class="vem">if</code>&nbsp;file.getName.endsWith(<code class="quotedstring">".scala"</code>))
+  &nbsp;&nbsp;&nbsp;&nbsp;println(file)
+</pre>
+
+
+<h5>Listing 7.6 - Finding <span class="code">.scala</span> files using a <span class="code">for</span> with a filter.</h5>
+
+
+<p>You could alternatively accomplish the same goal with this code:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(file&nbsp;&lt;-&nbsp;filesHere)
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(file.getName.endsWith(<code class="quotedstring">".scala"</code>))
+  &nbsp;&nbsp;&nbsp;&nbsp;println(file)
+</pre>
+
+
+<p>This code yields the same output as the previous code, and likely
+looks more familiar to programmers with an imperative background.
+The imperative form, however, is only an option because this
+particular <span class="code">for</span> expression is executed for its printing side-effects
+and results in the unit value <span class="code">()</span>. As demonstrated later
+in this section, the <span class="code">for</span> expression is called an "expression" because
+it can result in an interesting value, a collection whose type is
+determined by the <span class="code">for</span> expression's <span class="code">&lt;-</span> clauses.</p>
+
+<p>You can include more filters if you want.  Just keep adding <span class="code">if</span> clauses.
+For example, to be extra defensive, the code in <a href="builtin-control-structures.html#lst-list-only-files">Listing 7.7</a> prints only
+files and not directories.  It does so by adding a filter that
+checks the <span class="code">file</span>'s <span class="code">isFile</span> method.</p>
+
+<p><a id="lst-list-only-files"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(
+  &nbsp;&nbsp;&nbsp;&nbsp;file&nbsp;&lt;-&nbsp;filesHere
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;file.isFile
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;file.getName.endsWith(<code class="quotedstring">".scala"</code>)
+  &nbsp;&nbsp;)&nbsp;println(file)
+</pre>
+
+
+<h5>Listing 7.7 - Using multiple filters in a <span class="code">for</span> expression.</h5>
+
+
+<h4>Nested iteration</h4>
+
+
+<p>If you add multiple <span class="code">&lt;-</span> clauses, you will get nested "loops."
+For example, the <span class="code">for</span> expression shown in <a href="builtin-control-structures.html#lst-nested-iteration">Listing 7.8</a> has two nested loops.  The outer
+loop iterates through <span class="code">filesHere</span>, and the inner loop iterates through
+<span class="code">fileLines(file)</span> for any <span class="code">file</span> that ends with <span class="texttt">.scala</span>.</p>
+
+<p><a id="lst-nested-iteration"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;fileLines(file:&nbsp;<code class="typename">java.io.File</code>)&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;scala.io.Source.fromFile(file).getLines().toList
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;grep(pattern:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file&nbsp;&lt;-&nbsp;filesHere
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;file.getName.endsWith(<code class="quotedstring">".scala"</code>);
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;&lt;-&nbsp;fileLines(file)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;line.trim.matches(pattern)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;)&nbsp;println(file&nbsp;+&nbsp;<code class="quotedstring">":&nbsp;"</code>&nbsp;+&nbsp;line.trim)
+  <br />  &nbsp;&nbsp;grep(<code class="quotedstring">".*gcd.*"</code>)
+</pre>
+
+
+<h5>Listing 7.8 - Using multiple generators in a <span class="code">for</span> expression.</h5>
+
+
+<p><a id="exa-for-semicolon-explanation"/>
+If you prefer, you can use curly braces instead of parentheses
+to surround the generators and filters.
+One advantage to using curly braces is that you can leave off some of the semicolons that
+are needed when you use parentheses because, as explained in <a href="classes-and-objects.html#sec-semicolon-inf">Section 4.2</a>, the Scala compiler will
+not infer semicolons while inside parentheses.<a id="i-597205837-1"/><a id="i-1905470655-1"/></p>
+
+<h4>Mid-stream variable bindings</h4>
+
+
+<p>Note that the previous code repeats the expression <span class="code">line.trim</span>.
+This is a non-trivial computation, so you might want to
+only compute it once.  You can do this by binding the
+result to a new variable using an equals sign (<span class="code">=</span>).  The bound variable is
+introduced and used just like a <span class="code">val</span>, only with the <span class="code">val</span>
+keyword left out.<a id="i1392088405-1"/><a id="i31167931-1"/> <a href="builtin-control-structures.html#lst-mid-stream-assignment">Listing 7.9</a> shows an example.</p>
+
+<p><a id="lst-mid-stream-assignment"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;grep(pattern:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file&nbsp;&lt;-&nbsp;filesHere
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;file.getName.endsWith(<code class="quotedstring">".scala"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;&lt;-&nbsp;fileLines(file)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;trimmed&nbsp;=&nbsp;line.trim
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;trimmed.matches(pattern)&nbsp;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;println(file&nbsp;+&nbsp;<code class="quotedstring">":&nbsp;"</code>&nbsp;+&nbsp;trimmed)
+  <br />  &nbsp;&nbsp;grep(<code class="quotedstring">".*gcd.*"</code>)
+</pre>
+
+
+<h5>Listing 7.9 - Mid-stream assignment in a <span class="code">for</span> expression.</h5>
+
+
+<p>In <a href="builtin-control-structures.html#lst-mid-stream-assignment">Listing 7.9</a>, a variable named <span class="code">trimmed</span> is introduced halfway
+through the <span class="code">for</span> expression.  That variable is initialized to the
+result of <span class="code">line.trim</span>.  The rest of the <span class="code">for</span> expression then uses the
+new variable in two places, once in an <span class="code">if</span> and once in
+<span class="code">println</span>.</p>
+
+<h4>Producing a new collection</h4>
+
+
+<p>While all of the examples so far have operated on the iterated
+values and then forgotten them, you can also generate a value to
+remember for each iteration.  To do so, you prefix the body of
+the <span class="code">for</span> expression by the keyword <span class="code">yield</span>.<a id="i1145887345-1"/>  For example,
+here is a function that identifies the <span class="code">.scala</span> files and
+stores them in an array:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;scalaFiles&nbsp;=
+  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;file&nbsp;&lt;-&nbsp;filesHere
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;file.getName.endsWith(<code class="quotedstring">".scala"</code>)
+  &nbsp;&nbsp;}&nbsp;<code class="vem">yield</code>&nbsp;file
+</pre>
+
+
+<p>Each time the body of the <span class="code">for</span> expression executes, it produces
+one value, in this case simply <span class="code">file</span>.  When the <span class="code">for</span> expression
+completes, the result will include all of the yielded values contained in a single
+collection.
+The type of the resulting collection is based on the kind of
+collections processed in the iteration clauses.  In this case the
+result is an <span class="code">Array[File]</span>, because <span class="code">filesHere</span> is an array and the type of the yielded expression is <span class="code">File</span>.</p>
+
+<p>Be careful, by the way, where you place the <span class="code">yield</span> keyword.
+The syntax of a <span class="code">for</span>-<span class="code">yield</span> expression is like this:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;<i>clauses</i>&nbsp;<code class="vem">yield</code>&nbsp;<i>body</i>
+</pre>
+
+
+<p>The <span class="code">yield</span> goes before the entire body.  Even if the body is a
+block surrounded by curly braces, put the <span class="code">yield</span> before the first
+curly brace, not before the last expression of the block.  Avoid
+the temptation to write things like this:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(file&nbsp;&lt;-&nbsp;filesHere&nbsp;<code class="vem">if</code>&nbsp;file.getName.endsWith(<code class="quotedstring">".scala"</code>))&nbsp;{
+  &nbsp;&nbsp;<code class="vem">yield</code>&nbsp;file&nbsp;&nbsp;<code class="comment">//&nbsp;Syntax&nbsp;error!</code>
+  }
+</pre>
+
+
+<p>For example, the <span class="code">for</span> expression shown in <a href="builtin-control-structures.html#lst-transforming-an-array">Listing 7.10</a> first transforms
+the <span class="code">Array[File]</span> named <span class="code">filesHere</span>, which contains all files in the current directory, to one that contains only <span class="code">.scala</span> files.
+For each of these it generates an <span class="code">Iterator[String]</span>, the result of the <span class="code">fileLines</span> method, whose definition is shown in
+<a href="builtin-control-structures.html#lst-nested-iteration">Listing 7.8</a>. An <span class="code">Iterator</span> offers methods <span class="code">next</span> and <span class="code">hasNext</span> that allow you to iterate over
+a collection of elements. This initial iterator is transformed into another <span class="code">Iterator[String]</span> containing only trimmed lines that include
+the substring <span class="code">"for"</span>. Finally, for each of these, an integer length is yielded. The result of this <span class="code">for</span> expression is
+an <span class="code">Array[Int]</span> containing those lengths.</p>
+
+<p><a id="lst-transforming-an-array"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;forLineLengths&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;file&nbsp;&lt;-&nbsp;filesHere
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;file.getName.endsWith(<code class="quotedstring">".scala"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;line&nbsp;&lt;-&nbsp;fileLines(file)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;trimmed&nbsp;=&nbsp;line.trim
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;trimmed.matches(<code class="quotedstring">".*for.*"</code>)&nbsp;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<code class="vem">yield</code>&nbsp;trimmed.length
+</pre>
+
+
+<h5>Listing 7.10 - Transforming an <span class="code">Array[File]</span> to <span class="code">Array[Int]</span> with a <span class="code">for</span>.</h5>
+
+
+<p>At this point, you have seen all the major features of Scala's
+<span class="code">for</span> expression, but we went through them rather quickly. A
+more thorough coverage of <span class="code">for</span> expressions is given in
+<a href="for-expressions-revisited.html">Chapter 23</a>.</p>
+
+<h3 id="sec-try-expressions">7.4 Exception handling with <span class="code">try</span> expressions</h3>
+
+
+<p>Scala's exceptions behave just like in many other
+languages.<a id="i668047766-1"/><a id="i-60007022-1"/>  Instead<a id="i147418614-1"/>
+of returning a value in the normal way, a method can terminate by
+throwing an exception.  The method's caller can either catch and
+handle that exception, or it can itself simply terminate, in which
+case the exception propagates to the caller's caller.  The exception
+propagates in this way, unwinding the call stack, until a method<a id="i2050330638-1"/>
+handles it or there are no more methods left.</p>
+
+<h4>Throwing exceptions</h4>
+
+
+<p>Throwing an exception in Scala looks the same as in Java. You create an
+exception object and then throw it with the <span class="code">throw</span> keyword:</p>
+
+<pre>
+  <code class="vem">throw</code>&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">IllegalArgumentException</code>
+</pre>
+
+
+<p>Although it may seem somewhat paradoxical, in Scala, <span class="code">throw</span> is an expression
+that has a result type.<a id="i44952225-1"/><a id="i958036312-1"/>
+Here's an example where result type matters:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;half&nbsp;=
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(n&nbsp;<code class="texttt">%</code>&nbsp;<code class="literal">2</code>&nbsp;==&nbsp;<code class="literal">0</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;n&nbsp;/&nbsp;<code class="literal">2</code>
+  &nbsp;&nbsp;<code class="vem">else</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">throw</code>&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">RuntimeException</code>(<code class="quotedstring">"n&nbsp;must&nbsp;be&nbsp;even"</code>)
+</pre>
+
+
+<p>What happens here is that if <span class="code">n</span> is even, <span class="code">half</span> will be initialized
+to half of <span class="code">n</span>.  If <span class="code">n</span> is not even, an exception will be
+thrown before <span class="code">half</span> can be initialized to anything at all.  Because
+of this, it is safe to treat a thrown exception as any kind of value
+whatsoever.  Any context that tries to use the return from a <span class="code">throw</span>
+will never get to do so, and thus no harm will come.</p>
+
+<p>Technically, an exception throw has type <span class="code">Nothing</span>.
+You can use
+a <span class="code">throw</span> as an expression even though it will never actually evaluate
+to anything.  This little bit of technical gymnastics might sound
+weird, but is frequently useful in cases like the previous example.  One
+branch of an <span class="code">if</span> computes a value, while the other throws an
+exception and computes <span class="code">Nothing</span>.  The type of the whole
+<span class="code">if</span> expression is then the type of that branch which does compute
+something.  Type <span class="code">Nothing</span> is discussed further in <a href="scalas-hierarchy.html#sec-bottom-types">Section 11.3</a>.</p>
+
+<h4>Catching exceptions</h4>
+
+
+<p>You catch exceptions using the syntax shown in <a href="builtin-control-structures.html#lst-try-catch-syntax">Listing 7.11</a>
+The syntax for <span class="code">catch</span> clauses was chosen for its consistency with an important
+part of Scala: <em>pattern matching</em>.<a id="i-2116566913-1"/>  Pattern matching, a powerful feature, is described briefly in this chapter and in more detail in
+<a href="case-classes-and-pattern-matching.html">Chapter 15</a><a id="i692796846-1"/>.</p>
+
+<p><a id="lst-try-catch-syntax"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;java.io.FileReader
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;java.io.FileNotFoundException
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;java.io.IOException
+  <br />  &nbsp;&nbsp;<code class="vem">try</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;f&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">FileReader</code>(<code class="quotedstring">"input.txt"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Use&nbsp;and&nbsp;close&nbsp;file</code>
+  &nbsp;&nbsp;}&nbsp;<code class="vem">catch</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;ex:&nbsp;<code class="typename">FileNotFoundException</code>&nbsp;=&gt;&nbsp;<code class="comment">//&nbsp;Handle&nbsp;missing&nbsp;file</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;ex:&nbsp;<code class="typename">IOException</code>&nbsp;=&gt;&nbsp;<code class="comment">//&nbsp;Handle&nbsp;other&nbsp;I/O&nbsp;error</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 7.11 - A <span class="code">try-catch</span> clause in Scala.</h5>
+
+
+<p>The behavior of this <span class="code">try</span>-<span class="code">catch</span> expression is the same as in other<a id="i-1329663144-1"/>
+languages with exceptions.
+The body is executed, and if it throws an
+exception, each <span class="code">catch</span> clause is tried in turn.  In this example, if
+the exception is of type <span class="code">FileNotFoundException</span>, the first clause will
+execute.  If it is of type <span class="code">IOException</span>, the second clause
+will execute.  If the exception is of neither type, the
+<span class="code">try</span>-<span class="code">catch</span> will terminate and the exception will propagate
+further.</p>
+
+<div class="note">
+<h4>Note</h4>
+One difference you'll quickly notice in Scala is that, unlike Java, Scala does not require you
+to catch checked exceptions or declare them in a throws clause. You can
+declare a throws clause if you wish with the <span class="code">@</span><span class="code">throws</span> annotation,
+but it is not required. See<a id="i1490895901-1"/>
+<a href="combining-scala-and-java.html#sec-annotations">Section 31.2</a> for more information on <span class="code">@</span><span class="code">throws</span>.
+
+
+</div>
+
+
+<h4>The <span class="code">finally</span> clause</h4>
+
+
+<p>You can wrap an expression with a <span class="code">finally</span> clause
+if you want to cause some code to execute no matter how the expression
+terminates.<a id="i-86518969-1"/>  For example, you might want to be sure an open file
+gets closed even if a method exits by throwing an exception. <a href="builtin-control-structures.html#lst-try-finally-syntax">Listing 7.12</a> shows an example.<a href="builtin-control-structures.html#footnotemain7-3">[3]</a></p>
+
+<p><a id="lst-try-finally-syntax"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;java.io.FileReader
+  <br />  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;file&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">FileReader</code>(<code class="quotedstring">"input.txt"</code>)
+  &nbsp;&nbsp;<code class="vem">try</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Use&nbsp;the&nbsp;file</code>
+  &nbsp;&nbsp;}&nbsp;<code class="vem">finally</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;file.close()&nbsp;&nbsp;<code class="comment">//&nbsp;Be&nbsp;sure&nbsp;to&nbsp;close&nbsp;the&nbsp;file</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 7.12 - A <span class="code">try-finally</span> clause in Scala.</h5>
+
+
+<div class="note">
+<h4>Note</h4>
+
+
+<p><a href="builtin-control-structures.html#lst-try-finally-syntax">Listing 7.12</a> shows the idiomatic way to ensure a non-memory resource, such as
+a file, socket, or database connection, is closed. First you acquire the resource. Then you start a <span class="code">try</span> block in
+which you use the resource. Lastly, you close the resource in a <span class="code">finally</span> block. This idiom is the same in Scala as
+in Java; alternatively, in Scala you can employ a technique called the <em>loan pattern</em><a id="i-531276704-1"/><a id="i850457101-1"/> to achieve the
+same goal more concisely. The loan pattern will be described in <a href="control-abstraction.html#sec-control-structures">Section 9.4</a>.<a id="i-1122723055-1"/><a id="i-330150415-1"/><a id="i193663324-1"/></p>
+
+</div>
+
+
+<h4>Yielding a value</h4>
+
+
+<p>As with most other Scala control structures,
+<span class="code">try</span>-<span class="code">catch</span>-<span class="code">finally</span> results in a value.  For example, <a href="builtin-control-structures.html#lst-catch-yielding-value">Listing 7.13</a> shows how
+you can try to parse a URL but use a default value if the URL is badly
+formed.
+The result is that of the <span class="code">try</span> clause if no exception is
+thrown, or the relevant <span class="code">catch</span> clause if an exception is thrown and
+caught.  If an exception is thrown but not caught, the expression
+has no result at all.  The value computed in the <span class="code">finally</span> clause,
+if there is one, is dropped.
+Usually <span class="code">finally</span> clauses do some kind of
+clean up, such as closing a file. Normally, they should not change the value computed in the main body or a <span class="code">catch</span> clause of the <span class="code">try</span>.</p>
+
+<p><a id="lst-catch-yielding-value"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;java.net.URL
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;java.net.MalformedURLException
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;urlFor(path:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">try</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">new</code>&nbsp;URL(path)
+  &nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<code class="vem">catch</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;e:&nbsp;<code class="typename">MalformedURLException</code>&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">new</code>&nbsp;URL(<code class="quotedstring">"http://www.scala-lang.org"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 7.13 - A <span class="code">catch</span> clause that yields a value.</h5>
+
+
+<p>If you're familiar with Java, it's worth noting that Scala's behavior differs from Java only because
+Java's <span class="code">try-finally</span> does not result in a value. As in Java, if a <span class="code">finally</span> clause includes an explicit
+return statement, or throws an exception, that return value or exception will "overrule" any previous
+one that originated in the <span class="code">try</span> block or one of its <span class="code">catch</span> clauses.
+For example, given this, rather contrived, function definition:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;f():&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;<code class="vem">try</code>&nbsp;<code class="vem">return</code>&nbsp;<code class="literal">1</code>&nbsp;<code class="vem">finally</code>&nbsp;<code class="vem">return</code>&nbsp;<code class="literal">2</code>
+</pre>
+
+
+<p>calling <span class="code">f()</span> results in 2.  By contrast, given:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;g():&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;<code class="vem">try</code>&nbsp;<code class="literal">1</code>&nbsp;<code class="vem">finally</code>&nbsp;<code class="literal">2</code>
+</pre>
+
+
+<p>calling <span class="code">g()</span> results in 1. Both of these functions exhibit behavior that could surprise most programmers, so it's usually best
+to avoid returning values from <span class="code">finally</span> clauses.  The best way to think of <span class="code">finally</span> clauses is as a way to ensure some
+side effect happens, such as closing an open file.</p>
+
+<h3 id="sec-match-expressions">7.5 Match expressions</h3>
+
+
+<p>Scala's <span class="code">match</span> expression lets you select from a number
+of <a href="glossary.html#g-196794451"><em>alternatives</em></a>,<a id="i1524854239-1"/> 
+just like <span class="code">switch</span> statements<a id="i-1502876100-1"/> in other languages.
+In general a <span class="code">match</span> expression lets you select using arbitrary
+<em>patterns</em>, which will be described in
+<a href="case-classes-and-pattern-matching.html">Chapter 15</a>.  
+The general form can wait.
+For now, just consider using <span class="code">match</span> to select among a number
+of alternatives.<a id="i-440612313-1"/><a id="i-1073471110-1"/></p>
+
+<p>As an example, the script in <a href="builtin-control-structures.html#lst-match-with-side-effects">Listing 7.14</a> reads a food name from the argument
+list and prints a companion to that food.
+This <span class="code">match</span> expression examines <span class="code">firstArg</span>, which has been set to
+the first argument out of the argument list.  If it is the string
+<span class="code">"salt"</span>, it prints <span class="code">"pepper"</span>, while if it is the string <span class="code">"chips"</span>, it
+prints <span class="code">"salsa"</span>, and so on.  The default case is specified with an
+underscore (<span class="code">_</span>), a wildcard symbol frequently used in Scala as a placeholder
+for a completely unknown value<a id="i2028498488-1"/>.</p>
+
+<p><a id="lst-match-with-side-effects"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;firstArg&nbsp;=&nbsp;<code class="vem">if</code>&nbsp;(args.length&nbsp;&gt;&nbsp;<code class="literal">0</code>)&nbsp;args(<code class="literal">0</code>)&nbsp;<code class="vem">else</code>&nbsp;<code class="quotedstring">""</code>
+  <br />  &nbsp;&nbsp;firstArg&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="quotedstring">"salt"</code>&nbsp;=&gt;&nbsp;println(<code class="quotedstring">"pepper"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="quotedstring">"chips"</code>&nbsp;=&gt;&nbsp;println(<code class="quotedstring">"salsa"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="quotedstring">"eggs"</code>&nbsp;=&gt;&nbsp;println(<code class="quotedstring">"bacon"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;println(<code class="quotedstring">"huh?"</code>)
+  &nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</pre>
+
+
+<h5>Listing 7.14 - A <span class="code">match</span> expression with side effects.</h5>
+
+
+<p>There are a few important differences from Java's <span class="code">switch</span> statement.
+One is that any kind of constant, as well as other things, can be used in
+cases in Scala, not just the integer-type,
+enum, and string constants of Java's case statements.  In
+<a href="builtin-control-structures.html#lst-match-with-side-effects">Listing 7.14</a>, the alternatives are strings.  Another difference is that
+there are no <span class="code">break</span>s<a id="i544483331-1"/> at the end of each alternative.  Instead
+the <span class="code">break</span> is implicit, and there is no fall through from one 
+alternative to the next.  The common case&mdash;not falling
+through&mdash;becomes shorter, and a source of errors is avoided because
+programmers can no longer fall through by accident.<a id="i1689875656-1"/></p>
+
+<p>The most significant difference from Java's <span class="code">switch</span>, however, may be
+that <span class="code">match</span> expressions result in a value.  In the
+previous example, each alternative in the <span class="code">match</span> expression prints out
+a value.  It would work just as well to yield the value rather than
+print it, as shown in <a href="builtin-control-structures.html#lst-match-expression">Listing 7.15</a>.
+The value that results from this <span class="code">match</span> expression  is stored in the
+<span class="code">friend</span> variable.  Aside from the code getting shorter (in number
+of tokens anyway), the code now disentangles two separate concerns:
+first it chooses a food and then prints it.</p>
+
+<p><a id="lst-match-expression"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;firstArg&nbsp;=&nbsp;<code class="vem">if</code>&nbsp;(!args.isEmpty)&nbsp;args(<code class="literal">0</code>)&nbsp;<code class="vem">else</code>&nbsp;<code class="quotedstring">""</code>
+  <br />  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;friend&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;firstArg&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="quotedstring">"salt"</code>&nbsp;=&gt;&nbsp;<code class="quotedstring">"pepper"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="quotedstring">"chips"</code>&nbsp;=&gt;&nbsp;<code class="quotedstring">"salsa"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="quotedstring">"eggs"</code>&nbsp;=&gt;&nbsp;<code class="quotedstring">"bacon"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="quotedstring">"huh?"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <br />  &nbsp;&nbsp;println(friend)
+</pre>
+
+
+<h5>Listing 7.15 - A <span class="code">match</span> expression that yields a value.</h5>
+
+
+<h3>7.6 Living without <span class="code">break</span> and <span class="code">continue</span><a id="i656795516-1"/><a id="i1665067476-1"/></h3>
+
+
+<p>You may have noticed that there has been no mention of <span class="code">break</span> or
+<span class="code">continue</span>.  Scala leaves out these commands because they do not mesh
+well with function literals, a feature described in the next chapter.  It is
+clear what <span class="code">continue</span> means inside a <span class="code">while</span> loop, but what would it
+mean inside a function literal?  While Scala supports both imperative and
+functional styles of programming, in this case it leans slightly
+towards functional programming in exchange for simplifying the
+language.
+Do not worry, though.  There are many ways to program without <span class="code">break</span>
+and <span class="code">continue</span>, and if you take advantage
+of function literals, those alternatives can often be
+shorter than the original code.</p>
+
+<p>The simplest approach is to replace every <span class="code">continue</span> by an <span class="code">if</span> and
+every <span class="code">break</span> by a boolean variable.  The boolean variable indicates whether the
+enclosing <span class="code">while</span> loop should continue.  For example, suppose you are
+searching through an argument list for a string that ends with
+"<span class="code">.scala</span>" but does not start with a hyphen.  In Java you could&mdash;if
+you were quite fond of <span class="code">while</span> loops, <span class="code">break</span>, and <span class="code">continue</span>&mdash;write the following:</p>
+
+<pre>
+  int&nbsp;i&nbsp;=&nbsp;0;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;This&nbsp;is&nbsp;Java
+  boolean&nbsp;foundIt&nbsp;=&nbsp;false;
+  while&nbsp;(i&nbsp;&lt;&nbsp;args.length)&nbsp;{
+  &nbsp;&nbsp;if&nbsp;(args[i].startsWith("-"))&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;i&nbsp;=&nbsp;i&nbsp;+&nbsp;1;
+  &nbsp;&nbsp;&nbsp;&nbsp;continue;
+  &nbsp;&nbsp;}
+  &nbsp;&nbsp;if&nbsp;(args[i].endsWith(".scala"))&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;foundIt&nbsp;=&nbsp;true;
+  &nbsp;&nbsp;&nbsp;&nbsp;break;
+  &nbsp;&nbsp;}
+  &nbsp;&nbsp;i&nbsp;=&nbsp;i&nbsp;+&nbsp;1;
+  }
+</pre>
+
+
+<p>To transliterate this Java code directly to Scala, instead of doing an <span class="code">if</span> and
+then a <span class="code">continue</span>, you could write an <span class="code">if</span> that surrounds the entire
+remainder of the <span class="code">while</span> loop.  To get rid of the <span class="code">break</span>, you would
+normally add a boolean variable indicating whether to keep going, but
+in this case you can reuse <span class="code">foundIt</span>.  Using both of these tricks,
+the code ends up looking as shown in <a href="builtin-control-structures.html#lst-looping-without">Listing 7.16</a>.</p>
+
+<p><a id="lst-looping-without"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">var</code>&nbsp;i&nbsp;=&nbsp;<code class="literal">0</code>
+  &nbsp;&nbsp;<code class="vem">var</code>&nbsp;foundIt&nbsp;=&nbsp;<code class="vem">false</code>
+  <br />  &nbsp;&nbsp;<code class="vem">while</code>&nbsp;(i&nbsp;&lt;&nbsp;args.length&nbsp;&amp;&amp;&nbsp;!foundIt)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(!args(i).startsWith(<code class="quotedstring">"-"</code>))&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(args(i).endsWith(<code class="quotedstring">".scala"</code>))
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;foundIt&nbsp;=&nbsp;<code class="vem">true</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;i&nbsp;=&nbsp;i&nbsp;+&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 7.16 - Looping without <span class="code">break</span> or <span class="code">continue</span>.</h5>
+
+
+<p>This Scala code in <a href="builtin-control-structures.html#lst-looping-without">Listing 7.16</a> is quite similar to the original Java code.  
+All the basic pieces are still there and in the
+same order. There are two reassignable variables and a <span class="code">while</span> loop. Inside the loop, there is a test that <span class="code">i</span> is less than <span class="code">args.length</span>, a check for
+<span class="code">"-"</span>, and a check for <span class="code">".scala"</span>.</p>
+
+<p>If you wanted to get rid of the <span class="code">var</span>s in <a href="builtin-control-structures.html#lst-looping-without">Listing 7.16</a>, one
+approach you could try is to rewrite the
+loop as a recursive function.  You could, for example, define a <span class="code">searchFrom</span> function that takes an integer as an
+input, searches forward from there, and then returns the index of the
+desired argument.  Using this technique the code would look as shown in <a href="builtin-control-structures.html#lst-recursive-approach">Listing 7.17</a>:</p>
+
+<p><a id="lst-recursive-approach"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;searchFrom(i:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">Int</code>&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(i&nbsp;&gt;=&nbsp;args.length)&nbsp;-<code class="literal">1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;<code class="vem">if</code>&nbsp;(args(i).startsWith(<code class="quotedstring">"-"</code>))&nbsp;searchFrom(i&nbsp;+&nbsp;<code class="literal">1</code>)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;<code class="vem">if</code>&nbsp;(args(i).endsWith(<code class="quotedstring">".scala"</code>))&nbsp;i
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;searchFrom(i&nbsp;+&nbsp;<code class="literal">1</code>)
+  <br />  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;i&nbsp;=&nbsp;searchFrom(<code class="literal">0</code>)
+</pre>
+
+
+<h5>Listing 7.17 - A recursive alternative to looping with <span class="code">var</span>s.</h5>
+
+
+<p>The version in <a href="builtin-control-structures.html#lst-recursive-approach">Listing 7.17</a> gives a human-meaningful name to what the function does,
+and it uses recursion to substitute for looping.  Each <span class="code">continue</span> is
+replaced by a recursive call with <span class="code">i</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">1</span> as the argument,
+effectively skipping to the next integer.  Many people find this style
+of programming easier to understand, once they get used to the
+recursion.</p>
+
+<div class="note">
+<h4>Note</h4>
+
+
+<p>The Scala compiler will not actually emit
+a recursive function for the code shown in <a href="builtin-control-structures.html#lst-recursive-approach">Listing 7.17</a>.  Because all of the recursive calls
+are in <em>tail-call</em> position, the compiler will generate
+code similar to a <span class="code">while</span> loop.  Each recursive call will be
+implemented as a jump back to the beginning of the function. Tail-call optimization is discussed in <a href="functions-and-closures.html#sec-tail-recursion">Section 8.9</a>.</p>
+
+</div>
+
+
+<p>If after all this discussion you still feel the need to use <span class="code">break</span>,
+there's help in Scala's standard library. Class <span class="code">Breaks</span><a id="i1129777612-1"/> in package <span class="code">scala.util.control</span> offers a <span class="code">break</span> method,<a id="i1125528421-1"/> which can be
+used to exit an enclosing block that's marked with
+<span class="code">breakable</span>.<a id="i168968267-1"/> Here is an example how this library-supplied <span class="code">break</span>
+method could be applied:</p>
+
+<pre>
+  <code class="vem">import</code>&nbsp;scala.util.control.Breaks._
+  <code class="vem">import</code>&nbsp;java.io._
+  <br />  <code class="vem">val</code>&nbsp;in&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">BufferedReader</code>(<code class="vem">new</code>&nbsp;<code class="typename">InputStreamReader</code>(System.in))
+  <br />  breakable&nbsp;{
+  &nbsp;&nbsp;<code class="vem">while</code>&nbsp;(<code class="vem">true</code>)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"?&nbsp;"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(in.readLine()&nbsp;==&nbsp;<code class="quotedstring">""</code>)&nbsp;break
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>This will repeatedly read non-empty lines from the standard input.
+Once the user enters an empty line, control flow exits from the enclosing <span class="code">breakable</span>, and with it the while loop.</p>
+
+<p>The <span class="code">Breaks</span> class implements <span class="code">break</span> by throwing an exception that is caught by an enclosing application of the <span class="code">breakable</span>
+method. Therefore, the call to <span class="code">break</span> does not need to be
+in the same method as the call to <span class="code">breakable</span>.</p>
+
+<h3 id="sec-variable-scope">7.7 Variable scope</h3>
+
+
+<p>Now that you've seen Scala's built-in<a id="i46504593-1"/><a id="i-250564140-1"/>
+control structures, we'll use them in this section to explain how scoping works in Scala.</p>
+
+<div class="pointofinterest">
+<h3>Fast track for Java programmers</h3>
+
+
+<p>If you're a Java programmer, you'll
+find that Scala's scoping rules are almost identical to Java's.
+One difference between Java and Scala is that Scala allows you to define variables of the
+same name in nested scopes. So if you're a Java programmer, you may wish to at least skim this section.</p>
+
+</div>
+
+
+<p>Variable declarations in Scala programs have a <em>scope</em> that defines where
+you can use the name.
+The most common example of scoping is that curly braces generally introduce a new<a id="i-1385018222-1"/><a id="i32772000-1"/>
+scope, so anything defined inside curly braces leaves scope after the
+final closing brace.<a href="builtin-control-structures.html#footnotemain7-4">[4]</a>
+As an illustration, consider the function shown in <a href="builtin-control-structures.html#lst-first-multi-table">Listing 7.18</a>.</p>
+
+<p><a id="lst-first-multi-table"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;printMultiTable()&nbsp;=&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">var</code>&nbsp;i&nbsp;=&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;only&nbsp;i&nbsp;in&nbsp;scope&nbsp;here</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">while</code>&nbsp;(i&nbsp;&lt;=&nbsp;<code class="literal">10</code>)&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">var</code>&nbsp;j&nbsp;=&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;both&nbsp;i&nbsp;and&nbsp;j&nbsp;in&nbsp;scope&nbsp;here</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">while</code>&nbsp;(j&nbsp;&lt;=&nbsp;<code class="literal">10</code>)&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;prod&nbsp;=&nbsp;(i&nbsp;*&nbsp;j).toString
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;i,&nbsp;j,&nbsp;and&nbsp;prod&nbsp;in&nbsp;scope&nbsp;here</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">var</code>&nbsp;k&nbsp;=&nbsp;prod.length
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;i,&nbsp;j,&nbsp;prod,&nbsp;and&nbsp;k&nbsp;in&nbsp;scope&nbsp;here</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">while</code>&nbsp;(k&nbsp;&lt;&nbsp;<code class="literal">4</code>)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(<code class="quotedstring">"&nbsp;"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;k&nbsp;+=&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(prod)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;j&nbsp;+=&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;i&nbsp;and&nbsp;j&nbsp;still&nbsp;in&nbsp;scope;&nbsp;prod&nbsp;and&nbsp;k&nbsp;out&nbsp;of&nbsp;scope</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println()
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i&nbsp;+=&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;i&nbsp;still&nbsp;in&nbsp;scope;&nbsp;j,&nbsp;prod,&nbsp;and&nbsp;k&nbsp;out&nbsp;of&nbsp;scope</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 7.18 - Variable scoping when printing a multiplication table.</h5>
+
+
+<p>The <span class="code">printMultiTable</span> function shown in <a href="builtin-control-structures.html#lst-first-multi-table">Listing 7.18</a> prints out a multiplication table.<a href="builtin-control-structures.html#footnotemain7-5">[5]</a>  The
+first statement of this function introduces a variable named <span class="code">i</span> and
+initializes it to the integer 1.  You can then use the name <span class="code">i</span>
+for the remainder of the function.</p>
+
+<p>The next statement in <span class="code">printMultiTable</span> is a <span class="code">while</span> loop:</p>
+
+<pre>
+  <code class="vem">while</code>&nbsp;(i&nbsp;&lt;=&nbsp;<code class="literal">10</code>)&nbsp;{
+  <br />  &nbsp;&nbsp;<code class="vem">var</code>&nbsp;j&nbsp;=&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;...
+  }
+</pre>
+
+
+<p>You can use <span class="code">i</span> here because it is still in scope. In the first
+statement inside that <span class="code">while</span> loop, you introduce another variable, this
+time named <span class="code">j</span>, and again initialize it to 1.  Because the variable
+<span class="code">j</span> was defined inside the open curly brace of the <span class="code">while</span> loop, it can
+be used only within that <span class="code">while</span> loop. If you were to attempt to do
+something with <span class="code">j</span> after the closing curly brace of this <span class="code">while</span> loop,
+after the comment that says <span class="code">j</span>, <span class="code">prod</span>, and <span class="code">k</span> are out of
+scope, your program would not compile.</p>
+
+<p>All variables defined in this example&mdash;<span class="code">i</span>, <span class="code">j</span>, <span class="code">prod</span>, and
+<span class="code">k</span>&mdash;are <em>local variables</em>.<a id="i1400207106-1"/><a id="i40385448-1"/>
+Such
+variables are "local" to the 
+function in which they are defined. Each time a function is invoked, a
+new set of its local variables is used.</p>
+
+<p>Once a variable is defined, you can't define a new variable with the same name in
+the same scope. For example, the following script with two variables named <span class="code">a</span> in the same scope would not compile:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;a&nbsp;=&nbsp;<code class="literal">1</code>
+  <code class="vem">val</code>&nbsp;a&nbsp;=&nbsp;<code class="literal">2</code>&nbsp;<code class="comment">//&nbsp;Does&nbsp;not&nbsp;compile</code>
+  println(a)
+</pre>
+
+
+<p>You can, on the other hand, define a variable in an inner scope that
+has the same name as a variable in an outer scope. The following script
+would compile and run:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;a&nbsp;=&nbsp;<code class="literal">1</code>;
+  {
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;a&nbsp;=&nbsp;<code class="literal">2</code>&nbsp;<code class="comment">//&nbsp;Compiles&nbsp;just&nbsp;fine</code>
+  &nbsp;&nbsp;println(a)
+  }
+  println(a)
+</pre>
+
+
+<p>When executed, the script shown previously would print 2 then 1, because the <span class="code">a</span> defined
+inside the curly braces is a different variable, which is in scope only until the
+closing curly brace.<a href="builtin-control-structures.html#footnotemain7-6">[6]</a> One difference to note between Scala and Java
+is that Java will not let you create a variable in an inner scope that has
+the same name as a variable in an outer scope. In a Scala program, an inner variable is
+said to <em>shadow</em> a like-named outer variable, because the outer variable
+becomes invisible in the inner scope.<a id="i1857790361-1"/><a id="i-1451425665-1"/><a id="i-141883422-1"/></p>
+
+<p>You might have already noticed something that looks like shadowing 
+in the interpreter:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;a&nbsp;=&nbsp;<code class="literal">1</code>
+  <code class="output">a:&nbsp;Int&nbsp;=&nbsp;1</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;a&nbsp;=&nbsp;<code class="literal">2</code>
+  <code class="output">a:&nbsp;Int&nbsp;=&nbsp;2</code>
+  <br />  scala&gt;&nbsp;println(a)
+  <code class="output">2</code>
+</pre>
+
+
+<p>In the interpreter, you can reuse variable names
+to your heart's content. Among other things, this allows you to change your mind if
+you made a mistake when you defined a variable the first time in the interpreter. 
+You can do this because conceptually the interpreter creates a new nested scope
+for each new statement you type in. Thus, you could visualize the previous
+interpreted code like this:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;a&nbsp;=&nbsp;<code class="literal">1</code>;
+  {
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;a&nbsp;=&nbsp;<code class="literal">2</code>;
+  &nbsp;&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;println(a)
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>This code will compile and run as a Scala script, and like the code typed into the interpreter,
+will print 2. Keep in mind that such code can be very confusing to readers, because variable names
+adopt new meanings in nested scopes.
+It is usually better to choose a new, meaningful variable name rather than
+to shadow an outer variable.</p>
+
+<h3 id="sec-refactoring-imperative-code">7.8 Refactoring imperative-style code</h3>
+
+
+<p>To help you gain insight into the functional style, in this section we'll refactor the imperative approach
+to printing a multiplication table shown in<a id="i892284799-1"/>
+<a href="builtin-control-structures.html#lst-first-multi-table">Listing 7.18</a>.<a id="i-2064017764-1"/><a id="i-496550431-1"/> Our functional alternative is
+shown in <a href="builtin-control-structures.html#lst-second-multi-table">Listing 7.19</a>.</p>
+
+<p><a id="lst-second-multi-table"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="comment">//&nbsp;Returns&nbsp;a&nbsp;row&nbsp;as&nbsp;a&nbsp;sequence</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;makeRowSeq(row:&nbsp;<code class="typename">Int</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(col&nbsp;&lt;-&nbsp;<code class="literal">1</code>&nbsp;to&nbsp;<code class="literal">10</code>)&nbsp;<code class="vem">yield</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;prod&nbsp;=&nbsp;(row&nbsp;*&nbsp;col).toString
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;padding&nbsp;=&nbsp;<code class="quotedstring">"&nbsp;"</code>&nbsp;*&nbsp;(<code class="literal">4</code>&nbsp;-&nbsp;prod.length)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;padding&nbsp;+&nbsp;prod
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;<code class="comment">//&nbsp;Returns&nbsp;a&nbsp;row&nbsp;as&nbsp;a&nbsp;string</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;makeRow(row:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;makeRowSeq(row).mkString
+  <br />  &nbsp;&nbsp;<code class="comment">//&nbsp;Returns&nbsp;table&nbsp;as&nbsp;a&nbsp;string&nbsp;with&nbsp;one&nbsp;row&nbsp;per&nbsp;line</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;multiTable()&nbsp;=&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;tableSeq&nbsp;=&nbsp;<code class="comment">//&nbsp;a&nbsp;sequence&nbsp;of&nbsp;row&nbsp;strings</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(row&nbsp;&lt;-&nbsp;<code class="literal">1</code>&nbsp;to&nbsp;<code class="literal">10</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">yield</code>&nbsp;makeRow(row)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;tableSeq.mkString(<code class="quotedstring">"\n"</code>)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 7.19 - A functional way to create a multiplication table.</h5>
+
+
+<p>The imperative style reveals itself in <a href="builtin-control-structures.html#lst-first-multi-table">Listing 7.18</a> in two ways. First, invoking
+<span class="code">printMultiTable</span> has a side effect: printing a multiplication table to the standard output. In
+<a href="builtin-control-structures.html#lst-second-multi-table">Listing 7.19</a>, we refactored the function so that it returns the multiplication table
+as a string. Since the function no longer prints, we renamed it <span class="code">multiTable</span>.
+As mentioned previously, one advantage of side-effect-free functions is they are easier to unit test.<a id="i-2030836876-2"/><a id="i808305838-1"/> To
+test <span class="code">printMultiTable</span>, you would need to somehow redefine <span class="code">print</span> and <span class="code">println</span> so you could check the 
+output for correctness. You could test <span class="code">multiTable</span> more easily by checking its string result.</p>
+
+<p>The other telltale sign of the imperative style in <span class="code">printMultiTable</span> is its <span class="code">while</span> loop
+and <span class="code">var</span>s. By contrast, the <span class="code">multiTable</span> function 
+uses <span class="code">val</span>s, <span class="code">for</span> expressions, <a href="glossary.html#g-59832310"><em>helper functions</em></a>, and calls to <span class="code">mkString</span>.</p>
+
+<p>We factored out the two helper functions, <span class="code">makeRow</span> and <span class="code">makeRowSeq</span>, to make the code easier
+to read. Function <span class="code">makeRowSeq</span> uses a <span class="code">for</span> expression whose
+generator iterates through column numbers 1 through 10. 
+The body of this <span class="code">for</span> calculates the product of row and column, determines the 
+padding needed for the product, and yields the result of concatenating the padding and product strings.
+The result of the <span class="code">for</span> expression will be a sequence (some
+subclass of <span class="code">scala.Seq</span>) containing these yielded strings as elements.
+The other helper function, <span class="code">makeRow</span>, simply invokes <span class="code">mkString</span> on the result returned by <span class="code">makeRowSeq</span>. <span class="code">mkString</span> will concatenate the strings in the sequence and return them as one string.</p>
+
+<p>The <span class="code">multiTable</span> method first initializes <span class="code">tableSeq</span> with the result of a <span class="code">for</span> expression whose generator
+iterates through row numbers 1 to 10, and for each calls <span class="code">makeRow</span> to get the string for that row. This string is
+yielded; thus the result of this <span class="code">for</span> expression will be a sequence of row strings. The only remaining task is to convert the sequence of strings into a single string. The call to <span class="code">mkString</span> accomplishes this, and because we pass <span class="code">"\n"</span>, we get an end of line character inserted between each string. If you pass the string returned by
+<span class="code">multiTable</span> to <span class="code">println</span>, you'll see the same output that's produced by calling <span class="code">printMultiTable</span>.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="text-align: center">
+
+
+<p><span class="code">&nbsp;1&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;7&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;&nbsp;9&nbsp;&nbsp;10</span><br />
+<span class="code">&nbsp;2&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;10&nbsp;&nbsp;12&nbsp;&nbsp;14&nbsp;&nbsp;16&nbsp;&nbsp;18&nbsp;&nbsp;20</span><br />
+<span class="code">&nbsp;3&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;9&nbsp;&nbsp;12&nbsp;&nbsp;15&nbsp;&nbsp;18&nbsp;&nbsp;21&nbsp;&nbsp;24&nbsp;&nbsp;27&nbsp;&nbsp;30</span><br />
+<span class="code">&nbsp;4&nbsp;&nbsp;&nbsp;8&nbsp;&nbsp;12&nbsp;&nbsp;16&nbsp;&nbsp;20&nbsp;&nbsp;24&nbsp;&nbsp;28&nbsp;&nbsp;32&nbsp;&nbsp;36&nbsp;&nbsp;40</span><br />
+<span class="code">&nbsp;5&nbsp;&nbsp;10&nbsp;&nbsp;15&nbsp;&nbsp;20&nbsp;&nbsp;25&nbsp;&nbsp;30&nbsp;&nbsp;35&nbsp;&nbsp;40&nbsp;&nbsp;45&nbsp;&nbsp;50</span><br />
+<span class="code">&nbsp;6&nbsp;&nbsp;12&nbsp;&nbsp;18&nbsp;&nbsp;24&nbsp;&nbsp;30&nbsp;&nbsp;36&nbsp;&nbsp;42&nbsp;&nbsp;48&nbsp;&nbsp;54&nbsp;&nbsp;60</span><br />
+<span class="code">&nbsp;7&nbsp;&nbsp;14&nbsp;&nbsp;21&nbsp;&nbsp;28&nbsp;&nbsp;35&nbsp;&nbsp;42&nbsp;&nbsp;49&nbsp;&nbsp;56&nbsp;&nbsp;63&nbsp;&nbsp;70</span><br />
+<span class="code">&nbsp;8&nbsp;&nbsp;16&nbsp;&nbsp;24&nbsp;&nbsp;32&nbsp;&nbsp;40&nbsp;&nbsp;48&nbsp;&nbsp;56&nbsp;&nbsp;64&nbsp;&nbsp;72&nbsp;&nbsp;80</span><br />
+<span class="code">&nbsp;9&nbsp;&nbsp;18&nbsp;&nbsp;27&nbsp;&nbsp;36&nbsp;&nbsp;45&nbsp;&nbsp;54&nbsp;&nbsp;63&nbsp;&nbsp;72&nbsp;&nbsp;81&nbsp;&nbsp;90</span><br />
+<span class="code">10&nbsp;&nbsp;20&nbsp;&nbsp;30&nbsp;&nbsp;40&nbsp;&nbsp;50&nbsp;&nbsp;60&nbsp;&nbsp;70&nbsp;&nbsp;80&nbsp;&nbsp;90&nbsp;100</span><br /></p>
+
+</div>
+
+
+<h3>7.9 Conclusion</h3>
+
+
+<p>Scala's built-in control structures are minimal, but they do the job.
+They act much like their imperative equivalents, but because they tend
+to result in a value, they support a functional style, too.  Just as
+important, they are careful in what they omit, thus leaving room for
+one of Scala's most powerful features, the function literal, which will be
+described in the next chapter.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 7:</h4>
+
+
+<p><a id="footnotemain7-1"/>[1] The <span class="code">gcd</span> function shown in <a href="builtin-control-structures.html#lst-gcd-recursive">Listing 7.4</a> uses the same approach used by the like-named function, first shown in 
+<a href="functional-objects.html#lst-private-members">Listing 6.3</a>, to calculate greatest common divisors for class <span class="code">Rational</span>. The main difference is that instead of <span class="code">Int</span>s the <span class="code">gcd</span> of
+<a href="builtin-control-structures.html#lst-gcd-recursive">Listing 7.4</a> works with <span class="code">Long</span>s.</p>
+
+<p><a id="footnotemain7-2"/>[2] To be precise, the expression to the right of the <span class="code">&lt;-</span> symbol in a <span class="code">for</span> expression can be any type that has certain methods (in this case <span class="code">foreach</span>) with appropriate signatures. Details on how the Scala compiler processes <span class="code">for</span> expressions are described in <a href="for-expressions-revisited.html">Chapter 23</a>.</p>
+
+<p><a id="footnotemain7-3"/>[3] Although
+you must always surround the <span class="code">case</span> statements of a <span class="code">catch</span> clause in parentheses, 
+<span class="code">try</span> and <span class="code">finally</span> do not require parentheses if they contain only one expression.
+For example, you could write: <span class="code">try</span>&nbsp;<span class="code">t()</span>&nbsp;<span class="code">catch</span>&nbsp;<span class="code">{</span>&nbsp;<span class="code">case</span>&nbsp;<span class="code">e:</span>&nbsp;<span class="code">Exception</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">...</span>&nbsp;<span class="code">}</span>&nbsp;<span class="code">finally</span>&nbsp;<span class="code">f()</span>.</p>
+
+<p><a id="footnotemain7-4"/>[4] There are a few exceptions to this rule because in Scala you can sometimes use curly braces in place of parentheses.
+One example of this kind of curly-brace use is the alternative <span class="code">for</span> expression
+syntax described in <a href="builtin-control-structures.html#sec-for-expressions">Section 7.3</a>.</p>
+
+<p><a id="footnotemain7-5"/>[5] The
+<span class="code">printMultiTable</span> function shown in <a href="builtin-control-structures.html#lst-first-multi-table">Listing 7.18</a> is written in an imperative style. We'll refactor it into a functional style in the next section.</p>
+
+<p><a id="footnotemain7-6"/>[6] By the way, the semicolon is required in this case
+after the first definition of <span class="code">a</span> because Scala's semicolon inference mechanism will
+not place one there.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

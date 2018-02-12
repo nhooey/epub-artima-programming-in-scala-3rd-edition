@@ -1,0 +1,1034 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-traits-and-mixins">Chapter 12</a></h2>
+<h1>Traits</h1>
+
+
+<p><a id="i-865710043-1"/></p>
+
+<p>Traits are a fundamental unit of code reuse in Scala.  A trait
+encapsulates method and field definitions, which can then be reused by
+mixing them into classes.  Unlike class inheritance, in which each class must
+inherit from just one superclass, a class can mix in any number of
+traits. This chapter shows you how traits work and shows two of the most
+common ways they are useful: widening thin interfaces to rich ones,
+and defining stackable modifications.  It also shows how to use the
+ <span class="code">Ordered</span> trait and compares traits to the multiple
+inheritance of other languages.</p>
+
+<h3>12.1 How traits work</h3>
+
+
+<p>A trait definition looks just like a class definition except that it
+uses the keyword <span class="code">trait</span>. An example is shown in <a href="traits.html#lst-defining-a-trait">Listing 12.1</a>:</p>
+
+<p><a id="lst-defining-a-trait"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">Philosophical</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;philosophize()&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"I&nbsp;consume&nbsp;memory,&nbsp;therefore&nbsp;I&nbsp;am!"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 12.1 - The definition of trait <span class="code">Philosophical</span>.</h5>
+
+
+<p>This trait is named <span class="code">Philosophical</span>.  It does not declare a superclass,
+so like a class, it has the
+default superclass of <span class="code">AnyRef</span>.  It defines one method,
+named <span class="code">philosophize</span>, which is concrete.  It's a simple trait,
+just enough to show how traits work.</p>
+
+<p>Once a trait is defined, it can be <em>mixed in</em> to a class using either the <span class="code">extends</span> or <span class="code">with</span>
+keywords.<a id="i-1415422629-1"/> Scala programmers "mix in" traits rather than
+  inherit from them, because mixing in a trait has important
+  differences from the multiple inheritance found in many other
+  languages.<a id="i-917586794-1"/> This issue is discussed in
+  <a href="traits.html#sec-traits-vs-multi">Section 12.6</a>.
+For example, <a href="traits.html#lst-extending-a-trait">Listing 12.2</a> shows a class that mixes in the <span class="code">Philosophical</span> trait using <span class="code">extends</span>:</p>
+
+<p><a id="lst-extending-a-trait"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Frog</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Philosophical</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;<code class="quotedstring">"green"</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 12.2 - Mixing in a trait using <span class="code">extends</span>.</h5>
+
+
+<p>You can use the <span class="code">extends</span> keyword to mix in a trait; in that case you implicitly inherit the trait's superclass.  
+For instance, in <a href="traits.html#lst-extending-a-trait">Listing 12.2</a>, class <span class="code">Frog</span> subclasses <span class="code">AnyRef</span> (the superclass of <span class="code">Philosophical</span>) 
+and mixes in <span class="code">Philosophical</span>.
+Methods inherited from a trait can be used just like methods inherited
+from a superclass. Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;frog&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Frog</code>
+  <code class="output">frog:&nbsp;Frog&nbsp;=&nbsp;green</code>
+  <br />  scala&gt;&nbsp;frog.philosophize()
+  <code class="output">I&nbsp;consume&nbsp;memory,&nbsp;therefore&nbsp;I&nbsp;am!</code>
+</pre>
+
+
+<p>A trait also defines a type.  Here's an example in which  <span class="code">Philosophical</span>
+is used as a type:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;phil:&nbsp;<code class="typename">Philosophical</code>&nbsp;=&nbsp;frog&nbsp;&nbsp;
+  <code class="output">phil:&nbsp;Philosophical&nbsp;=&nbsp;green</code>
+  <br />  scala&gt;&nbsp;phil.philosophize()
+  <code class="output">I&nbsp;consume&nbsp;memory,&nbsp;therefore&nbsp;I&nbsp;am!</code>
+</pre>
+
+
+<p>The type of <span class="code">phil</span> is <span class="code">Philosophical</span>, a trait.  Thus, variable <span class="code">phil</span> could have been
+initialized with any object whose class mixes in
+<span class="code">Philosophical</span>.</p>
+
+<p>If you wish to mix a trait into a class that explicitly extends a superclass, you use <span class="code">extends</span> to indicate the superclass and
+<span class="code">with</span> to mix in the trait. <a href="traits.html#lst-mixing-in-using-with">Listing 12.3</a> shows an example.
+If you want to mix in multiple traits, you add more <span class="code">with</span> clauses. For example, given a trait <span class="code">HasLegs</span>, you
+could mix both <span class="code">Philosophical</span> and <span class="code">HasLegs</span> into <span class="code">Frog</span> as shown in <a href="traits.html#lst-multiple-withs">Listing 12.4</a>.</p>
+
+<p><a id="lst-mixing-in-using-with"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Animal</code>
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Frog</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Animal</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Philosophical</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;<code class="quotedstring">"green"</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 12.3 - Mixing in a trait using <span class="code">with</span>.<a id="i1578124431-1"/></h5>
+
+
+<p><a id="lst-multiple-withs"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Animal</code>
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">HasLegs</code>
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Frog</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Animal</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Philosophical</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">HasLegs</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;<code class="quotedstring">"green"</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 12.4 - Mixing in multiple traits.</h5>
+
+
+<p>In the examples you've seen so far, class <span class="code">Frog</span> has inherited an implementation of <span class="code">philosophize</span> from
+trait <span class="code">Philosophical</span>. Alternatively, <span class="code">Frog</span> could
+override <span class="code">philosophize</span>. The syntax looks the same as overriding a method declared in a superclass. Here's an example:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Animal</code>
+  <br />  <code class="vem">class</code>&nbsp;<code class="typename">Frog</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Animal</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Philosophical</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;<code class="quotedstring">"green"</code>
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;philosophize()&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"It&nbsp;ain't&nbsp;easy&nbsp;being&nbsp;"</code>&nbsp;+&nbsp;toString&nbsp;+&nbsp;<code class="quotedstring">"!"</code>)
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>Because this new definition of <span class="code">Frog</span> still mixes in trait <span class="code">Philosophical</span>, you can still use
+it from a variable of that type. But because <span class="code">Frog</span> overrides <span class="code">Philosophical</span>'s implementation
+of <span class="code">philosophize</span>, you'll get a new behavior when you call it:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;phrog:&nbsp;<code class="typename">Philosophical</code>&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Frog</code>
+  <code class="output">phrog:&nbsp;Philosophical&nbsp;=&nbsp;green</code>
+  <br />  scala&gt;&nbsp;phrog.philosophize()
+  <code class="output">It&nbsp;ain't&nbsp;easy&nbsp;being&nbsp;green!</code>
+</pre>
+
+
+<p>At this point you might philosophize that traits are like Java interfaces with concrete methods, but
+they can actually do much more. Traits can, for example, declare fields and maintain state. In fact,
+you can do anything in a trait definition that you can do in a class definition, and the syntax looks
+exactly the same, with only two exceptions.</p>
+
+<p>First, a trait cannot have any "class" parameters (<i>i.e.</i>, parameters passed to the primary constructor of a class).
+In other words, although you could define a class like this:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Point</code>(x:&nbsp;<code class="typename">Int</code>,&nbsp;y:&nbsp;<code class="typename">Int</code>)
+</pre>
+
+
+<p>The following attempt to define a trait would not compile:</p>
+
+<pre>
+  <code class="vem">trait</code>&nbsp;<code class="typename">NoPoint</code>(x:&nbsp;<code class="typename">Int</code>,&nbsp;y:&nbsp;<code class="typename">Int</code>)&nbsp;<code class="comment">//&nbsp;Does&nbsp;not&nbsp;compile</code>
+</pre>
+
+
+<p>You'll find out in 
+<a href="abstract-members.html#sec-val-init">Section 20.5</a> how to work around this restriction.</p>
+
+<p>The other difference between classes and traits is that whereas in classes, <span class="code">super</span> calls are statically bound, in traits,<a id="i-718179772-1"/>
+they are dynamically bound.<a id="i-1297249718-2"/>
+If you write
+"<span class="code">super.toString</span>" in a class, you know exactly which method implementation
+will be invoked.  When you write the same thing in a trait, however, the 
+method implementation to invoke for the <span class="code">super</span> call is undefined when you define the trait. Rather, the
+implementation to invoke will be determined
+anew each time the trait is mixed into a concrete class.  This curious behavior of <span class="code">super</span> is key to allowing
+traits to work as  <em>stackable modifications</em>, which will be described in
+<a href="traits.html#sec-stackable-modifications">Section 12.5</a>.  The rules for resolving <span class="code">super</span> calls  will be
+given in <a href="traits.html#sec-traits-vs-multi">Section 12.6</a>.</p>
+
+<h3>12.2 Thin versus rich interfaces</h3>
+
+
+<p>One major use of traits is to automatically add methods to a class in
+terms of methods the class already has.  That is, traits can
+enrich a <em>thin</em> interface, making it into a <em>rich</em> interface.</p>
+
+<p>Thin versus rich interfaces represents a commonly faced trade-off in
+object-oriented design.  The trade-off is between the implementers and
+the clients of an interface.  A rich interface has many methods, which
+make it convenient for the caller.  Clients can pick a method that
+exactly matches the functionality they need.  A thin interface, on the
+other hand, has fewer methods, and thus is easier on the implementers.
+Clients calling into a thin interface, however, have to write more
+code.  Given the smaller selection of methods to call, they may have
+to choose a less than perfect match for their needs and write extra code to use it.</p>
+
+<p>Java's interfaces are more often thin than rich.  For example,
+interface
+<span class="code">CharSequence</span>, which was introduced in Java 1.4, is a thin interface common to all
+string-like classes that hold a sequence of characters.  Here's its 
+definition when seen as a Scala trait:</p>
+
+<pre>
+  <code class="vem">trait</code>&nbsp;<code class="typename">CharSequence</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;charAt(index:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">Char</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;length:&nbsp;<code class="typename">Int</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;subSequence(start:&nbsp;<code class="typename">Int</code>,&nbsp;end:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">CharSequence</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;toString():&nbsp;<code class="typename">String</code>
+  }
+</pre>
+
+
+<p>Although most of the dozens of methods in class <span class="code">String</span> would apply to any
+<span class="code">CharSequence</span>, Java's <span class="code">CharSequence</span> interface declares only four
+methods.  Had <span class="code">CharSequence</span> instead included the full <span class="code">String</span>
+interface, it would have placed a large burden on implementers of
+<span class="code">CharSequence</span>.  Every programmer that implemented <span class="code">CharSequence</span> in Java would have had to define dozens more methods.
+Because Scala traits can contain concrete methods, they make rich interfaces far more convenient.</p>
+
+<p>Adding a concrete method to a trait tilts the thin-rich trade-off
+heavily towards rich interfaces.  Unlike in Java,  adding
+a concrete method to a Scala trait is a one-time effort.  You only
+need to implement the method once, in the trait itself, instead of
+needing to reimplement it for every class that mixes in the trait.
+Thus, rich interfaces are less work to provide in Scala than in a
+language without traits.</p>
+
+<p>To enrich an interface using traits, simply define a trait with
+a small number of abstract methods&mdash;the thin part of the trait's
+interface&mdash;and a potentially large number of concrete methods, all implemented in terms
+of the abstract methods. Then you can mix the enrichment trait into a class, implement the
+thin portion of the interface, and end up with
+a class that has all of the rich interface available.</p>
+
+<h3>12.3 Example: Rectangular objects</h3>
+
+
+<p>Graphics libraries often have
+many different classes that represent something rectangular. Some examples are windows,
+bitmap images, and regions selected with a mouse.  To make these rectangular objects
+convenient to use, it is nice if the library provides geometric
+queries, such as <span class="code">width</span>, <span class="code">height</span>, <span class="code">left</span>, <span class="code">right</span>, <span class="code">topLeft</span>,
+and so on.  However, many such methods exist that would be nice to
+have, so it can be a large burden on library writers to provide all of them for all rectangular objects in a Java library.  If such a library were
+written in Scala, by contrast, the library writer could use traits to
+easily supply all of these convenience methods on all the classes they like.</p>
+
+<p>To see how, first imagine what the code would look like without
+traits.  There would be some basic geometric classes like <span class="code">Point</span> and
+<span class="code">Rectangle</span>:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Point</code>(<code class="vem">val</code>&nbsp;x:&nbsp;<code class="typename">Int</code>,&nbsp;<code class="vem">val</code>&nbsp;y:&nbsp;<code class="typename">Int</code>)
+  <br />  <code class="vem">class</code>&nbsp;<code class="typename">Rectangle</code>(<code class="vem">val</code>&nbsp;topLeft:&nbsp;<code class="typename">Point</code>,&nbsp;<code class="vem">val</code>&nbsp;bottomRight:&nbsp;<code class="typename">Point</code>)&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;left&nbsp;=&nbsp;topLeft.x
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;right&nbsp;=&nbsp;bottomRight.x
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;width&nbsp;=&nbsp;right&nbsp;-&nbsp;left
+  &nbsp;&nbsp;<code class="comment">//&nbsp;and&nbsp;many&nbsp;more&nbsp;geometric&nbsp;methods...</code>
+  }
+</pre>
+
+
+<p>This <span class="code">Rectangle</span> class takes two points in its primary constructor:
+the coordinates of the top-left and bottom-right corners.  It then implements many convenience methods, such
+as <span class="code">left</span>, <span class="code">right</span>, and <span class="code">width</span>, by performing simple calculations
+on these two points.</p>
+
+<p>Another class a graphics library might have is a 2-D graphical widget:</p>
+
+<pre>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Component</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;topLeft:&nbsp;<code class="typename">Point</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;bottomRight:&nbsp;<code class="typename">Point</code>
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;left&nbsp;=&nbsp;topLeft.x
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;right&nbsp;=&nbsp;bottomRight.x
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;width&nbsp;=&nbsp;right&nbsp;-&nbsp;left
+  &nbsp;&nbsp;<code class="comment">//&nbsp;and&nbsp;many&nbsp;more&nbsp;geometric&nbsp;methods...</code>
+  }
+</pre>
+
+
+<p>Notice that the definitions of <span class="code">left</span>, <span class="code">right</span>, and <span class="code">width</span> are
+exactly the same in the two classes.  They will also be the same,
+aside from minor variations, in any other classes for rectangular
+objects.</p>
+
+<p>This repetition can be eliminated with an enrichment trait. The trait
+will have two abstract methods: one that
+returns the top-left coordinate of the object, and another that returns
+the bottom-right coordinate.
+It can then supply concrete implementations of all the other geometric
+queries.  <a href="traits.html#lst-enrichment-trait">Listing 12.5</a> shows what it will look like:</p>
+
+<p><a id="lst-enrichment-trait"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">Rectangular</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;topLeft:&nbsp;<code class="typename">Point</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;bottomRight:&nbsp;<code class="typename">Point</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;left&nbsp;=&nbsp;topLeft.x
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;right&nbsp;=&nbsp;bottomRight.x
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;width&nbsp;=&nbsp;right&nbsp;-&nbsp;left
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;and&nbsp;many&nbsp;more&nbsp;geometric&nbsp;methods...</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 12.5 - Defining an enrichment trait.</h5>
+
+
+<p>Class <span class="code">Component</span> can mix in this trait to get all the geometric
+methods provided by <span class="code">Rectangular</span>:</p>
+
+<pre>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Component</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Rectangular</code>&nbsp;{
+  &nbsp;&nbsp;<code class="comment">//&nbsp;other&nbsp;methods...</code>
+  }
+</pre>
+
+
+<p>Similarly, <span class="code">Rectangle</span> itself can mix in the trait:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Rectangle</code>(<code class="vem">val</code>&nbsp;topLeft:&nbsp;<code class="typename">Point</code>,&nbsp;<code class="vem">val</code>&nbsp;bottomRight:&nbsp;<code class="typename">Point</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Rectangular</code>&nbsp;{
+  <br />  &nbsp;&nbsp;<code class="comment">//&nbsp;other&nbsp;methods...</code>
+  }
+</pre>
+
+
+<p>Given these definitions, you can create a <span class="code">Rectangle</span> and
+call geometric methods such as <span class="code">width</span> and <span class="code">left</span> on it:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;rect&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Rectangle</code>(<code class="vem">new</code>&nbsp;<code class="typename">Point</code>(<code class="literal">1</code>,&nbsp;<code class="literal">1</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Point</code>(<code class="literal">10</code>,&nbsp;<code class="literal">10</code>))
+  <code class="output">rect:&nbsp;Rectangle&nbsp;=&nbsp;Rectangle@5f5da68c</code>
+  <br />  scala&gt;&nbsp;rect.left
+  <code class="output">res2:&nbsp;Int&nbsp;=&nbsp;1</code>
+  <br />  scala&gt;&nbsp;rect.right
+  <code class="output">res3:&nbsp;Int&nbsp;=&nbsp;10</code>
+  <br />  scala&gt;&nbsp;rect.width
+  <code class="output">res4:&nbsp;Int&nbsp;=&nbsp;9</code>
+</pre>
+
+
+<h3 id="sec-the-ordered-trait">12.4 The <span class="code">Ordered</span> trait</h3>
+
+
+<p>Comparison is another domain where a rich interface is convenient.<a id="i2068605051-1"/><a id="i795809807-1"/>
+Whenever you compare two objects that are ordered, it is convenient if
+you use a single method call to ask about the precise comparison you
+want.  If you want "is less than," you would like to call <span class="code">&lt;</span>, and
+if you want "is less than or equal," you would like to call <span class="code">&lt;=</span>.
+With a thin comparison interface, you might just have the <span class="code">&lt;</span> method, and you would sometimes have to write things like
+"<span class="code">(x</span>&nbsp;<span class="code">&lt;</span>&nbsp;<span class="code">y)</span>&nbsp;<span class="code">||</span>&nbsp;<span class="code">(x</span>&nbsp;<span class="code">==</span>&nbsp;<span class="code">y)</span>".  A rich interface would provide you with
+all of the usual comparison operators, thus allowing you to directly
+write things like "<span class="code">x</span>&nbsp;<span class="code">&lt;=</span>&nbsp;<span class="code">y</span>".</p>
+
+<p>Before looking at <span class="code">Ordered</span>, imagine
+what you might do without it.  Suppose
+you took the <span class="code">Rational</span> class from
+<a href="functional-objects.html">Chapter 6</a> and added comparison operations to
+it.  You would end up with something like this:<a href="traits.html#footnotemain12-1">[1]</a></p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Rational</code>(n:&nbsp;<code class="typename">Int</code>,&nbsp;d:&nbsp;<code class="typename">Int</code>)&nbsp;{
+  &nbsp;&nbsp;<code class="comment">//&nbsp;...</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;&lt;&nbsp;(that:&nbsp;<code class="typename">Rational</code>)&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">this</code>.numer&nbsp;*&nbsp;that.denom&nbsp;&lt;&nbsp;that.numer&nbsp;*&nbsp;<code class="vem">this</code>.denom
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;&gt;&nbsp;(that:&nbsp;<code class="typename">Rational</code>)&nbsp;=&nbsp;that&nbsp;&lt;&nbsp;<code class="vem">this</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;&lt;=&nbsp;(that:&nbsp;<code class="typename">Rational</code>)&nbsp;=&nbsp;(<code class="vem">this</code>&nbsp;&lt;&nbsp;that)&nbsp;||&nbsp;(<code class="vem">this</code>&nbsp;==&nbsp;that)
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;&gt;=&nbsp;(that:&nbsp;<code class="typename">Rational</code>)&nbsp;=&nbsp;(<code class="vem">this</code>&nbsp;&gt;&nbsp;that)&nbsp;||&nbsp;(<code class="vem">this</code>&nbsp;==&nbsp;that)
+  }
+</pre>
+
+
+<p>This class defines four comparison operators (<span class="code">&lt;</span>, <span class="code">&gt;</span>, <span class="code">&lt;=</span>, and
+<span class="code">&gt;=</span>), and it's
+a classic demonstration of the costs of defining a
+rich interface.  First, notice that three of the comparison operators
+are defined in terms of the first one.  For example, <span class="code">&gt;</span> is defined
+as the reverse of <span class="code">&lt;</span>, and <span class="code">&lt;=</span> is defined as literally "less than
+or equal."  Next, notice that all three of these methods
+would be the same for any other class that is comparable.  There is
+nothing special about rational numbers regarding <span class="code">&lt;=</span>.  In a comparison context,
+<span class="code">&lt;=</span> is <em>always</em> used to mean "less than or equals."  Overall, there
+is quite a lot of boilerplate code in this class which would be the
+same in any other class that implements comparison operations.</p>
+
+<p>This problem is so common that Scala provides a trait to help with
+it.  The trait is called <span class="code">Ordered</span>.  To use it, you replace all of
+the individual comparison methods with a single <span class="code">compare</span> method.<a id="i1970675952-1"/>
+The <span class="code">Ordered</span> trait then defines <span class="code">&lt;</span>, <span class="code">&gt;</span>, <span class="code">&lt;=</span>, and <span class="code">&gt;=</span> for you
+in terms of this one method. Thus, trait <span class="code">Ordered</span> allows you to enrich a class
+with comparison methods by implementing only one method, <span class="code">compare</span>.</p>
+
+<p>Here is how it looks if you define comparison operations on <span class="code">Rational</span>
+by using the <span class="code">Ordered</span> trait:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Rational</code>(n:&nbsp;<code class="typename">Int</code>,&nbsp;d:&nbsp;<code class="typename">Int</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Ordered[Rational]</code>&nbsp;{
+  &nbsp;&nbsp;<code class="comment">//&nbsp;...</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;compare(that:&nbsp;<code class="typename">Rational</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;(<code class="vem">this</code>.numer&nbsp;*&nbsp;that.denom)&nbsp;-&nbsp;(that.numer&nbsp;*&nbsp;<code class="vem">this</code>.denom)
+  }
+</pre>
+
+
+<p>There are just two things to do.  First, this version of <span class="code">Rational</span>
+mixes in the <span class="code">Ordered</span> trait.  Unlike the traits you have seen so
+far, <span class="code">Ordered</span> requires you to specify a <a href="glossary.html#g772613699"><em>type parameter</em></a> when
+you mix it in.  Type parameters are not discussed in detail until
+<a href="type-parameterization.html">Chapter 19</a>, but for now all you need to
+know is that when you mix in <span class="code">Ordered</span>, you must actually mix in
+<span class="code">Ordered[</span><em>C</em><span class="code">]</span>, where <em>C</em> is the class
+whose elements you compare.  In this case, <span class="code">Rational</span> mixes in
+<span class="code">Ordered[Rational]</span>.</p>
+
+<p>The second thing you need to do is define a <span class="code">compare</span> method for
+comparing two objects.  This method should compare the receiver,
+<span class="code">this</span>, with the object passed as an argument to the method.  It
+should return an integer that is zero if the objects are the same,
+negative if receiver is less than the argument, and positive if the
+receiver is greater than the argument.</p>
+
+<p>In this case, the comparison method of <span class="code">Rational</span> uses a formula
+based on converting the fractions to a common denominator and
+then subtracting the resulting numerators.
+Given this mixin and the definition of <span class="code">compare</span>, class <span class="code">Rational</span>
+now has all four comparison methods:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;half&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Rational</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)
+  <code class="output">half:&nbsp;Rational&nbsp;=&nbsp;1/2</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;third&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Rational</code>(<code class="literal">1</code>,&nbsp;<code class="literal">3</code>)
+  <code class="output">third:&nbsp;Rational&nbsp;=&nbsp;1/3</code>
+  <br />  scala&gt;&nbsp;half&nbsp;&lt;&nbsp;third
+  <code class="output">res5:&nbsp;Boolean&nbsp;=&nbsp;false</code>
+  <br />  scala&gt;&nbsp;half&nbsp;&gt;&nbsp;third
+  <code class="output">res6:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+</pre>
+
+
+<p>Any time you implement a class that is ordered by some comparison, you
+should consider mixing in the <span class="code">Ordered</span> trait.  If you do, you will provide
+the class's users with a rich
+set of comparison methods.</p>
+
+<p>Beware that the <span class="code">Ordered</span> trait does not define <span class="code">equals</span> for you,
+because it is unable to do so. The problem is that implementing
+<span class="code">equals</span> in terms of <span class="code">compare</span> requires checking the type of the
+passed object, and because of type erasure, <span class="code">Ordered</span> itself cannot
+do this test. Thus, you need to define <span class="code">equals</span> yourself, even if
+you inherit <span class="code">Ordered</span>. You'll find out how to go about this in
+<a href="object-equality.html">Chapter 30</a>.</p>
+
+<p>The complete <span class="code">Ordered</span> trait, minus comments and compatibility cruft, is
+as follows:</p>
+
+<pre>
+  <code class="vem">trait</code>&nbsp;<code class="typename">Ordered[T]</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;compare(that:&nbsp;T):&nbsp;<code class="typename">Int</code>
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;&lt;(that:&nbsp;T):&nbsp;<code class="typename">Boolean</code>&nbsp;=&nbsp;(<code class="vem">this</code>&nbsp;compare&nbsp;that)&nbsp;&lt;&nbsp;<code class="literal">0</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;&gt;(that:&nbsp;T):&nbsp;<code class="typename">Boolean</code>&nbsp;=&nbsp;(<code class="vem">this</code>&nbsp;compare&nbsp;that)&nbsp;&gt;&nbsp;<code class="literal">0</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;&lt;=(that:&nbsp;T):&nbsp;<code class="typename">Boolean</code>&nbsp;=&nbsp;(<code class="vem">this</code>&nbsp;compare&nbsp;that)&nbsp;&lt;=&nbsp;<code class="literal">0</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;&gt;=(that:&nbsp;T):&nbsp;<code class="typename">Boolean</code>&nbsp;=&nbsp;(<code class="vem">this</code>&nbsp;compare&nbsp;that)&nbsp;&gt;=&nbsp;<code class="literal">0</code>
+  }
+</pre>
+
+
+<p>Do not worry much about the <span class="code">T</span>'s and <span class="code">[T]</span>'s.  <span class="code">T</span> here is a
+<a href="glossary.html#g772613699">type parameter</a>, as described in detail in
+<a href="type-parameterization.html">Chapter 19</a>.  For understanding the
+<span class="code">Ordered</span> trait, just think of it as "the same type as the
+receiver".  You can then see that this trait defines one abstract
+method, <span class="code">compare</span>, which is expected to compare the receiver (<span class="code">this</span>)
+against another object of the same type as the receiver (<span class="code">that</span>).
+Given this one method, <span class="code">Ordered</span> can then provide concrete
+definitions for <span class="code">&lt;</span>, <span class="code">&gt;</span>, <span class="code">&lt;=</span>, and <span class="code">&gt;=</span>.</p>
+
+<h3 id="sec-stackable-modifications">12.5 Traits as stackable modifications</h3>
+
+
+<p>You have now seen one major use of traits: turning a thin interface<a id="i-590612839-1"/>
+into a rich one.  Now we'll turn to a second major use: providing
+stackable modifications to classes.  Traits let you <em>modify</em> the
+methods of a class, and they do so in a way that allows you to <em>stack</em>
+those modifications with each other.</p>
+
+<p>As an example, consider stacking modifications to a queue of integers.
+The queue will have two operations: <span class="code">put</span>, which places integers in the queue, and <span class="code">get</span>, which takes them back out.  Queues are
+first-in, first-out, so <span class="code">get</span> should return the integers in the same
+order they were put in the queue.</p>
+
+<p>Given a class that implements such a queue, you could define traits to 
+perform modifications such as these:</p>
+
+<ul>
+
+
+<li><span class="code">Doubling</span>: double all integers that are put in the queue
+
+
+</li>
+<li><span class="code">Incrementing</span>: increment all integers that are put in the queue
+
+
+</li>
+<li><span class="code">Filtering</span>: filter out negative integers from a queue
+
+
+</li></ul>
+
+
+<p>These three traits represent <em>modifications</em>, because they modify the
+behavior of an underlying queue class rather than defining a full
+queue class themselves.  The three are also <em>stackable</em>.  You
+can select any of the three you like, mix them into a class, and obtain
+a new class that has all of the modifications you chose.</p>
+
+<p>An abstract <span class="code">IntQueue</span> class is shown in <a href="traits.html#lst-class-intqueue">Listing 12.6</a>.
+<span class="code">IntQueue</span> has a <span class="code">put</span> method that 
+adds new integers to the queue, and a <span class="code">get</span> method that removes and returns them.
+A basic
+implementation of <span class="code">IntQueue</span> that uses an <span class="code">ArrayBuffer</span> is shown in <a href="traits.html#lst-basic-intqueue">Listing 12.7</a>.</p>
+
+<p><a id="lst-class-intqueue"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">IntQueue</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;get():&nbsp;<code class="typename">Int</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;put(x:&nbsp;<code class="typename">Int</code>)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 12.6 - Abstract class <span class="code">IntQueue</span>.</h5>
+
+
+<p><a id="lst-basic-intqueue"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;scala.collection.mutable.ArrayBuffer
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">BasicIntQueue</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">IntQueue</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">val</code>&nbsp;buf&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">ArrayBuffer[Int]</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;get()&nbsp;=&nbsp;buf.remove(<code class="literal">0</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;put(x:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;{&nbsp;buf&nbsp;+=&nbsp;x&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 12.7 - A <span class="code">BasicIntQueue</span> implemented with an <span class="code">ArrayBuffer</span>.</h5>
+
+
+<p>Class <span class="code">BasicIntQueue</span> has a private field holding an array buffer.  The
+<span class="code">get</span> method removes an entry from one end of the buffer, while the
+<span class="code">put</span> method adds elements to the other end.  Here's how this
+implementation looks when you use it:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;queue&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">BasicIntQueue</code>
+  <code class="output">queue:&nbsp;BasicIntQueue&nbsp;=&nbsp;BasicIntQueue@23164256</code>
+  <br />  scala&gt;&nbsp;queue.put(<code class="literal">10</code>)
+  <br />  scala&gt;&nbsp;queue.put(<code class="literal">20</code>)
+  <br />  scala&gt;&nbsp;queue.get()
+  <code class="output">res9:&nbsp;Int&nbsp;=&nbsp;10</code>
+  <br />  scala&gt;&nbsp;queue.get()
+  <code class="output">res10:&nbsp;Int&nbsp;=&nbsp;20</code>
+</pre>
+
+
+<p>So far so good.  Now take a look at using traits to modify this
+behavior.  <a href="traits.html#lst-doubling-trait">Listing 12.8</a> shows a trait that doubles integers as they are
+put in the queue.
+The <span class="code">Doubling</span> trait has two funny things going on.  The first is that it
+declares a superclass, <span class="code">IntQueue</span>.  This declaration means that the
+trait can only be mixed into a class that also extends <span class="code">IntQueue</span>.  Thus, you
+can mix <span class="code">Doubling</span> into <span class="code">BasicIntQueue</span>, but not into <span class="code">Rational</span>.</p>
+
+<p><a id="lst-doubling-trait"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">Doubling</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">IntQueue</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;put(x:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;{&nbsp;<code class="vem">super</code>.put(<code class="literal">2</code>&nbsp;*&nbsp;x)&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 12.8 - The <span class="code">Doubling</span> stackable modification trait.</h5>
+
+
+<p>The second funny thing is that the trait has a <span class="code">super</span> call on a
+method declared abstract.  Such calls are illegal for normal classes because they will certainly fail at run time.  For a trait, however,
+such a call can actually succeed.  Since <span class="code">super</span> calls in a trait are
+dynamically bound, the <span class="code">super</span> call in trait <span class="code">Doubling</span> will work so
+long as the trait is mixed in <em>after</em> another trait or class
+that gives a concrete definition to the method.</p>
+
+<p>This arrangement is frequently needed with traits that implement
+stackable modifications.  To tell the compiler you are doing this on
+purpose, you must mark such methods as <span class="code">abstract</span> <span class="code">override</span>.<a id="i-1048822646-1"/> This
+combination of modifiers is only allowed for members of traits, not classes, and it
+means that the trait must be mixed into some class that has a concrete
+definition of the method in question.</p>
+
+<p>There is a lot going on with such a simple trait, isn't there!
+Here's how it looks to use the trait:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">MyQueue</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">BasicIntQueue</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Doubling</code>
+  <code class="output">defined&nbsp;class&nbsp;MyQueue</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;queue&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">MyQueue</code>
+  <code class="output">queue:&nbsp;MyQueue&nbsp;=&nbsp;MyQueue@44bbf788</code>
+  <br />  scala&gt;&nbsp;queue.put(<code class="literal">10</code>)
+  <br />  scala&gt;&nbsp;queue.get()
+  <code class="output">res12:&nbsp;Int&nbsp;=&nbsp;20</code>
+</pre>
+
+
+<p>In the first line in this interpreter session, we define class <span class="code">MyQueue</span>, which extends
+<span class="code">BasicIntQueue</span> and mixes in <span class="code">Doubling</span>.  We then put a 10 in the
+queue, but because <span class="code">Doubling</span> has been mixed in, the 10 is doubled.  When we get an integer from the queue, it is a
+20.</p>
+
+<p>Note that <span class="code">MyQueue</span> defines no new code.  It simply identifies a
+class and mixes in a trait.  In this situation, you could
+supply "<span class="code">BasicIntQueue</span> <span class="code">with</span> <span class="code">Doubling</span>" directly to <span class="code">new</span>
+instead of defining a named class. It would look as shown in <a href="traits.html#lst-new-with">Listing 12.9</a>:</p>
+
+<p><a id="lst-new-with"/></p>
+
+<pre>
+  &nbsp;&nbsp;scala&gt;&nbsp;<code class="vem">val</code>&nbsp;queue&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">BasicIntQueue</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Doubling</code>
+  <code class="output">&nbsp;&nbsp;queue:&nbsp;BasicIntQueue&nbsp;with&nbsp;Doubling&nbsp;=&nbsp;$anon$1@141f05bf</code>
+  <br />  &nbsp;&nbsp;scala&gt;&nbsp;queue.put(<code class="literal">10</code>)
+  <br />  &nbsp;&nbsp;scala&gt;&nbsp;queue.get()
+  <code class="output">&nbsp;&nbsp;res14:&nbsp;Int&nbsp;=&nbsp;20</code>
+</pre>
+
+
+<h5>Listing 12.9 - Mixing in a trait when instantiating with <span class="code">new</span>.</h5>
+
+
+<p>  To see how to stack modifications, we need to
+define the other two modification traits, <span class="code">Incrementing</span> and <span class="code">Filtering</span>. Implementations of these traits
+are shown in <a href="traits.html#lst-incrementing-filtering">Listing 12.10</a>:</p>
+
+<p><a id="lst-incrementing-filtering"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">Incrementing</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">IntQueue</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;put(x:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;{&nbsp;<code class="vem">super</code>.put(x&nbsp;+&nbsp;<code class="literal">1</code>)&nbsp;}
+  &nbsp;&nbsp;}
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">Filtering</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">IntQueue</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;put(x:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(x&nbsp;&gt;=&nbsp;<code class="literal">0</code>)&nbsp;<code class="vem">super</code>.put(x)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 12.10 - Stackable modification traits <span class="code">Incrementing</span> and <span class="code">Filtering</span>.</h5>
+
+
+<p>Given these modifications, you can now pick and choose which ones you
+want for a particular queue.  For example, here is a queue that
+both filters negative numbers and adds one to all numbers that
+it keeps:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;queue&nbsp;=&nbsp;(<code class="vem">new</code>&nbsp;<code class="typename">BasicIntQueue</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Incrementing</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Filtering</code>)
+  <code class="output">queue:&nbsp;BasicIntQueue&nbsp;with&nbsp;Incrementing&nbsp;with&nbsp;Filtering...</code>
+  <br />  scala&gt;&nbsp;queue.put(-<code class="literal">1</code>);&nbsp;queue.put(<code class="literal">0</code>);&nbsp;queue.put(<code class="literal">1</code>)
+  <br />  scala&gt;&nbsp;queue.get()
+  <code class="output">res16:&nbsp;Int&nbsp;=&nbsp;1</code>
+</pre>
+
+
+<pre>
+  scala&gt;&nbsp;queue.get()
+  <code class="output">res17:&nbsp;Int&nbsp;=&nbsp;2</code>
+</pre>
+
+
+<p>The order of mixins is significant.<a href="traits.html#footnotemain12-2">[2]</a>  The precise rules are given in
+the following section, but, roughly speaking, traits further to the
+right take effect first.  When you call a method on a class with
+mixins, the method in the trait furthest to the right is called first.
+If that method calls <span class="code">super</span>, it invokes the method in the next trait
+to its left, and so on.  In the previous example, <span class="code">Filtering</span>'s
+<span class="code">put</span> is invoked first, so it removes integers that were negative to
+begin with.  <span class="code">Incrementing</span>'s <span class="code">put</span> is invoked second, so it adds
+one to those integers that remain.</p>
+
+<p>If you reverse the order, first integers will be incremented, and
+<em>then</em> the integers that are still negative will be discarded:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;queue&nbsp;=&nbsp;(<code class="vem">new</code>&nbsp;<code class="typename">BasicIntQueue</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Filtering</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Incrementing</code>)
+  <code class="output">queue:&nbsp;BasicIntQueue&nbsp;with&nbsp;Filtering&nbsp;with&nbsp;Incrementing...</code>
+  <br />  scala&gt;&nbsp;queue.put(-<code class="literal">1</code>);&nbsp;queue.put(<code class="literal">0</code>);&nbsp;queue.put(<code class="literal">1</code>)
+  <br />  scala&gt;&nbsp;queue.get()
+  <code class="output">res19:&nbsp;Int&nbsp;=&nbsp;0</code>
+  <br />  scala&gt;&nbsp;queue.get()
+  <code class="output">res20:&nbsp;Int&nbsp;=&nbsp;1</code>
+  <br />  scala&gt;&nbsp;queue.get()
+  <code class="output">res21:&nbsp;Int&nbsp;=&nbsp;2</code>
+</pre>
+
+
+<p>Overall, code written in this style gives you a great deal of
+flexibility.  You can define sixteen different classes by mixing in
+these three traits in different combinations and orders.  That's a
+lot of flexibility for a small amount of code, so you should keep your
+eyes open for opportunities to arrange code as stackable modifications.</p>
+
+<h3 id="sec-traits-vs-multi">12.6 Why not multiple inheritance?<a id="i-1992074038-1"/><a id="i1595934381-1"/><a id="i-1280910181-1"/></h3>
+
+
+<p>Traits are a way to inherit from multiple class-like constructs, but
+they differ in important ways from the multiple inheritance present
+in many languages.  One difference is especially important: the
+interpretation of <span class="code">super</span>. With multiple inheritance, the method called by a <span class="code">super</span> call can be
+determined right where the call appears.  With traits, the method
+called is determined by a <em>linearization</em> of the classes and
+traits that are mixed into a class. This is the difference that enables the
+stacking of modifications described in the previous section.</p>
+
+<p>Before looking at linearization, take a moment to consider how to
+stack modifications in a language with traditional multiple inheritance.
+Imagine the following code, but this time interpreted as
+multiple inheritance instead of trait mixin:</p>
+
+<pre>
+  <code class="comment">//&nbsp;Multiple&nbsp;inheritance&nbsp;thought&nbsp;experiment</code>
+  <code class="vem">val</code>&nbsp;q&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">BasicIntQueue</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Incrementing</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Doubling</code>
+  q.put(<code class="literal">42</code>)&nbsp;&nbsp;<code class="comment">//&nbsp;which&nbsp;put&nbsp;would&nbsp;be&nbsp;called?</code>
+</pre>
+
+
+<p>The first question is: Which <span class="code">put</span> method would get invoked by this call?
+Perhaps the rule would be that the last superclass wins, in which case
+<span class="code">Doubling</span> would get called.  <span class="code">Doubling</span> would double its argument and
+call <span class="code">super.put</span>, and that would be it.  No incrementing would happen!  Likewise,
+if the rule were that the first superclass wins, the resulting queue
+would increment integers but not double them.  Thus neither ordering would work.</p>
+
+<p>You might also entertain the possibility of allowing programmers to identify exactly which superclass method
+they want when they say <span class="code">super</span>. For example, imagine the following Scala-like code, in which <span class="code">super</span> appears to be explicitly invoked
+on both <span class="code">Incrementing</span> and <span class="code">Doubling</span>:</p>
+
+<pre>
+  <code class="comment">//&nbsp;Multiple&nbsp;inheritance&nbsp;thought&nbsp;experiment</code>
+  <code class="vem">trait</code>&nbsp;<code class="typename">MyQueue</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">BasicIntQueue</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Incrementing</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Doubling</code>&nbsp;{
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;put(x:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;Incrementing.super.put(x)&nbsp;<code class="comment">//&nbsp;(Not&nbsp;real&nbsp;Scala)</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;Doubling.super.put(x)
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>This approach would give us new problems (with the verbosity of this attempt being the least of its problems). What would happen is that the base class's <span class="code">put</span> method would get called
+<em>twice</em>&mdash;once with an incremented value and once with a doubled
+value, but neither time with an incremented, doubled value.</p>
+
+<p>There is simply no good solution to this problem using multiple
+inheritance.  You would have to back up in your design and factor
+the code differently.  By contrast,
+the traits solution in Scala is straightforward.  You simply mix in
+<span class="code">Incrementing</span> and <span class="code">Doubling</span>, and Scala's special
+treatment of <span class="code">super</span> in traits makes it all work out.  Something is clearly
+different here from traditional multiple inheritance, but what?
+As hinted previously, the answer is  linearization.  When you instantiate a class with
+<span class="code">new</span>, Scala takes the class, and all of its inherited classes and
+traits, and puts them in a single, <em>linear</em> order.  Then,
+whenever you call <span class="code">super</span> inside one of those classes, the invoked
+method is the next one up the chain.  If all of the methods but the
+last call <span class="code">super</span>, the net result is stackable behavior.</p>
+
+<p>The precise order of the linearization is described in the language
+specification.  It is a little bit complicated, but the main thing you need
+to know is that, in any linearization, a class is 
+always linearized
+in front of <em>all</em> its superclasses and mixed in traits.  Thus, when
+you write a method that calls <span class="code">super</span>, that method is definitely
+modifying the behavior of the superclasses and mixed in traits, not
+the other way around.</p>
+
+<div class="note">
+<h4>Note</h4>
+
+
+<p>The remainder of this section describes the details of linearization. 
+You can safely skip the rest of this section if you are
+not interested in understanding those details right now.</p>
+
+</div>
+
+
+<p>The main properties of Scala's linearization are illustrated by the
+following example: Say you have a class <span class="code">Cat</span>, which inherits from a superclass <span class="code">Animal</span> and 
+two supertraits <span class="code">Furry</span> and <span class="code">FourLegged</span>. <span class="code">FourLegged</span> extends in turn another trait 
+<span class="code">HasLegs</span>:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Animal</code>&nbsp;
+  <code class="vem">trait</code>&nbsp;<code class="typename">Furry</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Animal</code>
+  <code class="vem">trait</code>&nbsp;<code class="typename">HasLegs</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Animal</code>
+  <code class="vem">trait</code>&nbsp;<code class="typename">FourLegged</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">HasLegs</code>
+  <code class="vem">class</code>&nbsp;<code class="typename">Cat</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Animal</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">Furry</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">FourLegged</code>
+</pre>
+
+
+<p>Class <span class="code">Cat</span>'s inheritance hierarchy and linearization are shown in <a href="traits.html#fig-linearization">Figure 12.1</a>. Inheritance is indicated
+using traditional UML notation:<a href="traits.html#footnotemain12-3">[3]</a> arrows with white, triangular arrowheads indicate inheritance, with the 
+arrowhead pointing to the supertype. The arrows with darkened, non-triangular arrowheads depict linearization. The darkened arrowheads point in the
+direction in which <span class="code">super</span> calls will be resolved.</p>
+
+<div class="figure"><a id="fig-linearization"/>
+
+
+<p><img src="images/linearization160.png" alt="image images/linearization160.png"/></p>
+
+</div>
+<h5> Figure 12.1 - Inheritance hierarchy and linearization of class <span class="code">Cat</span>.</h5>
+
+
+<p>The linearization of <span class="code">Cat</span> is computed from back to front as follows. 
+The <span style="font-style:italic">last</span> part of the linearization of <span class="code">Cat</span> is the linearization of
+its superclass, <span class="code">Animal</span>. This linearization is copied over without any changes. 
+(The linearization of each of these types is shown in <a href="traits.html#tab-linearization-several">Table 12.1</a>  <a href="traits.html#tab-linearization-several">here</a>.)
+Because <span class="code">Animal</span> doesn't explicitly extend a superclass or mix in any supertraits, it by default
+extends <span class="code">AnyRef</span>, which extends <span class="code">Any</span>. <span class="code">Animal</span>'s linearization, therefore, looks like:</p>
+
+<div style="text-align: center">
+<img src="images/AnimalLine160.png" alt="image images/AnimalLine160.png"/>
+
+
+</div>
+
+
+<p>The second to last part is the linearization of the first mixin, 
+trait <span class="code">Furry</span>, but all classes that are already in the linearization of <span class="code">Animal</span> 
+are left out now, so that each class appears only once in <span class="code">Cat</span>'s linearization.
+The result is:</p>
+
+<div style="text-align: center">
+<img src="images/FurryLine160.png" alt="image images/FurryLine160.png"/>
+
+
+</div>
+
+
+<p>This is preceded by the linearization of <span class="code">FourLegged</span>, where again any classes
+that have already been copied in the linearizations of the superclass or 
+the first mixin are left out:</p>
+
+<div style="text-align: center">
+<img src="images/FourLeggedLine160.png" alt="image images/FourLeggedLine160.png"/>
+
+
+</div>
+
+
+<p>Finally, the first class in the linearization of 
+<span class="code">Cat</span> is <span class="code">Cat</span> itself:</p>
+
+<div style="text-align: center">
+<img src="images/CatLine160.png" alt="image images/CatLine160.png"/>
+
+
+</div>
+
+
+<p>When any of these classes and traits invokes a method via <span class="code">super</span>, the implementation invoked will 
+be the first implementation to its right in the linearization.</p>
+
+<p><a id="tab-linearization-several"/></p>
+
+<h5>Table 12.1 - Linearization of types in <span class="code">Cat</span>'s hierarchy</h5>
+
+
+<div style="text-align: center">
+
+
+<table style="border-collapse: collapse">
+<tr class="topline ">
+  <td>
+    <span style="font-size:medium"><span style="font-weight:bold">Type</span></span>
+  </td>
+  <td>
+    <span style="font-size:medium"><span style="font-weight:bold">Linearization</span></span>
+  </td>
+</tr>
+<tr class="topline ">
+  <td>
+    <span class="code">Animal</span>
+  </td>
+  <td>
+    Animal, AnyRef, Any
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">Furry</span>
+  </td>
+  <td>
+    Furry, Animal, AnyRef, Any
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">FourLegged</span>
+  </td>
+  <td>
+    FourLegged, HasLegs, Animal, AnyRef, Any
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">HasLegs</span>
+  </td>
+  <td>
+    HasLegs, Animal, AnyRef, Any
+  </td>
+</tr>
+<tr class="bottomline">
+  <td>
+    <span class="code">Cat</span>
+  </td>
+  <td>
+    Cat, FourLegged, HasLegs, Furry, Animal, AnyRef, Any
+  </td>
+</tr>
+</table>
+
+
+</div>
+
+
+<h3>12.7 To trait or not to trait?</h3>
+
+
+<p>Whenever you implement a reusable collection of behavior, you will
+have to decide whether you want to use a trait or an abstract class.
+There is no firm rule, but this section contains a few guidelines to consider.</p>
+
+<p><em>If the behavior will not be reused</em>, then make it a
+concrete class.  It is not reusable behavior after all.</p>
+
+<p><em>If it might be reused in multiple, unrelated classes</em>, make
+it a trait.  Only traits can be mixed into different parts of the
+class hierarchy.</p>
+
+<p><em>If you want to inherit from it in Java code</em>, use an abstract class.
+Since traits with code do not have a close Java analog, it tends to be
+awkward to inherit from a trait in a Java class.  Inheriting from a Scala class,
+meanwhile, is exactly like inheriting from a Java class.  As one exception,
+a Scala trait with only abstract members translates directly to a Java interface,
+so you should feel free to define such traits even if you expect Java
+code to inherit from it.  See <a href="combining-scala-and-java.html">Chapter 31</a>
+for more information on working with Java and Scala together.</p>
+
+<p><em>If you plan to distribute it in compiled form</em>, and you
+expect outside groups to write classes inheriting from it,
+you might lean towards using an abstract class.  The issue is that
+when a trait gains or loses a member, any classes that inherit from
+it must be recompiled, even if they have not changed.  If outside
+clients will only call into the behavior, instead of inheriting
+from it, then using a trait is fine.</p>
+
+<p><em>If you still do not know</em>, after considering the above, then
+start by making it as a trait.  You can always change it later, and
+in general using a trait keeps more options open.</p>
+
+<h3>12.8 Conclusion</h3>
+
+
+<p>This chapter has shown you how traits work and how to use them in
+several common idioms.  You saw that traits are similar to
+multiple inheritance. But because traits interpret <span class="code">super</span> using
+linearization, they both avoid some of the difficulties of traditional multiple
+inheritance and allow you to stack behaviors.  You also saw the <span class="code">Ordered</span> trait and learned how to write your own enrichment traits.</p>
+
+<p>Now that you have seen all of these facets, it is worth stepping back
+and taking another look at traits as a whole.  Traits do not merely
+support the idioms described in this chapter; they are a fundamental
+unit of code that is reusable through inheritance. As such, many experienced Scala programmers start with traits when they
+are at the early stages of implementation.  Each trait can hold less
+than an entire concept, a mere fragment of a concept.  As the design
+solidifies, the fragments can be combined into more complete concepts
+through trait mixin.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 12:</h4>
+
+
+<p><a id="footnotemain12-1"/>[1] This example is based on the <span class="code">Rational</span> class shown in <a href="functional-objects.html#lst-overloaded-methods">Listing 6.5</a>  <a href="functional-objects.html#lst-overloaded-methods">here</a>, with <span class="code">equals</span>, <span class="code">hashCode</span>, and modifications to ensure a positive <span class="code">denom</span> added.</p>
+
+<p><a id="footnotemain12-2"/>[2] Once a trait is mixed into a class, you can alternatively call it a <em>mixin</em>.</p>
+
+<p><a id="footnotemain12-3"/>[3] Rumbaugh, <i>et. al.</i>, <em>The Unified Modeling
+Language Reference Manual</em>.  <a href="bibliography.html#rumbaugh-uml">[Rum04]</a><a id="i-1488083405-1"/><a id="i-1072078781-1"/></p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

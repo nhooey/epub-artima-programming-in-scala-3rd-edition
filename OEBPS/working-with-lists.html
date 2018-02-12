@@ -1,0 +1,1890 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-working-with-lists">Chapter 16</a></h2>
+<h1>Working with Lists</h1>
+
+
+<p>Lists are probably the most commonly used data structure in Scala
+programs<a id="i102982549-2"/>.  This chapter explains lists in detail. We will present many
+common operations that can be performed on lists. We'll also cover some
+important design principles for programs working on lists.</p>
+
+<h3>16.1 List literals</h3>
+
+
+<p>You saw lists already in the preceding chapters, so you know that
+a list containing the elements <span class="code">'a'</span>, <span class="code">'b'</span>, and <span class="code">'c'</span> is written
+<span class="code">List('a',</span>&nbsp;<span class="code">'b',</span>&nbsp;<span class="code">'c')</span>.<a id="i-2038506824-1"/> Here are some other examples:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;fruit&nbsp;=&nbsp;<code class="typename">List</code>(<code class="quotedstring">"apples"</code>,&nbsp;<code class="quotedstring">"oranges"</code>,&nbsp;<code class="quotedstring">"pears"</code>)
+  <code class="vem">val</code>&nbsp;nums&nbsp;=&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>,&nbsp;<code class="literal">4</code>)
+  <code class="vem">val</code>&nbsp;diag3&nbsp;=
+  &nbsp;&nbsp;<code class="typename">List</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">0</code>,&nbsp;<code class="literal">0</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">List</code>(<code class="literal">0</code>,&nbsp;<code class="literal">1</code>,&nbsp;<code class="literal">0</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">List</code>(<code class="literal">0</code>,&nbsp;<code class="literal">0</code>,&nbsp;<code class="literal">1</code>)
+  &nbsp;&nbsp;)
+  <code class="vem">val</code>&nbsp;empty&nbsp;=&nbsp;<code class="typename">List</code>()
+</pre>
+
+
+<p>Lists are quite similar to arrays, but there
+are two important differences. First, lists are immutable. That
+is, elements of a list cannot be changed by assignment. Second, 
+lists have a recursive structure (<i>i.e.</i>, a <em>linked
+list</em><a id="i594306766-1"/>),<a href="working-with-lists.html#footnotemain16-1">[1]</a>
+whereas arrays are flat.</p>
+
+<h3>16.2 The <span class="code">List</span> type</h3>
+
+
+<p>Like arrays, lists are <span style="font-style:italic">homogeneous</span>: the elements of a
+list all have the same type.  The type of a list that has elements of type
+<span class="code">T</span> is written <span class="code">List[T]</span>. For instance, here are the same four lists
+with explicit types added:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;fruit:&nbsp;<code class="typename">List[String]</code>&nbsp;=&nbsp;<code class="typename">List</code>(<code class="quotedstring">"apples"</code>,&nbsp;<code class="quotedstring">"oranges"</code>,&nbsp;<code class="quotedstring">"pears"</code>)
+  <code class="vem">val</code>&nbsp;nums:&nbsp;<code class="typename">List[Int]</code>&nbsp;=&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>,&nbsp;<code class="literal">4</code>)
+  <code class="vem">val</code>&nbsp;diag3:&nbsp;<code class="typename">List[List[Int]]</code>&nbsp;=
+  &nbsp;&nbsp;<code class="typename">List</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">0</code>,&nbsp;<code class="literal">0</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">List</code>(<code class="literal">0</code>,&nbsp;<code class="literal">1</code>,&nbsp;<code class="literal">0</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">List</code>(<code class="literal">0</code>,&nbsp;<code class="literal">0</code>,&nbsp;<code class="literal">1</code>)
+  &nbsp;&nbsp;)
+  <code class="vem">val</code>&nbsp;empty:&nbsp;<code class="typename">List[Nothing]</code>&nbsp;=&nbsp;<code class="typename">List</code>()
+</pre>
+
+
+<p>The list type in Scala is <span style="font-style:italic">covariant</span><a id="i-1469695991-1"/>. This means 
+that for each pair of types <span class="code">S</span> and <span class="code">T</span>, if <span class="code">S</span> is a subtype of <span class="code">T</span>, then
+<span class="code">List[S]</span> is a subtype of <span class="code">List[T]</span>. For instance, <span class="code">List[String]</span> 
+is a subtype of <span class="code">List[Object]</span>. This is natural because every list of 
+strings can also be seen as a list of
+objects.<a href="working-with-lists.html#footnotemain16-2">[2]</a></p>
+
+<p>Note that the empty list has type
+<span class="code">List[Nothing]</span>.<a id="i-727376847-1"/> You saw in <a href="scalas-hierarchy.html#sec-bottom-types">Section 11.3</a>
+that <span class="code">Nothing</span> is the bottom type in Scala's class hierarchy. It
+is a subtype of every other Scala type.
+Because lists are covariant, it follows that <span class="code">List[Nothing]</span> is a subtype of <span class="code">List[T]</span> for any type <span class="code">T</span>. So the empty list object, which has type <span class="code">List[Nothing]</span>,
+can also be seen as an object of every other list type of the form  <span class="code">List[T]</span>. 
+That's why it is permissible to write code like:</p>
+
+<pre>
+  <code class="comment">//&nbsp;List()&nbsp;is&nbsp;also&nbsp;of&nbsp;type&nbsp;List[String]!</code>
+  <code class="vem">val</code>&nbsp;xs:&nbsp;<code class="typename">List[String]</code>&nbsp;=&nbsp;<code class="typename">List</code>()&nbsp;&nbsp;
+</pre>
+
+
+<h3>16.3 Constructing lists</h3>
+
+
+<p>All lists are built from two fundamental building blocks, <span class="code">Nil</span><a id="i1899558990-2"/>
+and <span class="code">:: </span>(pronounced "cons").<a id="i1411857630-2"/><a id="i1674095775-2"/> <span class="code">Nil</span> represents the empty
+list. The infix operator, <span class="code">::</span>, expresses list extension at the front. That is,
+<span class="code">x</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">xs</span> represents a list whose first element is <span class="code">x</span>, followed by (the elements of) list <span class="code">xs</span>.  Hence, the previous
+list values could also have been defined as follows:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;fruit&nbsp;=&nbsp;<code class="quotedstring">"apples"</code>&nbsp;::&nbsp;(<code class="quotedstring">"oranges"</code>&nbsp;::&nbsp;(<code class="quotedstring">"pears"</code>&nbsp;::&nbsp;<code class="typename">Nil</code>))
+  <code class="vem">val</code>&nbsp;nums&nbsp;&nbsp;=&nbsp;<code class="literal">1</code>&nbsp;::&nbsp;(<code class="literal">2</code>&nbsp;::&nbsp;(<code class="literal">3</code>&nbsp;::&nbsp;(<code class="literal">4</code>&nbsp;::&nbsp;<code class="typename">Nil</code>)))
+  <code class="vem">val</code>&nbsp;diag3&nbsp;=&nbsp;(<code class="literal">1</code>&nbsp;::&nbsp;(<code class="literal">0</code>&nbsp;::&nbsp;(<code class="literal">0</code>&nbsp;::&nbsp;<code class="typename">Nil</code>)))&nbsp;::
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<code class="literal">0</code>&nbsp;::&nbsp;(<code class="literal">1</code>&nbsp;::&nbsp;(<code class="literal">0</code>&nbsp;::&nbsp;<code class="typename">Nil</code>)))&nbsp;::
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<code class="literal">0</code>&nbsp;::&nbsp;(<code class="literal">0</code>&nbsp;::&nbsp;(<code class="literal">1</code>&nbsp;::&nbsp;<code class="typename">Nil</code>)))&nbsp;::&nbsp;<code class="typename">Nil</code>
+  <code class="vem">val</code>&nbsp;empty&nbsp;=&nbsp;<code class="typename">Nil</code>
+</pre>
+
+
+<p>In fact the previous definitions of <span class="code">fruit</span>, <span class="code">nums</span>, <span class="code">diag3</span>, and <span class="code">empty</span> 
+in terms of <span class="code">List(...)</span> are just wrappers that expand to these definitions.
+For instance, <span class="code">List(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3)</span> creates the list 
+<span class="code">1</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">(2</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">(3</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">Nil))</span>.</p>
+
+<p>Because it ends in a colon, the <span class="code">:: </span>operation associates to the right: <span class="code">A</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">B</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">C</span> is
+interpreted as <span class="code">A</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">(B</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">C)</span>.<a id="i-1491182453-2"/><a id="i620923488-2"/>  Therefore, you can drop the
+parentheses in the previous definitions. For instance:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;nums&nbsp;=&nbsp;<code class="literal">1</code>&nbsp;::&nbsp;<code class="literal">2</code>&nbsp;::&nbsp;<code class="literal">3</code>&nbsp;::&nbsp;<code class="literal">4</code>&nbsp;::&nbsp;<code class="typename">Nil</code>
+</pre>
+
+
+<p>is equivalent to the previous definition of <span class="code">nums</span>.</p>
+
+<h3>16.4 Basic operations on lists</h3>
+
+
+<p>All operations on lists can be expressed in terms of the following
+three:<a id="i-735890706-2"/><a id="i849842526-2"/><a id="i1657074897-2"/><a id="i-1093268841-2"/><a id="i1464399372-2"/><a id="i1464753276-2"/></p>
+
+<table style="border-collapse: collapse">
+<tr>
+  <td>
+    <span class="code">head</span>
+  </td>
+  <td>
+    returns the first element of a list
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">tail</span>
+  </td>
+  <td>
+    returns a list consisting of all elements except the first
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">isEmpty</span>
+  </td>
+  <td>
+    returns <span class="code">true</span> if the list is empty
+  </td>
+</tr>
+</table>
+
+
+<p>These operations are defined as methods of class <span class="code">List</span>.
+Some examples are shown in <a href="working-with-lists.html#tab-lists-basics">Table 16.1</a>. The <span class="code">head</span> and <span class="code">tail</span> methods are defined only for non-empty
+lists.  When selected from an empty list, they throw an exception:</p>
+
+<pre>
+  scala&gt;&nbsp;Nil.head
+  <code class="output">java.util.NoSuchElementException:&nbsp;head&nbsp;of&nbsp;empty&nbsp;list</code>
+</pre>
+
+
+<p>As an example of how lists can be processed, consider sorting the
+elements of a list of numbers into ascending order. One simple way to
+do so is <span style="font-style:italic">insertion sort</span>,<a id="i132601811-1"/><a id="i-1814033297-1"/> which works as follows: To sort a
+non-empty list <span class="code">x</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">xs</span>, sort
+the remainder <span class="code">xs</span> and insert the first element <span class="code">x</span> at the right
+position in the result. Sorting an empty list yields the
+empty list. Expressed as Scala code, the insertion sort algorithm looks like:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;isort(xs:&nbsp;<code class="typename">List[Int]</code>):&nbsp;<code class="typename">List[Int]</code>&nbsp;=
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(xs.isEmpty)&nbsp;<code class="typename">Nil</code>
+  &nbsp;&nbsp;<code class="vem">else</code>&nbsp;insert(xs.head,&nbsp;isort(xs.tail))
+  <br />  <code class="vem">def</code>&nbsp;insert(x:&nbsp;<code class="typename">Int</code>,&nbsp;xs:&nbsp;<code class="typename">List[Int]</code>):&nbsp;<code class="typename">List[Int]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(xs.isEmpty&nbsp;||&nbsp;x&nbsp;&lt;=&nbsp;xs.head)&nbsp;x&nbsp;::&nbsp;xs
+  &nbsp;&nbsp;<code class="vem">else</code>&nbsp;xs.head&nbsp;::&nbsp;insert(x,&nbsp;xs.tail)
+</pre>
+
+
+<p><a id="tab-lists-basics"/></p>
+
+<h5>Table 16.1 - Basic list operations</h5>
+
+
+<div style="text-align: center">
+
+
+<table style="border-collapse: collapse">
+<tr class="topline ">
+  <td>
+    <span style="font-size:medium"><span style="font-weight:bold">What it is</span></span>
+  </td>
+  <td>
+    <span style="font-size:medium"><span style="font-weight:bold">What it does</span></span>
+  </td>
+</tr>
+<tr class="topline ">
+  <td>
+    <span class="code">empty.isEmpty</span>
+  </td>
+  <td>
+    returns <span class="code">true</span>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">fruit.isEmpty</span>
+  </td>
+  <td>
+    returns <span class="code">false</span>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">fruit.head</span>
+  </td>
+  <td>
+    returns <span class="code">"apples"</span>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">fruit.tail.head</span>
+  </td>
+  <td>
+    returns <span class="code">"oranges"</span>
+  </td>
+</tr>
+<tr class="bottomline">
+  <td>
+    <span class="code">diag3.head</span>
+  </td>
+  <td>
+    returns <span class="code">List(1,</span>&nbsp;<span class="code">0,</span>&nbsp;<span class="code">0)</span>
+  </td>
+</tr>
+</table>
+
+
+</div>
+
+
+<h3 id="sec-list-patterns">16.5 List patterns</h3>
+
+
+<p>Lists can also be taken apart using pattern matching<a id="i1817770109-1"/>. List patterns
+correspond one-by-one to list expressions. You can either match on all
+elements of a list using a pattern of the form <span class="code">List(...)</span>, or you 
+take lists apart bit by bit using patterns composed from the
+<span class="code">::</span> operator and the <span class="code">Nil</span> constant.</p>
+
+<p>Here's an example of the first kind of pattern:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">List</code>(a,&nbsp;b,&nbsp;c)&nbsp;=&nbsp;fruit
+  <code class="output">a:&nbsp;String&nbsp;=&nbsp;apples</code>
+  <code class="output">b:&nbsp;String&nbsp;=&nbsp;oranges</code>
+  <code class="output">c:&nbsp;String&nbsp;=&nbsp;pears</code>
+</pre>
+
+
+<p>The pattern <span class="code">List(a,</span>&nbsp;<span class="code">b,</span>&nbsp;<span class="code">c)</span> matches lists of length 3, and binds the three elements
+to the pattern variables <span class="code">a</span>, <span class="code">b</span>, and <span class="code">c</span>. 
+If you don't know the number of list elements beforehand, it's better to match with 
+<span class="code">::</span> instead. For instance, the pattern <span class="code">a</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">b</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">rest</span>
+matches lists of length 2 or greater:</p>
+
+<div class="aside">
+<h3>About pattern matching on <span class="code">List</span>s</h3>
+
+
+<p>If you review the possible forms of patterns explained in 
+<a href="case-classes-and-pattern-matching.html">Chapter 15</a>, you might find that neither <span class="code">List(...)</span> nor
+<span class="code">::</span> look like it fits the kinds of patterns defined there.
+In fact, <span class="code">List(...)</span> is an instance of a library-defined
+<em>extractor</em> pattern<a id="i-1414877783-1"/>.
+Such patterns will be discussed in <a href="extractors.html">Chapter 26</a>.
+The "cons" pattern  <span class="code">x</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">xs</span> is a special case of an infix operation pattern.
+As an expression, an infix operation is equivalent to a method call.
+For patterns, the rules are different: As a pattern, an infix operation
+such as <span class="code">p</span>&nbsp;<span class="code">op</span>&nbsp;<span class="code">q</span> is equivalent to <span class="code">op(p,</span>&nbsp;<span class="code">q)</span>. That is, the infix operator
+<span class="code">op</span> is treated as a constructor pattern. In particular, a cons pattern such as <span class="code">x</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">xs</span> is
+treated as <span class="code">::(x,</span>&nbsp;<span class="code">xs)</span>.</p>
+
+<p>This hints that there should be a class named <span class="code">::</span> that 
+corresponds to the pattern constructor. Indeed, there is such a class&mdash;it is named
+<span class="code">scala.::</span> and is exactly the class that builds non-empty lists. So <span class="code">::</span> exists twice
+in Scala, once as a name of a class in package <span class="code">scala</span> and again
+as a method in class <span class="code">List</span>. The effect of the method <span class="code">::</span> is to produce an 
+instance of the class <span class="code">scala.::</span>. You'll find out more details about how the List class
+is implemented in <a href="implementing-lists.html">Chapter 22</a>.</p>
+
+</div>
+
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;a&nbsp;::&nbsp;b&nbsp;::&nbsp;rest&nbsp;=&nbsp;fruit
+  <code class="output">a:&nbsp;String&nbsp;=&nbsp;apples</code>
+  <code class="output">b:&nbsp;String&nbsp;=&nbsp;oranges</code>
+  <code class="output">rest:&nbsp;List[String]&nbsp;=&nbsp;List(pears)</code>
+</pre>
+
+
+<p>Taking<a id="i-986649610-1"/> lists apart with patterns is an alternative to taking them apart with
+the basic methods <span class="code">head</span>, <span class="code">tail</span>, and <span class="code">isEmpty</span>. For instance, here's insertion sort<a id="i132601811-2"/><a id="i-1814033297-2"/> again, 
+this time written with pattern matching:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;isort(xs:&nbsp;<code class="typename">List[Int]</code>):&nbsp;<code class="typename">List[Int]</code>&nbsp;=&nbsp;xs&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>()&nbsp;&nbsp;&nbsp;=&gt;&nbsp;<code class="typename">List</code>()
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;x&nbsp;::&nbsp;xs1&nbsp;=&gt;&nbsp;insert(x,&nbsp;isort(xs1))
+  }
+  <br />  <code class="vem">def</code>&nbsp;insert(x:&nbsp;<code class="typename">Int</code>,&nbsp;xs:&nbsp;<code class="typename">List[Int]</code>):&nbsp;<code class="typename">List[Int]</code>&nbsp;=&nbsp;xs&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>()&nbsp;&nbsp;=&gt;&nbsp;<code class="typename">List</code>(x)
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;y&nbsp;::&nbsp;ys&nbsp;=&gt;&nbsp;<code class="vem">if</code>&nbsp;(x&nbsp;&lt;=&nbsp;y)&nbsp;x&nbsp;::&nbsp;xs&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;y&nbsp;::&nbsp;insert(x,&nbsp;ys)
+  }
+</pre>
+
+
+<p>Often, pattern matching over lists is clearer than decomposing them with methods,
+so pattern matching should be a part of your list processing toolbox.</p>
+
+<p>This is all you need to know about lists in Scala to use
+them correctly. However, there are also a large number of methods
+that capture common patterns of operations over lists. 
+These methods make list processing programs more concise
+and often clearer. The next two sections present the most
+important methods defined in the <span class="code">List</span> class.</p>
+
+<h3 id="sec-first-order-methods-on-class-list">16.6 First-order methods on class <span class="code">List</span></h3>
+
+
+<p>This section explains most first-order methods defined in the <span class="code">List</span><a id="i-570225502-1"/><a id="i254621440-1"/>
+class. A method is <em>first-order</em> if it does not take any functions as
+arguments<a id="i-461147607-1"/>. We will also introduce some
+recommended techniques to structure programs that operate on lists by using two examples.</p>
+
+<h4>Concatenating two lists</h4>
+
+
+<p>An operation similar to <span class="code">::</span> is list concatenation, written<a id="i-1839436249-2"/>
+`<span class="code">:::</span>'. Unlike <span class="code">::</span>, <span class="code">:::</span> takes two lists as
+operands<a id="i55390901-2"/><a id="i-1436258358-1"/>.
+The result of <span class="code">xs</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">ys</span> is a new list that contains all the elements
+of <span class="code">xs</span>, followed by all the elements of <span class="code">ys</span>.</p>
+
+<p>Here are some examples:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)&nbsp;:::&nbsp;<code class="typename">List</code>(<code class="literal">3</code>,&nbsp;<code class="literal">4</code>,&nbsp;<code class="literal">5</code>)
+  <code class="output">res0:&nbsp;List[Int]&nbsp;=&nbsp;List(1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5)</code>
+  <br />  scala&gt;&nbsp;<code class="typename">List</code>()&nbsp;:::&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)
+  <code class="output">res1:&nbsp;List[Int]&nbsp;=&nbsp;List(1,&nbsp;2,&nbsp;3)</code>
+  <br />  scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)&nbsp;:::&nbsp;<code class="typename">List</code>(<code class="literal">4</code>)
+  <code class="output">res2:&nbsp;List[Int]&nbsp;=&nbsp;List(1,&nbsp;2,&nbsp;3,&nbsp;4)</code>
+</pre>
+
+
+<p>Like cons, list concatenation associates to the right. An expression like this:</p>
+
+<pre>
+  xs&nbsp;:::&nbsp;ys&nbsp;:::&nbsp;zs
+</pre>
+
+
+<p>is interpreted like this:</p>
+
+<pre>
+  xs&nbsp;:::&nbsp;(ys&nbsp;:::&nbsp;zs)
+</pre>
+
+
+<h4>The Divide and Conquer principle</h4>
+
+
+<p>Concatenation (<span class="code">:::</span>) is implemented as a method in class <span class="code">List</span>.  It<a id="i673902975-1"/><a id="i1224006146-1"/>
+would also be possible to implement concatenation "by hand," using
+pattern matching on lists. It's instructive to try to do that
+yourself, because it shows a common way to implement algorithms using lists. First, we'll settle on a signature for the concatenation
+method, which we'll call <span class="code">append</span>.  In order not to mix things up too much, assume that
+<span class="code">append</span> is defined outside the <span class="code">List</span> class, so it will take the two
+lists to be concatenated as parameters. These two lists 
+must agree on their element type,
+but that element type can be arbitrary. This can be expressed by giving
+<span class="code">append</span> a type parameter<a href="working-with-lists.html#footnotemain16-3">[3]</a><a id="i-940554758-1"/> that represents the element type of the
+two input lists:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;append[T](xs:&nbsp;<code class="typename">List[T]</code>,&nbsp;ys:&nbsp;<code class="typename">List[T]</code>):&nbsp;<code class="typename">List[T]</code>
+</pre>
+
+
+<p>To design the implementation of <span class="code">append</span>, it pays to remember the
+"divide and conquer" design principle for programs over recursive
+data structures such as lists. Many algorithms over lists first split
+an input list into simpler cases using a pattern match. That's the
+<span style="font-style:italic">divide</span> part of the principle.  They then construct a result for
+each case. If the result is a non-empty list, some of its parts may be
+constructed by recursive invocations of the same algorithm.  That's the
+<span style="font-style:italic">conquer</span> part of the principle.</p>
+
+<p>To apply this principle to the implementation of the <span class="code">append</span> method,
+the first question to ask is on which list to
+match. This is less trivial in the case of <span class="code">append</span> 
+than for many other methods because there
+are two choices. However, the subsequent "conquer" phase tells you
+that you need to construct a list consisting of all elements of both
+input lists. Since lists are constructed from the back towards the front, <span class="code">ys</span> can
+remain intact, whereas <span class="code">xs</span> will need to be taken apart and prepended to <span class="code">ys</span>. Thus, it makes sense to concentrate on
+<span class="code">xs</span> as a source for a pattern match.  The most common pattern
+match over lists simply distinguishes an empty from a non-empty
+list. So this gives the following outline of an <span class="code">append</span> method:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;append[T](xs:&nbsp;<code class="typename">List[T]</code>,&nbsp;ys:&nbsp;<code class="typename">List[T]</code>):&nbsp;<code class="typename">List[T]</code>&nbsp;=
+  &nbsp;&nbsp;xs&nbsp;<code class="vem">match</code>&nbsp;{&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>()&nbsp;=&gt;&nbsp;???
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;x&nbsp;::&nbsp;xs1&nbsp;=&gt;&nbsp;???
+  &nbsp;&nbsp;}
+</pre>
+
+
+<p>All that remains is to fill in the two places marked with <span class="code">???</span>.<a href="working-with-lists.html#footnotemain16-4">[4]</a><a id="i883954855-1"/><a id="i1008284442-1"/>
+The first such place is the alternative where the input list <span class="code">xs</span> is empty.
+In this case concatenation yields the second list:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="typename">List</code>()&nbsp;=&gt;&nbsp;ys
+</pre>
+
+
+<p>The second place left open is the alternative where the input list <span class="code">xs</span>
+consists of some head <span class="code">x</span> followed by a tail <span class="code">xs1</span>. In this
+case the result is also a non-empty list. To construct a non-empty list
+you need to know what the head and the tail of that list should be.
+You know that the first element of the result list is <span class="code">x</span>.
+As for the remaining elements, these can be computed by appending
+the second list, <span class="code">ys</span>, to the rest of the first list, <span class="code">xs1</span>.</p>
+
+<p>This completes the design and gives:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;append[T](xs:&nbsp;<code class="typename">List[T]</code>,&nbsp;ys:&nbsp;<code class="typename">List[T]</code>):&nbsp;<code class="typename">List[T]</code>&nbsp;=
+  &nbsp;&nbsp;xs&nbsp;<code class="vem">match</code>&nbsp;{&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>()&nbsp;=&gt;&nbsp;ys
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;x&nbsp;::&nbsp;xs1&nbsp;=&gt;&nbsp;x&nbsp;::&nbsp;append(xs1,&nbsp;ys)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<p>The computation of the second alternative illustrated the "conquer" part of the 
+divide and conquer principle: 
+Think first what the shape of the desired output should be,
+then compute the individual parts of that shape, using recursive invocations
+of the algorithm where appropriate. Finally, construct the output
+from these parts.</p>
+
+<h4>Taking the length of a list: <span class="code">length</span></h4>
+
+
+<p>The <span class="code">length</span> method computes the length of a list.<a id="i1353349876-2"/><a id="i-1852559773-2"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>).length
+  <code class="output">res3:&nbsp;Int&nbsp;=&nbsp;3</code>
+</pre>
+
+
+<p>On lists, unlike arrays, <span class="code">length</span> is a relatively expensive operation.
+It needs to traverse the whole list to find its end, and therefore takes time proportional to the number of elements in the list.
+That's why it's not a good idea to replace a test such as 
+<span class="code">xs.isEmpty</span> by <span class="code">xs.length</span>&nbsp;<span class="code">==</span>&nbsp;<span class="code">0</span>. The result of the two tests is equivalent, but
+the second one is slower, in particular if the list <span class="code">xs</span> is long.</p>
+
+<h4>Accessing the end of a list: <span class="code">init</span> and <span class="code">last</span></h4>
+
+
+<p>You know already the basic operations <span class="code">head</span> and <span class="code">tail</span>, which
+respectively take the first element of a list, and the rest of the
+list except the first element. They each have a dual operation:<a id="i-1293540834-2"/><a id="i1464438076-2"/><a id="i1113811620-2"/><a id="i1464515266-2"/>
+<span class="code">last</span> returns the last element of a (non-empty) list, whereas
+<span class="code">init</span> returns a list consisting of all elements except the last one:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;abcde&nbsp;=&nbsp;<code class="typename">List</code>(<code class="quotedstring">'a'</code>,&nbsp;<code class="quotedstring">'b'</code>,&nbsp;<code class="quotedstring">'c'</code>,&nbsp;<code class="quotedstring">'d'</code>,&nbsp;<code class="quotedstring">'e'</code>)
+  <code class="output">abcde:&nbsp;List[Char]&nbsp;=&nbsp;List(a,&nbsp;b,&nbsp;c,&nbsp;d,&nbsp;e)</code>
+  <br />  scala&gt;&nbsp;abcde.last
+  <code class="output">res4:&nbsp;Char&nbsp;=&nbsp;e</code>
+  <br />  scala&gt;&nbsp;abcde.init
+  <code class="output">res5:&nbsp;List[Char]&nbsp;=&nbsp;List(a,&nbsp;b,&nbsp;c,&nbsp;d)</code>
+</pre>
+
+
+<p>Like <span class="code">head</span> and <span class="code">tail</span>, these methods throw an exception when 
+applied to an empty list:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">List</code>().init
+  <code class="output">java.lang.UnsupportedOperationException:&nbsp;Nil.init</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;scala.List.init(List.scala:544)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;...</code>
+  <br />  scala&gt;&nbsp;<code class="typename">List</code>().last
+  <code class="output">java.util.NoSuchElementException:&nbsp;Nil.last</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;scala.List.last(List.scala:563)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at&nbsp;...</code>
+</pre>
+
+
+<p>Unlike <span class="code">head</span> and <span class="code">tail</span>, which both run in constant time, <span class="code">init</span> and <span class="code">last</span> 
+need to traverse the whole list to compute their result. As a result, they take time proportional to the length of the list.</p>
+
+<div class="callout">
+
+
+<p><br />
+It's a good idea to organize your data so that
+most accesses are at the head of a list, rather than the last element.
+<br /></p>
+
+</div>
+
+
+<h4>Reversing lists: <span class="code">reverse</span></h4>
+
+
+<p>If at some point in the computation an algorithm demands frequent
+accesses to the end of a list, it's sometimes better to reverse the
+list first and work with the result instead. Here's how to do the reversal:<a id="i1817641200-2"/><a id="i-2051462346-2"/></p>
+
+<pre>
+  scala&gt;&nbsp;abcde.reverse&nbsp;
+  <code class="output">res6:&nbsp;List[Char]&nbsp;=&nbsp;List(e,&nbsp;d,&nbsp;c,&nbsp;b,&nbsp;a)</code>
+</pre>
+
+
+<p>Like all other list operations, <span class="code">reverse</span> creates a new
+list rather than changing the one it operates on.  Since lists are
+immutable, such a change would not be possible anyway.  To verify
+this, check that the original value of <span class="code">abcde</span> is unchanged after the
+<span class="code">reverse</span> operation:</p>
+
+<pre>
+  scala&gt;&nbsp;abcde
+  <code class="output">res7:&nbsp;List[Char]&nbsp;=&nbsp;List(a,&nbsp;b,&nbsp;c,&nbsp;d,&nbsp;e)</code>
+</pre>
+
+
+<p>The <span class="code">reverse</span>, <span class="code">init</span>, and <span class="code">last</span> operations satisfy some 
+laws that can be used for reasoning about computations and for
+simplifying programs.</p>
+
+<ol>
+
+
+<li><span class="code">reverse</span> is its own inverse:
+
+
+<pre>
+  xs.reverse.reverse&nbsp;&nbsp;<code class="rm"><em>equals</em></code>&nbsp;&nbsp;xs
+</pre>
+
+
+</li>
+<li><span class="code">reverse</span> turns <span class="code">init</span> to <span class="code">tail</span> and <span class="code">last</span> to <span class="code">head</span>,
+  except that the elements are reversed:
+
+
+<pre>
+  xs.reverse.init&nbsp;&nbsp;<code class="rm"><em>equals</em></code>&nbsp;&nbsp;xs.tail.reverse
+  xs.reverse.tail&nbsp;&nbsp;<code class="rm"><em>equals</em></code>&nbsp;&nbsp;xs.init.reverse
+  xs.reverse.head&nbsp;&nbsp;<code class="rm"><em>equals</em></code>&nbsp;&nbsp;xs.last
+  xs.reverse.last&nbsp;&nbsp;<code class="rm"><em>equals</em></code>&nbsp;&nbsp;xs.head
+</pre>
+
+
+</li></ol>
+
+
+<p>Reverse could be implemented using concatenation (<span class="code">:::</span>), 
+like in the following method, <span class="code">rev</span>:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;rev[T](xs:&nbsp;<code class="typename">List[T]</code>):&nbsp;<code class="typename">List[T]</code>&nbsp;=&nbsp;xs&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>()&nbsp;=&gt;&nbsp;xs
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;x&nbsp;::&nbsp;xs1&nbsp;=&gt;&nbsp;rev(xs1)&nbsp;:::&nbsp;<code class="typename">List</code>(x)
+  }
+</pre>
+
+
+<p>However, this method is less efficient than one would hope for.  To
+study the complexity of <span class="code">rev</span>, assume that the list <span class="code">xs</span> has length
+<span class="code">n</span>.  Notice that there are <span class="code">n</span> recursive calls to <span class="code">rev</span>. Each
+call except the last involves a list concatenation. List concatenation
+<span class="code">xs</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">ys</span> takes time proportional to the length of its first
+argument <span class="code">xs</span>. Hence, the total complexity of <span class="code">rev</span> is:</p>
+
+<div style="text-align: center">
+
+
+<p><i>n</i> + (<i>n</i> - 1) + ... + 1 = (1 + <i>n</i>) * <i>n</i> / 2</p>
+
+</div>
+
+
+<p>In other words, <span class="code">rev</span>'s complexity is quadratic in the length of its input
+argument.  This is disappointing when compared to the standard
+reversal of a mutable, linked list, which has linear
+complexity. However, the current implementation of <span class="code">rev</span> is not the
+best implementation possible. In the example starting  <a href="working-with-lists.html#sec-fastrev">here</a>, you will see how to speed it up.</p>
+
+<h4>Prefixes and suffixes: <span class="code">drop</span>, <span class="code">take</span>, and <span class="code">splitAt</span></h4>
+
+
+<p>The <span class="code">drop</span> and <span class="code">take</span> operations<a id="i-1134266499-1"/><a id="i1464293147-2"/><a id="i425822536-1"/><a id="i-1852559773-3"/><a id="i1464753331-1"/><a id="i-567585630-1"/><a id="i-858153663-1"/> generalize <span class="code">tail</span> and <span class="code">init</span> in that they
+return arbitrary prefixes or suffixes of a list.
+The expression "<span class="code">xs</span>&nbsp;<span class="code">take</span>&nbsp;<span class="code">n</span>" returns the 
+first <span class="code">n</span> elements of the list <span class="code">xs</span>.
+If <span class="code">n</span> is greater than <span class="code">xs.length</span>, the whole list <span class="code">xs</span> is returned.
+The operation "<span class="code">xs</span>&nbsp;<span class="code">drop</span>&nbsp;<span class="code">n</span>" returns all elements of the list <span class="code">xs</span>, 
+except for the first <span class="code">n</span> ones. 
+If <span class="code">n</span> is greater than <span class="code">xs.length</span>, the empty list is returned.</p>
+
+<p>The <span class="code">splitAt</span> operation splits the list at a given index, returning
+a pair of two lists.<a href="working-with-lists.html#footnotemain16-5">[5]</a>
+It is defined by the equality:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">xs</span>&nbsp;<span class="code">splitAt</span>&nbsp;<span class="code">n</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">(xs</span>&nbsp;<span class="code">take</span>&nbsp;<span class="code">n,</span>&nbsp;<span class="code">xs</span>&nbsp;<span class="code">drop</span>&nbsp;<span class="code">n)</span></p>
+
+</div>
+
+
+<p>However, <span class="code">splitAt</span> avoids traversing the list <span class="code">xs</span> twice.
+Here are some examples of these three methods:</p>
+
+<pre>
+  scala&gt;&nbsp;abcde&nbsp;take&nbsp;<code class="literal">2</code>
+  <code class="output">res8:&nbsp;List[Char]&nbsp;=&nbsp;List(a,&nbsp;b)</code>
+  <br />  scala&gt;&nbsp;abcde&nbsp;drop&nbsp;<code class="literal">2</code>
+  <code class="output">res9:&nbsp;List[Char]&nbsp;=&nbsp;List(c,&nbsp;d,&nbsp;e)</code>
+  <br />  scala&gt;&nbsp;abcde&nbsp;splitAt&nbsp;<code class="literal">2</code>
+  <code class="output">res10:&nbsp;(List[Char],&nbsp;List[Char])&nbsp;=&nbsp;(List(a,&nbsp;b),List(c,&nbsp;d,&nbsp;e))</code>
+</pre>
+
+
+<h4>Element selection: <span class="code">apply</span> and <span class="code">indices</span></h4>
+
+
+<p>Random element selection is supported through the <span class="code">apply</span> method;<a id="i-1534184650-1"/><a id="i-1854381886-1"/> however
+it is a less common operation for lists than it
+is for arrays.</p>
+
+<pre>
+  scala&gt;&nbsp;abcde&nbsp;apply&nbsp;<code class="literal">2</code>&nbsp;<code class="comment">//&nbsp;rare&nbsp;in&nbsp;Scala</code>
+  <code class="output">res11:&nbsp;Char&nbsp;=&nbsp;c</code>
+</pre>
+
+
+<p>As for all other types, <span class="code">apply</span> is implicitly inserted
+when an object appears in the function position in a method call. So the line above can be shortened to:</p>
+
+<pre>
+  scala&gt;&nbsp;abcde(<code class="literal">2</code>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;rare&nbsp;in&nbsp;Scala</code>
+  <code class="output">res12:&nbsp;Char&nbsp;=&nbsp;c</code>
+</pre>
+
+
+<p>One reason why random element selection is less popular 
+for lists than for arrays is that <span class="code">xs(n)</span> takes time proportional
+to the index <span class="code">n</span>. In fact, <span class="code">apply</span> is simply 
+defined by a combination of <span class="code">drop</span> and <span class="code">head</span>:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">xs</span>&nbsp;<span class="code">apply</span>&nbsp;<span class="code">n</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">(xs</span>&nbsp;<span class="code">drop</span>&nbsp;<span class="code">n).head</span></p>
+
+</div>
+
+
+<p>This definition also makes clear that list indices range from
+0 up to the length of the list minus one, the same as for arrays. The <span class="code">indices</span> method<a id="i552445480-1"/><a id="i-1207917573-1"/>
+returns a list consisting of all valid indices of a given list:</p>
+
+<pre>
+  scala&gt;&nbsp;abcde.indices
+  <code class="output">res13:&nbsp;scala.collection.immutable.Range</code>
+  <code class="output">&nbsp;&nbsp;=&nbsp;Range(0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4)</code>
+</pre>
+
+
+<h4>Flattening a list of lists: <span class="code">flatten</span></h4>
+
+
+<p>The <span class="code">flatten</span> method takes a list of lists and flattens it out
+to a single list:<a id="i-2107840238-1"/><a id="i364853848-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">List</code>(<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>),&nbsp;<code class="typename">List</code>(<code class="literal">3</code>),&nbsp;<code class="typename">List</code>(),&nbsp;<code class="typename">List</code>(<code class="literal">4</code>,&nbsp;<code class="literal">5</code>)).flatten
+  <code class="output">res14:&nbsp;List[Int]&nbsp;=&nbsp;List(1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5)</code>
+  scala&gt;&nbsp;fruit.map(_.toCharArray).flatten
+  <code class="output">res15:&nbsp;List[Char]&nbsp;=&nbsp;List(a,&nbsp;p,&nbsp;p,&nbsp;l,&nbsp;e,&nbsp;s,&nbsp;o,&nbsp;r,&nbsp;a,&nbsp;n,&nbsp;g,&nbsp;e,&nbsp;</code>
+  <code class="output">s,&nbsp;p,&nbsp;e,&nbsp;a,&nbsp;r,&nbsp;s)</code>
+</pre>
+
+
+<p>It can only be applied to lists whose elements are all lists.
+Trying to flatten any other list will give a compilation error:<a id="i702621968-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>).flatten
+  <code class="output">&lt;console&gt;:8:&nbsp;error:&nbsp;No&nbsp;implicit&nbsp;view&nbsp;available&nbsp;from&nbsp;Int&nbsp;=&gt;&nbsp;</code>
+  <code class="output">scala.collection.GenTraversableOnce[B].</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;List(1,&nbsp;2,&nbsp;3).flatten</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<h4>Zipping lists: <span class="code">zip</span> and <span class="code">unzip</span></h4>
+
+
+<p>The <span class="code">zip</span> operation takes two lists and forms a list of pairs:<a id="i751157423-1"/><a id="i1986918773-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;abcde.indices&nbsp;zip&nbsp;abcde
+  <code class="output">res17:&nbsp;scala.collection.immutable.IndexedSeq[(Int,&nbsp;Char)]&nbsp;=&nbsp;</code>
+  <code class="output">Vector((0,a),&nbsp;(1,b),&nbsp;(2,c),&nbsp;(3,d),&nbsp;(4,e))</code>
+</pre>
+
+
+<p>If the two lists are of different length, any unmatched elements are dropped:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;zipped&nbsp;=&nbsp;abcde&nbsp;zip&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)
+  <code class="output">zipped:&nbsp;List[(Char,&nbsp;Int)]&nbsp;=&nbsp;List((a,1),&nbsp;(b,2),&nbsp;(c,3))</code>
+</pre>
+
+
+<p>A useful special case is to zip a list with its index. This is 
+done most efficiently with
+the <span class="code">zipWithIndex</span> method, which pairs every element
+of a list with the position where it appears in the
+list.<a id="i-735272059-1"/><a id="i896208311-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;abcde.zipWithIndex
+  <code class="output">res18:&nbsp;List[(Char,&nbsp;Int)]&nbsp;=&nbsp;List((a,0),&nbsp;(b,1),&nbsp;(c,2),&nbsp;(d,3),&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;(e,4))</code>
+</pre>
+
+
+<p>Any list of tuples can also be changed back to a tuple of lists
+by using the <span class="code">unzip</span> method<a id="i-1730867960-1"/><a id="i-1835961540-1"/>:</p>
+
+<pre>
+  scala&gt;&nbsp;zipped.unzip
+  <code class="output">res19:&nbsp;(List[Char],&nbsp;List[Int])</code>
+  <code class="output">&nbsp;&nbsp;=&nbsp;(List(a,&nbsp;b,&nbsp;c),List(1,&nbsp;2,&nbsp;3))</code>
+</pre>
+
+
+<p>The <span class="code">zip</span> and <span class="code">unzip</span> methods provide one way to operate on multiple
+lists together. See <a href="working-with-lists.html#sec-lists-zipped">Section 16.9</a> for a more concise way to do this.</p>
+
+<h4>Displaying lists: <span class="code">toString</span> and <span class="code">mkString</span></h4>
+
+
+<p>The <span class="code">toString</span> operation returns the canonical string representation
+of a list:<a id="i-683244392-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;abcde.toString
+  <code class="output">res20:&nbsp;String&nbsp;=&nbsp;List(a,&nbsp;b,&nbsp;c,&nbsp;d,&nbsp;e)</code>
+</pre>
+
+
+<p>If you want a different representation you can use the <span class="code">mkString</span><a id="i1357784029-2"/><a id="i746937723-2"/>
+method. The operation <span class="code">xs</span>&nbsp;<span class="code">mkString</span>&nbsp;<span class="code">(pre,</span>&nbsp;<span class="code">sep,</span>&nbsp;<span class="code">post)</span> involves four<a id="i-205371607-1"/>
+operands:
+the list <span class="code">xs</span> to be displayed, a prefix string <span class="code">pre</span> to be
+displayed in front of all elements, a separator string <span class="code">sep</span> to be displayed
+between successive elements, and a postfix string <span class="code">post</span> to be
+displayed at the end.</p>
+
+<p>The result of the operation is the string:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">pre</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">xs(0)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">sep</span>&nbsp;<span class="code">+</span> ...<span class="code">+</span>&nbsp;<span class="code">sep</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">xs(xs.length</span>&nbsp;<span class="code">-</span>&nbsp;<span class="code">1)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">post</span></p>
+
+</div>
+
+
+<p>The <span class="code">mkString</span> method has two overloaded variants that let you drop
+some or all of its arguments. The first variant only takes a separator
+string:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">xs</span>&nbsp;<span class="code">mkString</span>&nbsp;<span class="code">sep</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">xs</span>&nbsp;<span class="code">mkString</span>&nbsp;<span class="code">("",</span>&nbsp;<span class="code">sep,</span>&nbsp;<span class="code">"")</span></p>
+
+</div>
+
+
+<p>The second variant lets you omit all arguments:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">xs.mkString</span>&nbsp;<span class="code"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">xs</span>&nbsp;<span class="code">mkString</span>&nbsp;<span class="code">""</span></p>
+
+</div>
+
+
+<p>Here are some examples:</p>
+
+<pre>
+  scala&gt;&nbsp;abcde&nbsp;mkString&nbsp;(<code class="quotedstring">"["</code>,&nbsp;<code class="quotedstring">","</code>,&nbsp;<code class="quotedstring">"]"</code>)
+  <code class="output">res21:&nbsp;String&nbsp;=&nbsp;[a,b,c,d,e]</code>
+  <br />  scala&gt;&nbsp;abcde&nbsp;mkString&nbsp;<code class="quotedstring">""</code>
+  <code class="output">res22:&nbsp;String&nbsp;=&nbsp;abcde</code>
+  <br />  scala&gt;&nbsp;abcde.mkString
+  <code class="output">res23:&nbsp;String&nbsp;=&nbsp;abcde</code>
+  <br />  scala&gt;&nbsp;abcde&nbsp;mkString&nbsp;(<code class="quotedstring">"List("</code>,&nbsp;<code class="quotedstring">",&nbsp;"</code>,&nbsp;<code class="quotedstring">")"</code>)
+  <code class="output">res24:&nbsp;String&nbsp;=&nbsp;List(a,&nbsp;b,&nbsp;c,&nbsp;d,&nbsp;e)</code>
+</pre>
+
+
+<p>There are also variants of the <span class="code">mkString</span> methods called
+<span class="code">addString</span><a id="i-1095177571-1"/><a id="i-454878362-1"/> which append the
+constructed string to a <span class="code">StringBuilder</span> object,<a href="working-with-lists.html#footnotemain16-6">[6]</a>
+ rather than returning
+them as a result:<a id="i-2123413502-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;buf&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">StringBuilder</code>
+  <code class="output">buf:&nbsp;StringBuilder&nbsp;=</code>
+  <br />  scala&gt;&nbsp;abcde&nbsp;addString&nbsp;(buf,&nbsp;<code class="quotedstring">"("</code>,&nbsp;<code class="quotedstring">";"</code>,&nbsp;<code class="quotedstring">")"</code>)
+  <code class="output">res25:&nbsp;StringBuilder&nbsp;=&nbsp;(a;b;c;d;e)</code>
+</pre>
+
+
+<p>The <span class="code">mkString</span> and <span class="code">addString</span> methods are inherited from <span class="code">List</span>'s
+super trait <span class="code">Traversable</span>, so they are applicable to all other
+collections as well.</p>
+
+<h4>Converting lists: <span class="code">iterator</span>, <span class="code">toArray</span>,
+  <span class="code">copyToArray</span></h4>
+
+
+<p>To convert data between the flat world of arrays and the
+recursive world of lists, you can use method <span class="code">toArray</span>
+in class <span class="code">List</span> and <span class="code">toList</span> in class <span class="code">Array</span>:<a id="i-1473690452-1"/><a id="i-1723195748-1"/><a id="i-38723342-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;arr&nbsp;=&nbsp;abcde.toArray
+  <code class="output">arr:&nbsp;Array[Char]&nbsp;=&nbsp;Array(a,&nbsp;b,&nbsp;c,&nbsp;d,&nbsp;e)</code>
+  <br />  scala&gt;&nbsp;arr.toList
+  <code class="output">res26:&nbsp;List[Char]&nbsp;=&nbsp;List(a,&nbsp;b,&nbsp;c,&nbsp;d,&nbsp;e)</code>
+</pre>
+
+
+<p>There's also a method <span class="code">copyToArray</span>,<a id="i1315859366-1"/><a id="i-1677368899-1"/> which copies list elements to
+successive array positions within some destination array. The
+operation:</p>
+
+<pre>
+  xs&nbsp;copyToArray&nbsp;(arr,&nbsp;start)
+</pre>
+
+
+<p>copies all elements of the
+list <span class="code">xs</span> to the array <span class="code">arr</span>, beginning with position <span class="code">start</span>.
+You must ensure that the destination array <span class="code">arr</span> is large enough to
+hold the list in full. Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;arr2&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Array[Int]</code>(<code class="literal">10</code>)
+  <code class="output">arr2:&nbsp;Array[Int]&nbsp;=&nbsp;Array(0,&nbsp;0,&nbsp;0,&nbsp;0,&nbsp;0,&nbsp;0,&nbsp;0,&nbsp;0,&nbsp;0,&nbsp;0)</code>
+  <br />  scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)&nbsp;copyToArray&nbsp;(arr2,&nbsp;<code class="literal">3</code>)
+  <br />  scala&gt;&nbsp;arr2
+  <code class="output">res28:&nbsp;Array[Int]&nbsp;=&nbsp;Array(0,&nbsp;0,&nbsp;0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;0,&nbsp;0,&nbsp;0,&nbsp;0)</code>
+</pre>
+
+
+<p>Finally, if you need to access list elements via an iterator, you can use the 
+<span class="code">iterator</span> method:<a id="i2075720641-1"/><a id="i-2018755942-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;it&nbsp;=&nbsp;abcde.iterator
+  <code class="output">it:&nbsp;Iterator[Char]&nbsp;=&nbsp;non-empty&nbsp;iterator</code>
+</pre>
+
+
+<pre>
+  scala&gt;&nbsp;it.next
+  <code class="output">res29:&nbsp;Char&nbsp;=&nbsp;a</code>
+  <br />  scala&gt;&nbsp;it.next
+  <code class="output">res30:&nbsp;Char&nbsp;=&nbsp;b</code>
+</pre>
+
+
+<h4>Example: Merge sort</h4>
+
+
+<p>The insertion sort presented earlier is concise to write, but
+it is not very efficient. Its average complexity is proportional to the<a id="i-2095646335-1"/>
+square of the length of the input list. A more efficient algorithm
+is <span style="font-style:italic">merge sort</span>.<a id="i-1435795620-1"/><a id="i-1149295482-1"/></p>
+
+<div class="pointofinterest">
+<h3>The fast track</h3>
+
+
+<p>This example provides another illustration of the divide and conquer principle and currying, as well as a useful discussion of algorithmic complexity. If you
+prefer to move a bit faster on your first pass through this book, however, you can safely skip to <a href="working-with-lists.html#sec-higher-order-methods">Section 16.7</a>.</p>
+
+</div>
+
+
+<p>Merge sort works as follows: First, if the list has zero or one elements, it is already sorted, so
+the list can be returned unchanged. Longer lists are split into two
+sub-lists, each containing about half the elements of the original
+list. Each sub-list is sorted by a recursive call to the sort
+function, and the resulting two sorted lists are then combined in a
+merge operation.</p>
+
+<p>For a general implementation of merge sort, you want to leave open
+the type of list elements to be sorted and the function to be
+used for the comparison of elements. You obtain a function of maximal
+generality by passing these two items as parameters. This leads to the
+implementation shown in <a href="working-with-lists.html#lst-merge-sort-function">Listing 16.1</a>.</p>
+
+<p><a id="lst-merge-sort-function"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;msort[T](less:&nbsp;(T,&nbsp;T)&nbsp;=&gt;&nbsp;<code class="typename">Boolean</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(xs:&nbsp;<code class="typename">List[T]</code>):&nbsp;<code class="typename">List[T]</code>&nbsp;=&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;merge(xs:&nbsp;<code class="typename">List[T]</code>,&nbsp;ys:&nbsp;<code class="typename">List[T]</code>):&nbsp;<code class="typename">List[T]</code>&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(xs,&nbsp;ys)&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;(<code class="typename">Nil</code>,&nbsp;_)&nbsp;=&gt;&nbsp;ys
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;(_,&nbsp;<code class="typename">Nil</code>)&nbsp;=&gt;&nbsp;xs
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;(x&nbsp;::&nbsp;xs1,&nbsp;y&nbsp;::&nbsp;ys1)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(less(x,&nbsp;y))&nbsp;x&nbsp;::&nbsp;merge(xs1,&nbsp;ys)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;y&nbsp;::&nbsp;merge(xs,&nbsp;ys1)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;n&nbsp;=&nbsp;xs.length&nbsp;/&nbsp;<code class="literal">2</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(n&nbsp;==&nbsp;<code class="literal">0</code>)&nbsp;xs
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;(ys,&nbsp;zs)&nbsp;=&nbsp;xs&nbsp;splitAt&nbsp;n
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;merge(msort(less)(ys),&nbsp;msort(less)(zs))
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 16.1 - A merge sort function for <span class="code">List</span>s.</h5>
+
+
+<p>The complexity of <span class="code">msort</span> is order (<i>n</i> <i>log</i>(<i>n</i>)), where <i>n</i> is the
+length of the input list. To see why, note that splitting a list in
+two and merging two sorted lists each take time proportional to the
+length of the argument list(s). Each recursive call of <span class="code">msort</span>
+halves the number of elements in its input, so there are about <i>log</i>(<i>n</i>)
+consecutive recursive calls until the base case of lists of length 1
+is reached.  However, for longer lists each call spawns off two
+further calls. Adding everything up, we obtain at each of the
+<i>log</i>(<i>n</i>) call levels, every element of the original lists takes
+part in one split operation and one merge operation.</p>
+
+<p>Hence, every
+call level has a total cost proportional to <i>n</i>. Since there are
+<i>log</i>(<i>n</i>) call levels, we obtain an overall cost proportional to
+<i>n</i> <i>log</i>(<i>n</i>). That cost does not depend on the initial distribution
+of elements in the list, so the worst case cost is the same as the
+average case cost. This property makes merge sort an attractive algorithm for
+sorting lists.</p>
+
+<p>Here is an example of how <span class="code">msort</span> is used:</p>
+
+<pre>
+  scala&gt;&nbsp;msort((x:&nbsp;<code class="typename">Int</code>,&nbsp;y:&nbsp;<code class="typename">Int</code>)&nbsp;=&gt;&nbsp;x&nbsp;&lt;&nbsp;y)(<code class="typename">List</code>(<code class="literal">5</code>,&nbsp;<code class="literal">7</code>,&nbsp;<code class="literal">1</code>,&nbsp;<code class="literal">3</code>))
+  <code class="output">res31:&nbsp;List[Int]&nbsp;=&nbsp;List(1,&nbsp;3,&nbsp;5,&nbsp;7)</code>
+</pre>
+
+
+<p>The <span class="code">msort</span> function is a classical example of the currying concept discussed
+in <a href="control-abstraction.html#sec-currying">Section 9.3</a>.  
+Currying<a id="i575993339-2"/> makes it easy
+to specialize the function for particular comparison functions. Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;intSort&nbsp;=&nbsp;msort((x:&nbsp;<code class="typename">Int</code>,&nbsp;y:&nbsp;<code class="typename">Int</code>)&nbsp;=&gt;&nbsp;x&nbsp;&lt;&nbsp;y)&nbsp;_
+  <code class="output">intSort:&nbsp;List[Int]&nbsp;=&gt;&nbsp;List[Int]&nbsp;=&nbsp;&lt;function1&gt;</code>
+</pre>
+
+
+<p>The <span class="code">intSort</span> variable refers to a function that takes a list of integers and sorts them in numerical order.<a id="i1128745740-2"/><a id="i1834060518-2"/><a id="i1842232449-2"/>
+As described in <a href="functions-and-closures.html#sec-partially-applied-functions">Section 8.6</a>,
+an underscore stands for a missing argument list.  In this
+case, the missing argument is the list that should be sorted. As another example, here's
+how you could define a function that sorts a list of integers in reverse numerical order:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;reverseIntSort&nbsp;=&nbsp;msort((x:&nbsp;<code class="typename">Int</code>,&nbsp;y:&nbsp;<code class="typename">Int</code>)&nbsp;=&gt;&nbsp;x&nbsp;&gt;&nbsp;y)&nbsp;_
+  <code class="output">reverseIntSort:&nbsp;(List[Int])&nbsp;=&gt;&nbsp;List[Int]&nbsp;=&nbsp;&lt;function&gt;</code>
+</pre>
+
+
+<p>Because you provided the comparison function already via currying, you now need only provide the 
+list to sort when you invoke the <span class="code">intSort</span> or <span class="code">reverseIntSort</span> functions. Here are some
+examples:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;mixedInts&nbsp;=&nbsp;<code class="typename">List</code>(<code class="literal">4</code>,&nbsp;<code class="literal">1</code>,&nbsp;<code class="literal">9</code>,&nbsp;<code class="literal">0</code>,&nbsp;<code class="literal">5</code>,&nbsp;<code class="literal">8</code>,&nbsp;<code class="literal">3</code>,&nbsp;<code class="literal">6</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">7</code>)
+  <code class="output">mixedInts:&nbsp;List[Int]&nbsp;=&nbsp;List(4,&nbsp;1,&nbsp;9,&nbsp;0,&nbsp;5,&nbsp;8,&nbsp;3,&nbsp;6,&nbsp;2,&nbsp;7)</code>
+  <br />  scala&gt;&nbsp;intSort(mixedInts)
+  <code class="output">res0:&nbsp;List[Int]&nbsp;=&nbsp;List(0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5,&nbsp;6,&nbsp;7,&nbsp;8,&nbsp;9)</code>
+  <br />  scala&gt;&nbsp;reverseIntSort(mixedInts)
+  <code class="output">res1:&nbsp;List[Int]&nbsp;=&nbsp;List(9,&nbsp;8,&nbsp;7,&nbsp;6,&nbsp;5,&nbsp;4,&nbsp;3,&nbsp;2,&nbsp;1,&nbsp;0)</code>
+</pre>
+
+
+<h3 id="sec-higher-order-methods">16.7 Higher-order methods on class <span class="code">List</span></h3>
+
+
+<p>Many operations over lists have a similar structure. Several patterns
+appear time and time again.<a id="i-1450817245-1"/><a id="i1952802169-1"/> Some examples are:
+transforming every element of a list in some way,
+verifying whether a property holds for all elements of a list,
+extracting from a list elements satisfying a certain criterion, or
+combining the elements of a list using some operator.  In Java, such patterns would usually be expressed by idiomatic
+combinations of <span class="code">for</span> or <span class="code">while</span> loops. In Scala, they can be
+expressed more concisely and directly using higher-order operators,<a href="working-with-lists.html#footnotemain16-7">[7]</a>
+which are implemented as methods in class <span class="code">List</span>.  These higher-order operators are
+discussed in this section.</p>
+
+<h4>Mapping over lists: <span class="code">map</span>, <span class="code">flatMap</span> and <span class="code">foreach</span></h4>
+
+
+<p>The operation <span class="code">xs</span>&nbsp;<span class="code">map</span>&nbsp;<span class="code">f</span><a id="i395196522-2"/><a id="i1986906032-2"/>
+takes as operands a list <span class="code">xs</span> of type <span class="code">List[T]</span> 
+and a function <span class="code">f</span> of type <span class="code">T</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">U</span>. It returns the list that results
+from applying the function <span class="code">f</span> to each list element in <span class="code">xs</span>. For instance:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)&nbsp;map&nbsp;(_&nbsp;+&nbsp;<code class="literal">1</code>)
+  <code class="output">res32:&nbsp;List[Int]&nbsp;=&nbsp;List(2,&nbsp;3,&nbsp;4)</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;words&nbsp;=&nbsp;<code class="typename">List</code>(<code class="quotedstring">"the"</code>,&nbsp;<code class="quotedstring">"quick"</code>,&nbsp;<code class="quotedstring">"brown"</code>,&nbsp;<code class="quotedstring">"fox"</code>)
+  <code class="output">words:&nbsp;List[String]&nbsp;=&nbsp;List(the,&nbsp;quick,&nbsp;brown,&nbsp;fox)</code>
+  <br />  scala&gt;&nbsp;words&nbsp;map&nbsp;(_.length)
+  <code class="output">res33:&nbsp;List[Int]&nbsp;=&nbsp;List(3,&nbsp;5,&nbsp;5,&nbsp;3)</code>
+  <br />  scala&gt;&nbsp;words&nbsp;map&nbsp;(_.toList.reverse.mkString)
+  <code class="output">res34:&nbsp;List[String]&nbsp;=&nbsp;List(eht,&nbsp;kciuq,&nbsp;nworb,&nbsp;xof)</code>
+</pre>
+
+
+<p>The <span class="code">flatMap</span><a id="i535160876-1"/><a id="i364816247-1"/> operator is similar to <span class="code">map</span>, but it takes a function
+returning a list of elements as its right operand. It applies the
+function to each list element and returns the concatenation of all function
+results. The difference between <span class="code">map</span> and <span class="code">flatMap</span> is illustrated
+in the following example:</p>
+
+<pre>
+  scala&gt;&nbsp;words&nbsp;map&nbsp;(_.toList)
+  <code class="output">res35:&nbsp;List[List[Char]]&nbsp;=&nbsp;List(List(t,&nbsp;h,&nbsp;e),&nbsp;List(q,&nbsp;u,&nbsp;i,&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;c,&nbsp;k),&nbsp;List(b,&nbsp;r,&nbsp;o,&nbsp;w,&nbsp;n),&nbsp;List(f,&nbsp;o,&nbsp;x))</code>
+  <br />  scala&gt;&nbsp;words&nbsp;flatMap&nbsp;(_.toList)
+  <code class="output">res36:&nbsp;List[Char]&nbsp;=&nbsp;List(t,&nbsp;h,&nbsp;e,&nbsp;q,&nbsp;u,&nbsp;i,&nbsp;c,&nbsp;k,&nbsp;b,&nbsp;r,&nbsp;o,&nbsp;w,&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;n,&nbsp;f,&nbsp;o,&nbsp;x)</code>
+</pre>
+
+
+<p>You see that where <span class="code">map</span> returns a list of lists, <span class="code">flatMap</span> returns
+a single list in which all element lists are concatenated.</p>
+
+<p>The differences and interplay between <span class="code">map</span> and <span class="code">flatMap</span> are also demonstrated by the
+following expression, which constructs a list of all pairs (<i>i</i>, <i>j</i>)
+such that 1 &le; <i>j</i> &lt; <i>i</i> &lt; 5:</p>
+
+<pre>
+  scala&gt;&nbsp;List.range(<code class="literal">1</code>,&nbsp;<code class="literal">5</code>)&nbsp;flatMap&nbsp;(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i&nbsp;=&gt;&nbsp;List.range(<code class="literal">1</code>,&nbsp;i)&nbsp;map&nbsp;(j&nbsp;=&gt;&nbsp;(i,&nbsp;j))
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+  <code class="output">res37:&nbsp;List[(Int,&nbsp;Int)]&nbsp;=&nbsp;List((2,1),&nbsp;(3,1),&nbsp;(3,2),&nbsp;(4,1),&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;(4,2),&nbsp;(4,3))</code>
+</pre>
+
+
+<p><span class="code">List.range</span> is a utility method that creates a list
+of all integers in some range.<a id="i2103556958-1"/><a id="i1320308892-1"/>  It is used twice in this
+example: once to generate a list of integers from 1 (including) until 5 (excluding),
+and a second time to generate a list of integers from 1
+until <i>i</i>, for each value of <i>i</i> taken from the first list.  
+The <span class="code">map</span> in this expression
+generates a list of tuples (<i>i</i>, <i>j</i>) where <i>j</i> &lt; <i>i</i>.
+The outer
+<span class="code">flatMap</span> in this example generates this list for each <span class="code">i</span> between
+1 and 5, and then concatenates all the results. Alternatively, the same list can be constructed with a <span class="code">for</span> expression:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(i&nbsp;&lt;-&nbsp;List.range(<code class="literal">1</code>,&nbsp;<code class="literal">5</code>);&nbsp;j&nbsp;&lt;-&nbsp;List.range(<code class="literal">1</code>,&nbsp;i))&nbsp;<code class="vem">yield</code>&nbsp;(i,&nbsp;j)
+</pre>
+
+
+<p>You'll learn more about the interplay of <span class="code">for</span> expressions and list operations in 
+<a href="for-expressions-revisited.html">Chapter 23</a>.</p>
+
+<p>The third map-like operation is <span class="code">foreach</span>.<a id="i331113560-2"/><a id="i465975966-2"/> Unlike <span class="code">map</span>
+and <span class="code">flatMap</span>, however, <span class="code">foreach</span> takes a procedure (a function with result type
+<span class="code">Unit</span>) as right operand. It simply applies the procedure to each
+list element. The result of the operation itself is again <span class="code">Unit</span>; no
+list of results is assembled. As an example, here is a concise way of
+summing up all numbers in a list:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">var</code>&nbsp;sum&nbsp;=&nbsp;<code class="literal">0</code>
+  <code class="output">sum:&nbsp;Int&nbsp;=&nbsp;0</code>
+  <br />  scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>,&nbsp;<code class="literal">4</code>,&nbsp;<code class="literal">5</code>)&nbsp;foreach&nbsp;(sum&nbsp;+=&nbsp;_)
+  <br />  scala&gt;&nbsp;sum
+  <code class="output">res39:&nbsp;Int&nbsp;=&nbsp;15</code>
+</pre>
+
+
+<h4>Filtering lists: <span class="code">filter</span>, <span class="code">partition</span>, <span class="code">find</span>,
+  <span class="code">takeWhile</span>, <span class="code">dropWhile</span>, and <span class="code">span</span></h4>
+
+
+<p>The operation "<span class="code">xs</span>&nbsp;<span class="code">filter</span>&nbsp;<span class="code">p</span>" takes as operands a list <span class="code">xs</span> of type <span class="code">List[T]</span><a id="i1807572102-2"/><a id="i-1514694492-2"/>
+and a predicate function <span class="code">p</span> of type <span class="code">T</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span>. It yields the list of all
+elements <span class="code">x</span> in <span class="code">xs</span> for which <span class="code">p(x)</span> is <span class="code">true</span>. For instance:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>,&nbsp;<code class="literal">4</code>,&nbsp;<code class="literal">5</code>)&nbsp;filter&nbsp;(_&nbsp;<code class="texttt">%</code>&nbsp;<code class="literal">2</code>&nbsp;==&nbsp;<code class="literal">0</code>)
+  <code class="output">res40:&nbsp;List[Int]&nbsp;=&nbsp;List(2,&nbsp;4)</code>
+  <br />  scala&gt;&nbsp;words&nbsp;filter&nbsp;(_.length&nbsp;==&nbsp;<code class="literal">3</code>)
+  <code class="output">res41:&nbsp;List[String]&nbsp;=&nbsp;List(the,&nbsp;fox)</code>
+</pre>
+
+
+<p>The <span class="code">partition</span><a id="i-944990523-1"/><a id="i2039424574-1"/> method is like filter but returns a pair of lists. One list contains all elements for which the predicate is true, while the other contains all elements for which the predicate is false.
+It is defined by the equality:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">xs</span>&nbsp;<span class="code">partition</span>&nbsp;<span class="code">p</span>&nbsp;<span class="code"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">(xs</span>&nbsp;<span class="code">filter</span>&nbsp;<span class="code">p,</span>&nbsp;<span class="code">xs</span>&nbsp;<span class="code">filter</span>&nbsp;<span class="code">(!p(_)))</span></p>
+
+</div>
+
+
+<p>Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>,&nbsp;<code class="literal">4</code>,&nbsp;<code class="literal">5</code>)&nbsp;partition&nbsp;(_&nbsp;<code class="texttt">%</code>&nbsp;<code class="literal">2</code>&nbsp;==&nbsp;<code class="literal">0</code>)
+  <code class="output">res42:&nbsp;(List[Int],&nbsp;List[Int])&nbsp;=&nbsp;(List(2,&nbsp;4),List(1,&nbsp;3,&nbsp;5))</code>
+</pre>
+
+
+<p>The <span class="code">find</span><a id="i383310678-1"/><a id="i1464344037-1"/> method is also similar to <span class="code">filter</span>, but it returns the
+first element satisfying a given predicate, rather than all such elements.
+The operation <span class="code">xs</span>&nbsp;<span class="code">find</span>&nbsp;<span class="code">p</span> takes a list <span class="code">xs</span> and a predicate <span class="code">p</span> as
+operands. It returns an optional value. If there is an element <span class="code">x</span>
+in <span class="code">xs</span> for which <span class="code">p(x)</span> is true, <span class="code">Some(x)</span> is returned. Otherwise,
+<span class="code">p</span> is false for all elements, and <span class="code">None</span> is returned.
+Here are some examples:</p>
+
+<pre>
+  scala&gt;&nbsp;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>,&nbsp;<code class="literal">4</code>,&nbsp;<code class="literal">5</code>)&nbsp;find&nbsp;(_&nbsp;<code class="texttt">%</code>&nbsp;<code class="literal">2</code>&nbsp;==&nbsp;<code class="literal">0</code>)
+  <code class="output">res43:&nbsp;Option[Int]&nbsp;=&nbsp;Some(2)</code>
+  <br />  scala&gt;&nbsp;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>,&nbsp;<code class="literal">4</code>,&nbsp;<code class="literal">5</code>)&nbsp;find&nbsp;(_&nbsp;&lt;=&nbsp;<code class="literal">0</code>)
+  <code class="output">res44:&nbsp;Option[Int]&nbsp;=&nbsp;None</code>
+</pre>
+
+
+<p>The <span class="code">takeWhile</span><a id="i-334215483-1"/><a id="i1035564606-1"/> and <span class="code">dropWhile</span><a id="i-648573139-1"/><a id="i-976962346-1"/> operators also take a predicate as
+their right operand. The operation <span class="code">xs</span>&nbsp;<span class="code">takeWhile</span>&nbsp;<span class="code">p</span> takes the longest prefix of list
+<span class="code">xs</span> such that every element in the prefix satisfies <span class="code">p</span>.
+Analogously, the operation <span class="code">xs</span>&nbsp;<span class="code">dropWhile</span>&nbsp;<span class="code">p</span> removes the longest prefix from list
+<span class="code">xs</span> such that every element in the prefix satisfies <span class="code">p</span>. Here are some examples:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>,&nbsp;-<code class="literal">4</code>,&nbsp;<code class="literal">5</code>)&nbsp;takeWhile&nbsp;(_&nbsp;&gt;&nbsp;<code class="literal">0</code>)
+  <code class="output">res45:&nbsp;List[Int]&nbsp;=&nbsp;List(1,&nbsp;2,&nbsp;3)</code>
+  <br />  scala&gt;&nbsp;words&nbsp;dropWhile&nbsp;(_&nbsp;startsWith&nbsp;<code class="quotedstring">"t"</code>)
+  <code class="output">res46:&nbsp;List[String]&nbsp;=&nbsp;List(quick,&nbsp;brown,&nbsp;fox)</code>
+</pre>
+
+
+<p>The <span class="code">span</span><a id="i772550245-1"/><a id="i1464737654-1"/> method combines <span class="code">takeWhile</span> and <span class="code">dropWhile</span> in one
+operation, just like <span class="code">splitAt</span> combines <span class="code">take</span> and <span class="code">drop</span>.
+It returns a pair of two lists, defined by the equality:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">xs</span>&nbsp;<span class="code">span</span>&nbsp;<span class="code">p</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">(xs</span>&nbsp;<span class="code">takeWhile</span>&nbsp;<span class="code">p,</span>&nbsp;<span class="code">xs</span>&nbsp;<span class="code">dropWhile</span>&nbsp;<span class="code">p)</span></p>
+
+</div>
+
+
+<p>Like <span class="code">splitAt</span>, <span class="code">span</span> avoids traversing the list <span class="code">xs</span>
+twice:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>,&nbsp;-<code class="literal">4</code>,&nbsp;<code class="literal">5</code>)&nbsp;span&nbsp;(_&nbsp;&gt;&nbsp;<code class="literal">0</code>)
+  <code class="output">res47:&nbsp;(List[Int],&nbsp;List[Int])&nbsp;=&nbsp;(List(1,&nbsp;2,&nbsp;3),List(-4,&nbsp;5))</code>
+</pre>
+
+
+<h4>Predicates over lists: <span class="code">forall</span> and <span class="code">exists</span></h4>
+
+
+<p>The operation <span class="code">xs</span>&nbsp;<span class="code">forall</span>&nbsp;<span class="code">p</span><a id="i260029766-2"/><a id="i-1508992668-2"/> takes as arguments a list <span class="code">xs</span> and a
+predicate <span class="code">p</span>. Its result is <span class="code">true</span> if all elements in the list
+satisfy <span class="code">p</span>. Conversely, the operation <span class="code">xs</span>&nbsp;<span class="code">exists</span>&nbsp;<span class="code">p</span><a id="i339085162-2"/><a id="i-1529560696-2"/> returns <span class="code">true</span>
+if there is an element in <span class="code">xs</span> that satisfies the predicate <span class="code">p</span>. For
+instance, to find out whether a matrix represented as a list of lists
+has a row with only zeroes as elements:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;hasZeroRow(m:&nbsp;<code class="typename">List[List[Int]]</code>)&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;m&nbsp;exists&nbsp;(row&nbsp;=&gt;&nbsp;row&nbsp;forall&nbsp;(_&nbsp;==&nbsp;<code class="literal">0</code>))
+  <code class="output">hasZeroRow:&nbsp;(m:&nbsp;List[List[Int]])Boolean</code>
+  <br />  scala&gt;&nbsp;hasZeroRow(diag3)
+  <code class="output">res48:&nbsp;Boolean&nbsp;=&nbsp;false</code>
+</pre>
+
+
+<h4>Folding lists: <span class="code">/:</span> and <span class="code">:\</span></h4>
+
+
+<p>Another common kind of operation combines the elements of a list with
+some operator.  For instance:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">sum(List(a,</span>&nbsp;<span class="code">b,</span>&nbsp;<span class="code">c))</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">0</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">a</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">b</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">c</span></p>
+
+</div>
+
+
+<p>This is a special instance of a fold operation:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;sum(xs:&nbsp;<code class="typename">List[Int]</code>):&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;(<code class="literal">0</code>&nbsp;/:&nbsp;xs)&nbsp;(_&nbsp;+&nbsp;_)&nbsp;
+  <code class="output">sum:&nbsp;(xs:&nbsp;List[Int])Int</code>
+</pre>
+
+
+<p>Similarly:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">product(List(a,</span>&nbsp;<span class="code">b,</span>&nbsp;<span class="code">c))</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">1</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">a</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">b</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">c</span></p>
+
+</div>
+
+
+<p>is a special instance of this fold operation:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;product(xs:&nbsp;<code class="typename">List[Int]</code>):&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;(<code class="literal">1</code>&nbsp;/:&nbsp;xs)&nbsp;(_&nbsp;*&nbsp;_)&nbsp;
+  <code class="output">product:&nbsp;(xs:&nbsp;List[Int])Int</code>
+</pre>
+
+
+<p>A <span style="font-style:italic">fold left</span> operation "<span class="code">(z</span>&nbsp;<span class="code">/:</span>&nbsp;<span class="code">xs)</span>&nbsp;<span class="code">(op)</span>" involves<a id="i-1160692124-1"/><a id="i-1069108030-1"/> three objects:
+a start value <span class="code">z</span>, a list <span class="code">xs</span>, and a binary operation <span class="code">op</span>.
+The result of the fold<a id="i487604192-1"/> is <span class="code">op</span> applied between successive
+elements of the list prefixed by <span class="code">z</span>. For instance:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">(z</span>&nbsp;<span class="code">/:</span>&nbsp;<span class="code">List(a,</span>&nbsp;<span class="code">b,</span>&nbsp;<span class="code">c))</span>&nbsp;<span class="code">(op)</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">op(op(op(z,</span>&nbsp;<span class="code">a),</span>&nbsp;<span class="code">b),</span>&nbsp;<span class="code">c)</span></p>
+
+</div>
+
+
+<p>Or, graphically:</p>
+
+<div style="text-align: center">
+<img src="images/optree1160.png" alt="image images/optree1160.png"/>
+
+
+</div>
+
+
+<p>Here's another example that illustrates how <span class="code">/:</span> is used. To concatenate all 
+words in a list of strings with spaces between them and in front, you
+can write this:</p>
+
+<pre>
+  scala&gt;&nbsp;&nbsp;(<code class="quotedstring">""</code>&nbsp;/:&nbsp;words)&nbsp;(_&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;"</code>&nbsp;+&nbsp;_)
+  <code class="output">res49:&nbsp;String&nbsp;=&nbsp;"&nbsp;the&nbsp;quick&nbsp;brown&nbsp;fox"</code>
+</pre>
+
+
+<p>This gives an extra space at the beginning. To remove the space, you
+can use this slight variation:</p>
+
+<pre>
+  scala&gt;&nbsp;(words.head&nbsp;/:&nbsp;words.tail)&nbsp;&nbsp;(_&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;"</code>&nbsp;+&nbsp;_)
+  <code class="output">res50:&nbsp;String&nbsp;=&nbsp;the&nbsp;quick&nbsp;brown&nbsp;fox</code>
+</pre>
+
+
+<p>The <span class="code">/:</span> operator produces left-leaning operation trees (its syntax
+with the slash rising forward is intended to be a reflection of that).
+The operator has <span class="code">:\</span> as an analog that produces right-leaning
+trees. For instance:</p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">(List(a,</span>&nbsp;<span class="code">b,</span>&nbsp;<span class="code">c)</span>&nbsp;<span class="code">:\</span>&nbsp;<span class="code">z)</span>&nbsp;<span class="code">(op)</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="rm"><em>equals</em></span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="code">op(a,</span>&nbsp;<span class="code">op(b,</span>&nbsp;<span class="code">op(c,</span>&nbsp;<span class="code">z)))</span></p>
+
+</div>
+
+
+<p>Or, graphically:</p>
+
+<div style="text-align: center">
+<img src="images/optree2160.png" alt="image images/optree2160.png"/>
+
+
+</div>
+
+
+<p>The <span class="code">:\</span> operator is pronounced <span style="font-style:italic">fold right</span>.<a id="i-1517880440-1"/><a id="i-2058478237-1"/><a id="i1039328969-1"/>
+It involves the same three operands as fold left, but the first two 
+appear in reversed order: The first operand is the list to
+fold, the second is the start value.</p>
+
+<p>For associative operations, fold left and fold right are
+equivalent, but there might be a difference in efficiency.<a id="i-1099454431-1"/>
+Consider for instance an operation corresponding 
+to the <span class="code">flatten</span> method, which
+concatenates all
+elements in a list of lists.<a id="i-652692760-1"/><a id="i364853848-2"/>
+This could be implemented with either fold left or fold right:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;flattenLeft[T](xss:&nbsp;<code class="typename">List[List[T]]</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;(<code class="typename">List[T]</code>()&nbsp;/:&nbsp;xss)&nbsp;(_&nbsp;:::&nbsp;_)
+  <br />  <code class="vem">def</code>&nbsp;flattenRight[T](xss:&nbsp;<code class="typename">List[List[T]]</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;(xss&nbsp;:\&nbsp;<code class="typename">List[T]</code>())&nbsp;(_&nbsp;:::&nbsp;_)
+</pre>
+
+
+<p><a id="exa-flatten-right-body"/>
+Because list concatenation, <span class="code">xs</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">ys</span>, takes time proportional to its
+first argument <span class="code">xs</span>, the implementation in terms of fold right in  
+<span class="code">flattenRight</span> is more efficient than the fold left implementation in
+<span class="code">flattenLeft</span>. The problem is that <span class="code">flattenLeft(xss)</span> copies the first
+element list <span class="code">xss.head</span> <i>n</i>-1 times, where <i>n</i> is the length of the
+list <span class="code">xss</span>.</p>
+
+<p>Note that both versions of <span class="code">flatten</span> require a type annotation 
+on the empty list that is the start value of the fold. 
+This is due to a limitation in Scala's type
+inferencer, which fails to infer the correct type of the list
+automatically.  If you try to leave out the annotation, you get the
+following:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;flattenRight[T](xss:&nbsp;<code class="typename">List[List[T]]</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(xss&nbsp;:\&nbsp;<code class="typename">List</code>())&nbsp;(_&nbsp;:::&nbsp;_)
+  <code class="output">&lt;console&gt;:8:&nbsp;error:&nbsp;type&nbsp;mismatch;</code>
+  <code class="output">&nbsp;found&nbsp;&nbsp;&nbsp;:&nbsp;List[T]</code>
+  <code class="output">&nbsp;required:&nbsp;List[Nothing]</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(xss&nbsp;:\&nbsp;List())&nbsp;(_&nbsp;:::&nbsp;_)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>To find out why the type inferencer goes wrong, you'll need to know
+about the types of the fold methods and how they are implemented. More
+on this in <a href="working-with-lists.html#sec-understanding-scalas-type-inference-algorithm">Section 16.10</a>.
+Lastly, although the <span class="code">/:</span> and <span class="code">:\</span> operators have the advantage that the direction
+of the slash resembles the graphical depiction of their respective left or right-leaning trees, and the associativity of
+the colon character places the start value in the same position in the
+expression as it is in the tree, some may find the resulting code less than intuitive. If you prefer, you can use the methods named <span class="code">foldLeft</span><a id="i-1740081977-1"/><a id="i1387030996-1"/>
+and <span class="code">foldRight</span><a id="i411005876-1"/> instead, which are also defined on class <span class="code">List</span>.<a id="i53948911-1"/></p>
+
+<h4>Example: List reversal using fold</h4>
+
+
+<p><a id="sec-fastrev"/></p>
+
+<p>Earlier in the chapter you saw an implementation of method
+<span class="code">reverse</span>, named <span class="code">rev</span>, whose running time was quadratic in the length of the list
+to be reversed. Here is a different implementation of <span class="code">reverse</span>
+that has linear cost. The idea is to use a fold left
+operation based on the following scheme:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;reverseLeft[T](xs:&nbsp;<code class="typename">List[T]</code>)&nbsp;=&nbsp;(<i>startvalue</i>&nbsp;/:&nbsp;xs)(<i>operation</i>)
+</pre>
+
+
+<p>What remains is to fill in the <i>startvalue</i> and <i>operation</i> parts.  In fact, you can 
+try to deduce these parts from some simple examples. To deduce the correct
+value of <i>startvalue</i>, you can start with the smallest possible list, <span class="code">List()</span>, and
+calculate as follows:</p>
+
+<pre>
+  <code class="typename">List</code>()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  &nbsp;&nbsp;<code class="rm"><em>equals</em></code>&nbsp;<code class="rm">(by the properties of <code class="code">reverseLeft</code>)</code>
+  <br />  reverseLeft(<code class="typename">List</code>())&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  &nbsp;&nbsp;<code class="rm"><em>equals</em></code>&nbsp;<code class="rm">(by the template for <code class="code">reverseLeft</code>)</code>
+  <br />  (<i>startvalue</i>&nbsp;/:&nbsp;<code class="typename">List</code>())(<i>operation</i>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  &nbsp;&nbsp;<code class="rm"><em>equals</em></code>&nbsp;<code class="rm">(by the definition of <code class="code">/:</code>)</code>
+  <br />  <i>startvalue</i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</pre>
+
+
+<p>Hence, <i>startvalue</i> must be <span class="code">List()</span>. To deduce the second operand, you can
+pick the next smallest list as an example case. You know already that 
+<i>startvalue</i> is <span class="code">List()</span>, so you can calculate as follows:</p>
+
+<pre>
+  <code class="typename">List</code>(x)
+  &nbsp;&nbsp;<code class="rm"><em>equals</em></code>&nbsp;<code class="rm">(by the properties of <code class="code">reverseLeft</code>)</code>
+  <br />  reverseLeft(<code class="typename">List</code>(x))
+  &nbsp;&nbsp;<code class="rm"><em>equals</em></code>&nbsp;<code class="rm">(by the template for <code class="code">reverseLeft</code>, with</code> <code class="rm"><em>startvalue</em></code> <code class="rm"><code class="code">= List()</code>)</code>
+  <br />  (<code class="typename">List</code>()&nbsp;/:&nbsp;<code class="typename">List</code>(x))&nbsp;(<i>operation</i>)&nbsp;
+  &nbsp;&nbsp;<code class="rm"><em>equals</em></code>&nbsp;<code class="rm">(by the definition of <code class="code">/:</code>)</code>
+  <br />  <i>operation</i>(<code class="typename">List</code>(),&nbsp;x)
+</pre>
+
+
+<p>Hence, <i>operation</i><span class="code">(List(),</span>&nbsp;<span class="code">x)</span> equals <span class="code">List(x)</span>, which can also be written
+as <span class="code">x</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">List()</span>. This suggests taking as <i>operation</i> the
+<span class="code">::</span> operator with its operands exchanged. (This operation is
+sometimes called "snoc," in reference<a id="i3535215-1"/> to <span class="code">::</span>, which is
+called cons.) We arrive then at the following implementation for <span class="code">reverseLeft</span>:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;reverseLeft[T](xs:&nbsp;<code class="typename">List[T]</code>)&nbsp;=
+  &nbsp;&nbsp;(<code class="typename">List[T]</code>()&nbsp;/:&nbsp;xs)&nbsp;{(ys,&nbsp;y)&nbsp;=&gt;&nbsp;y&nbsp;::&nbsp;ys}
+</pre>
+
+
+<p>Again, the type annotation in <span class="code">List[T]()</span> is needed to make the
+type inferencer work. If you analyze the complexity of <span class="code">reverseLeft</span>,
+you'll find that it applies a constant-time operation ("snoc") <i>n</i>
+times, where <i>n</i> is the length of the argument list. Thus, the
+complexity of <span class="code">reverseLeft</span> is linear.</p>
+
+<h4>Sorting lists: <span class="code">sortWith</span></h4>
+
+
+<p>The operation <span class="code">xs</span>&nbsp;<span class="code">sortWith</span>&nbsp;<span class="code">before</span>, where "xs" is a list and
+"<span class="code">before</span>" is a function that can be used to compare two elements,
+sorts the elements of list <span class="code">xs</span>.<a id="i866528360-1"/><a id="i-1539355216-1"/>
+The expression <span class="code">x</span>&nbsp;<span class="code">before</span>&nbsp;<span class="code">y</span> should return
+<span class="code">true</span> if <span class="code">x</span> should come before <span class="code">y</span> in the intended ordering for the sort.
+For instance:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;-<code class="literal">3</code>,&nbsp;<code class="literal">4</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">6</code>)&nbsp;sortWith&nbsp;(_&nbsp;&lt;&nbsp;_)
+  <code class="output">res51:&nbsp;List[Int]&nbsp;=&nbsp;List(-3,&nbsp;1,&nbsp;2,&nbsp;4,&nbsp;6)</code>
+  <br />  scala&gt;&nbsp;words&nbsp;sortWith&nbsp;(_.length&nbsp;&gt;&nbsp;_.length)
+  <code class="output">res52:&nbsp;List[String]&nbsp;=&nbsp;List(quick,&nbsp;brown,&nbsp;the,&nbsp;fox)</code>
+</pre>
+
+
+<p>Note that <span class="code">sortWith</span> performs a merge sort similar to the
+<span class="code">msort</span> algorithm shown in the last section. But <span class="code">sortWith</span> is a method of class <span class="code">List</span>, whereas <span class="code">msort</span> is defined outside lists.</p>
+
+<h3>16.8 Methods of the <span class="code">List</span> object</h3>
+
+
+<p>So far, all operations you have seen in this chapter are implemented
+as methods of class <span class="code">List</span>, so you invoke them on individual list
+objects. There are also a number of methods in the globally accessible
+object <span class="code">scala.List</span>, which is the companion object of class <span class="code">List</span>.
+Some of these operations are factory methods that create lists.
+Others are operations that work on lists of some specific shape.
+Both kinds of methods will be presented in this section.</p>
+
+<h4>Creating lists from their elements: <span class="code">List.apply</span></h4>
+
+
+<p>You've already seen on several occasions list literals such as
+<span class="code">List(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3)</span>.
+There's nothing special about their syntax. A literal like
+<span class="code">List(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3)</span><a id="i19484993-2"/><a id="i1305057997-2"/> is simply the application of the object <span class="code">List</span> to
+the elements <span class="code">1</span>, <span class="code">2</span>, <span class="code">3</span>. That is, it is equivalent to <span class="code">List.apply(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3)</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;List.apply(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)
+  <code class="output">res53:&nbsp;List[Int]&nbsp;=&nbsp;List(1,&nbsp;2,&nbsp;3)</code>
+</pre>
+
+
+<h4>Creating a range of numbers: <span class="code">List.range</span></h4>
+
+
+<p>The <span class="code">range</span> method, which you saw briefly earlier in the discussion of <span class="code">map</span> and <span class="code">flatmap</span>,
+creates a list consisting of a range of numbers.
+Its simplest form is <span class="code">List.range(from,</span>&nbsp;<span class="code">until)</span>,<a id="i648409480-1"/><a id="i1320308892-2"/> which creates a list of all 
+numbers starting at <span class="code">from</span> and going up to <span class="code">until</span> minus one. So the
+end value, <span class="code">until</span>, does not form part of the range.</p>
+
+<p>There's also a version of <span class="code">range</span> that takes a <span class="code">step</span> value as 
+third parameter. This operation will yield list elements
+that are <span class="code">step</span> values apart, starting at <span class="code">from</span>. The <span class="code">step</span> can be positive 
+or negative:</p>
+
+<pre>
+  scala&gt;&nbsp;List.range(<code class="literal">1</code>,&nbsp;<code class="literal">5</code>)
+  <code class="output">res54:&nbsp;List[Int]&nbsp;=&nbsp;List(1,&nbsp;2,&nbsp;3,&nbsp;4)</code>
+  <br />  scala&gt;&nbsp;List.range(<code class="literal">1</code>,&nbsp;<code class="literal">9</code>,&nbsp;<code class="literal">2</code>)
+  <code class="output">res55:&nbsp;List[Int]&nbsp;=&nbsp;List(1,&nbsp;3,&nbsp;5,&nbsp;7)</code>
+  <br />  scala&gt;&nbsp;List.range(<code class="literal">9</code>,&nbsp;<code class="literal">1</code>,&nbsp;-<code class="literal">3</code>)
+  <code class="output">res56:&nbsp;List[Int]&nbsp;=&nbsp;List(9,&nbsp;6,&nbsp;3)</code>
+</pre>
+
+
+<h4>Creating uniform lists: <span class="code">List.fill</span></h4>
+
+
+<p>The <span class="code">fill</span><a id="i-2061749081-1"/><a id="i-1204685244-1"/> method creates a list consisting of 
+zero or more copies of the same element. It takes two parameters:
+the length of the list to be created, and the element to be repeated.
+Each parameter is given in a separate list:</p>
+
+<pre>
+  scala&gt;&nbsp;List.fill(<code class="literal">5</code>)(<code class="quotedstring">'a'</code>)
+  <code class="output">res57:&nbsp;List[Char]&nbsp;=&nbsp;List(a,&nbsp;a,&nbsp;a,&nbsp;a,&nbsp;a)</code>
+  <br />  scala&gt;&nbsp;List.fill(<code class="literal">3</code>)(<code class="quotedstring">"hello"</code>)
+  <code class="output">res58:&nbsp;List[String]&nbsp;=&nbsp;List(hello,&nbsp;hello,&nbsp;hello)</code>
+</pre>
+
+
+<p>If <span class="code">fill</span> is given more than two arguments, then it will make
+multi-dimensional lists.  That is, it will make lists of lists, lists
+of lists of lists, <i>etc.</i>  The additional arguments go in the first
+argument list.</p>
+
+<pre>
+  scala&gt;&nbsp;List.fill(<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)(<code class="quotedstring">'b'</code>)
+  <code class="output">res59:&nbsp;List[List[Char]]&nbsp;=&nbsp;List(List(b,&nbsp;b,&nbsp;b),&nbsp;List(b,&nbsp;b,&nbsp;b))</code>
+</pre>
+
+
+<h4>Tabulating a function: <span class="code">List.tabulate</span></h4>
+
+
+<p>The <span class="code">tabulate</span><a id="i-1627924214-1"/><a id="i-1127956889-1"/>
+method creates a list whose elements are computed according to a supplied
+function.  Its arguments are just like those of <span class="code">List.fill</span>: the
+first argument list gives the dimensions of the list to create, and
+the second describes the elements of the list.  The only difference is
+that instead of the elements being fixed, they are computed from a
+function:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;squares&nbsp;=&nbsp;List.tabulate(<code class="literal">5</code>)(n&nbsp;=&gt;&nbsp;n&nbsp;*&nbsp;n)
+  <code class="output">squares:&nbsp;List[Int]&nbsp;=&nbsp;List(0,&nbsp;1,&nbsp;4,&nbsp;9,&nbsp;16)</code>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;multiplication&nbsp;=&nbsp;List.tabulate(<code class="literal">5</code>,<code class="literal">5</code>)(_&nbsp;*&nbsp;_)
+  <code class="output">multiplication:&nbsp;List[List[Int]]&nbsp;=&nbsp;List(List(0,&nbsp;0,&nbsp;0,&nbsp;0,&nbsp;0),&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;List(0,&nbsp;1,&nbsp;2,&nbsp;3,&nbsp;4),&nbsp;List(0,&nbsp;2,&nbsp;4,&nbsp;6,&nbsp;8),</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;List(0,&nbsp;3,&nbsp;6,&nbsp;9,&nbsp;12),&nbsp;List(0,&nbsp;4,&nbsp;8,&nbsp;12,&nbsp;16))</code>
+</pre>
+
+
+<h4>Concatenating multiple lists: <span class="code">List.concat</span></h4>
+
+
+<p>The <span class="code">concat</span><a id="i-214121608-1"/><a id="i1858358165-1"/> method concatenates
+a number of element lists.
+The lists to be concatenated are supplied as direct arguments to
+<span class="code">concat</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;List.concat(<code class="typename">List</code>(<code class="quotedstring">'a'</code>,&nbsp;<code class="quotedstring">'b'</code>),&nbsp;<code class="typename">List</code>(<code class="quotedstring">'c'</code>))
+  <code class="output">res60:&nbsp;List[Char]&nbsp;=&nbsp;List(a,&nbsp;b,&nbsp;c)</code>
+  <br />  scala&gt;&nbsp;List.concat(<code class="typename">List</code>(),&nbsp;<code class="typename">List</code>(<code class="quotedstring">'b'</code>),&nbsp;<code class="typename">List</code>(<code class="quotedstring">'c'</code>))
+  <code class="output">res61:&nbsp;List[Char]&nbsp;=&nbsp;List(b,&nbsp;c)</code>
+  <br />  scala&gt;&nbsp;List.concat()
+  <code class="output">res62:&nbsp;List[Nothing]&nbsp;=&nbsp;List()</code>
+</pre>
+
+
+<h3 id="sec-lists-zipped">16.9 Processing multiple lists together</h3>
+
+
+<p>The <span class="code">zipped</span> method on tuples generalizes several common operations
+to work on multiple lists instead of just
+one.<a id="i1322859333-1"/><a id="i445487131-1"/>
+One such operation is <span class="code">map</span>.  The <span class="code">map</span> method for two zipped lists
+maps pairs of elements rather than individual elements.  One pair is
+for the first element of each list, another pair is for the second
+element of each list, and so on&mdash;as many pairs as the lists are
+long. Here is an example of its use:</p>
+
+<pre>
+  scala&gt;&nbsp;(<code class="typename">List</code>(<code class="literal">10</code>,&nbsp;<code class="literal">20</code>),&nbsp;<code class="typename">List</code>(<code class="literal">3</code>,&nbsp;<code class="literal">4</code>,&nbsp;<code class="literal">5</code>)).zipped.map(_&nbsp;*&nbsp;_)
+  <code class="output">res63:&nbsp;List[Int]&nbsp;=&nbsp;List(30,&nbsp;80)</code>
+</pre>
+
+
+<p>Notice that the third element of the second list is discarded.  The
+<span class="code">zipped</span> method zips up only as many elements as appear in all the
+lists together. Any extra elements on the end are discarded.</p>
+
+<p>There are also zipped analogs to <span class="code">exists</span> and <span class="code">forall</span>.  They are
+just like the single-list versions of those methods except they
+operate on elements from multiple lists instead of just one:</p>
+
+<pre>
+  scala&gt;&nbsp;(<code class="typename">List</code>(<code class="quotedstring">"abc"</code>,&nbsp;<code class="quotedstring">"de"</code>),&nbsp;<code class="typename">List</code>(<code class="literal">3</code>,&nbsp;<code class="literal">2</code>)).zipped.
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;forall(_.length&nbsp;==&nbsp;_)
+  <code class="output">res64:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+  scala&gt;&nbsp;(<code class="typename">List</code>(<code class="quotedstring">"abc"</code>,&nbsp;<code class="quotedstring">"de"</code>),&nbsp;<code class="typename">List</code>(<code class="literal">3</code>,&nbsp;<code class="literal">2</code>)).zipped.
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exists(_.length&nbsp;!=&nbsp;_)
+  <code class="output">res65:&nbsp;Boolean&nbsp;=&nbsp;false</code>
+</pre>
+
+
+<div class="pointofinterest">
+<h3>The fast track</h3>
+
+
+<p>In the next (and final) section of this chapter, we provide insight into Scala's type inference algorithm. If you're not interested in such details right now, you can skip the entire section and go straight to the conclusion
+ <a href="working-with-lists.html#sec-list-conclusion">here</a>.</p>
+
+</div>
+
+
+<h3 id="sec-understanding-scalas-type-inference-algorithm">16.10 Understanding Scala's type inference algorithm</h3>
+
+
+<p>One difference<a id="i2062825537-1"/><a id="i2147374841-1"/> between the previous uses of <span class="code">sortWith</span> and <span class="code">msort</span> concerns the 
+admissible syntactic forms of the comparison function.</p>
+
+<p>Compare:</p>
+
+<pre>
+  scala&gt;&nbsp;msort((x:&nbsp;<code class="typename">Char</code>,&nbsp;y:&nbsp;<code class="typename">Char</code>)&nbsp;=&gt;&nbsp;x&nbsp;&gt;&nbsp;y)(abcde)
+  <code class="output">res66:&nbsp;List[Char]&nbsp;=&nbsp;List(e,&nbsp;d,&nbsp;c,&nbsp;b,&nbsp;a)</code>
+</pre>
+
+
+<p>with:</p>
+
+<pre>
+  scala&gt;&nbsp;abcde&nbsp;sortWith&nbsp;(_&nbsp;&gt;&nbsp;_)
+  <code class="output">res67:&nbsp;List[Char]&nbsp;=&nbsp;List(e,&nbsp;d,&nbsp;c,&nbsp;b,&nbsp;a)</code>
+</pre>
+
+
+<p>The two expressions are equivalent, but the first uses a 
+longer form of comparison function with named parameters and explicit types. The second uses the concise form, <span class="code">(_</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">_)</span>, where named 
+parameters are replaced by underscores. Of course, you could 
+also use the first, longer form of comparison with <span class="code">sortWith</span>.</p>
+
+<p>However, the short form cannot be used with <span class="code">msort</span>.</p>
+
+<pre>
+  scala&gt;&nbsp;msort(_&nbsp;&gt;&nbsp;_)(abcde)
+  <code class="output">&lt;console&gt;:12:&nbsp;error:&nbsp;missing&nbsp;parameter&nbsp;type&nbsp;for&nbsp;expanded&nbsp;</code>
+  <code class="output">function&nbsp;((x$1,&nbsp;x$2)&nbsp;=&gt;&nbsp;x$1.$greater(x$2))</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;msort(_&nbsp;&gt;&nbsp;_)(abcde)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>To understand why, you need to know some details of Scala's type inference algorithm.
+Type inference in Scala is flow based. In a method application <span class="code">m(args)</span>, 
+the inferencer first checks whether the method <span class="code">m</span> has a known type.  
+If it does, that type is used to infer the expected type of the arguments.
+For instance, in <span class="code">abcde.sortWith(_</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">_)</span>, the type of <span class="code">abcde</span> is <span class="code">List[Char]</span>. Hence, <span class="code">sortWith</span> is known to be a method that takes an argument
+of type <span class="code">(Char,</span>&nbsp;<span class="code">Char)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span> and produces a result of type <span class="code">List[Char]</span>.
+Since the parameter types of the function arguments are known, they need not be written explicitly. 
+With what it knows about <span class="code">sortWith</span>, the inferencer can deduce 
+that <span class="code">(_</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">_)</span> should expand to <span class="code">((x:</span>&nbsp;<span class="code">Char,</span>&nbsp;<span class="code">y:</span>&nbsp;<span class="code">Char)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">x</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">y)</span> where
+<span class="code">x</span> and <span class="code">y</span> are some arbitrary fresh names.</p>
+
+<p>Now consider the second case, <span class="code">msort(_</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">_)(abcde)</span>. 
+The type of <span class="code">msort</span> is a curried, polymorphic method type
+that takes an argument of type <span class="code">(T,</span>&nbsp;<span class="code">T)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span> to a function from
+<span class="code">List[T]</span> to <span class="code">List[T]</span> <span style="font-style:italic">where <span class="code">T</span> is some as-yet unknown type</span>. 
+The <span class="code">msort</span> method needs to be instantiated with a type parameter 
+before it can be applied to its arguments.</p>
+
+<p>Because the precise instance type of <span class="code">msort</span> in the application is not yet known, 
+it cannot be used to infer the type of its first argument.
+The type inferencer changes its strategy 
+in this case; it first type checks method arguments to determine 
+the proper instance type of the method. However, when tasked to 
+type check the short-hand function literal, <span class="code">(_</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">_)</span>, it fails because it 
+has no information about the 
+types of the implicit function parameters that are indicated by underscores.</p>
+
+<p>One way to resolve the problem is to pass an explicit type 
+parameter to <span class="code">msort</span>, as in:</p>
+
+<pre>
+  scala&gt;&nbsp;msort[<code class="typename">Char</code>](_&nbsp;&gt;&nbsp;_)(abcde)
+  <code class="output">res68:&nbsp;List[Char]&nbsp;=&nbsp;List(e,&nbsp;d,&nbsp;c,&nbsp;b,&nbsp;a)</code>
+</pre>
+
+
+<p>Because the correct instance type of <span class="code">msort</span> is now known, 
+it can be used to infer the type of the arguments. Another possible solution is to rewrite the <span class="code">msort</span> method so 
+that its parameters are swapped:</p>
+
+<div style="page-break-after:always"/>
+
+
+<pre>
+  <code class="vem">def</code>&nbsp;msortSwapped[T](xs:&nbsp;<code class="typename">List[T]</code>)(less:
+  &nbsp;&nbsp;&nbsp;&nbsp;(T,&nbsp;T)&nbsp;=&gt;&nbsp;<code class="typename">Boolean</code>):&nbsp;<code class="typename">List[T]</code>&nbsp;=&nbsp;{
+  <br />  &nbsp;&nbsp;<code class="comment">//&nbsp;same&nbsp;implementation&nbsp;as&nbsp;msort,</code>
+  &nbsp;&nbsp;<code class="comment">//&nbsp;but&nbsp;with&nbsp;arguments&nbsp;swapped</code>
+  }
+</pre>
+
+
+<p>Now type inference would succeed:</p>
+
+<pre>
+  scala&gt;&nbsp;msortSwapped(abcde)(_&nbsp;&gt;&nbsp;_)
+  <code class="output">res69:&nbsp;List[Char]&nbsp;=&nbsp;List(e,&nbsp;d,&nbsp;c,&nbsp;b,&nbsp;a)</code>
+</pre>
+
+
+<p>What has happened is that the inferencer used the known type of 
+the first parameter <span class="code">abcde</span> to determine the type
+parameter of <span class="code">msortSwapped</span>. Once the precise type of <span class="code">msortSwapped</span> was known, 
+it could be used in turn to infer the type of the second parameter, <span class="code">(_</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">_)</span>.</p>
+
+<p>Generally, when tasked to infer the type parameters of a polymorphic
+method, the type inferencer consults the types of all value arguments
+in the first parameter list but no arguments beyond
+that. Since <span class="code">msortSwapped</span> is a curried method with two parameter lists,
+the second argument (<i>i.e.</i>, the function value) did not need to be consulted
+to determine the type parameter of the method.</p>
+
+<p>This inference scheme suggests the following library design principle:
+When designing a polymorphic method that takes some non-function
+arguments and a function argument, place the function argument last in a
+curried parameter list on its own<a id="i-1510488017-1"/>. That way, the method's correct
+instance type can be inferred from the non-function arguments, and
+that type can in turn be used to type check the function argument. The
+net effect is that users of the method will be able to give less type
+information and write function literals in more compact ways.</p>
+
+<p>Now to the more complicated case of a <span style="font-style:italic">fold</span> operation. 
+Why is there the need for an explicit type parameter in an expression like 
+the body of the <span class="code">flattenRight</span> method shown  <a href="working-with-lists.html#exa-flatten-right-body">here</a>?</p>
+
+<pre>
+  (xss&nbsp;:\&nbsp;<code class="typename">List[T]</code>())&nbsp;(_&nbsp;:::&nbsp;_)
+</pre>
+
+
+<p>The type of the fold-right operation is polymorphic in two type variables.
+Given an expression:</p>
+
+<pre>
+  (xs&nbsp;:\&nbsp;z)&nbsp;(op)
+</pre>
+
+
+<p>The type of <span class="code">xs</span> must be a list of some arbitrary type <span class="code">A</span>, 
+say <span class="code">xs:</span>&nbsp;<span class="code">List[A]</span>. The start value <span class="code">z</span> can be of some other type <span class="code">B</span>.
+The operation <span class="code">op</span> must then take two arguments of type <span class="code">A</span> and <span class="code">B</span>, 
+and return a result of type <span class="code">B</span>, <i>i.e.</i>, <span class="code">op:</span>&nbsp;<span class="code">(A,</span>&nbsp;<span class="code">B)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">B</span>.
+Because the type of <span class="code">z</span> is not related to the type of the list
+<span class="code">xs</span>, type inference has no context information for <span class="code">z</span>.</p>
+
+<p>Now consider the expression in the erroneous version of <span class="code">flattenRight</span>, also shown  <a href="working-with-lists.html#exa-flatten-right-body">here</a>:</p>
+
+<pre>
+  (xss&nbsp;:\&nbsp;<code class="typename">List</code>())&nbsp;(_&nbsp;:::&nbsp;_)&nbsp;&nbsp;<code class="comment">//&nbsp;this&nbsp;won't&nbsp;compile</code>
+</pre>
+
+
+<p>The start value <span class="code">z</span> in this fold is an empty list, <span class="code">List()</span>,
+so without additional type information its type is inferred to 
+be a <span class="code">List[Nothing]</span>. 
+Hence, the inferencer will infer that the <span class="code">B</span> type of the fold is 
+<span class="code">List[Nothing]</span>. Therefore, the operation <span class="code">(_</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">_)</span> of the fold
+is expected to be of the following type:</p>
+
+<pre>
+  (<code class="typename">List[T]</code>,&nbsp;<code class="typename">List[Nothing]</code>)&nbsp;=&gt;&nbsp;<code class="typename">List[Nothing]</code>
+</pre>
+
+
+<p>This is indeed a possible type for the operation in that fold but it
+is not a very useful one! It says that the operation always takes an
+empty list as second argument and always produces an empty list as
+result.</p>
+
+<p>In other words, the type inference settled too early on a
+type for <span class="code">List()</span>; it should have waited until it had seen
+the type of the operation <span class="code">op</span>.  So the (otherwise very useful) rule
+to only consider the first argument section in a curried method
+application for determining the method's type is at the root of the
+problem here.  On the other hand, even if that rule were relaxed, the
+inferencer still could not come up with a type for <span class="code">op</span> because its
+parameter types are not given. Hence, there is a Catch-22
+situation that can only be resolved by an explicit type annotation
+from the programmer.</p>
+
+<p>This example highlights some limitations of the local, flow-based type
+inference scheme of Scala. It is not present in the more global
+Hindley-Milner style of type inference used in functional
+languages, such as ML or
+Haskell.<a id="i281902151-1"/><a id="i-402843137-1"/>  However, Scala's local type inference
+deals much more gracefully with object-oriented subtyping than the
+Hindley-Milner style does.  Fortunately, the
+limitations show up only in some corner cases, and are usually easily
+fixed by adding an explicit type annotation.</p>
+
+<p>Adding type annotations<a id="i-250763219-1"/><a id="i-2128117477-1"/> is also a useful debugging technique when you
+get confused by type error messages related to polymorphic methods. If
+you are unsure what caused a particular type error, just add some type
+arguments or other type annotations, which you think are correct. Then
+you should be able to quickly see where the real problem is.</p>
+
+<h3 id="sec-list-conclusion">16.11 Conclusion</h3>
+
+
+<p>Now you have seen many ways to work with lists.  You have seen the
+basic operations like <span class="code">head</span> and <span class="code">tail</span>, the first-order operations
+like <span class="code">reverse</span>, the higher-order operations like <span class="code">map</span>, and the
+utility methods in the <span class="code">List</span> object.  Along the way, you
+learned a bit about how Scala's type inference works.</p>
+
+<p>Lists are a real work horse in Scala, so you will benefit from knowing
+how to use them.  For that reason, this chapter has delved deeply into
+how to use lists.  Lists are just one kind of collection that Scala
+supports, however.  The next chapter is broad, rather than deep, and
+shows you how to use a variety of Scala's collection types.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 16:</h4>
+
+
+<p><a id="footnotemain16-1"/>[1] For a graphical
+depiction of the structure of a <span class="code">List</span>, see <a href="implementing-lists.html#fig-more-fruit">Figure 22.2</a>  <a href="implementing-lists.html#fig-more-fruit">here</a>.</p>
+
+<p><a id="footnotemain16-2"/>[2] <a href="type-parameterization.html">Chapter 19</a> gives more details on covariance and other kinds of variance.</p>
+
+<p><a id="footnotemain16-3"/>[3] Type parameters will be explained in
+more detail in <a href="type-parameterization.html">Chapter 19</a>.</p>
+
+<p><a id="footnotemain16-4"/>[4] The <span class="code">???</span> method, which throws <span class="code">scala.NotImplementedError</span> and has result type <span class="code">Nothing</span>, can be
+used as a temporary implementation during development.</p>
+
+<p><a id="footnotemain16-5"/>[5] As mentioned in <a href="composition-and-inheritance.html#sec-impl-above-beside-tostring">Section 10.12</a>, the term <em>pair</em> is an
+informal name for <span class="code">Tuple2</span>.</p>
+
+<p><a id="footnotemain16-6"/>[6] This is class 
+<span class="code">scala.StringBuilder</span>, not <span class="code">java.lang.StringBuilder</span>.</p>
+
+<p><a id="footnotemain16-7"/>[7] By <em>higher-order operators</em>, we mean higher-order functions used in
+operator notation. As mentioned in <a href="control-abstraction.html#sec-reducing-code-dup">Section 9.1</a>, a function is "higher-order" if it takes one or more other functions
+as a parameters.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

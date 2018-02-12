@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="front2"></a></h2>
+<h1>Foreword</h1>
+
+
+<p>You've chosen a great time to pick up this book! Scala adoption keeps accelerating, our community is thriving, and job ads abound. Whether you're programming for fun or profit (or both), Scala's promise of joy and productivity is proving hard to resist. To me, the true joy of programming comes from tackling interesting challenges with simple, sophisticated solutions. Scala's mission is not just to make this possible, but enjoyable, and this book will show you how.</p>
+
+<p>I first experimented with Scala 2.5, and was immediately drawn to its syntactic and conceptual regularity. When I ran into the irregularity that type parameters couldn't have type parameters themselves, I (timidly) walked up to Martin Odersky at a conference in 2006 and proposed an internship to remove that restriction. My contribution was accepted, bringing support for type constructor polymorphism to Scala 2.7 and up. Since then, I've worked on most other parts of the compiler. In 2012 I went from post-doc in Martin's lab to Scala team lead at Typesafe, as Scala, with version 2.10, graduated from its pragmatic academic roots to a robust language for the enterprise.</p>
+
+<p>Scala 2.10 was a turning point from fast-paced, feature-rich releases based on academic research, towards a focus on simplification and increased adoption in the enterprise. We shifted our attention to issues that won't be written up in dissertations, such as binary compatibility<a id="i-1391235183-1"/> between major releases. To balance stability with our desire to keep evolving and refining the Scala platform, we're working towards a smaller core library, which we aim to stabilize while evolving the platform as a whole. To enable this, my first project as Scala tech lead was to begin modularizing the Scala standard library in 2.11.</p>
+
+<p>To reduce the rate of change, Typesafe also decided to alternate changing the library and the compiler. This edition of <span style="font-style:italic">Programming in Scala</span> covers Scala 2.12,<a id="i88737196-1"/> which will be a compiler release sporting a new back-end and optimizer to make the most of Java 8's new features.<a id="i-2083218982-1"/> For interoperability with Java and to enjoy the same benefits from JVM optimizations, Scala compiles functions to the same bytecode as the Java 8 compiler. Similarly, Scala traits now compile to Java interfaces with default methods.<a id="i-520965298-1"/><a id="i1435359027-1"/> Both compilation schemes reduce the magic that older Scala compilers had to perform, aligning us more closely with the Java platform, while improving both compile-time and run-time performance, with a smoother binary compatibility<a id="i-1391235183-2"/> story to boot!</p>
+
+<p>These improvement to the Java 8 platform are very exciting for Scala, and it's very rewarding to see Java align with the trend Scala has been setting for over a decade! There's no doubt that Scala provides a much better functional programming experience, with immutability by default, a uniform treatment of expressions (there's hardly a return statement in sight in this book), pattern matching, definition-site variance (Java's use-site variance make function subtyping quite awkward), and so on! To be blunt, there's more to functional programming than nice syntax for lambdas.<a id="i-758602307-1"/><a id="i1059833762-1"/></p>
+
+<p>As stewards of the language, our goal is to develop the core language as much as to foster the ecosystem. Scala is successful because of the many excellent libraries, outstanding IDEs and tools, and the friendly and ever helpful members of our community. I've thoroughly enjoyed my first decade of Scala&mdash;as an implementer of the language, it's such a thrill and inspiration to meet programmers having fun with Scala across so many domains.</p>
+
+<p>I love programming in Scala, and I hope you will too. On behalf of the Scala community, welcome!</p>
+
+<p><!-- \hfill --> 
+Adriaan Moors<br />
+San Francisco, CA<br />
+January 14, 2016</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

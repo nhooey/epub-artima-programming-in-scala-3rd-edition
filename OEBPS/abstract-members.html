@@ -1,0 +1,1569 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-abstract-members">Chapter 20</a></h2>
+<h1>Abstract Members</h1>
+
+
+<p>A member of a class or trait is <span style="font-style:italic">abstract</span> if the member does not
+have a complete definition in the class.<a id="i785070065-1"/><a id="i184187235-1"/> Abstract members are intended
+to be implemented in subclasses of the class in which they are
+declared. This idea is found in many object-oriented languages. For
+instance, Java lets you declare abstract methods.  Scala also lets you
+declare such methods, as you saw in
+<a href="composition-and-inheritance.html#sec-abstract-classes">Section 10.2</a>. But Scala goes beyond
+that and implements the idea in its full generality: Besides methods,
+you can declare abstract fields and even abstract types
+as members of classes and traits.</p>
+
+<p>In this chapter we'll describe all four kinds of abstract member: <span class="code">val</span>s, <span class="code">var</span>s, methods, and types. Along the way we'll discuss
+pre-initialized fields, lazy <span class="code">val</span>s, path-dependent types, and enumerations.</p>
+
+<h3>20.1 A quick tour of abstract members</h3>
+
+
+<p>The following trait declares one of each kind of abstract member: an abstract type (<span class="code">T</span>), method (<span class="code">transform</span>), <span class="code">val</span> (<span class="code">initial</span>), and <span class="code">var</span> (<span class="code">current</span>):<a id="i-1463644999-1"/></p>
+
+<pre>
+  <code class="vem">trait</code>&nbsp;<code class="typename">Abstract</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">type</code>&nbsp;T
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;transform(x:&nbsp;T):&nbsp;T
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;initial:&nbsp;T
+  &nbsp;&nbsp;<code class="vem">var</code>&nbsp;current:&nbsp;T
+  }
+</pre>
+
+
+<p>A concrete implementation of <span class="code">Abstract</span> needs to fill in definitions for each of its
+abstract members. Here is an example implementation that provides these definitions:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Concrete</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Abstract</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">type</code>&nbsp;T&nbsp;=&nbsp;<code class="typename">String</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;transform(x:&nbsp;<code class="typename">String</code>)&nbsp;=&nbsp;x&nbsp;+&nbsp;x
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;initial&nbsp;=&nbsp;<code class="quotedstring">"hi"</code>
+  &nbsp;&nbsp;<code class="vem">var</code>&nbsp;current&nbsp;=&nbsp;initial
+  }
+</pre>
+
+
+<p>The implementation gives a concrete meaning to the type name <span class="code">T</span> by
+defining it as an alias of type <span class="code">String</span>.<a id="i1803174454-1"/><a id="i22781976-1"/> The <span class="code">transform</span> operation
+concatenates a given string with itself, and the <span class="code">initial</span> and
+<span class="code">current</span> values are both set to <span class="code">"hi"</span>.</p>
+
+<p>This example gives you a rough first idea of what kinds of abstract
+members exist in Scala. The remainder of the chapter will present the details and
+explain what the new forms of abstract members, as well as type members in general, are good for.</p>
+
+<h3>20.2 Type members</h3>
+
+
+<p>As you can see from the example in the previous section, the term <em>abstract type</em> in Scala means a type<a id="i1886198323-1"/>
+declared (with the "<span class="code">type</span>" keyword) to be a member
+of a class or trait, without specifying a
+definition.<a id="i475521275-1"/><a id="i-1569140754-2"/> Classes themselves may be abstract, and traits are by definition abstract, but neither of these are what are referred to as <em>abstract
+types</em> in Scala. An abstract type in Scala is always a member of some class or trait, such as type <span class="code">T</span> in trait <span class="code">Abstract</span>.</p>
+
+<p>You can think of a non-abstract (or "concrete") type member, such as
+type <span class="code">T</span> in class <span class="code">Concrete</span>, as a way to define a new name, or
+<em>alias</em>, for a type.<a id="i22781976-2"/><a id="i1803174454-2"/> In class
+<span class="code">Concrete</span>, for example, the type <span class="code">String</span> is given the alias <span class="code">T</span>. As a result, anywhere <span class="code">T</span> appears in the definition of class <span class="code">Concrete</span>, it
+means <span class="code">String</span>. This includes the parameter and result types of <span class="code">transform</span>, <span class="code">initial</span>, and <span class="code">current</span>, which mention <span class="code">T</span> when
+they are declared in supertrait <span class="code">Abstract</span>. Thus, when class <span class="code">Concrete</span> implements these methods, those <span class="code">T</span>s are interpreted to mean <span class="code">String</span>.</p>
+
+<p>One reason to use a type member is to define a short, descriptive alias<a id="i22781976-3"/><a id="i1803174454-3"/> for a type whose real name is more verbose, or
+less obvious in meaning, than the alias. Such type members can help clarify the code of a class or trait. The other main use of
+type members is to declare abstract types that must be defined
+in subclasses. This use, which was demonstrated in the previous section, will be described in detail later in this chapter.</p>
+
+<h3 id="sec-abstract-vals">20.3 Abstract <span class="code">val</span>s</h3>
+
+
+<p>An abstract <span class="code">val</span> declaration has a form like:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;initial:&nbsp;<code class="typename">String</code>
+</pre>
+
+
+<p>It gives a name and type for a <span class="code">val</span>, but not its
+value.<a id="i1727592746-1"/>
+This value has to be provided by a concrete <span class="code">val</span> definition in a subclass.
+For instance, class <span class="code">Concrete</span> implemented the <span class="code">val</span> using:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;initial&nbsp;=&nbsp;<code class="quotedstring">"hi"</code>
+</pre>
+
+
+<p>You use an abstract <span class="code">val</span> declaration in a class when you do not know
+the correct value in the class, but you do know that the variable will have an 
+unchangeable value in each instance of the class.</p>
+
+<p>An abstract <span class="code">val</span> declaration resembles an abstract parameterless<a id="i1692897037-1"/><a id="i748048051-1"/><a id="i84167179-1"/>
+method declaration such as:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;initial:&nbsp;<code class="typename">String</code>
+</pre>
+
+
+<p>Client code would refer to both the <span class="code">val</span> and the method in exactly the
+same way (<i>i.e.</i>, <span class="code">obj.initial</span>). However, if <span class="code">initial</span> is an abstract <span class="code">val</span>,
+the client is guaranteed that <span class="code">obj.initial</span> will yield the
+same value every time it is referenced.  If <span class="code">initial</span> were an abstract
+method, that guarantee would not hold because, in that case,
+<span class="code">initial</span> could be implemented by a concrete method that returns a
+different value every time it's called.</p>
+
+<p>In other words, an abstract <span class="code">val</span> constrains its legal implementation:
+Any implementation must be a <span class="code">val</span> definition; it may not be a <span class="code">var</span>
+or a <span class="code">def</span>. Abstract method declarations, on the other hand,
+may be implemented by both concrete method definitions and concrete
+<span class="code">val</span> definitions.  Given the abstract class <span class="code">Fruit</span> shown in <a href="abstract-members.html#lst-bad-apple">Listing 20.1</a>, class <span class="code">Apple</span>
+would be a legal subclass implementation, but class <span class="code">BadApple</span> would not.
+<a id="lst-bad-apple"/></p>
+
+<pre>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Fruit</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;v:&nbsp;<code class="typename">String</code>&nbsp;<code class="comment">//&nbsp;`v'&nbsp;for&nbsp;value</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;m:&nbsp;<code class="typename">String</code>&nbsp;<code class="comment">//&nbsp;`m'&nbsp;for&nbsp;method</code>
+  }
+  <br />  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Apple</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Fruit</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;v:&nbsp;<code class="typename">String</code>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;m:&nbsp;<code class="typename">String</code>&nbsp;<code class="comment">//&nbsp;OK&nbsp;to&nbsp;override&nbsp;a&nbsp;`def'&nbsp;with&nbsp;a&nbsp;`val'</code>
+  }
+  <br />  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">BadApple</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Fruit</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;v:&nbsp;<code class="typename">String</code>&nbsp;<code class="comment">//&nbsp;ERROR:&nbsp;cannot&nbsp;override&nbsp;a&nbsp;`val'&nbsp;with&nbsp;a&nbsp;`def'</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;m:&nbsp;<code class="typename">String</code>
+  }
+</pre>
+
+
+<h5>Listing 20.1 - Overriding abstract <span class="code">val</span>s and parameterless methods.</h5>
+
+
+<h3>20.4 Abstract <span class="code">var</span>s</h3>
+
+
+<p>Like an abstract <span class="code">val</span>, an abstract <span class="code">var</span> declares just a name and a
+type, but not an initial value<a id="i-464180816-1"/>. For instance, <a href="abstract-members.html#lst-abstract-vars">Listing 20.2</a> shows a trait
+<span class="code">AbstractTime</span>, which declares two abstract variables named <span class="code">hour</span> and
+<span class="code">minute</span>:</p>
+
+<p><a id="lst-abstract-vars"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">AbstractTime</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">var</code>&nbsp;hour:&nbsp;<code class="typename">Int</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">var</code>&nbsp;minute:&nbsp;<code class="typename">Int</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 20.2 - Declaring abstract <span class="code">var</span>s.</h5>
+
+
+<p>What is the meaning of abstract <span class="code">var</span>s
+like <span class="code">hour</span> and
+<span class="code">minute</span>?  You saw in <a href="mutable-objects.html#sec-properties">Section 18.2</a> that
+<span class="code">var</span>s declared as members of classes come equipped with getter and
+setter methods<a id="i553650449-2"/><a id="i-1969580643-3"/>. This holds for abstract <span class="code">var</span>s as well.
+If you declare an abstract <span class="code">var</span> named <span class="code">hour</span>, for example, you implicitly declare an abstract
+getter method, <span class="code">hour</span>, and an abstract setter method, <span class="code">hour_=</span>.
+There's no reassignable field to be defined&mdash;that will come in subclasses
+that define the concrete implementation of the abstract <span class="code">var</span>.
+For instance, the definition of <span class="code">AbstractTime</span> shown in <a href="abstract-members.html#lst-abstract-vars">Listing 20.2</a> is
+exactly equivalent to the definition shown in <a href="abstract-members.html#lst-abstract-vars-expanded">Listing 20.3</a>.
+<a id="lst-abstract-vars-expanded"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">AbstractTime</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;hour:&nbsp;<code class="typename">Int</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;getter&nbsp;for&nbsp;`hour'</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;hour_=(x:&nbsp;<code class="typename">Int</code>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;setter&nbsp;for&nbsp;`hour'</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;minute:&nbsp;<code class="typename">Int</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;getter&nbsp;for&nbsp;`minute'</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;minute_=(x:&nbsp;<code class="typename">Int</code>)&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;setter&nbsp;for&nbsp;`minute'</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 20.3 - How abstract <span class="code">var</span>s are expanded into getters and setters.</h5>
+
+
+<h3 id="sec-val-init">20.5 Initializing abstract <span class="code">val</span>s</h3>
+
+
+<p>Abstract <span class="code">val</span>s sometimes play a role analogous to superclass
+parameters: they let you provide details in a subclass that are
+missing in a superclass. This is particularly important for traits, because traits don't have a constructor to which you could pass<a id="i-1985442764-1"/><a id="i-280981118-1"/>
+parameters. So the usual notion of parameterizing a trait works via
+abstract <span class="code">val</span>s that are implemented in subclasses.<a id="i1371895904-1"/><a id="i-1767979071-1"/></p>
+
+<p>As an example,
+consider a reformulation of class <span class="code">Rational</span> from <a href="functional-objects.html">Chapter 6</a>, as shown in <a href="functional-objects.html#lst-overloaded-methods">Listing 6.5</a>  <a href="functional-objects.html#lst-overloaded-methods">here</a>,
+as a trait:</p>
+
+<pre>
+  <code class="vem">trait</code>&nbsp;<code class="typename">RationalTrait</code>&nbsp;{&nbsp;
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;numerArg:&nbsp;<code class="typename">Int</code>&nbsp;
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;denomArg:&nbsp;<code class="typename">Int</code>&nbsp;
+  }&nbsp;
+</pre>
+
+
+<p>The
+<span class="code">Rational</span> class from <a href="functional-objects.html">Chapter 6</a> had two
+parameters: <span class="code">n</span> for the numerator of the rational number, and <span class="code">d</span>
+for the denominator. The <span class="code">RationalTrait</span> trait given here defines
+instead two abstract <span class="code">val</span>s: <span class="code">numerArg</span> and <span class="code">denomArg</span>.  To
+instantiate a concrete instance of that trait, you need to implement the
+abstract <span class="code">val</span> definitions. Here's an example:</p>
+
+<pre>
+  <code class="vem">new</code>&nbsp;<code class="typename">RationalTrait</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;numerArg&nbsp;=&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;denomArg&nbsp;=&nbsp;<code class="literal">2</code>
+  }
+</pre>
+
+
+<p>Here the keyword <span class="code">new</span> appears in front of a trait name, <span class="code">RationalTrait</span>, which is followed by a class body in curly braces.  This expression
+yields an instance of an <a href="glossary.html#g-113939451"><em>anonymous class</em></a> that mixes in the trait
+and is defined by the body<a id="i-2121626765-1"/><a id="i-899295719-1"/>. 
+This particular anonymous class instantiation
+has an effect analogous to the instance creation <span class="code">new</span>&nbsp;<span class="code">Rational(1,</span>&nbsp;<span class="code">2)</span>.</p>
+
+<p>The analogy is not perfect, however. There's a subtle difference concerning the 
+order in which expressions are initialized. When you write:</p>
+
+<pre>
+  <code class="vem">new</code>&nbsp;<code class="typename">Rational</code>(expr1,&nbsp;expr2)
+</pre>
+
+
+<p>the two expressions, <span class="code">expr1</span> and <span class="code">expr2</span>, are evaluated before
+class <span class="code">Rational</span> is initialized, so the values of <span class="code">expr1</span> and <span class="code">expr2</span> are 
+available for the initialization of class <span class="code">Rational</span>.</p>
+
+<p>For traits, the situation is the opposite. When you write:</p>
+
+<pre>
+  <code class="vem">new</code>&nbsp;<code class="typename">RationalTrait</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;numerArg&nbsp;=&nbsp;expr1
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;denomArg&nbsp;=&nbsp;expr2
+  }
+</pre>
+
+
+<p>the expressions, <span class="code">expr1</span> and <span class="code">expr2</span>, are evaluated as part of the initialization
+of the anonymous class, but the anonymous class is initialized <em>after</em> the <span class="code">RationalTrait</span>. So the values of <span class="code">numerArg</span> and <span class="code">denomArg</span> are not available
+during the initialization of <span class="code">RationalTrait</span> (more precisely, a 
+selection of either value would yield the default value for type <span class="code">Int</span>, 0). For the definition of <span class="code">RationalTrait</span> given previously, this is not a problem, because
+the trait's initialization does not make use of values <span class="code">numerArg</span> or <span class="code">denomArg</span>.
+However, it becomes a problem in the variant of <span class="code">RationalTrait</span> shown in <a href="abstract-members.html#lst-rational-trait">Listing 20.4</a>,
+which defines normalized numerators and denominators.</p>
+
+<p><a id="lst-rational-trait"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">RationalTrait</code>&nbsp;{&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;numerArg:&nbsp;<code class="typename">Int</code>&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;denomArg:&nbsp;<code class="typename">Int</code>&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;require(denomArg&nbsp;!=&nbsp;<code class="literal">0</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">val</code>&nbsp;g&nbsp;=&nbsp;gcd(numerArg,&nbsp;denomArg)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;numer&nbsp;=&nbsp;numerArg&nbsp;/&nbsp;g
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;denom&nbsp;=&nbsp;denomArg&nbsp;/&nbsp;g
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">def</code>&nbsp;gcd(a:&nbsp;<code class="typename">Int</code>,&nbsp;b:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(b&nbsp;==&nbsp;<code class="literal">0</code>)&nbsp;a&nbsp;<code class="vem">else</code>&nbsp;gcd(b,&nbsp;a&nbsp;<code class="texttt">%</code>&nbsp;b)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;numer&nbsp;+&nbsp;<code class="quotedstring">"/"</code>&nbsp;+&nbsp;denom
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 20.4 - A trait that uses its abstract <span class="code">val</span>s.</h5>
+
+
+<p>If you try to instantiate this trait with some numerator and
+denominator expressions that are not simple literals, you'll get an exception:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;x&nbsp;=&nbsp;<code class="literal">2</code>
+  <code class="output">x:&nbsp;Int&nbsp;=&nbsp;2</code>
+  <br />  scala&gt;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">RationalTrait</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;numerArg&nbsp;=&nbsp;<code class="literal">1</code>&nbsp;*&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;denomArg&nbsp;=&nbsp;<code class="literal">2</code>&nbsp;*&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">java.lang.IllegalArgumentException:&nbsp;requirement&nbsp;failed</code>
+  <code class="output">&nbsp;&nbsp;at&nbsp;scala.Predef$.require(Predef.scala:207)</code>
+  <code class="output">&nbsp;&nbsp;at&nbsp;RationalTrait$class.$init$(&lt;console&gt;:10)</code>
+  <code class="output">&nbsp;&nbsp;...&nbsp;28&nbsp;elided</code>
+</pre>
+
+
+<p>The exception in this example was thrown because <span class="code">denomArg</span> still had its
+default value of 0 when class <span class="code">RationalTrait</span> was initialized, which caused
+the <span class="code">require</span> invocation to fail.</p>
+
+<p>This example demonstrates that initialization order is not the same
+for class parameters and abstract fields.<a id="i-1695985614-1"/><a id="i-17530359-1"/><a id="i-1356458045-1"/> A class parameter argument is evaluated <span style="font-style:italic">before</span> it is passed to the class
+constructor (unless the parameter is by-name). An implementing <span class="code">val</span>
+definition in a subclass, by contrast, is evaluated only <span style="font-style:italic">after</span> the
+superclass has been initialized.</p>
+
+<p>Now that you understand why abstract <span class="code">val</span>s behave differently from
+parameters, it would be good to know what can be done about this. Is
+it possible to define a <span class="code">RationalTrait</span> that can be initialized
+robustly, without fearing errors due to uninitialized fields? In fact,
+Scala offers two alternative solutions to this problem, <span style="font-style:italic">
+pre-initialized fields</span> and <span style="font-style:italic">lazy <span class="code">val</span>s</span>. They are presented in the
+remainder of this section.</p>
+
+<h4>Pre-initialized fields</h4>
+
+
+<p>The first solution, pre-initialized fields, lets you initialize a
+field of a subclass before the superclass is
+called.<a id="i-1387085847-1"/><a id="i483675481-1"/> To do this,
+simply place the field definition in braces before the superclass
+constructor call. As an example, <a href="abstract-members.html#lst-pre-init-anon-class">Listing 20.5</a> shows another attempt to create
+an instance of <span class="code">RationalTrait</span>.
+As you see from this example, the initialization section comes before
+the mention of the supertrait <span class="code">RationalTrait</span>. Both are separated
+by a <span class="code">with</span>.</p>
+
+<p><a id="lst-pre-init-anon-class"/></p>
+
+<pre>
+  &nbsp;&nbsp;scala&gt;&nbsp;<code class="vem">new</code>&nbsp;{&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;numerArg&nbsp;=&nbsp;<code class="literal">1</code>&nbsp;*&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;denomArg&nbsp;=&nbsp;<code class="literal">2</code>&nbsp;*&nbsp;x&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">RationalTrait</code>
+  <code class="output">&nbsp;&nbsp;res1:&nbsp;RationalTrait&nbsp;=&nbsp;1/2</code>
+</pre>
+
+
+<h5>Listing 20.5 - Pre-initialized fields in an anonymous class expression.</h5>
+
+
+<p>Pre-initialized fields are not restricted to anonymous classes; they
+can also be used in objects or named subclasses. Two
+examples are shown in <a href="abstract-members.html#lst-pre-init-fields-object">Listings 20.6</a>
+<a href="abstract-members.html#lst-pre-init-fields-class">and 20.7</a>.
+As you can see from these examples, the pre-initialization section
+comes in each case after the <span class="code">extends</span> keyword of the defined object or
+class.  Class <span class="code">RationalClass</span>, shown in <a href="abstract-members.html#lst-pre-init-fields-class">Listing 20.7</a>, exemplifies a general schema of how class
+parameters can be made available for the initialization of a
+supertrait.</p>
+
+<p><a id="lst-pre-init-fields-object"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;twoThirds&nbsp;<code class="vem">extends</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;numerArg&nbsp;=&nbsp;<code class="literal">2</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;denomArg&nbsp;=&nbsp;<code class="literal">3</code>
+  &nbsp;&nbsp;}&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">RationalTrait</code>
+</pre>
+
+
+<h5>Listing 20.6 - Pre-initialized fields in an object definition.</h5>
+
+
+<p><a id="lst-pre-init-fields-class"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">RationalClass</code>(n:&nbsp;<code class="typename">Int</code>,&nbsp;d:&nbsp;<code class="typename">Int</code>)&nbsp;<code class="vem">extends</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;numerArg&nbsp;=&nbsp;n
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;denomArg&nbsp;=&nbsp;d
+  &nbsp;&nbsp;}&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">RationalTrait</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;+&nbsp;(that:&nbsp;<code class="typename">RationalClass</code>)&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">RationalClass</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;numer&nbsp;*&nbsp;that.denom&nbsp;+&nbsp;that.numer&nbsp;*&nbsp;denom,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;denom&nbsp;*&nbsp;that.denom
+  &nbsp;&nbsp;&nbsp;&nbsp;)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 20.7 - Pre-initialized fields in a class definition.</h5>
+
+
+<p>Because pre-initialized fields are initialized before the superclass
+constructor is called, their initializers cannot refer to the object
+that's being constructed. Consequently, if such an initializer refers
+to <span class="code">this</span>, the reference goes to the object containing the class or
+object that's being constructed, not the constructed object itself.</p>
+
+<p>Here's an example:<a id="i988779894-2"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">new</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;numerArg&nbsp;=&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;denomArg&nbsp;=&nbsp;<code class="vem">this</code>.numerArg&nbsp;*&nbsp;<code class="literal">2</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">RationalTrait</code>
+  <code class="output">&lt;console&gt;:11:&nbsp;error:&nbsp;value&nbsp;numerArg&nbsp;is&nbsp;not&nbsp;a&nbsp;member&nbsp;of&nbsp;object</code>
+  <code class="output">&nbsp;$iw</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;denomArg&nbsp;=&nbsp;this.numerArg&nbsp;*&nbsp;2</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>The example did not compile because the reference <span class="code">this.numerArg</span> was
+looking for a <span class="code">numerArg</span> field in the object containing the <span class="code">new</span>
+(which in this case was the synthetic object named <span class="code">$iw</span>, into which
+the interpreter puts user input lines). Once more, pre-initialized fields 
+behave in this respect like class constructor arguments.</p>
+
+<h4>Lazy <span class="code">val</span>s</h4>
+
+
+<p>You can use pre-initialized fields to simulate precisely the
+initialization behavior of class constructor arguments. Sometimes,
+however, you might prefer to let the system itself sort out how things
+should be initialized. This can be achieved by making your <span class="code">val</span>
+definitions <em>lazy</em>. If you prefix a <span class="code">val</span> definition with a <span class="code">lazy</span><a id="i1386009102-1"/>
+modifier, the initializing expression on the right-hand side will only
+be evaluated the first time the <span class="code">val</span> is used.</p>
+
+<p>For an example, define an object <span class="code">Demo</span> with a <span class="code">val</span> as follows:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Demo</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;x&nbsp;=&nbsp;{&nbsp;println(<code class="quotedstring">"initializing&nbsp;x"</code>);&nbsp;<code class="quotedstring">"done"</code>&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">defined&nbsp;object&nbsp;Demo</code>
+</pre>
+
+
+<p>Now, first refer to <span class="code">Demo</span>, then to <span class="code">Demo.x</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">Demo</code>
+  <code class="output">initializing&nbsp;x</code>
+  <code class="output">res3:&nbsp;Demo.type&nbsp;=&nbsp;Demo$@2129a843</code>
+  <br />  scala&gt;&nbsp;Demo.x
+  <code class="output">res4:&nbsp;String&nbsp;=&nbsp;done</code>
+</pre>
+
+
+<p>As you can see, the moment you use <span class="code">Demo</span>, its <span class="code">x</span> field becomes
+initialized. 
+The initialization of <span class="code">x</span> forms part of the initialization of <span class="code">Demo</span>.
+The situation changes, however, if you define the <span class="code">x</span> field to be <span class="code">lazy</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Demo</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">lazy</code>&nbsp;<code class="vem">val</code>&nbsp;x&nbsp;=&nbsp;{&nbsp;println(<code class="quotedstring">"initializing&nbsp;x"</code>);&nbsp;<code class="quotedstring">"done"</code>&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">defined&nbsp;object&nbsp;Demo</code>
+  <br />  scala&gt;&nbsp;<code class="typename">Demo</code>
+  <code class="output">res5:&nbsp;Demo.type&nbsp;=&nbsp;Demo$@5b1769c</code>
+  <br />  scala&gt;&nbsp;Demo.x
+  <code class="output">initializing&nbsp;x</code>
+  <code class="output">res6:&nbsp;String&nbsp;=&nbsp;done</code>
+</pre>
+
+
+<p>Now, initializing <span class="code">Demo</span> does not involve initializing <span class="code">x</span>. The initialization
+of <span class="code">x</span> will be deferred until the first time <span class="code">x</span> is used. This is similar to the situation where <span class="code">x</span> is defined as a
+parameterless method, using a <span class="code">def</span>. However, unlike a <span class="code">def</span>, a lazy
+<span class="code">val</span> is never evaluated more than
+once<a id="i-861970308-1"/><a id="i3314548-1"/>. In fact, after the first
+evaluation of a lazy <span class="code">val</span> the result of the evaluation is stored, to
+be reused when the same <span class="code">val</span> is used subsequently.</p>
+
+<p>Looking at this example, it seems that objects like <span class="code">Demo</span> themselves
+behave like lazy <span class="code">val</span>s, in that they are also initialized on demand, the first time they are used. This is correct. In fact an object
+definition can be seen as a shorthand for the definition of a lazy
+<span class="code">val</span> with an anonymous class that describes the object's contents.</p>
+
+<p>Using lazy <span class="code">val</span>s, you could reformulate <span class="code">RationalTrait</span> as shown in <a href="abstract-members.html#lst-init-trait-lazy-vals">Listing 20.8</a>. In the new trait definition, all concrete fields are defined <span class="code">lazy</span>.
+Another change with respect to the previous definition of <span class="code">RationalTrait</span>, shown
+in <a href="abstract-members.html#lst-rational-trait">Listing 20.4</a>,
+is that the <span class="code">require</span> clause was moved from the body of the trait to the
+initializer of the private field, <span class="code">g</span>, which computes the greatest
+common divisor of <span class="code">numerArg</span> and <span class="code">denomArg</span>.
+With these changes, there's nothing that remains to be done when  
+<span class="code">LazyRationalTrait</span> is initialized; all initialization code is now
+part of the right-hand side of a lazy <span class="code">val</span>. Thus, it is
+safe to initialize the abstract fields of <span class="code">LazyRationalTrait</span> after
+the class is defined.</p>
+
+<p><a id="lst-init-trait-lazy-vals"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">LazyRationalTrait</code>&nbsp;{&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;numerArg:&nbsp;<code class="typename">Int</code>&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;denomArg:&nbsp;<code class="typename">Int</code>&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">lazy</code>&nbsp;<code class="vem">val</code>&nbsp;numer&nbsp;=&nbsp;numerArg&nbsp;/&nbsp;g
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">lazy</code>&nbsp;<code class="vem">val</code>&nbsp;denom&nbsp;=&nbsp;denomArg&nbsp;/&nbsp;g
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;numer&nbsp;+&nbsp;<code class="quotedstring">"/"</code>&nbsp;+&nbsp;denom
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">lazy</code>&nbsp;<code class="vem">val</code>&nbsp;g&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;require(denomArg&nbsp;!=&nbsp;<code class="literal">0</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gcd(numerArg,&nbsp;denomArg)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">def</code>&nbsp;gcd(a:&nbsp;<code class="typename">Int</code>,&nbsp;b:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(b&nbsp;==&nbsp;<code class="literal">0</code>)&nbsp;a&nbsp;<code class="vem">else</code>&nbsp;gcd(b,&nbsp;a&nbsp;<code class="texttt">%</code>&nbsp;b)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 20.8 - Initializing a trait with lazy <span class="code">val</span>s.</h5>
+
+
+<p>Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;x&nbsp;=&nbsp;<code class="literal">2</code>
+  <code class="output">x:&nbsp;Int&nbsp;=&nbsp;2</code>
+  <br />  scala&gt;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">LazyRationalTrait</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;numerArg&nbsp;=&nbsp;<code class="literal">1</code>&nbsp;*&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;denomArg&nbsp;=&nbsp;<code class="literal">2</code>&nbsp;*&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">res7:&nbsp;LazyRationalTrait&nbsp;=&nbsp;1/2</code>
+</pre>
+
+
+<p>No pre-initialization is needed.
+It's instructive to trace the sequence of initializations that lead to
+the string <span class="code">1/2</span> to be printed in the code above:</p>
+
+<ol>
+
+
+<li>
+A fresh instance of <span class="code">LazyRationalTrait</span> gets created and 
+the initialization code of <span class="code">LazyRationalTrait</span> is run. 
+This initialization code is empty; none of the fields of <span class="code">LazyRationalTrait</span> is initialized yet.
+
+
+</li>
+<li>
+Next, the primary constructor of the anonymous subclass defined by the
+<span class="code">new</span> expression is executed.  This involves the initialization of
+<span class="code">numerArg</span> with <span class="code">2</span> and <span class="code">denomArg</span> with <span class="code">4</span>.
+
+
+</li>
+<li>
+Next, the <span class="code">toString</span> method is invoked on the constructed object by the
+interpreter, so that the resulting value can be printed.
+
+
+</li>
+<li>
+Next, the <span class="code">numer</span> field is accessed for the first time by the 
+<span class="code">toString</span> method in trait <span class="code">LazyRationalTrait</span>, so its initializer is
+evaluated.
+
+
+</li>
+<li>
+The initializer of <span class="code">numer</span> accesses the private field, <span class="code">g</span>, 
+so <span class="code">g</span> is evaluated next. This evaluation accesses <span class="code">numerArg</span> and <span class="code">denomArg</span>, 
+which were defined in Step 2.
+
+
+</li>
+<li>
+Next, the <span class="code">toString</span> method accesses the value of <span class="code">denom</span>, which causes
+<span class="code">denom</span>'s evaluation. The evaluation of <span class="code">denom</span> accesses the values of <span class="code">denomArg</span> and <span class="code">g</span>.
+The initializer of the <span class="code">g</span> field is not re-evaluated, because it was already evaluated
+in Step 5.
+
+
+</li>
+<li>
+Finally, the result string <span class="code">"1/2"</span> is constructed and printed.
+
+
+</li></ol>
+
+
+<p>Note that the definition of <span class="code">g</span> comes textually after the definitions of
+<span class="code">numer</span> and <span class="code">denom</span> in class <span class="code">LazyRationalTrait</span>. Nevertheless,
+because all three values are lazy, <span class="code">g</span> gets initialized before the
+initialization of <span class="code">numer</span> and <span class="code">denom</span> is completed.</p>
+
+<p>This shows an
+important property of lazy <span class="code">val</span>s: The textual order of their
+definitions does not matter because values get initialized on
+demand. Thus, lazy vals can free you as a programmer from having
+to think hard how to arrange <span class="code">val</span> definitions to ensure that everything is
+defined when it is needed.</p>
+
+<p>However, this advantage holds only as long as the initialization of
+lazy <span class="code">val</span>s neither produces side effects nor depends on them.  In
+the presence of side effects, initialization order starts to
+matter. And then it can be quite difficult to trace in what order
+initialization code is run, as the previous example has
+demonstrated. So lazy <span class="code">val</span>s are an ideal complement to functional
+objects, where the order of initializations does not matter, as long
+as everything gets initialized eventually<a id="i-1860042908-1"/>. They are less well suited
+for code that's predominantly imperative.</p>
+
+<div class="aside">
+<h3>Lazy functional languages</h3>
+
+
+<p>Scala is by no means the first language to have exploited the perfect
+match of lazy definitions and functional code. In fact, there is a
+category of "lazy functional programming languages" in which <span style="font-style:italic">
+every</span> value and parameter is initialized lazily<a id="i-748662080-1"/>. The best known
+member of this class of languages is Haskell
+ <a href="bibliography.html#haskell98">[SPJ02]</a><a id="i-156161824-1"/>.</p>
+
+</div>
+
+
+<h3 id="sec-abstract-types">20.6 Abstract <span class="code">type</span>s</h3>
+
+
+<p>In the beginning of this chapter, you saw, "<span class="code">type</span>&nbsp;<span class="code">T</span>", an abstract type
+declaration<a id="i-332843517-1"/><a id="i669006587-1"/>.
+The rest of this chapter discusses what such an abstract type
+declaration means and what it's good for.
+Like all other abstract declarations, an abstract type declaration 
+is a placeholder for something that will
+be defined concretely in subclasses. In this case, it is a type that
+will be defined further down the class hierarchy. So <span class="code">T</span> above refers
+to a type that is as yet unknown at the point where it is declared. 
+Different subclasses can provide different realizations of <span class="code">T</span>.</p>
+
+<p>Here is a well-known example where abstract types show up
+naturally. Suppose you are given the task of modeling the eating habits of
+animals. You might start with a class <span class="code">Food</span> and a class <span class="code">Animal</span>
+with an <span class="code">eat</span> method:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Food</code>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Animal</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;eat(food:&nbsp;<code class="typename">Food</code>)
+  }
+</pre>
+
+
+<p>You might then attempt to specialize these two classes to a class of <span class="code">Cow</span>s that eat
+<span class="code">Grass</span>:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Grass</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>
+  <code class="vem">class</code>&nbsp;<code class="typename">Cow</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Animal</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;eat(food:&nbsp;<code class="typename">Grass</code>)&nbsp;=&nbsp;{}&nbsp;<code class="comment">//&nbsp;This&nbsp;won't&nbsp;compile</code>
+  }
+</pre>
+
+
+<p>However, if you tried to compile the new classes, you'd get the following compilation errors:<a id="i-1458364982-1"/><a id="i934798591-2"/></p>
+
+<pre>
+  <code class="output">BuggyAnimals.scala:7:&nbsp;error:&nbsp;class&nbsp;Cow&nbsp;needs&nbsp;to&nbsp;be</code>
+  <code class="output">abstract,&nbsp;since&nbsp;method&nbsp;eat&nbsp;in&nbsp;class&nbsp;Animal&nbsp;of&nbsp;type</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;(Food)Unit&nbsp;is&nbsp;not&nbsp;defined</code>
+  <code class="output">class&nbsp;Cow&nbsp;extends&nbsp;Animal&nbsp;{</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+  <code class="output">BuggyAnimals.scala:8:&nbsp;error:&nbsp;method&nbsp;eat&nbsp;overrides&nbsp;nothing</code>
+  <code class="output">&nbsp;&nbsp;override&nbsp;def&nbsp;eat(food:&nbsp;Grass)&nbsp;=&nbsp;{}</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>What happened is that the <span class="code">eat</span> method in class <span class="code">Cow</span> did not override
+the <span class="code">eat</span> method in class <span class="code">Animal</span> because its parameter type is different: it's
+<span class="code">Grass</span> in class <span class="code">Cow</span> vs. <span class="code">Food</span> in class <span class="code">Animal</span>.</p>
+
+<p>Some people have argued that the type system is unnecessarily strict
+in refusing these classes.  They have said that it should be OK to
+specialize a parameter of a method in a subclass. However, if
+the classes were allowed as written, you could get yourself in unsafe
+situations very quickly.</p>
+
+<p>For instance, the following script would pass the type checker:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Food</code>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Animal</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;eat(food:&nbsp;<code class="typename">Food</code>)
+  }
+  <code class="vem">class</code>&nbsp;<code class="typename">Grass</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>
+  <code class="vem">class</code>&nbsp;<code class="typename">Cow</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Animal</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;eat(food:&nbsp;<code class="typename">Grass</code>)&nbsp;=&nbsp;{}&nbsp;<code class="comment">//&nbsp;This&nbsp;won't&nbsp;compile,</code>
+  }&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;but&nbsp;if&nbsp;it&nbsp;did,...</code>
+  <code class="vem">class</code>&nbsp;<code class="typename">Fish</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>
+  <code class="vem">val</code>&nbsp;bessy:&nbsp;<code class="typename">Animal</code>&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Cow</code>
+  bessy&nbsp;eat&nbsp;(<code class="vem">new</code>&nbsp;<code class="typename">Fish</code>)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;...you&nbsp;could&nbsp;feed&nbsp;fish&nbsp;to&nbsp;cows.</code>
+</pre>
+
+
+<p>The program would compile if the restriction were eased, because <span class="code">Cow</span>s are <span class="code">Animal</span>s and <span class="code">Animal</span>s 
+do have an <span class="code">eat</span> method that accepts any kind of <span class="code">Food</span>, including <span class="code">Fish</span>.
+But surely it would do a cow no good to eat a fish!</p>
+
+<p>What you need to do instead is apply some more precise modeling. <span class="code">Animal</span>s do eat <span class="code">Food</span>, but what kind of <span class="code">Food</span> each <span class="code">Animal</span> eats depends on the <span class="code">Animal</span>. This can be neatly expressed
+with an abstract type, as shown in <a href="abstract-members.html#lst-suitablefood-abstract-type">Listing 20.9</a>:</p>
+
+<p><a id="lst-suitablefood-abstract-type"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Food</code>
+  &nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Animal</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">type</code>&nbsp;<code class="typename">SuitableFood</code>&nbsp;&lt;:&nbsp;<code class="typename">Food</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;eat(food:&nbsp;<code class="typename">SuitableFood</code>)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 20.9 - Modeling suitable food with an abstract type.</h5>
+
+
+<p>With the new class definition, an <span class="code">Animal</span> can eat only food that's
+suitable.  What food is suitable cannot be determined at the level of
+the <span class="code">Animal</span> class. That's why <span class="code">SuitableFood</span> is modeled as an
+abstract type. The type has an upper bound, <span class="code">Food</span>, which is expressed
+by the "<span class="code">&lt;:</span>&nbsp;<span class="code">Food</span>" clause. This means that any concrete instantiation
+of <span class="code">SuitableFood</span> (in a subclass of <span class="code">Animal</span>) must be a subclass of <span class="code">Food</span>. For example, you
+would not be able to instantiate <span class="code">SuitableFood</span> with class
+<span class="code">IOException</span>.</p>
+
+<p>With <span class="code">Animal</span> defined, you can now progress to cows, as shown in <a href="abstract-members.html#lst-suitable-cow">Listing 20.10</a>.
+Class <span class="code">Cow</span> fixes its <span class="code">SuitableFood</span> to be <span class="code">Grass</span> and also defines
+a concrete <span class="code">eat</span> method for this kind of food.</p>
+
+<p><a id="lst-suitable-cow"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Grass</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>
+  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Cow</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Animal</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">type</code>&nbsp;<code class="typename">SuitableFood</code>&nbsp;=&nbsp;<code class="typename">Grass</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;eat(food:&nbsp;<code class="typename">Grass</code>)&nbsp;=&nbsp;{}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 20.10 - Implementing an abstract type in a subclass.</h5>
+
+
+<p>These new class 
+definitions compile without errors. If you tried to run 
+the "cows-that-eat-fish" counterexample with the new class definitions,
+you would get the following compiler error:<a id="i-677980410-4"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Fish</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>
+  <code class="output">defined&nbsp;class&nbsp;Fish</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;bessy:&nbsp;<code class="typename">Animal</code>&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Cow</code>
+  <code class="output">bessy:&nbsp;Animal&nbsp;=&nbsp;Cow@1515d8a6</code>
+  <br />  scala&gt;&nbsp;bessy&nbsp;eat&nbsp;(<code class="vem">new</code>&nbsp;<code class="typename">Fish</code>)
+  <code class="output">&lt;console&gt;:14:&nbsp;error:&nbsp;type&nbsp;mismatch;</code>
+  <code class="output">&nbsp;found&nbsp;&nbsp;&nbsp;:&nbsp;Fish</code>
+  <code class="output">&nbsp;required:&nbsp;bessy.SuitableFood</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bessy&nbsp;eat&nbsp;(new&nbsp;Fish)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<h3 id="sec-path-dependent-types">20.7 Path-dependent types</h3>
+
+
+<p>Have a look at the last error message again. What's interesting about it is the<a id="i419165808-1"/><a id="i-2033041288-1"/> 
+type required by the <span class="code">eat</span> method: <span class="code">bessy.SuitableFood</span>. This type
+consists of an object reference, <span class="code">bessy</span>, followed by a type
+field, <span class="code">SuitableFood</span>, of the object. So this shows that objects in
+Scala can have types as members. The meaning of <span class="code">bessy.SuitableFood</span> is "the type
+<span class="code">SuitableFood</span> that is a member of the object referenced from <span class="code">bessy</span>" or,
+alternatively, the type of food that's suitable for <span class="code">bessy</span>.</p>
+
+<p>A type like
+<span class="code">bessy.SuitableFood</span> is called a <span style="font-style:italic">path-dependent
+type</span>.
+The word "path" here means a reference an object. 
+It could be a single name, such as <span class="code">bessy</span>, or a longer access path, such as <span class="code">farm.barn.bessy</span>,
+where each of <span class="code">farm</span>, <span class="code">barn</span>, and <span class="code">bessy</span> are variables (or singleton object names) that refer to objects.</p>
+
+<p>As the term "path-dependent type" implies, the type depends on the
+path; in general, different paths give rise to different types. For
+instance, say you defined classes <span class="code">DogFood</span> and <span class="code">Dog</span>, like this:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">DogFood</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>
+  <code class="vem">class</code>&nbsp;<code class="typename">Dog</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Animal</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">type</code>&nbsp;<code class="typename">SuitableFood</code>&nbsp;=&nbsp;<code class="typename">DogFood</code>
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;eat(food:&nbsp;<code class="typename">DogFood</code>)&nbsp;=&nbsp;{}
+  }
+</pre>
+
+
+<p>If you attempted to feed a dog with food fit for a cow, your code would not compile:<a id="i-677980410-5"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;bessy&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Cow</code>
+  <code class="output">bessy:&nbsp;Cow&nbsp;=&nbsp;Cow@713e7e09</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;lassie&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Dog</code>
+  <code class="output">lassie:&nbsp;Dog&nbsp;=&nbsp;Dog@6eaf2c57</code>
+  <br />  scala&gt;&nbsp;lassie&nbsp;eat&nbsp;(<code class="vem">new</code>&nbsp;<code class="typename">bessy.SuitableFood</code>)
+  <code class="output">&lt;console&gt;:16:&nbsp;error:&nbsp;type&nbsp;mismatch;</code>
+  <code class="output">&nbsp;found&nbsp;&nbsp;&nbsp;:&nbsp;Grass</code>
+  <code class="output">&nbsp;required:&nbsp;DogFood</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lassie&nbsp;eat&nbsp;(new&nbsp;bessy.SuitableFood)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>The problem here is that the type of the <span class="code">SuitableFood</span> object passed to the <span class="code">eat</span> method, <span class="code">bessy.SuitableFood</span>, is 
+incompatible with the parameter type of <span class="code">eat</span>, <span class="code">lassie.SuitableFood</span>.</p>
+
+<p>The case would be different for
+two <span class="code">Dog</span>s. Because <span class="code">Dog</span>'s <span class="code">SuitableFood</span> type is defined to be
+an alias for class <span class="code">DogFood</span>, the <span class="code">SuitableFood</span> types of two <span class="code">Dog</span>s are
+in fact the same. As a result, the <span class="code">Dog</span> instance named <span class="code">lassie</span> could actually eat the
+suitable food of a different <span class="code">Dog</span> instance (which we'll name <span class="code">bootsie</span>):</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;bootsie&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Dog</code>
+  <code class="output">bootsie:&nbsp;Dog&nbsp;=&nbsp;Dog@13a7c48c</code>
+  <br />  scala&gt;&nbsp;lassie&nbsp;eat&nbsp;(<code class="vem">new</code>&nbsp;<code class="typename">bootsie.SuitableFood</code>)
+</pre>
+
+
+<p>A path-dependent type resembles the syntax for an inner class type in
+Java<a id="i1051202392-1"/>, but there is a crucial difference: a path-dependent type
+names an outer <span style="font-style:italic">object</span>, whereas an inner class
+type names an
+outer <span style="font-style:italic">class</span>. Java-style inner class types can also be
+expressed in Scala, but they are written differently. 
+Consider these two classes, <span class="code">Outer</span> and <span class="code">Inner</span>:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Outer</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Inner</code>
+  }
+</pre>
+
+
+<p>In Scala, the inner class is addressed using the expression <span class="code">Outer#Inner</span> 
+instead of Java's <span class="code">Outer.Inner</span>. The `<span class="code">.</span>' syntax is reserved for objects.<a id="i-1229370884-1"/> For example, imagine you instantiate two objects of type <span class="code">Outer</span>, like this:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;o1&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Outer</code>
+  <code class="vem">val</code>&nbsp;o2&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Outer</code>
+</pre>
+
+
+<p>Here <span class="code">o1.Inner</span> and <span class="code">o2.Inner</span> are two path-dependent types<a id="i1286205047-1"/><a id="i-1290990775-1"/>
+(and they are different types). Both of these types conform to (are subtypes of) the
+more general type <span class="code">Outer#Inner</span>, which represents the <span class="code">Inner</span> class 
+with an <em>arbitrary</em> outer object of type <span class="code">Outer</span>. By contrast, type <span class="code">o1.Inner</span> 
+refers to the <span class="code">Inner</span> class with a <em>specific</em> outer object (the one referenced from <span class="code">o1</span>).
+Likewise, type <span class="code">o2.Inner</span> refers to the <span class="code">Inner</span> class with a different, specific outer object (the one referenced from <span class="code">o2</span>).</p>
+
+<p>In Scala, as in Java, inner class instances hold a reference to an enclosing outer class instance. This allows an
+inner class, for example, to access members of its outer class. Thus you can't instantiate an inner class without
+in some way specifying an outer class instance. One way to do this is to instantiate the inner class inside the body of the
+outer class. In this case, the current outer class instance (referenced from <span class="code">this</span>) will be used.</p>
+
+<p>Another way is to use
+a path-dependent type. For example, because the type, <span class="code">o1.Inner</span>, names a specific outer object, you can instantiate it:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">o1.Inner</code>
+  <code class="output">res11:&nbsp;o1.Inner&nbsp;=&nbsp;Outer$Inner@1ae1e03f</code>
+</pre>
+
+
+<p>The resulting inner object will contain a reference to its outer object, the object referenced from <span class="code">o1</span>. By contrast, because
+the type <span class="code">Outer#Inner</span> does not name any specific instance of <span class="code">Outer</span>, you can't create an instance of it:<a id="i-480808313-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Outer</code>#<code class="typename">Inner</code>
+  <code class="output">&lt;console&gt;:9:&nbsp;error:&nbsp;Outer&nbsp;is&nbsp;not&nbsp;a&nbsp;legal&nbsp;prefix&nbsp;for&nbsp;a&nbsp;</code>
+  <code class="output">constructor</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Outer#Inner</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<h3 id="sec-refinement-types">20.8 Refinement types</h3>
+
+
+<p>When a class inherits from another, the first class is said to be a
+<em>nominal</em> subtype<a id="i1065377139-1"/> of the other one.  It's a <em>nominal</em>
+subtype because each type has a <em>name</em>, and the names are
+explicitly declared to have a subtyping relationship.  Scala
+additionally supports <em>structural</em> subtyping,<a id="i1855899700-1"/> where you get a
+subtyping relationship simply because two types have compatible members.
+To get structural subtyping in Scala, use Scala's <a href="glossary.html#g1264110831"><em>refinement types</em></a>.<a id="i532730212-1"/><a id="i-378070292-1"/><a id="i1419394611-1"/></p>
+
+<p>Nominal subtyping is usually more convenient, so you should try
+nominal types first with any new design. A name is a single short
+identifier and thus is more concise than an explicit listing of member
+types. Further, structural subtyping is often more flexible than you
+want.  A widget can <span class="code">draw()</span>, and a Western cowboy can <span class="code">draw()</span>, but
+they aren't really substitutable.  You'd typically prefer to get a
+compilation error if you tried to substitute a cowboy for a widget.</p>
+
+<p>Nonetheless, structural subtyping has its own advantages.  One is that
+sometimes there really is no more to a type than its members.  For
+example, suppose you want to define a <span class="code">Pasture</span> class that can
+contain animals that eat grass. One option would be to define a trait
+<span class="code">AnimalThatEatsGrass</span> and mix it into every class where it applies.
+It would be verbose, however.  Class <span class="code">Cow</span> has already declared that
+it's an animal and that it eats grass, and now it would have to
+declare that it is also an animal-that-eats-grass.</p>
+
+<p>Instead of defining <span class="code">AnimalThatEatsGrass</span>, you can use a refinement
+type.  Simply write the base type, <span class="code">Animal</span>, followed by a sequence
+of members listed in curly braces.  The members in the curly braces
+further specify&mdash;or refine, if you will&mdash;the types of members from
+the base class.</p>
+
+<p>Here is how you write the type, "animal that eats
+grass":</p>
+
+<pre>
+  <code class="typename">Animal</code>&nbsp;{&nbsp;<code class="vem">type</code>&nbsp;<code class="typename">SuitableFood</code>&nbsp;=&nbsp;<code class="typename">Grass</code>&nbsp;}
+</pre>
+
+
+<p>Given this type, you can now write the pasture class like this:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Pasture</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">var</code>&nbsp;animals:&nbsp;<code class="typename">List[Animal&nbsp;{&nbsp;type&nbsp;SuitableFood&nbsp;=&nbsp;Grass&nbsp;}]</code>&nbsp;=&nbsp;<code class="typename">Nil</code>
+  &nbsp;&nbsp;<code class="comment">//&nbsp;...</code>
+  }
+</pre>
+
+
+<h3 id="sec-enums">20.9 Enumerations</h3>
+
+
+<p>An interesting application of path-dependent types is found in Scala's
+support for enumerations. Some other languages, including Java and C#,
+have enumerations as a built-in language construct to define new types. 
+Scala does not need special syntax for
+enumerations<a id="i-469710704-1"/><a id="i1297750808-1"/>. Instead, there's a class
+in its standard library,
+<span class="code">scala.Enumeration</span><a id="i-1102794201-1"/>.</p>
+
+<p>To create a new
+enumeration, you define an object that extends this class, as in the
+following example, which defines a new enumeration of <span class="code">Color</span>s:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">Color</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Enumeration</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">Red</code>&nbsp;=&nbsp;<code class="typename">Value</code>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">Green</code>&nbsp;=&nbsp;<code class="typename">Value</code>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">Blue</code>&nbsp;=&nbsp;<code class="typename">Value</code>
+  }
+</pre>
+
+
+<p>Scala lets you also shorten several successive <span class="code">val</span> or <span class="code">var</span> 
+definitions with the same right-hand 
+side. Equivalently to the above you could write:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">Color</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Enumeration</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">Red</code>,&nbsp;<code class="typename">Green</code>,&nbsp;<code class="typename">Blue</code>&nbsp;=&nbsp;<code class="typename">Value</code>
+  }
+</pre>
+
+
+<p>This object definition provides three values:
+<span class="code">Color.Red</span>, <span class="code">Color.Green</span>, and <span class="code">Color.Blue</span>. You could also import
+everything in <span class="code">Color</span> with:</p>
+
+<pre>
+  <code class="vem">import</code>&nbsp;Color._
+</pre>
+
+
+<p>and then just use <span class="code">Red</span>, <span class="code">Green</span>, and <span class="code">Blue</span>. But what is the type
+of these values?</p>
+
+<p><span class="code">Enumeration</span> defines 
+an inner class named <span class="code">Value</span>, and the same-named 
+parameterless <span class="code">Value</span> method returns a 
+fresh instance of that class.<a id="i-1232708119-1"/>
+In other words, a value such as <span class="code">Color.Red</span> is of type
+<span class="code">Color.Value</span>; <span class="code">Color.Value</span> is the type of all enumeration values
+defined in object <span class="code">Color</span>. It's a path-dependent type, with 
+<span class="code">Color</span> being the path and <span class="code">Value</span> being the dependent type. 
+What's significant about this is that it is a completely new type, different 
+from all other types.</p>
+
+<p>In particular, if you define another enumeration, such as:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">Direction</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Enumeration</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">North</code>,&nbsp;<code class="typename">East</code>,&nbsp;<code class="typename">South</code>,&nbsp;<code class="typename">West</code>&nbsp;=&nbsp;<code class="typename">Value</code>
+  }
+</pre>
+
+
+<p>then <span class="code">Direction.Value</span> would be different from <span class="code">Color.Value</span> because the path
+parts of the two types differ.</p>
+
+<p>Scala's <span class="code">Enumeration</span> class also offers many other features found in the enumeration designs of other languages.
+You can associate names with enumeration values by using a different overloaded
+variant of the <span class="code">Value</span> method:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">Direction</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Enumeration</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">North</code>&nbsp;=&nbsp;<code class="typename">Value</code>(<code class="quotedstring">"North"</code>)
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">East</code>&nbsp;=&nbsp;<code class="typename">Value</code>(<code class="quotedstring">"East"</code>)
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">South</code>&nbsp;=&nbsp;<code class="typename">Value</code>(<code class="quotedstring">"South"</code>)
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">West</code>&nbsp;=&nbsp;<code class="typename">Value</code>(<code class="quotedstring">"West"</code>)
+  }
+</pre>
+
+
+<p>You can iterate over the values of an enumeration via the set returned by the enumeration's
+<span class="code">values</span> method:<a id="i-563805575-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(d&nbsp;&lt;-&nbsp;Direction.values)&nbsp;print(d&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;"</code>)
+  <code class="output">North&nbsp;East&nbsp;South&nbsp;West&nbsp;</code>
+</pre>
+
+
+<p>Values of an enumeration are numbered from <span class="code">0</span>, and you can find out the 
+number of an enumeration value by its <span class="code">id</span> method:</p>
+
+<pre>
+  scala&gt;&nbsp;Direction.East.id
+  <code class="output">res14:&nbsp;Int&nbsp;=&nbsp;1</code>
+</pre>
+
+
+<p>It's also possible to go the other way, from a non-negative 
+integer number to the value that has this number as <span class="code">id</span> in an enumeration:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">Direction</code>(<code class="literal">1</code>)
+  <code class="output">res15:&nbsp;Direction.Value&nbsp;=&nbsp;East</code>
+</pre>
+
+
+<p>This should be enough to get you started with enumerations. 
+You can find more information
+in the Scaladoc comments of class <span class="code">scala.Enumeration</span>.</p>
+
+<h3 id="sec-currencies">20.10 Case study: Currencies</h3>
+
+
+<p>The rest of this chapter presents a case study that explains how
+abstract types can be used in Scala. The task is to design a class
+<span class="code">Currency</span>. A typical instance of <span class="code">Currency</span> would
+represent an amount of money in dollars, euros, yen, or some
+other currency.  It should be
+possible to do some arithmetic on currencies. For instance, you should
+be able to add two amounts of the same currency. Or you should be able
+to multiply a currency amount by a factor representing an interest rate.</p>
+
+<p>These thoughts lead to the following first design for a currency class:</p>
+
+<pre>
+  <code class="comment">//&nbsp;A&nbsp;first&nbsp;(faulty)&nbsp;design&nbsp;of&nbsp;the&nbsp;Currency&nbsp;class</code>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Currency</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;amount:&nbsp;<code class="typename">Long</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;designation:&nbsp;<code class="typename">String</code>&nbsp;
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;amount&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;"</code>&nbsp;+&nbsp;designation
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;+&nbsp;(that:&nbsp;<code class="typename">Currency</code>):&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;...
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;*&nbsp;(x:&nbsp;<code class="typename">Double</code>):&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;...
+  }
+</pre>
+
+
+<p>The <span class="code">amount</span> of a currency is the number of currency units it represents.
+This is a field of type <span class="code">Long</span> so that very large amounts of money, such as the 
+market capitalization of Google or Apple, can be represented.
+It's left abstract here, waiting to be defined when a subclass talks about concrete amounts of money. 
+The <span class="code">designation</span> of a currency is a string that identifies it. 
+The <span class="code">toString</span> method of class <span class="code">Currency</span> indicates an amount and a designation. 
+It would yield results such as:</p>
+
+<pre>
+  79&nbsp;USD
+  11000&nbsp;Yen
+  99&nbsp;Euro&nbsp;
+</pre>
+
+
+<p>Finally, there are methods <span class="code">+</span> for adding currencies and 
+<span class="code">*</span> for multiplying a currency with a floating-point
+number. You can create a concrete currency value by supplying concrete <span class="code">amount</span> and <span class="code">designation</span> values, like this:</p>
+
+<pre>
+  <code class="vem">new</code>&nbsp;<code class="typename">Currency</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;amount&nbsp;=&nbsp;<code class="literal">79L</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;designation&nbsp;=&nbsp;<code class="quotedstring">"USD"</code>
+  }
+</pre>
+
+
+<p>This design would be OK if all we wanted to model was a single
+currency, like only dollars or only euros. But it fails if we need
+to deal with several currencies. Assume that you model dollars and euros
+as two subclasses of class currency:</p>
+
+<pre>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Dollar</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Currency</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;designation&nbsp;=&nbsp;<code class="quotedstring">"USD"</code>
+  }
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Euro</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Currency</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;designation&nbsp;=&nbsp;<code class="quotedstring">"Euro"</code>
+  }
+</pre>
+
+
+<p>At first glance this looks reasonable. But it would let you add 
+dollars to euros. The result of such an addition would be of type <span class="code">Currency</span>.
+But it would be a funny currency that was made up of a mix of euros and dollars.
+What you want instead is a more specialized version of the <span class="code">+</span> method. When implemented in class <span class="code">Dollar</span>, it should take <span class="code">Dollar</span> arguments and yield a <span class="code">Dollar</span> result; when implemented in class <span class="code">Euro</span>, it should take
+<span class="code">Euro</span> arguments and yield a <span class="code">Euro</span> result. So the type of the addition method
+would change depending on which class you are in. Nonetheless, you would like to 
+write the addition method just once, not each time a new currency is defined.</p>
+
+<p>In Scala, there's a simple technique to deal with situations like
+this. If something is not known at the point where a class is defined,
+make it abstract in the class. This applies to both values and types.
+In the case of currencies, the exact argument and result type of the
+addition method are not known, so it is a good candidate for an
+abstract type.</p>
+
+<p>This would lead to the following sketch of class <span class="code">AbstractCurrency</span>:</p>
+
+<div style="page-break-after:always"/>
+
+
+<pre>
+  <code class="comment">//&nbsp;A&nbsp;second&nbsp;(still&nbsp;imperfect)&nbsp;design&nbsp;of&nbsp;the&nbsp;Currency&nbsp;class</code>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">AbstractCurrency</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">type</code>&nbsp;<code class="typename">Currency</code>&nbsp;&lt;:&nbsp;<code class="typename">AbstractCurrency</code>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;amount:&nbsp;<code class="typename">Long</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;designation:&nbsp;<code class="typename">String</code>&nbsp;
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;amount&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;"</code>&nbsp;+&nbsp;designation
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;+&nbsp;(that:&nbsp;<code class="typename">Currency</code>):&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;...
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;*&nbsp;(x:&nbsp;<code class="typename">Double</code>):&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;...
+  }
+</pre>
+
+
+<p>The only differences from the previous situation are that the class is now
+called <span class="code">AbstractCurrency</span>, and that it contains an abstract type
+<span class="code">Currency</span>, which represents the real currency in question.  Each concrete
+subclass of <span class="code">AbstractCurrency</span> would need to fix the <span class="code">Currency</span> type to refer
+to the concrete subclass itself, thereby "tying the knot."</p>
+
+<p>For instance, here is a new version of class <span class="code">Dollar</span>, which now extends class <span class="code">AbstractCurrency</span>:</p>
+
+<pre>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Dollar</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">AbstractCurrency</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">type</code>&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;<code class="typename">Dollar</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;designation&nbsp;=&nbsp;<code class="quotedstring">"USD"</code>
+  }
+</pre>
+
+
+<p>This design is workable, but it is still not perfect. One problem is
+hidden by the ellipses that indicate the missing method definitions of
+ <span class="code">+</span> and <span class="code">*</span> in class <span class="code">AbstractCurrency</span>. In particular, how should 
+addition be implemented in this class? It's easy enough to 
+calculate the correct amount of the new currency as <span class="code">this.amount</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">that.amount</span>, 
+but how would you convert the amount into a currency of the right type?</p>
+
+<p>You might try
+something like:<a id="i-1457961297-1"/></p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;+&nbsp;(that:&nbsp;<code class="typename">Currency</code>):&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Currency</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;amount&nbsp;=&nbsp;<code class="vem">this</code>.amount&nbsp;+&nbsp;that.amount
+  }
+</pre>
+
+
+<p>However, this would not compile:</p>
+
+<pre>
+  <code class="output">error:&nbsp;class&nbsp;type&nbsp;required</code>
+  <code class="output">&nbsp;&nbsp;def&nbsp;+&nbsp;(that:&nbsp;Currency):&nbsp;Currency&nbsp;=&nbsp;new&nbsp;Currency&nbsp;{</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>One of the restrictions of Scala's treatment of abstract types is that
+you can neither create an instance of an abstract type nor have an abstract type
+as a supertype of another class.<a href="abstract-members.html#footnotemain20-1">[1]</a>
+So the compiler would refuse the example code here that attempted to instantiate <span class="code">Currency</span>.</p>
+
+<p>However, you can work around this restriction using a <span style="font-style:italic">factory
+method</span>.  Instead of creating an instance of an abstract type
+directly, declare an abstract method that does it. Then, wherever the abstract type
+is fixed to be some concrete type, you also need to give a concrete implementation
+of the factory method.<a id="i-1125093732-2"/> For class <span class="code">AbstractCurrency</span>, this would look as follows:</p>
+
+<pre>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">AbstractCurrency</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">type</code>&nbsp;<code class="typename">Currency</code>&nbsp;&lt;:&nbsp;<code class="typename">AbstractCurrency</code>&nbsp;<code class="comment">//&nbsp;abstract&nbsp;type</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;make(amount:&nbsp;<code class="typename">Long</code>):&nbsp;<code class="typename">Currency</code>&nbsp;&nbsp;<code class="comment">//&nbsp;factory&nbsp;method</code>
+  &nbsp;&nbsp;...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;rest&nbsp;of&nbsp;class</code>
+  }
+</pre>
+
+
+<p>A design like this could be made to work, but it looks rather suspicious.
+Why place the factory method <span style="font-style:italic">inside</span> class <span class="code">AbstractCurrency</span>?
+This looks dubious for at least two reasons. First,
+if you have some amount of currency (say, one dollar), you also hold in your hand
+the ability to make more of the same currency, using code such as:</p>
+
+<pre>
+  myDollar.make(<code class="literal">100</code>)&nbsp;&nbsp;<code class="comment">//&nbsp;here&nbsp;are&nbsp;a&nbsp;hundred&nbsp;more!</code>
+</pre>
+
+
+<p>In the age of color copying this might be a tempting scenario, but
+hopefully not one which you would be able to do for very long without being caught.
+The second problem with this code is that you can make more <span class="code">Currency</span> objects
+if you already have a reference to a <span class="code">Currency</span> object. But how do you get the first object
+of a given <span class="code">Currency</span>? You'd need another creation method, which does essentially
+the same job as <span class="code">make</span>. So you have a case of code duplication, which is a sure
+sign of a code smell.</p>
+
+<p>The solution, of course, is to move the abstract type and the factory method
+outside class <span class="code">AbstractCurrency</span>. You need to create another class that contains
+the <span class="code">AbstractCurrency</span> class, the <span class="code">Currency</span> type, and the <span class="code">make</span> factory method.</p>
+
+<p>We'll call this a <span class="code">CurrencyZone</span>:</p>
+
+<pre>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">CurrencyZone</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">type</code>&nbsp;<code class="typename">Currency</code>&nbsp;&lt;:&nbsp;<code class="typename">AbstractCurrency</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;make(x:&nbsp;<code class="typename">Long</code>):&nbsp;<code class="typename">Currency</code>
+  &nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">AbstractCurrency</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;amount:&nbsp;<code class="typename">Long</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;designation:&nbsp;<code class="typename">String</code>&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;amount&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;"</code>&nbsp;+&nbsp;designation
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;+&nbsp;(that:&nbsp;<code class="typename">Currency</code>):&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make(<code class="vem">this</code>.amount&nbsp;+&nbsp;that.amount)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;*&nbsp;(x:&nbsp;<code class="typename">Double</code>):&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make((<code class="vem">this</code>.amount&nbsp;*&nbsp;x).toLong)
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>An example concrete <span class="code">CurrencyZone</span> is the US, which 
+could be defined as:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;US&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">CurrencyZone</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Dollar</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">AbstractCurrency</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;designation&nbsp;=&nbsp;<code class="quotedstring">"USD"</code>
+  &nbsp;&nbsp;}
+  &nbsp;&nbsp;<code class="vem">type</code>&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;<code class="typename">Dollar</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;make(x:&nbsp;<code class="typename">Long</code>)&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Dollar</code>&nbsp;{&nbsp;<code class="vem">val</code>&nbsp;amount&nbsp;=&nbsp;x&nbsp;}
+  }
+</pre>
+
+
+<p>Here, <span class="code">US</span> is an object that extends <span class="code">CurrencyZone</span>. It defines a class
+<span class="code">Dollar</span>, which is a subclass of <span class="code">AbstractCurrency</span>. So the type of
+money in this zone is <span class="code">US.Dollar</span>. The <span class="code">US</span> object also fixes
+the type <span class="code">Currency</span> to be an alias for <span class="code">Dollar</span>, and it gives an
+implementation of the <span class="code">make</span> factory method to return a dollar amount.</p>
+
+<p>This is a workable design. 
+There are only a few refinements to be added.
+The first refinement concerns subunits. So far, every currency was
+measured in a single unit: dollars, euros, or yen. However, most
+currencies have subunits: For instance, in the US, it's dollars and
+cents. The most straightforward way to model cents is to have the
+<span class="code">amount</span> field in <span class="code">US.Currency</span> represent cents instead of dollars.
+To convert back to dollars, it's useful to introduce a field <span class="code">CurrencyUnit</span>
+into class <span class="code">CurrencyZone</span>, which contains the amount of one
+standard unit in that currency:</p>
+
+<div style="page-break-after:always"/>
+
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">CurrencyZone</code>&nbsp;{
+  &nbsp;&nbsp;...&nbsp;
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">CurrencyUnit</code>:&nbsp;<code class="typename">Currency</code>&nbsp;
+  }&nbsp;
+</pre>
+
+
+<p>As shown in <a href="abstract-members.html#lst-us-currency-zone">Listing 20.11</a>,
+The <span class="code">US</span> object could define the quantities <span class="code">Cent</span>, <span class="code">Dollar</span>, and <span class="code">CurrencyUnit</span>.
+This definition is just like the previous definition of the <span class="code">US</span> object, except that
+it adds three new fields. The field <span class="code">Cent</span> represents an amount of 1 <span class="code">US.Currency</span>.
+It's an object analogous to a one-cent coin. The field <span class="code">Dollar</span>
+represents an amount of 100 <span class="code">US.Currency</span>. So the <span class="code">US</span> object now defines the 
+name <span class="code">Dollar</span> in two ways. The <span style="font-style:italic">type</span> <span class="code">Dollar</span> (defined by the abstract inner class named <span class="code">Dollar</span>) represents the generic name of the <span class="code">Currency</span> 
+valid in the <span class="code">US</span> currency zone. By contrast, the <span style="font-style:italic">value</span> <span class="code">Dollar</span> (referenced from the <span class="code">val</span> field named <span class="code">Dollar</span>) represents
+a single US dollar, analogous to a one-dollar bill. The third field definition of <span class="code">CurrencyUnit</span>
+specifies that the standard currency unit in the <span class="code">US</span> zone is the <span class="code">Dollar</span> (<i>i.e.</i>, the value <span class="code">Dollar</span>, referenced from the field, not the type
+<span class="code">Dollar</span>).</p>
+
+<p>The <span class="code">toString</span> method in class <span class="code">Currency</span> also needs to be adapted to take 
+subunits into account. For instance, the sum of ten dollars and twenty three cents should print as a decimal number: 10.23 USD. To achieve this, you could implement <span class="code">Currency</span>'s 
+<span class="code">toString</span> method as follows:</p>
+
+<pre>
+  <code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;
+  &nbsp;&nbsp;((amount.toDouble&nbsp;/&nbsp;CurrencyUnit.amount.toDouble)
+  &nbsp;&nbsp;&nbsp;formatted&nbsp;(<code class="quotedstring">"<code class="texttt">%</code>."</code>&nbsp;+&nbsp;decimals(CurrencyUnit.amount)&nbsp;+&nbsp;<code class="quotedstring">"f"</code>)
+  &nbsp;&nbsp;&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;"</code>&nbsp;+&nbsp;designation)
+</pre>
+
+
+<p>Here, <span class="code">formatted</span><a id="i-1143614518-1"/>
+is a method that Scala makes available
+on several classes, including <span class="code">Double</span>.<a href="abstract-members.html#footnotemain20-2">[2]</a> 
+The <span class="code">formatted</span> method returns<a id="i1886523229-1"/><a id="i1659928775-1"/>
+the string that results from formatting the original string on which <span class="code">formatted</span> was invoked
+according to a format string
+passed as the <span class="code">formatted</span> method's right-hand operand.
+The syntax of format strings passed to <span class="code">formatted</span> is the same as that of Java's <span class="code">String.format</span> method.</p>
+
+<p><a id="lst-us-currency-zone"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;US&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">CurrencyZone</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Dollar</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">AbstractCurrency</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;designation&nbsp;=&nbsp;<code class="quotedstring">"USD"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">type</code>&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;<code class="typename">Dollar</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;make(cents:&nbsp;<code class="typename">Long</code>)&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Dollar</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;amount&nbsp;=&nbsp;cents
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">Cent</code>&nbsp;=&nbsp;make(<code class="literal">1</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">Dollar</code>&nbsp;=&nbsp;make(<code class="literal">100</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">CurrencyUnit</code>&nbsp;=&nbsp;<code class="typename">Dollar</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 20.11 - The US currency zone.</h5>
+
+
+<p>For instance, the format string <span class="code">%.2f</span> formats a number with two decimal digits.
+The format string used in the <span class="code">toString</span> shown previously is assembled by calling the <span class="code">decimals</span> method on
+<span class="code">CurrencyUnit.amount</span>. This method returns the number of decimal digits of a 
+decimal power minus one. For instance, <span class="code">decimals(10)</span> is <span class="code">1</span>, <span class="code">decimals(100)</span> is <span class="code">2</span>, and so on. The <span class="code">decimals</span> method is implemented by a simple recursion:</p>
+
+<pre>
+  <code class="vem">private</code>&nbsp;<code class="vem">def</code>&nbsp;decimals(n:&nbsp;<code class="typename">Long</code>):&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(n&nbsp;==&nbsp;<code class="literal">1</code>)&nbsp;<code class="literal">0</code>&nbsp;<code class="vem">else</code>&nbsp;<code class="literal">1</code>&nbsp;+&nbsp;decimals(n&nbsp;/&nbsp;<code class="literal">10</code>)
+</pre>
+
+
+<p><a href="abstract-members.html#lst-europe-japan">Listing 20.12</a> shows some other currency zones. As another refinement, you can add a currency conversion feature to the
+model. First, you could write a <span class="code">Converter</span> object that contains
+applicable exchange rates between currencies, as shown in <a href="abstract-members.html#lst-currency-converter">Listing 20.13</a>. Then, you could add
+a conversion method, <span class="code">from</span>, to class <span class="code">Currency</span>, which converts from a given source
+currency into the current <span class="code">Currency</span> object:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;from(other:&nbsp;<code class="typename">CurrencyZone</code>#<code class="typename">AbstractCurrency</code>):&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;make(math.round(
+  &nbsp;&nbsp;&nbsp;&nbsp;other.amount.toDouble&nbsp;*&nbsp;Converter.exchangeRate
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(other.designation)(<code class="vem">this</code>.designation)))
+</pre>
+
+
+<p>The <span class="code">from</span> method takes an arbitrary currency as argument. This is expressed by its formal parameter type, <span class="code">CurrencyZone#AbstractCurrency</span>, which indicates that
+the argument passed as <span class="code">other</span> must be an <span class="code">AbstractCurrency</span> type in some arbitrary and unknown <span class="code">CurrencyZone</span>.
+It produces its result by multiplying the amount of the <span class="code">other</span> currency 
+with the exchange rate between the other and the current currency.<a href="abstract-members.html#footnotemain20-3">[3]</a></p>
+
+<p><a id="lst-europe-japan"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Europe</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">CurrencyZone</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Euro</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">AbstractCurrency</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;designation&nbsp;=&nbsp;<code class="quotedstring">"EUR"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">type</code>&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;<code class="typename">Euro</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;make(cents:&nbsp;<code class="typename">Long</code>)&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Euro</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;amount&nbsp;=&nbsp;cents
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">Cent</code>&nbsp;=&nbsp;make(<code class="literal">1</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">Euro</code>&nbsp;=&nbsp;make(<code class="literal">100</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">CurrencyUnit</code>&nbsp;=&nbsp;<code class="typename">Euro</code>
+  &nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Japan</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">CurrencyZone</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Yen</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">AbstractCurrency</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;designation&nbsp;=&nbsp;<code class="quotedstring">"JPY"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">type</code>&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;<code class="typename">Yen</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;make(yen:&nbsp;<code class="typename">Long</code>)&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Yen</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;amount&nbsp;=&nbsp;yen
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">Yen</code>&nbsp;=&nbsp;make(<code class="literal">1</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">CurrencyUnit</code>&nbsp;=&nbsp;<code class="typename">Yen</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 20.12 - Currency zones for Europe and Japan.</h5>
+
+
+<p><a id="lst-currency-converter"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Converter</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">var</code>&nbsp;exchangeRate&nbsp;=&nbsp;<code class="typename">Map</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"USD"</code>&nbsp;-&gt;&nbsp;<code class="typename">Map</code>(<code class="quotedstring">"USD"</code>&nbsp;-&gt;&nbsp;<code class="literal">1.0</code>&nbsp;&nbsp;&nbsp;,&nbsp;<code class="quotedstring">"EUR"</code>&nbsp;-&gt;&nbsp;<code class="literal">0.7596</code>,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"JPY"</code>&nbsp;-&gt;&nbsp;<code class="literal">1.211</code>&nbsp;,&nbsp;<code class="quotedstring">"CHF"</code>&nbsp;-&gt;&nbsp;<code class="literal">1.223</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"EUR"</code>&nbsp;-&gt;&nbsp;<code class="typename">Map</code>(<code class="quotedstring">"USD"</code>&nbsp;-&gt;&nbsp;<code class="literal">1.316</code>&nbsp;,&nbsp;<code class="quotedstring">"EUR"</code>&nbsp;-&gt;&nbsp;<code class="literal">1.0</code>&nbsp;&nbsp;&nbsp;,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"JPY"</code>&nbsp;-&gt;&nbsp;<code class="literal">1.594</code>&nbsp;,&nbsp;<code class="quotedstring">"CHF"</code>&nbsp;-&gt;&nbsp;<code class="literal">1.623</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"JPY"</code>&nbsp;-&gt;&nbsp;<code class="typename">Map</code>(<code class="quotedstring">"USD"</code>&nbsp;-&gt;&nbsp;<code class="literal">0.8257</code>,&nbsp;<code class="quotedstring">"EUR"</code>&nbsp;-&gt;&nbsp;<code class="literal">0.6272</code>,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"JPY"</code>&nbsp;-&gt;&nbsp;<code class="literal">1.0</code>&nbsp;&nbsp;&nbsp;,&nbsp;<code class="quotedstring">"CHF"</code>&nbsp;-&gt;&nbsp;<code class="literal">1.018</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"CHF"</code>&nbsp;-&gt;&nbsp;<code class="typename">Map</code>(<code class="quotedstring">"USD"</code>&nbsp;-&gt;&nbsp;<code class="literal">0.8108</code>,&nbsp;<code class="quotedstring">"EUR"</code>&nbsp;-&gt;&nbsp;<code class="literal">0.6160</code>,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"JPY"</code>&nbsp;-&gt;&nbsp;<code class="literal">0.982</code>&nbsp;,&nbsp;<code class="quotedstring">"CHF"</code>&nbsp;-&gt;&nbsp;<code class="literal">1.0</code>&nbsp;&nbsp;)
+  &nbsp;&nbsp;&nbsp;&nbsp;)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 20.13 - A converter object with an exchange rates map.</h5>
+
+
+<p><a id="lst-CurrencyZone"/></p>
+
+<pre>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">CurrencyZone</code>&nbsp;{
+  <br />  &nbsp;&nbsp;<code class="vem">type</code>&nbsp;<code class="typename">Currency</code>&nbsp;&lt;:&nbsp;<code class="typename">AbstractCurrency</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;make(x:&nbsp;<code class="typename">Long</code>):&nbsp;<code class="typename">Currency</code>
+  <br />  &nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">AbstractCurrency</code>&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;amount:&nbsp;<code class="typename">Long</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;designation:&nbsp;<code class="typename">String</code>&nbsp;
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;+&nbsp;(that:&nbsp;<code class="typename">Currency</code>):&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make(<code class="vem">this</code>.amount&nbsp;+&nbsp;that.amount)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;*&nbsp;(x:&nbsp;<code class="typename">Double</code>):&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make((<code class="vem">this</code>.amount&nbsp;*&nbsp;x).toLong)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;-&nbsp;(that:&nbsp;<code class="typename">Currency</code>):&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make(<code class="vem">this</code>.amount&nbsp;-&nbsp;that.amount)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;/&nbsp;(that:&nbsp;<code class="typename">Double</code>)&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make((<code class="vem">this</code>.amount&nbsp;/&nbsp;that).toLong)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;/&nbsp;(that:&nbsp;<code class="typename">Currency</code>)&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">this</code>.amount.toDouble&nbsp;/&nbsp;that.amount
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;from(other:&nbsp;<code class="typename">CurrencyZone</code>#<code class="typename">AbstractCurrency</code>):&nbsp;<code class="typename">Currency</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;make(math.round(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;other.amount.toDouble&nbsp;*&nbsp;Converter.exchangeRate
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(other.designation)(<code class="vem">this</code>.designation)))
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">def</code>&nbsp;decimals(n:&nbsp;<code class="typename">Long</code>):&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(n&nbsp;==&nbsp;<code class="literal">1</code>)&nbsp;<code class="literal">0</code>&nbsp;<code class="vem">else</code>&nbsp;<code class="literal">1</code>&nbsp;+&nbsp;decimals(n&nbsp;/&nbsp;<code class="literal">10</code>)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;((amount.toDouble&nbsp;/&nbsp;CurrencyUnit.amount.toDouble)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;formatted&nbsp;(<code class="quotedstring">"<code class="texttt">%</code>."</code>&nbsp;+&nbsp;decimals(CurrencyUnit.amount)&nbsp;+&nbsp;<code class="quotedstring">"f"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;"</code>&nbsp;+&nbsp;designation)
+  &nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;<code class="typename">CurrencyUnit</code>:&nbsp;<code class="typename">Currency</code>
+  }
+</pre>
+
+
+<h5>Listing 20.14 - The full code of class <span class="code">CurrencyZone</span>.</h5>
+
+
+<p>The final version of the <span class="code">CurrencyZone</span> class is 
+shown in <a href="abstract-members.html#lst-CurrencyZone">Listing 20.14</a>.
+ You can test the class in the Scala command shell. We'll assume that
+the <span class="code">CurrencyZone</span> class and all concrete <span class="code">CurrencyZone</span> objects are
+defined in a package <span class="code">org.stairwaybook.currencies</span>. The first step is to import
+"<span class="code">org.stairwaybook.currencies._</span>" into the command shell.
+Then you can do some currency conversions:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">Japan.Yen</code>&nbsp;from&nbsp;<code class="typename">US.Dollar</code>&nbsp;*&nbsp;<code class="literal">100</code>
+  <code class="output">res16:&nbsp;Japan.Currency&nbsp;=&nbsp;12110&nbsp;JPY</code>
+  <br />  scala&gt;&nbsp;<code class="typename">Europe.Euro</code>&nbsp;from&nbsp;res16
+  <code class="output">res17:&nbsp;Europe.Currency&nbsp;=&nbsp;75.95&nbsp;EUR</code>
+  <br />  scala&gt;&nbsp;<code class="typename">US.Dollar</code>&nbsp;from&nbsp;res17
+  <code class="output">res18:&nbsp;US.Currency&nbsp;=&nbsp;99.95&nbsp;USD</code>
+</pre>
+
+
+<p>The fact that we obtain almost the same amount after three conversions
+implies that these are some pretty good exchange rates! You can also add up values of the same currency:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">US.Dollar</code>&nbsp;*&nbsp;<code class="literal">100</code>&nbsp;+&nbsp;res18
+  <code class="output">res19:&nbsp;US.Currency&nbsp;=&nbsp;199.95&nbsp;USD</code>
+</pre>
+
+
+<p>On the other hand, you cannot add amounts of different currencies:<a id="i-677980410-6"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="typename">US.Dollar</code>&nbsp;+&nbsp;<code class="typename">Europe.Euro</code>
+  <code class="output">&lt;console&gt;:12:&nbsp;error:&nbsp;type&nbsp;mismatch;</code>
+  <code class="output">&nbsp;found&nbsp;&nbsp;&nbsp;:&nbsp;Europe.Euro</code>
+  <code class="output">&nbsp;required:&nbsp;US.Currency</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;(which&nbsp;expands&nbsp;to)&nbsp;&nbsp;US.Dollar</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;US.Dollar&nbsp;+&nbsp;Europe.Euro</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>By preventing the addition of two values with different units (in this case, currencies),
+the type abstraction has done its job. It prevents us from performing
+calculations that are unsound. Failures to convert correctly between
+different units may seem like trivial bugs, but they have caused many
+serious systems faults. An example is the crash of the
+Mars Climate Orbiter spacecraft on September 23, 1999, which was caused
+because one engineering team used metric units while another used
+English units. If units had been coded in the same way as currencies
+are coded in this chapter, this error would have been detected 
+by a simple compilation run.
+Instead, it caused the crash of the orbiter after a near ten-month voyage.</p>
+
+<h3>20.11 Conclusion</h3>
+
+
+<p>Scala offers systematic and very general support for object-oriented
+abstraction. It enables you to not only abstract over methods, but
+also over values, variables, and types.  This chapter has
+shown how to take advantage of abstract members.  They support a simple
+yet effective principle for systems structuring: when designing a
+class, make everything that is not yet known into an abstract member.
+The type system will then drive the development of your model, just as
+you saw with the currency case study.  It does not matter whether the
+unknown is a type, method, variable or value. In Scala, all of these
+can be declared abstract.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 20:</h4>
+
+
+<p><a id="footnotemain20-1"/>[1] 
+There's some promising recent research on <span style="font-style:italic">virtual classes</span>,<a id="i439466001-1"/><a id="i1629420471-1"/> which 
+would allow this, but virtual classes are not currently supported in Scala.</p>
+
+<p><a id="footnotemain20-2"/>[2] Scala uses rich wrappers,
+described in <a href="basic-types-and-operations.html#sec-rich-wrappers">Section 5.10</a>, to make <span class="code">formatted</span>
+available.</p>
+
+<p><a id="footnotemain20-3"/>[3] By the way, in case you think you're getting a bad deal on Japanese yen, the
+exchange rates convert currencies based on their <span class="code">CurrencyZone</span> amounts. Thus, 1.211 is the exchange rate between US cents and Japanese yen.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

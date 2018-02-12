@@ -1,0 +1,745 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-control-abstraction">Chapter 9</a></h2>
+<h1>Control Abstraction</h1>
+
+
+<p>In <a href="builtin-control-structures.html">Chapter 7</a>, we pointed out that Scala doesn't have
+many built-in control abstractions because it gives you the ability to create your
+own. In the previous chapter, you learned about function values. In this chapter, we'll
+show you how to apply function values to create new control abstractions. Along the way, 
+you'll also learn about currying and by-name parameters.</p>
+
+<h3 id="sec-reducing-code-dup">9.1 Reducing code duplication</h3>
+
+
+<p>All functions are separated into common parts, which are the same<a id="i14092899-2"/><a id="i-1950695486-2"/>
+in every invocation of the function, and non-common parts, which may vary
+from one function invocation to the next. The common parts are in the body of the function, while the
+non-common parts must be supplied via arguments.
+When you use a function value as an argument, the non-common part of the
+algorithm is itself some other algorithm!
+At each invocation of such a function, you can pass in a
+different function value as an argument, and the invoked function will, at times of
+its choosing, invoke the passed function value.  These <em>higher-order functions</em>&mdash;functions
+that take functions as parameters&mdash;give
+you extra opportunities to condense and simplify code<a id="i1069366433-1"/><a id="i319271759-1"/>.</p>
+
+<p>One benefit of higher-order functions is they enable you to create
+control abstractions that allow you to reduce code duplication.
+For example, suppose you are writing a file browser,
+and you want to provide an API that allows users to search for files matching some
+criterion.  First, you add a facility to search for files whose names
+end in a particular string. This would enable your users to find, for example, 
+all files with a "<span class="texttt">.scala</span>" extension. You could provide
+such an API by defining a public <span class="code">filesEnding</span> method inside a singleton object like
+this:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">FileMatcher</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">def</code>&nbsp;filesHere&nbsp;=&nbsp;(<code class="vem">new</code>&nbsp;<code class="typename">java.io.File</code>(<code class="quotedstring">"."</code>)).listFiles
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;filesEnding(query:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(file&nbsp;&lt;-&nbsp;filesHere;&nbsp;<code class="vem">if</code>&nbsp;file.getName.endsWith(query))
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">yield</code>&nbsp;file
+  }
+</pre>
+
+
+<p>The <span class="code">filesEnding</span> method obtains the list of all files in the current directory
+using the private helper method <span class="code">filesHere</span>, then filters them based on whether each file name
+ends with the user-specified query. Given <span class="code">filesHere</span> is private, the <span class="code">filesEnding</span> method
+is the only accessible method defined in 
+<span class="code">FileMatcher</span>, the API you provide to your users.</p>
+
+<p>So far so good, and there is no repeated code yet.  Later on, though,
+you decide to let people search based on any part of the file name.
+This is good for when your users cannot remember if they named a file
+<span class="texttt">phb-important.doc</span>, <span class="texttt">stupid-phb-report.doc</span>,
+<span class="texttt">may2003salesdoc.phb</span>, or something entirely different; they just know that "phb" appears in the name somewhere.  You go 
+back to work and add this function to your <span class="code">FileMatcher</span> API:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;filesContaining(query:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(file&nbsp;&lt;-&nbsp;filesHere;&nbsp;<code class="vem">if</code>&nbsp;file.getName.contains(query))
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">yield</code>&nbsp;file
+</pre>
+
+
+<p>This function works just like <span class="code">filesEnding</span>.  It searches <span class="code">filesHere</span>,
+checks the name, and returns the file if the name matches.  The only
+difference is that this function uses <span class="code">contains</span> instead of
+<span class="code">endsWith</span>.</p>
+
+<p>The months go by, and the program becomes more successful.
+Eventually, you give in to the requests of a few power users who want
+to search based on regular expressions.  These sloppy guys have
+immense directories with thousands of files, and they would like to do
+things like find all "pdf" files that have "oopsla" in the title
+somewhere.  To support them, you write this function:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;filesRegex(query:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(file&nbsp;&lt;-&nbsp;filesHere;&nbsp;<code class="vem">if</code>&nbsp;file.getName.matches(query))
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">yield</code>&nbsp;file
+</pre>
+
+
+<p>Experienced programmers will notice all of this repetition and wonder
+if it can be factored into a common helper function.  Doing it the obvious way
+does not work, however.  You would like to be able to do the
+following:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;filesMatching(query:&nbsp;<code class="typename">String</code>,&nbsp;<i>method</i>)&nbsp;=
+  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(file&nbsp;&lt;-&nbsp;filesHere;&nbsp;<code class="vem">if</code>&nbsp;file.getName.<i>method</i>(query))
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">yield</code>&nbsp;file
+</pre>
+
+
+<p>This approach would work in some dynamic languages,
+but Scala does not allow pasting together code
+at runtime like this.  So what do you do?</p>
+
+<p>Function values provide an answer.<a id="i2141458026-2"/>  While you cannot pass around a method name
+as a value, you can get the same effect by passing around a function value
+that calls the method for you.  In this case, you could add a
+<span class="code">matcher</span> parameter to the method whose sole purpose is to check a
+file name against a query:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;filesMatching(query:&nbsp;<code class="typename">String</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;matcher:&nbsp;(<code class="typename">String</code>,&nbsp;<code class="typename">String</code>)&nbsp;=&gt;&nbsp;<code class="typename">Boolean</code>)&nbsp;=&nbsp;{
+  <br />  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(file&nbsp;&lt;-&nbsp;filesHere;&nbsp;<code class="vem">if</code>&nbsp;matcher(file.getName,&nbsp;query))
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">yield</code>&nbsp;file
+  }
+</pre>
+
+
+<p>In this version of the method, the <span class="code">if</span> clause now uses <span class="code">matcher</span> to
+check the file name against the query.  Precisely what this check does
+depends on what is specified as the matcher.  Take a look, now, at the type
+of <span class="code">matcher</span> itself.  It is a function, and thus has a <span class="code">=&gt;</span> in the
+type.  This function takes two string arguments&mdash;the file name and the
+query&mdash;and returns a boolean, so the type of this function is
+<span class="code">(String,</span>&nbsp;<span class="code">String)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span>.</p>
+
+<p>Given this new <span class="code">filesMatching</span> helper method, you can simplify the three
+searching methods by having them call the helper method, passing in an
+appropriate function:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;filesEnding(query:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;filesMatching(query,&nbsp;_.endsWith(_))
+  <br />  <code class="vem">def</code>&nbsp;filesContaining(query:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;filesMatching(query,&nbsp;_.contains(_))
+  <br />  <code class="vem">def</code>&nbsp;filesRegex(query:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;filesMatching(query,&nbsp;_.matches(_))
+</pre>
+
+
+<p>The function literals shown in this example use the placeholder syntax, introduced in the previous chapter,
+which may not as yet feel very natural to you.<a id="i1101169360-1"/><a id="i788093512-2"/><a id="i-383997826-2"/><a id="i603770043-2"/>
+So here's a clarification of how placeholders are used: The function literal <span class="code">_.endsWith(_)</span>, used in the <span class="code">filesEnding</span> method,
+means the same thing as:</p>
+
+<pre>
+  (fileName:&nbsp;<code class="typename">String</code>,&nbsp;query:&nbsp;<code class="typename">String</code>)&nbsp;=&gt;&nbsp;fileName.endsWith(query)
+</pre>
+
+
+<p>Because <span class="code">filesMatching</span> takes a function that requires two <span class="code">String</span> arguments, you need not specify the types of the arguments; you could just write <span class="code">(fileName,</span>&nbsp;<span class="code">query)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">fileName.endsWith(query)</span>. Since the parameters are each used only once in the body of the function (<i>i.e.</i>, the first parameter, <span class="code">fileName</span>, is used first in the body, and the second parameter, <span class="code">query</span>, is used second), you can use
+the placeholder syntax: <span class="code">_.endsWith(_)</span>. The first underscore is a placeholder for the first parameter, the file name, and the second underscore a
+placeholder for the second parameter, the query string.</p>
+
+<p>This code is already simplified, but it can actually be even shorter.
+Notice that the query gets passed to <span class="code">filesMatching</span>, but
+<span class="code">filesMatching</span> does nothing with the query except to pass it back to
+the passed <span class="code">matcher</span> function.  This passing back and forth is unnecessary because the
+caller already knew the query to begin with!  You might as well remove the query parameter from <span class="code">filesMatching</span> and <span class="code">matcher</span>, thus
+simplifying the code as shown in <a href="control-abstraction.html#lst-closures-reduce">Listing 9.1</a>.</p>
+
+<p><a id="lst-closures-reduce"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">FileMatcher</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">def</code>&nbsp;filesHere&nbsp;=&nbsp;(<code class="vem">new</code>&nbsp;<code class="typename">java.io.File</code>(<code class="quotedstring">"."</code>)).listFiles
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">def</code>&nbsp;filesMatching(matcher:&nbsp;<code class="typename">String</code>&nbsp;=&gt;&nbsp;<code class="typename">Boolean</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(file&nbsp;&lt;-&nbsp;filesHere;&nbsp;<code class="vem">if</code>&nbsp;matcher(file.getName))
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">yield</code>&nbsp;file
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;filesEnding(query:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filesMatching(_.endsWith(query))
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;filesContaining(query:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filesMatching(_.contains(query))
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;filesRegex(query:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;filesMatching(_.matches(query))
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 9.1 - Using closures to reduce code duplication.</h5>
+
+
+<p>This example demonstrates the way in which first-class functions can help you eliminate code duplication<a id="i532436688-1"/>
+where it would be very difficult to do so without them. In Java, for
+example, you could create an interface containing a method that takes one <span class="code">String</span> and returns
+a <span class="code">Boolean</span>, then create and pass anonymous inner class instances that implement this
+interface to <span class="code">filesMatching</span>. Although this approach would remove the code duplication you are
+trying to eliminate, it would, at the same time, add as much or more new code. Thus the benefit is
+not worth the cost, and you may as well live with the duplication.</p>
+
+<p>Moreover, this example demonstrates how closures can help you reduce
+code duplication<a id="i1093320088-2"/>.
+The function literals used in the previous example, such as <span class="code">_.endsWith(_)</span> and <span class="code">_.contains(_)</span>, are
+instantiated at runtime into function values that are <em>not</em> closures because they don't capture any free variables. Both
+variables used in the expression, <span class="code">_.endsWith(_)</span>, for example, are represented by
+underscores, which means they are taken from arguments to the function. Thus, <span class="code">_.endsWith(_)</span>
+uses two bound variables, and no free variables. By contrast, the function literal <span class="code">_.endsWith(query)</span>, used
+in the most recent example, contains one bound variable, the argument represented by the underscore,
+and one free variable named <span class="code">query</span>. It is only because Scala supports closures that you were
+able to remove the <span class="code">query</span> parameter from <span class="code">filesMatching</span> in the most recent example, thereby simplifying the code
+even further.</p>
+
+<h3>9.2 Simplifying client code</h3>
+
+
+<p>The previous example demonstrated that higher-order functions can
+help reduce code duplication as you implement an API.  Another important use
+of higher-order functions is to put them in an API itself to make client
+code more concise. A good example is provided by the special-purpose
+looping methods of Scala's collection types.<a href="control-abstraction.html#footnotemain9-1">[1]</a>  
+Many of these are listed in
+<a href="next-steps-in-scala.html#tab-listmethods">Table 3.1</a> in
+<a href="next-steps-in-scala.html">Chapter 3</a>, but take a look at just one
+example for now to see why these methods are so useful.</p>
+
+<p>Consider <span class="code">exists</span>, a method that determines whether a passed value
+is contained in a collection<a id="i1794232640-1"/>.  You could, of course, search for an
+element by having a <span class="code">var</span> initialized to false, looping through
+the collection checking each item, and setting the <span class="code">var</span> to true if you
+find what you are looking for. Here's a method that uses this
+approach to determine whether a passed <span class="code">List</span> contains a negative number:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;containsNeg(nums:&nbsp;<code class="typename">List[Int]</code>):&nbsp;<code class="typename">Boolean</code>&nbsp;=&nbsp;{
+  &nbsp;&nbsp;<code class="vem">var</code>&nbsp;exists&nbsp;=&nbsp;<code class="vem">false</code>
+  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(num&nbsp;&lt;-&nbsp;nums)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(num&nbsp;&lt;&nbsp;<code class="literal">0</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exists&nbsp;=&nbsp;<code class="vem">true</code>
+  &nbsp;&nbsp;exists
+  }
+</pre>
+
+
+<p>If you define this method in the interpreter, you can call it like this:</p>
+
+<pre>
+  scala&gt;&nbsp;containsNeg(<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>,&nbsp;<code class="literal">4</code>))
+  <code class="output">res0:&nbsp;Boolean&nbsp;=&nbsp;false</code>
+  <br />  scala&gt;&nbsp;containsNeg(<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;-<code class="literal">3</code>,&nbsp;<code class="literal">4</code>))
+  <code class="output">res1:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+</pre>
+
+
+<p>A more concise way to define the method, though, is by calling the higher-order function <span class="code">exists</span> on the
+passed <span class="code">List</span>, like this:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;containsNeg(nums:&nbsp;<code class="typename">List[Int]</code>)&nbsp;=&nbsp;nums.exists(_&nbsp;&lt;&nbsp;<code class="literal">0</code>)
+</pre>
+
+
+<p>This version of <span class="code">containsNeg</span> yields the same results as the previous:</p>
+
+<pre>
+  scala&gt;&nbsp;containsNeg(<code class="typename">Nil</code>)
+  <code class="output">res2:&nbsp;Boolean&nbsp;=&nbsp;false</code>
+  <br />  scala&gt;&nbsp;containsNeg(<code class="typename">List</code>(<code class="literal">0</code>,&nbsp;-<code class="literal">1</code>,&nbsp;-<code class="literal">2</code>))
+  <code class="output">res3:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+</pre>
+
+
+<p>The <span class="code">exists</span> method represents a control abstraction.
+It is a special-purpose looping construct provided by the Scala
+library, rather than built into the Scala language like <span class="code">while</span> or
+<span class="code">for</span>. In the previous section, the higher-order function, <span class="code">filesMatching</span>, 
+reduces code duplication in the implementation of the <span class="code">object</span> <span class="code">FileMatcher</span>. The <span class="code">exists</span> method provides a similar
+benefit, but because <span class="code">exists</span> is public in Scala's collections API, the code duplication it reduces is 
+client code of that API. If <span class="code">exists</span> didn't exist, and you wanted to write a <span class="code">containsOdd</span> method to test whether a list contains odd numbers,
+you might
+write it like this:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;containsOdd(nums:&nbsp;<code class="typename">List[Int]</code>):&nbsp;<code class="typename">Boolean</code>&nbsp;=&nbsp;{
+  &nbsp;&nbsp;<code class="vem">var</code>&nbsp;exists&nbsp;=&nbsp;<code class="vem">false</code>
+  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(num&nbsp;&lt;-&nbsp;nums)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(num&nbsp;<code class="texttt">%</code>&nbsp;<code class="literal">2</code>&nbsp;==&nbsp;<code class="literal">1</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;exists&nbsp;=&nbsp;<code class="vem">true</code>
+  &nbsp;&nbsp;exists
+  }
+</pre>
+
+
+<p>If you compare the body of <span class="code">containsNeg</span> with that of <span class="code">containsOdd</span>, you'll find that everything is repeated except
+the test condition of an <span class="code">if</span> expression. Using <span class="code">exists</span>, you could write this instead:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;containsOdd(nums:&nbsp;<code class="typename">List[Int]</code>)&nbsp;=&nbsp;nums.exists(_&nbsp;<code class="texttt">%</code>&nbsp;<code class="literal">2</code>&nbsp;==&nbsp;<code class="literal">1</code>)
+</pre>
+
+
+<p>The body of the code in this version is again identical to the body of the corresponding <span class="code">containsNeg</span> method (the version that
+uses <span class="code">exists</span>), except the condition for which to search is different. Yet the amount of code duplication is much smaller because all of the looping infrastructure
+is factored out into the <span class="code">exists</span> method itself.</p>
+
+<p>There are many other looping methods in Scala's standard library.
+As with <span class="code">exists</span>, they can often shorten your code if you recognize
+opportunities to use them.</p>
+
+<h3 id="sec-currying">9.3 Currying</h3>
+
+
+<p>In Chapter 1, we said that Scala allows you to create new control abstractions that "feel like native language support."
+Although the examples you've seen so far are indeed control abstractions, it is unlikely anyone would mistake them
+for native language support.
+To understand how to make control abstractions that feel more like language extensions, you first need to understand the
+functional programming technique called <a href="glossary.html#g575993339"><em>currying</em></a>.<a id="i575993339-1"/></p>
+
+<p>A curried function is applied to multiple argument lists, instead of just one. <a href="control-abstraction.html#lst-plain-old-function">Listing 9.2</a> shows a regular, non-curried function, which
+adds two <span class="code">Int</span> parameters, <span class="code">x</span> and <span class="code">y</span>.</p>
+
+<p><a id="lst-plain-old-function"/></p>
+
+<pre>
+  &nbsp;&nbsp;scala&gt;&nbsp;<code class="vem">def</code>&nbsp;plainOldSum(x:&nbsp;<code class="typename">Int</code>,&nbsp;y:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;x&nbsp;+&nbsp;y
+  <code class="output">&nbsp;&nbsp;plainOldSum:&nbsp;(x:&nbsp;Int,&nbsp;y:&nbsp;Int)Int</code>
+  <br />  &nbsp;&nbsp;scala&gt;&nbsp;plainOldSum(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)
+  <code class="output">&nbsp;&nbsp;res4:&nbsp;Int&nbsp;=&nbsp;3</code>
+</pre>
+
+
+<h5>Listing 9.2 - Defining and invoking a "plain old" function.</h5>
+
+
+<p>By contrast, <a href="control-abstraction.html#lst-curried-function">Listing 9.3</a> shows a similar function that's
+curried. Instead of one list
+of two <span class="code">Int</span> parameters, you apply this
+function to two lists of one <span class="code">Int</span> parameter each.</p>
+
+<p><a id="lst-curried-function"/></p>
+
+<pre>
+  &nbsp;&nbsp;scala&gt;&nbsp;<code class="vem">def</code>&nbsp;curriedSum(x:&nbsp;<code class="typename">Int</code>)(y:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;x&nbsp;+&nbsp;y
+  <code class="output">&nbsp;&nbsp;curriedSum:&nbsp;(x:&nbsp;Int)(y:&nbsp;Int)Int</code>
+  <br />  &nbsp;&nbsp;scala&gt;&nbsp;curriedSum(<code class="literal">1</code>)(<code class="literal">2</code>)
+  <code class="output">&nbsp;&nbsp;res5:&nbsp;Int&nbsp;=&nbsp;3</code>
+</pre>
+
+
+<h5>Listing 9.3 - Defining and invoking a curried function.</h5>
+
+
+<p>What's happening here is that when you invoke <span class="code">curriedSum</span>, you actually get two traditional function invocations back to back. 
+The first function invocation takes a single <span class="code">Int</span> parameter named <span class="code">x</span>, and returns a function value for the 
+second function. This second function takes the <span class="code">Int</span> parameter <span class="code">y</span>. Here's a function named <span class="code">first</span> that does in spirit
+what the first traditional function invocation of <span class="code">curriedSum</span> would do:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;first(x:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;(y:&nbsp;<code class="typename">Int</code>)&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;y
+  <code class="output">first:&nbsp;(x:&nbsp;Int)Int&nbsp;=&gt;&nbsp;Int</code>
+</pre>
+
+
+<p>Applying the first function to <span class="code">1</span>&mdash;in other words, invoking the first function and passing in <span class="code">1</span>&mdash;yields the second function:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;second&nbsp;=&nbsp;first(<code class="literal">1</code>)
+  <code class="output">second:&nbsp;Int&nbsp;=&gt;&nbsp;Int&nbsp;=&nbsp;&lt;function1&gt;</code>
+</pre>
+
+
+<p>Applying the second function to <span class="code">2</span> yields the result:</p>
+
+<pre>
+  scala&gt;&nbsp;second(<code class="literal">2</code>)
+  <code class="output">res6:&nbsp;Int&nbsp;=&nbsp;3</code>
+</pre>
+
+
+<p>These <span class="code">first</span> and <span class="code">second</span> functions are just an illustration of the currying process.
+They are not directly connected to the <span class="code">curriedSum</span> function. 
+Nevertheless, there is a way to get an actual reference to <span class="code">curriedSum</span>'s "second" function. You can use
+the placeholder notation to use <span class="code">curriedSum</span> in a partially applied
+function expression, like this:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;onePlus&nbsp;=&nbsp;curriedSum(<code class="literal">1</code>)_
+  <code class="output">onePlus:&nbsp;Int&nbsp;=&gt;&nbsp;Int&nbsp;=&nbsp;&lt;function1&gt;</code>
+</pre>
+
+
+<p>The underscore in <span class="code">curriedSum(1)_</span> is a placeholder for the second
+parameter list.<a href="control-abstraction.html#footnotemain9-2">[2]</a><a id="i-877041491-1"/>  The result is a reference to a function
+that, when invoked, adds one to its sole <span class="code">Int</span> argument and returns the result:</p>
+
+<pre>
+  scala&gt;&nbsp;onePlus(<code class="literal">2</code>)
+  <code class="output">res7:&nbsp;Int&nbsp;=&nbsp;3</code>
+</pre>
+
+
+<p>And here's how you'd get a function that adds two to its sole <span class="code">Int</span> argument:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;twoPlus&nbsp;=&nbsp;curriedSum(<code class="literal">2</code>)_
+  <code class="output">twoPlus:&nbsp;Int&nbsp;=&gt;&nbsp;Int&nbsp;=&nbsp;&lt;function1&gt;</code>
+  <br />  scala&gt;&nbsp;twoPlus(<code class="literal">2</code>)
+  <code class="output">res8:&nbsp;Int&nbsp;=&nbsp;4</code>
+</pre>
+
+
+<h3 id="sec-control-structures">9.4 Writing new control structures</h3>
+
+
+<p>In languages with first-class functions, you can effectively make new 
+control structures even though the syntax of the language is fixed.
+All you need to do is create methods that take functions as
+arguments.</p>
+
+<p>For example, here is the "twice" control structure, which repeats an
+operation two times and returns the result:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;twice(op:&nbsp;<code class="typename">Double</code>&nbsp;=&gt;&nbsp;<code class="typename">Double</code>,&nbsp;x:&nbsp;<code class="typename">Double</code>)&nbsp;=&nbsp;op(op(x))
+  <code class="output">twice:&nbsp;(op:&nbsp;Double&nbsp;=&gt;&nbsp;Double,&nbsp;x:&nbsp;Double)Double</code>
+  <br />  scala&gt;&nbsp;twice(_&nbsp;+&nbsp;<code class="literal">1</code>,&nbsp;<code class="literal">5</code>)
+  <code class="output">res9:&nbsp;Double&nbsp;=&nbsp;7.0</code>
+</pre>
+
+
+<p>The type
+of <span class="code">op</span> in this example is <span class="code">Double</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Double</span>, which means it 
+is a function that takes one <span class="code">Double</span> as an argument and returns
+another <span class="code">Double</span>.</p>
+
+<p>Any time you find a control pattern repeated in multiple parts of your
+code, you should think about implementing it as a new control
+structure.  
+Earlier in the chapter you saw <span class="code">filesMatching</span>, a very
+specialized control pattern.
+Consider now a more widely used coding pattern:
+open a resource,
+operate on it, and then close the resource. You can capture this 
+in a control
+abstraction using a
+method like the following: <a id="exa-first-with-print-writer"/></p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;withPrintWriter(file:&nbsp;<code class="typename">File</code>,&nbsp;op:&nbsp;<code class="typename">PrintWriter</code>&nbsp;=&gt;&nbsp;<code class="typename">Unit</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;writer&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">PrintWriter</code>(file)
+  &nbsp;&nbsp;<code class="vem">try</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;op(writer)
+  &nbsp;&nbsp;}&nbsp;<code class="vem">finally</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;writer.close()
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>Given such a method, you can use it like this:</p>
+
+<pre>
+  withPrintWriter(
+  &nbsp;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">File</code>(<code class="quotedstring">"date.txt"</code>),
+  &nbsp;&nbsp;writer&nbsp;=&gt;&nbsp;writer.println(<code class="vem">new</code>&nbsp;<code class="typename">java.util.Date</code>)
+  )
+</pre>
+
+
+<p>The advantage of using this method is that it's
+<span class="code">withPrintWriter</span>, not user code, that assures the file is closed at the end.
+So it's impossible to forget to close the file.
+This technique is called the <em>loan pattern</em>, because a control-abstraction
+function, such as <span class="code">withPrintWriter</span>, opens a resource and
+"loans" it to a function.<a id="i-531276704-2"/><a id="i850457101-2"/><a id="i193663324-2"/> For instance, <span class="code">withPrintWriter</span> in the previous example loans a
+<span class="code">PrintWriter</span> to the function, <span class="code">op</span>. When the function completes,
+it signals that it no longer needs the "borrowed" resource. The resource is
+then closed in a <span class="code">finally</span> block, to ensure it is indeed closed, regardless of whether the 
+function completes by returning normally or throwing an exception.</p>
+
+<p>One way in which you can make the client code look a bit more like a built-in 
+control structure is to use curly braces instead of parentheses to surround
+the argument list. In any method invocation in Scala in which you're passing in exactly one argument, you can opt to use curly braces to surround the argument instead of parentheses.<a id="i-2010619769-1"/><a id="i798707221-1"/><a id="i-1201222106-1"/></p>
+
+<p>For example, instead of:</p>
+
+<pre>
+  scala&gt;&nbsp;println(<code class="quotedstring">"Hello,&nbsp;world!"</code>)
+  <code class="output">Hello,&nbsp;world!</code>
+</pre>
+
+
+<p>You could write:</p>
+
+<pre>
+  scala&gt;&nbsp;println&nbsp;{&nbsp;<code class="quotedstring">"Hello,&nbsp;world!"</code>&nbsp;}
+  <code class="output">Hello,&nbsp;world!</code>
+</pre>
+
+
+<p>In the second example, you used curly braces instead of parentheses to surround the
+arguments to <span class="code">println</span>. This curly braces technique will work, however, only if
+you're passing in one argument. Here's an attempt at violating that rule:<a id="i724160184-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;g&nbsp;=&nbsp;<code class="quotedstring">"Hello,&nbsp;world!"</code>
+  <code class="output">g:&nbsp;String&nbsp;=&nbsp;Hello,&nbsp;world!</code>
+  <br />  scala&gt;&nbsp;g.substring&nbsp;{&nbsp;<code class="literal">7</code>,&nbsp;<code class="literal">9</code>&nbsp;}
+  <code class="output">&lt;console&gt;:1:&nbsp;error:&nbsp;';'&nbsp;expected&nbsp;but&nbsp;','&nbsp;found.</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;g.substring&nbsp;{&nbsp;7,&nbsp;9&nbsp;}</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>Because you are attempting to pass in two arguments to <span class="code">substring</span>, you get an error when you try to
+surround those arguments with curly braces. Instead, you'll need to use parentheses:</p>
+
+<pre>
+  scala&gt;&nbsp;g.substring(<code class="literal">7</code>,&nbsp;<code class="literal">9</code>)
+  <code class="output">res12:&nbsp;String&nbsp;=&nbsp;wo</code>
+</pre>
+
+
+<p>The purpose of this ability to substitute curly braces for parentheses for passing in
+one argument is to enable client programmers to write function literals
+between curly braces. This
+can make a method call feel more like a control abstraction.
+Take the <span class="code">withPrintWriter</span> method defined previously as an example.
+In its most recent form, <span class="code">withPrintWriter</span> takes two arguments, so you can't use
+curly braces. Nevertheless, because the function passed to <span class="code">withPrintWriter</span>
+is the last argument in the list, you can use currying to pull the first argument, the <span class="code">File</span>, 
+into a separate argument list. This will leave the function as the lone parameter
+of the second argument list. <a href="control-abstraction.html#lst-loan-pattern">Listing 9.4</a> shows how you'd need to redefine <span class="code">withPrintWriter</span>.</p>
+
+<p><a id="lst-loan-pattern"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;withPrintWriter(file:&nbsp;<code class="typename">File</code>)(op:&nbsp;<code class="typename">PrintWriter</code>&nbsp;=&gt;&nbsp;<code class="typename">Unit</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;writer&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">PrintWriter</code>(file)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">try</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;op(writer)
+  &nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<code class="vem">finally</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;writer.close()
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 9.4 - Using the loan pattern to write to a file.</h5>
+
+
+<p>The new version differs from the old one only in that there are now two parameter 
+lists with one parameter each instead of one parameter list with two parameters. 
+Look between the two parameters. In the
+previous version of <span class="code">withPrintWriter</span>, shown  <a href="control-abstraction.html#exa-first-with-print-writer">here</a>, you see ...<span class="code">File,</span>&nbsp;<span class="code">op</span>.... But in this
+version, you see ...<span class="code">File)(op</span>....
+Given the above definition, you can call the method with a more
+pleasing syntax:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;file&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">File</code>(<code class="quotedstring">"date.txt"</code>)
+  <br />  withPrintWriter(file)&nbsp;{&nbsp;writer&nbsp;=&gt;
+  &nbsp;&nbsp;writer.println(<code class="vem">new</code>&nbsp;<code class="typename">java.util.Date</code>)
+  }
+</pre>
+
+
+<p>In this example, the first argument list, which contains one <span class="code">File</span> argument,
+is written surrounded by parentheses. The second argument list, which contains
+one function argument, is surrounded by curly braces.</p>
+
+<h3 id="sec-by-name-parameters">9.5 By-name parameters</h3>
+
+
+<p>The <span class="code">withPrintWriter</span> method shown in the previous section differs
+from built-in control structures of the language, such as <span class="code">if</span>
+and <span class="code">while</span>, in that the code between the curly braces takes an argument.
+The function passed to <span class="code">withPrintWriter</span> requires one argument of type <span class="code">PrintWriter</span>.
+This argument shows up as the "<span class="code">writer</span>&nbsp;<span class="code">=&gt;</span>" in:</p>
+
+<pre>
+  withPrintWriter(file)&nbsp;{&nbsp;writer&nbsp;=&gt;
+  &nbsp;&nbsp;writer.println(<code class="vem">new</code>&nbsp;<code class="typename">java.util.Date</code>)
+  }
+</pre>
+
+
+<p>But what if you want to implement something more like
+<span class="code">if</span> or <span class="code">while</span>, where there is no value to pass into the
+code between the curly braces? To help with such situations, Scala provides by-name
+parameters.<a id="i-1931276111-1"/><a id="i-2031769303-1"/></p>
+
+<p>As a concrete example, suppose you want to implement an assertion construct
+called <span class="code">myAssert</span>.<a href="control-abstraction.html#footnotemain9-3">[3]</a>
+The <span class="code">myAssert</span> function will take a function value as input and 
+consult a flag to decide what to do.  If the flag is set, 
+<span class="code">myAssert</span> will invoke the passed function and verify that it returns <span class="code">true</span>.  If the
+flag is turned off, <span class="code">myAssert</span> will quietly do nothing at all.</p>
+
+<p>Without using by-name parameters, you could write <span class="code">myAssert</span> like this:</p>
+
+<pre>
+  <code class="vem">var</code>&nbsp;assertionsEnabled&nbsp;=&nbsp;<code class="vem">true</code>
+  <br />  <code class="vem">def</code>&nbsp;myAssert(predicate:&nbsp;()&nbsp;=&gt;&nbsp;<code class="typename">Boolean</code>)&nbsp;=
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(assertionsEnabled&nbsp;&amp;&amp;&nbsp;!predicate())
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">throw</code>&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">AssertionError</code>
+</pre>
+
+
+<p>The definition is fine, but using it is a little bit awkward:</p>
+
+<pre>
+  myAssert(()&nbsp;=&gt;&nbsp;<code class="literal">5</code>&nbsp;&gt;&nbsp;<code class="literal">3</code>)
+</pre>
+
+
+<p>You would really prefer to leave out the empty parameter list and <span class="code">=&gt;</span> symbol in the function literal and
+write the code like this:</p>
+
+<pre>
+  myAssert(<code class="literal">5</code>&nbsp;&gt;&nbsp;<code class="literal">3</code>)&nbsp;<code class="comment">//&nbsp;Won't&nbsp;work,&nbsp;because&nbsp;missing&nbsp;()&nbsp;=&gt;&nbsp;</code>
+</pre>
+
+
+<p>By-name parameters exist precisely so that you can do this.  To
+make a by-name parameter, you give the parameter a type starting with <span class="code">=&gt;</span>
+instead of <span class="code">()</span>&nbsp;<span class="code">=&gt;</span>. For example, you could change
+<span class="code">myAssert</span>'s <span class="code">predicate</span> parameter into a by-name parameter by changing its type,
+"<span class="code">()</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span>", into "<span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span>". <a href="control-abstraction.html#lst-by-name-parameter">Listing 9.5</a> shows how
+that would look:</p>
+
+<p><a id="lst-by-name-parameter"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;byNameAssert(predicate:&nbsp;=&gt;&nbsp;<code class="typename">Boolean</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(assertionsEnabled&nbsp;&amp;&amp;&nbsp;!predicate)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">throw</code>&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">AssertionError</code>
+</pre>
+
+
+<h5>Listing 9.5 - Using a by-name parameter.</h5>
+
+
+<p>Now you can leave out the empty parameter in the property you want to
+assert.  The result is that using <span class="code">byNameAssert</span> looks exactly like using
+a built-in control structure:</p>
+
+<pre>
+  byNameAssert(<code class="literal">5</code>&nbsp;&gt;&nbsp;<code class="literal">3</code>)
+</pre>
+
+
+<p>A by-name type, in which the empty parameter list, <span class="code">()</span>, is left out, is only allowed for parameters.
+There is no such thing as a by-name variable or a by-name field.</p>
+
+<p>Now, you may be wondering why you couldn't simply write <span class="code">myAssert</span> using
+a plain old <span class="code">Boolean</span> for the type of its parameter, like this:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;boolAssert(predicate:&nbsp;<code class="typename">Boolean</code>)&nbsp;=
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(assertionsEnabled&nbsp;&amp;&amp;&nbsp;!predicate)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">throw</code>&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">AssertionError</code>
+</pre>
+
+
+<p>This formulation is also legal, of course, and the code using this version of 
+<span class="code">boolAssert</span> would still look exactly as before:</p>
+
+<pre>
+  boolAssert(<code class="literal">5</code>&nbsp;&gt;&nbsp;<code class="literal">3</code>)
+</pre>
+
+
+<p>Nevertheless, one difference exists between these two approaches
+that is important to note. Because the 
+type of <span class="code">boolAssert</span>'s parameter is <span class="code">Boolean</span>, the expression
+inside the parentheses in <span class="code">boolAssert(5</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">3)</span> is evaluated <em>before</em> the call to
+<span class="code">boolAssert</span>. The expression <span class="code">5</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">3</span> yields <span class="code">true</span>, which is passed to <span class="code">boolAssert</span>.
+By contrast, because the type of <span class="code">byNameAssert</span>'s <span class="code">predicate</span> parameter is <span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span>,
+the expression inside the parentheses in <span class="code">byNameAssert(5</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">3)</span> is <em>not</em> evaluated
+before the call to <span class="code">byNameAssert</span>. Instead a function value will be created whose
+<span class="code">apply</span> method will evaluate <span class="code">5</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">3</span>, and this function value will be
+passed to <span class="code">byNameAssert</span>.</p>
+
+<p>The difference between the two approaches, therefore, is that if assertions
+are disabled, you'll see any side effects that the expression inside the
+parentheses may have in <span class="code">boolAssert</span>, but not in <span class="code">byNameAssert</span>. For example,
+if assertions are disabled, attempting to assert on "<span class="code">x</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">0</span>&nbsp;<span class="code">==</span>&nbsp;<span class="code">0</span>"
+will yield an exception in <span class="code">boolAssert</span>'s case:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;x&nbsp;=&nbsp;<code class="literal">5</code>
+  <code class="output">x:&nbsp;Int&nbsp;=&nbsp;5</code>
+  <br />  scala&gt;&nbsp;<code class="vem">var</code>&nbsp;assertionsEnabled&nbsp;=&nbsp;<code class="vem">false</code>
+  <code class="output">assertionsEnabled:&nbsp;Boolean&nbsp;=&nbsp;false</code>
+  <br />  scala&gt;&nbsp;boolAssert(x&nbsp;/&nbsp;<code class="literal">0</code>&nbsp;==&nbsp;<code class="literal">0</code>)
+  <code class="output">java.lang.ArithmeticException:&nbsp;/&nbsp;by&nbsp;zero</code>
+  <code class="output">&nbsp;&nbsp;...&nbsp;33&nbsp;elided</code>
+</pre>
+
+
+<p>But attempting to assert on the same code in <span class="code">byNameAssert</span>'s case will <em>not</em> yield an exception:</p>
+
+<pre>
+  scala&gt;&nbsp;byNameAssert(x&nbsp;/&nbsp;<code class="literal">0</code>&nbsp;==&nbsp;<code class="literal">0</code>)
+</pre>
+
+
+<h3>9.6 Conclusion</h3>
+
+
+<p>This chapter has shown you how to build on Scala's rich function
+support to build control abstractions.  You can use functions within
+your code to factor out common control patterns, and you can take
+advantage of higher-order functions in the Scala library to
+reuse control patterns that are common across all programmers' code.
+We also discussed how to use currying and by-name
+parameters so that your own higher-order functions can be used
+with a concise syntax.</p>
+
+<p>In the previous chapter and this one, you have seen quite a lot of
+information about functions.  The next few chapters will go back to
+discussing more object-oriented features of the language.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 9:</h4>
+
+
+<p><a id="footnotemain9-1"/>[1] These
+special-purpose looping methods are defined in trait <span class="code">Traversable</span>,
+which is extended by <span class="code">List</span>, <span class="code">Set</span>, and <span class="code">Map</span>. See <a href="working-with-other-collections.html">Chapter 17</a> for a discussion.</p>
+
+<p><a id="footnotemain9-2"/>[2] In the previous chapter, when the placeholder notation
+was used on traditional methods, like <span class="code">println</span>&nbsp;<span class="code">_</span>, you had to leave a space between the name and the underscore. In this case you don't, because
+whereas <span class="code">println_</span> is a legal identifier in Scala, <span class="code">curriedSum(1)_</span> is
+not.</p>
+
+<p><a id="footnotemain9-3"/>[3] You'll call this <span class="code">myAssert</span>, not <span class="code">assert</span>, because Scala provides an
+<span class="code">assert</span> of its own, which will be described in <a href="assertions-and-tests.html#sec-assert">Section 14.1</a>.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

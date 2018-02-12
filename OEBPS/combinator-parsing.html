@@ -1,0 +1,1815 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-combinator-parsing">Chapter 33</a></h2>
+<h1>Combinator Parsing</h1>
+
+
+<p>Occasionally, you may need to process a small, special-purpose
+language.<a id="i1395246279-1"/>  For example,
+you may need to read configuration files for your software, and you want
+to make them easier to modify by hand than XML.  Alternatively, maybe
+you want to support an input language in your program, such as search
+terms with boolean operators (computer, find me a movie "with `space
+ships' and without `love stories"').  Whatever the reason, you are
+going to need a <em>parser</em>.<a id="i-792967116-1"/>  You need a way to convert the input
+language into some data structure your software can process.</p>
+
+<p>Essentially, you have only a few choices.  One choice is to roll your
+own parser (and lexical analyzer).  If you are not an expert, this is
+hard. If you are an expert, it is still time consuming.</p>
+
+<p>An alternative choice is to use a parser generator.<a id="i-1495136757-1"/>  There exist
+quite a few of these generators. Some of the better known are Yacc and
+Bison for parsers written in C and ANTLR for parsers written in
+Java.<a id="i-606539021-1"/><a id="i2747784-1"/><a id="i64194507-1"/><a id="i62435725-1"/><a id="i-679763866-1"/> You'll probably also need a scanner generator such as Lex, Flex,
+or JFlex to go with
+it.<a id="i76287-1"/><a id="i2192409-1"/><a id="i70532963-1"/><a id="i-693168286-1"/> This might be the best solution, except for a
+couple of inconveniences. You need to learn new tools, including
+their&mdash;sometimes obscure&mdash;error messages. You also need to figure out
+how to connect the output of these tools to your program. This might
+limit the choice of your programming language, and complicate your
+tool chain.</p>
+
+<p>This chapter presents a third alternative. Instead of using the
+standalone domain specific language of a parser generator, you will
+use an <span style="font-style:italic">internal domain specific language</span>, or internal DSL for
+short.<a id="i-1137790491-1"/>  The internal DSL will consist of a library of <span style="font-style:italic">parser
+combinators</span>&mdash;functions and operators defined in Scala that
+will serve as building blocks for parsers.<a id="i-2095840458-1"/> These building blocks will map one to one to the constructions of a context-free grammar, to make them
+easy to understand.<a id="i-581215934-1"/></p>
+
+<p>This chapter introduces only one language feature that was not
+explained before: <span class="code">this</span> aliasing, in
+<a href="combinator-parsing.html#sec-this-aliasing">Section 33.6</a>. The chapter does, however, heavily use several
+other features that were explained in previous chapters. Among others,
+parameterized types, abstract types, functions as objects, operator
+overloading, by-name parameters, and implicit conversions all play
+important roles. The chapter shows how these language elements can be
+combined in the design of a very high-level library.</p>
+
+<p>The concepts explained in this chapter tend to be a bit more advanced
+than previous chapters. If you have a good grounding in compiler
+construction, you'll profit from it reading this chapter, because it
+will help you put things better in perspective. However, the only
+prerequisite for understanding this chapter is that you know about
+regular and context-free grammars. If you don't, the material in this
+chapter can also safely be skipped.</p>
+
+<h3 id="sec-arith">33.1 Example: Arithmetic expressions</h3>
+
+
+<p>We'll start with an example. Say you want to construct a parser for
+arithmetic expressions consisting of floating-point numbers, parentheses, and
+the binary operators <span class="code">+</span>, <span class="code">-</span>, <span class="code">*</span>, and <span class="code">/</span>. The first step is
+always to write down a grammar for the language to be parsed. Here's the grammar for
+arithmetic expressions:</p>
+
+<div style="text-align: center">
+
+
+<table style="border-collapse: collapse">
+<tr>
+  <td>
+    <span style="font-style:italic">expr</span>
+  </td>
+  <td>
+    ::=
+  </td>
+  <td>
+    <span style="font-style:italic">term</span> &nbsp;\{<span class="code">"+"</span>&nbsp; <span style="font-style:italic">term</span> &nbsp;|&nbsp; <span class="code">"-"</span> &nbsp;<span style="font-style:italic">term</span>\}.
+  </td>
+</tr>
+<tr>
+  <td>
+    <span style="font-style:italic">term</span>
+  </td>
+  <td>
+    ::=
+  </td>
+  <td>
+    <span style="font-style:italic">factor</span> &nbsp;\{<span class="code">"*"</span>&nbsp; <span style="font-style:italic">factor</span> &nbsp;|&nbsp; <span class="code">"/"</span> &nbsp;<span style="font-style:italic">factor</span>\}.
+  </td>
+</tr>
+<tr>
+  <td>
+    <span style="font-style:italic">factor</span>
+  </td>
+  <td>
+    ::=
+  </td>
+  <td>
+    <span style="font-style:italic">floatingPointNumber</span> &nbsp;|&nbsp; <span class="code">"("</span>&nbsp; <span style="font-style:italic">expr</span> &nbsp;<span class="code">")"</span>.
+  </td>
+</tr>
+</table>
+
+
+</div>
+
+
+<p>Here, | denotes alternative productions, and \{ ...  \} denotes
+repetition (zero or more times). And although there's no use of it in this example, [ ... ] denotes an optional
+occurrence.</p>
+
+<p>This context-free grammar defines formally a language of
+arithmetic expressions. Every expression (represented by <em>expr</em>) is a <em>term</em>,
+which can be followed by a sequence of <span class="code">+</span> or <span class="code">-</span> operators and
+further <em>term</em>s. A <em>term</em> is a <em>factor</em>, possibly followed by a sequence
+of <span class="code">*</span> or <span class="code">/</span> operators and further <em>factor</em>s.  A <em>factor</em> is
+either a numeric literal or an expression in parentheses.  Note that
+the grammar already encodes the relative precedence of operators.  For
+instance, <span class="code">*</span> binds more tightly than <span class="code">+</span>, because a <span class="code">*</span>
+operation gives a <em>term</em>, whereas a <span class="code">+</span> operation gives an
+<em>expr</em>, and <em>expr</em>s can contain <em>term</em>s but a <em>term</em> can contain
+an <em>expr</em> only when the latter is enclosed in parentheses.</p>
+
+<p>Now that you have defined the grammar, what's next? If you use Scala's
+combinator parsers, you are basically done! You only need to perform
+some systematic text replacements and wrap the parser in a class, as
+shown in <a href="combinator-parsing.html#lst-expression-parser">Listing 33.1</a>:
+<a id="lst-expression-parser"/></p>
+
+<pre>
+  <code class="vem">import</code>&nbsp;scala.util.parsing.combinator._
+  <br />  <code class="vem">class</code>&nbsp;<code class="typename">Arith</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">JavaTokenParsers</code>&nbsp;{&nbsp;&nbsp;&nbsp;
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;expr:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=&nbsp;term<code style="font-size:large">~</code>rep(<code class="quotedstring">"+"</code><code style="font-size:large">~</code>term&nbsp;|&nbsp;<code class="quotedstring">"-"</code><code style="font-size:large">~</code>term)
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;term:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=&nbsp;factor<code style="font-size:large">~</code>rep(<code class="quotedstring">"*"</code><code style="font-size:large">~</code>factor&nbsp;|&nbsp;<code class="quotedstring">"/"</code><code style="font-size:large">~</code>factor)
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;factor:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=&nbsp;floatingPointNumber&nbsp;|&nbsp;<code class="quotedstring">"("</code><code style="font-size:large">~</code>expr<code style="font-size:large">~</code><code class="quotedstring">")"</code>
+  }
+</pre>
+
+
+<h5>Listing 33.1 - An arithmetic expression parser.</h5>
+
+
+<p>The parsers for arithmetic expressions are contained in a class that inherits from
+the trait
+<span class="code">JavaTokenParsers</span>.<a id="i-585361525-1"/> This trait provides the basic machinery
+for writing a parser and also provides some primitive parsers that
+recognize some word classes: identifiers, string literals and
+numbers. In the example in <a href="combinator-parsing.html#lst-expression-parser">Listing 33.1</a> you need only the primitive
+<span class="code">floatingPointNumber</span> parser, which is inherited from this
+trait.<a id="i1891349662-1"/><a id="i-63210921-1"/></p>
+
+<p>The three definitions in class <span class="code">Arith</span> represent the productions for
+arithmetic expressions.  As you can see, they follow very closely the productions
+of the context-free grammar.  In fact, you could generate this part
+automatically from the context-free grammar, by performing a number of
+simple text replacements:</p>
+
+<ol>
+
+
+<li>Every production becomes a method, so you need to prefix it 
+with <span class="code">def</span>.
+
+
+</li>
+<li>
+The result type of each method is <span class="code">Parser[Any]</span>, so you need
+to change the ::= symbol to "<span class="code">:</span>&nbsp;<span class="code">Parser[Any]</span>&nbsp;<span class="code">=</span>".
+You'll find out later in this chapter what the type <span class="code">Parser[Any]</span> signifies, and also how to make it more precise.
+
+
+</li>
+<li>
+In the grammar, sequential composition was implicit, but in the program
+it is expressed by an explicit operator: <span class="code"><span style="font-size:large">~</span></span>. So you need to insert a <span class="code"><span style="font-size:large">~</span></span> between
+every two consecutive symbols of a production. In the example in <a href="combinator-parsing.html#lst-expression-parser">Listing 33.1</a> we chose not to 
+write any spaces around the <span class="code"><span style="font-size:large">~</span></span> operator. That way, the parser code keeps closely to the 
+visual appearance of the grammar&mdash;it just replaces spaces by <span class="code"><span style="font-size:large">~</span></span> characters.
+
+
+</li>
+<li>
+Repetition is expressed <span class="code">rep(</span> ... <span class="code">)</span> instead of \{ ... \}. 
+Analogously (though  not shown in the example), option is expressed <span class="code">opt(</span> ... <span class="code">)</span> instead of
+[ ... ].
+
+
+</li>
+<li>
+The period (.) at the end of each production is omitted&mdash;you can, however, write 
+a semicolon (<span class="code">;</span>) if you prefer.
+
+
+</li></ol>
+
+
+<p>That's all there is to it. The resulting class <span class="code">Arith</span> defines three
+parsers, <span class="code">expr</span>, <span class="code">term</span> and <span class="code">factor</span>, which can be used to parse arithmetic expressions and their parts.</p>
+
+<h3>33.2 Running your parser</h3>
+
+
+<p>You can exercise your parser with the following small program:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">ParseExpr</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Arith</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;main(args:&nbsp;<code class="typename">Array[String]</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"input&nbsp;:&nbsp;"</code>&nbsp;+&nbsp;args(<code class="literal">0</code>))
+  &nbsp;&nbsp;&nbsp;&nbsp;println(parseAll(expr,&nbsp;args(<code class="literal">0</code>)))
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>The <span class="code">ParseExpr</span> object defines a <span class="code">main</span> method that 
+parses the first command-line argument passed to it.
+It prints the original input argument, 
+and then prints its parsed version. Parsing is done by the expression:</p>
+
+<pre>
+  parseAll(expr,&nbsp;input)
+</pre>
+
+
+<p>This expression applies the parser, <span class="code">expr</span>, to the given <span class="code">input</span>.
+It expects that all of the input matches, <i>i.e.</i>, that there are no
+characters trailing a parsed expression.  There's also a method
+<span class="code">parse</span>, which allows you to parse an input prefix, leaving some remainder
+unread.</p>
+
+<p>You can run the arithmetic parser with the following command:</p>
+
+<pre>
+  $&nbsp;scala&nbsp;ParseExpr&nbsp;"2&nbsp;*&nbsp;(3&nbsp;+&nbsp;7)"
+  <code class="output">input:&nbsp;2&nbsp;*&nbsp;(3&nbsp;+&nbsp;7)</code>
+  <code class="output">[1.12]&nbsp;parsed:&nbsp;((2<code style="font-size:large">~</code>List((*<code style="font-size:large">~</code>(((<code style="font-size:large">~</code>((3<code style="font-size:large">~</code>List())<code style="font-size:large">~</code>List((+</code>
+  <code class="output"><code style="font-size:large">~</code>(7<code style="font-size:large">~</code>List())))))<code style="font-size:large">~</code>)))))<code style="font-size:large">~</code>List())</code>
+</pre>
+
+
+<p>The output tells you that the parser successfully analyzed the input string
+up to position [1.12]. That means 
+the first line and the twelfth column&mdash;in other words, the whole input string&mdash;was parsed.
+Disregard for the moment the result after "<span class="code">parsed:</span>".  It is not 
+very useful, and you will find out later how to get more specific parser results.</p>
+
+<p>You can also try to introduce some input string that is not a
+legal expression. For instance, you could write one closing parenthesis too many:</p>
+
+<pre>
+  $&nbsp;scala&nbsp;ParseExpr&nbsp;"2&nbsp;*&nbsp;(3&nbsp;+&nbsp;7))"
+  <code class="output">input:&nbsp;2&nbsp;*&nbsp;(3&nbsp;+&nbsp;7))</code>
+  <code class="output">[1.12]&nbsp;failure:&nbsp;`-'&nbsp;expected&nbsp;but&nbsp;`)'&nbsp;found</code>
+  <code class="output"></code>
+  <code class="output">2&nbsp;*&nbsp;(3&nbsp;+&nbsp;7))</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>Here, the <span class="code">expr</span> parser parsed everything until the final closing
+parenthesis, which does not form part of the
+arithmetic expression. The <span class="code">parseAll</span> method then issued an error message, which
+said that it expected a <span class="code">-</span> operator at the point of the closing
+parenthesis. You'll find out later in this chapter why it produced this particular error message, 
+and how you can improve it.</p>
+
+<h3>33.3 Basic regular expression parsers</h3>
+
+
+<p>The parser for arithmetic expressions made use of another parser, named 
+<span class="code">floatingPointNumber</span>. This parser, which was inherited from
+<span class="code">Arith</span>'s supertrait, <span class="code">JavaTokenParsers</span>, recognizes a floating point number in
+the format of Java. But what do you do if you need to parse numbers in
+a format that's a bit different from Java's?
+In this situation, you can use a <em>regular expression
+parser</em>.</p>
+
+<p>The idea is that you can use any regular expression as a
+parser.<a id="i-2139156663-1"/>
+The regular expression parses all strings that it can match.  Its
+result is the parsed string. For instance, the regular expression parser
+shown in <a href="combinator-parsing.html#lst-regular-expression-parser">Listing 33.2</a> describes Java's identifiers:
+<a id="lst-regular-expression-parser"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">MyParsers</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">RegexParsers</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;ident:&nbsp;<code class="typename">Parser[String]</code>&nbsp;=&nbsp;<code class="quotedstring">"""[a-zA-Z_]\w*"""</code>.r
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 33.2 - A regular expression parser for Java identifiers.</h5>
+
+
+<p>The <span class="code">MyParsers</span> object of <a href="combinator-parsing.html#lst-regular-expression-parser">Listing 33.2</a> inherits from trait <span class="code">RegexParsers</span>, whereas
+<span class="code">Arith</span> inherited from
+<span class="code">JavaTokenParsers</span>.<a id="i519257659-1"/> Scala's parsing
+combinators are arranged in a hierarchy of traits, which are all
+contained in package <span class="code">scala.util.parsing.combinator</span>. The top-level
+trait is <span class="code">Parsers</span>, which defines a very general parsing framework
+for all sorts of input. One level below is trait <span class="code">RegexParsers</span>, which
+requires that the input is a sequence of characters and provides for
+regular expression parsing. Even more specialized is trait 
+<span class="code">JavaTokenParsers</span>, which implements parsers for basic classes of words
+(or <span style="font-style:italic">tokens</span>) as they are defined in Java.</p>
+
+<h3>33.4 Another example: JSON</h3>
+
+
+<p>JSON, the JavaScript Object Notation, is a
+popular data interchange format.<a id="i2286824-1"/> In this section, we'll show you how to write a
+parser for it. Here's a grammar that describes the syntax of JSON:</p>
+
+<div style="text-align: center">
+
+
+<table style="border-collapse: collapse">
+<tr>
+  <td>
+    <span style="font-style:italic">value</span>
+  </td>
+  <td>
+    ::=
+  </td>
+  <td>
+    <span style="font-style:italic">obj</span> &nbsp;|&nbsp; <span style="font-style:italic">arr</span> &nbsp;|&nbsp; <span style="font-style:italic">stringLiteral</span> &nbsp;|
+  </td>
+</tr>
+<tr>
+  <td>
+  </td>
+  <td>
+  </td>
+  <td>
+    <span style="font-style:italic">floatingPointNumber</span> &nbsp;|
+  </td>
+</tr>
+<tr>
+  <td>
+  </td>
+  <td>
+  </td>
+  <td>
+    <span class="code">"null"</span> &nbsp;|&nbsp; <span class="code">"true"</span> &nbsp;|&nbsp; <span class="code">"false"</span>.
+  </td>
+</tr>
+<tr>
+  <td>
+    <span style="font-style:italic">obj</span>
+  </td>
+  <td>
+    ::=
+  </td>
+  <td>
+    <span class="code">"{"</span> &nbsp;[<span style="font-style:italic">members</span>]&nbsp; <span class="code">"}"</span>.
+  </td>
+</tr>
+<tr>
+  <td>
+    <span style="font-style:italic">arr</span>
+  </td>
+  <td>
+    ::=
+  </td>
+  <td>
+    <span class="code">"["</span> &nbsp;[<span style="font-style:italic">values</span>]&nbsp; <span class="code">"]"</span>.
+  </td>
+</tr>
+<tr>
+  <td>
+    <span style="font-style:italic">members</span>
+  </td>
+  <td>
+    ::=
+  </td>
+  <td>
+    <span style="font-style:italic">member</span> &nbsp;\{<span class="code">","</span>&nbsp; <span style="font-style:italic">member</span>\}.
+  </td>
+</tr>
+<tr>
+  <td>
+    <span style="font-style:italic">member</span>
+  </td>
+  <td>
+    ::=
+  </td>
+  <td>
+    <span style="font-style:italic">stringLiteral</span> &nbsp;<span class="code">":"</span>&nbsp; <span style="font-style:italic">value</span>.
+  </td>
+</tr>
+<tr>
+  <td>
+    <span style="font-style:italic">values</span>
+  </td>
+  <td>
+    ::=
+  </td>
+  <td>
+    <span style="font-style:italic">value</span> &nbsp;\{<span class="code">","</span>&nbsp; <span style="font-style:italic">value</span>\}.
+  </td>
+</tr>
+</table>
+
+
+</div>
+
+
+<p>A JSON value is an object, array, string, number, or one
+of the three reserved words <span class="code">null</span>, <span class="code">true</span>, or <span class="code">false</span>.
+A JSON object is a (possibly empty) sequence of members separated by commas 
+and enclosed in braces. Each member is a string/value pair where the string and the value are separated by a colon. 
+Finally, a JSON array is a sequence of values separated by commas 
+and enclosed in square brackets.
+As an example, <a href="combinator-parsing.html#lst-JSON-data">Listing 33.3</a> contains an address-book formatted
+as a JSON object.
+<a id="lst-JSON-data"/></p>
+
+<pre>
+  &nbsp;&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"address&nbsp;book"</code>:&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"name"</code>:&nbsp;<code class="quotedstring">"John&nbsp;Smith"</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"address"</code>:&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"street"</code>:&nbsp;<code class="quotedstring">"10&nbsp;Market&nbsp;Street"</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"city"</code>&nbsp;&nbsp;:&nbsp;<code class="quotedstring">"San&nbsp;Francisco,&nbsp;CA"</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"zip"</code>&nbsp;&nbsp;&nbsp;:&nbsp;<code class="literal">94111</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"phone&nbsp;numbers"</code>:&nbsp;[
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"408&nbsp;338-4238"</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"408&nbsp;111-6892"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;]
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 33.3 - Data in JSON format.</h5>
+
+
+<p>Parsing such data is straightforward when using Scala's parser combinators.
+The complete parser is shown in <a href="combinator-parsing.html#lst-JSON-parser">Listing 33.4</a>.
+This parser follows the same structure as the arithmetic expression parser.
+It is again a straightforward mapping of the productions of the JSON grammar.  
+The productions use one shortcut that simplifies the
+grammar: The <span class="code">repsep</span> combinator parses a (possibly empty) sequence
+of terms that are separated by a given separator string.  For instance, in
+the example in <a href="combinator-parsing.html#lst-JSON-parser">Listing 33.4</a>, <span class="code">repsep(member,</span>&nbsp;<span class="code">",")</span> parses a comma-separated
+sequence of <span class="code">member</span> terms.  Otherwise, the productions in the parser
+correspond exactly to the productions in the grammar, as was
+the case for the arithmetic expression parsers.
+<a id="lst-JSON-parser"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;scala.util.parsing.combinator._
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;JSON&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">JavaTokenParsers</code>&nbsp;{&nbsp;&nbsp;&nbsp;
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;value&nbsp;:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=&nbsp;obj&nbsp;|&nbsp;arr&nbsp;|&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stringLiteral&nbsp;|&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;floatingPointNumber&nbsp;|&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"null"</code>&nbsp;|&nbsp;<code class="quotedstring">"true"</code>&nbsp;|&nbsp;<code class="quotedstring">"false"</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;obj&nbsp;&nbsp;&nbsp;:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=&nbsp;<code class="quotedstring">"{"</code><code style="font-size:large">~</code>repsep(member,&nbsp;<code class="quotedstring">","</code>)<code style="font-size:large">~</code><code class="quotedstring">"}"</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;arr&nbsp;&nbsp;&nbsp;:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=&nbsp;<code class="quotedstring">"["</code><code style="font-size:large">~</code>repsep(value,&nbsp;<code class="quotedstring">","</code>)<code style="font-size:large">~</code><code class="quotedstring">"]"</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;member:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=&nbsp;stringLiteral<code style="font-size:large">~</code><code class="quotedstring">":"</code><code style="font-size:large">~</code>value
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 33.4 - A simple JSON parser.</h5>
+
+
+<p>To try out the JSON parsers, we'll change the framework a bit, so that the parser operates on a file instead of on the command line:</p>
+
+<pre>
+  <code class="vem">import</code>&nbsp;java.io.FileReader
+  <br />  <code class="vem">object</code>&nbsp;<code class="typename">ParseJSON</code>&nbsp;<code class="vem">extends</code>&nbsp;JSON&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;main(args:&nbsp;<code class="typename">Array[String]</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;reader&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">FileReader</code>(args(<code class="literal">0</code>))
+  &nbsp;&nbsp;&nbsp;&nbsp;println(parseAll(value,&nbsp;reader))
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>The <span class="code">main</span> method in this program first creates a <span class="code">FileReader</span>
+object.<a id="i1651665815-1"/> It then parses the characters returned by that reader
+according to the <span class="code">value</span> production of the JSON grammar. Note that
+<span class="code">parseAll</span> and <span class="code">parse</span> exist in overloaded variants: both can take a
+character sequence or alternatively an input reader as second
+argument.</p>
+
+<p>If you store the "address book" object shown in <a href="combinator-parsing.html#lst-JSON-data">Listing 33.3</a> into a file named 
+<span class="code">address-book.json</span> and run the <span class="code">ParseJSON</span> program on it, you should get:</p>
+
+<pre>
+  $&nbsp;scala&nbsp;ParseJSON&nbsp;address-book.json
+  <code class="output">[13.4]&nbsp;parsed:&nbsp;(({<code style="font-size:large">~</code>List((("address&nbsp;book"<code style="font-size:large">~</code>:)<code style="font-size:large">~</code>(({<code style="font-size:large">~</code>List(((</code>
+  <code class="output">"name"<code style="font-size:large">~</code>:)<code style="font-size:large">~</code>"John&nbsp;Smith"),&nbsp;(("address"<code style="font-size:large">~</code>:)<code style="font-size:large">~</code>(({<code style="font-size:large">~</code>List(((</code>
+  <code class="output">"street"<code style="font-size:large">~</code>:)<code style="font-size:large">~</code>"10&nbsp;Market&nbsp;Street"),&nbsp;(("city"<code style="font-size:large">~</code>:)<code style="font-size:large">~</code>"San&nbsp;Francisco</code>
+  <code class="output">,CA"),&nbsp;(("zip"<code style="font-size:large">~</code>:)<code style="font-size:large">~</code>94111)))<code style="font-size:large">~</code>})),&nbsp;(("phone&nbsp;numbers"<code style="font-size:large">~</code>:)<code style="font-size:large">~</code>(([<code style="font-size:large">~</code></code>
+  <code class="output">List("408&nbsp;338-4238",&nbsp;"408&nbsp;111-6892"))<code style="font-size:large">~</code>]))))<code style="font-size:large">~</code>}))))<code style="font-size:large">~</code>})</code>
+</pre>
+
+
+<h3>33.5 Parser output</h3>
+
+
+<p>The <span class="code">ParseJSON</span> program successfully parsed the JSON address book.  However, the parser output looks strange.  It seems to be a
+sequence composed of bits and pieces of the input glued together with
+lists and <span class="code"><span style="font-size:large">~</span></span> combinations.  This output is not very
+useful. It is less readable for humans than the input, but it
+is also too disorganized to be easily analyzable by a computer. It's
+time to do something about this.</p>
+
+<p>To figure out what to do, you need to know first what the individual
+parsers in the combinator frameworks return as a result (provided they
+succeed in parsing the input).  Here are the rules:</p>
+
+<ol>
+
+
+<li>
+Each parser written as a string (such as: <span class="code">"{"</span> or <span class="code">":"</span> or <span class="code">"null"</span>) returns
+the parsed string itself.
+
+
+</li>
+<li>
+Regular expression parsers such as <span class="code">"""[a-zA-Z_]\w*""".r</span>
+also return the parsed string itself. The same holds for
+regular expression parsers such as <span class="code">stringLiteral</span> or <span class="code">floatingPointNumber</span>, which
+are inherited from trait
+<span class="code">JavaTokenParsers</span>.<a id="i-826062925-1"/><a id="i1891349662-2"/>
+
+
+</li>
+<li>
+A sequential composition <span class="code">P<span style="font-size:large">~</span>Q</span> returns the results of both <span class="code">P</span> and of <span class="code">Q</span>. These
+results are returned in an instance of a case class that is also written <span class="code"><span style="font-size:large">~</span></span>.
+So if <span class="code">P</span> returns <span class="code">"true"</span> and <span class="code">Q</span> returns <span class="code">"?"</span>, then the sequential composition
+<span class="code">P<span style="font-size:large">~</span>Q</span> returns <span class="code"><span style="font-size:large">~</span>("true",</span>&nbsp;<span class="code">"?")</span>, which prints as <span class="code">(true<span style="font-size:large">~</span>?)</span>.
+
+
+</li>
+<li>
+An alternative composition <span class="code">P</span>&nbsp;<span class="code">|</span>&nbsp;<span class="code">Q</span> returns the result of either <span class="code">P</span> or <span class="code">Q</span>,
+whichever one succeeds.
+
+
+</li>
+<li>
+A repetition <span class="code">rep(P)</span> or <span class="code">repsep(P,</span>&nbsp;<span class="code">separator)</span> returns a
+list of the results of all runs of <span class="code">P</span>.
+
+
+</li>
+<li>
+An option <span class="code">opt(P)</span> returns an instance of Scala's <span class="code">Option</span> type.
+It returns <span class="code">Some(R)</span> if <span class="code">P</span> succeeds with result <span class="code">R</span> and <span class="code">None</span> if <span class="code">P</span> fails.
+
+
+</li></ol>
+
+
+<p>With these rules you can now deduce <span style="font-style:italic">why</span> the parser output appeared as it did in the
+previous examples. However, the output is still not very
+convenient.  It would be much better to map a JSON object
+into an internal Scala representation that represents the 
+meaning of the JSON value. 
+A more natural representation would be as follows:</p>
+
+<ul>
+
+
+<li>
+A JSON object is represented as a Scala map of type <span class="code">Map[String,</span> <span class="code">Any]</span>.
+Every member is represented as a key/value binding in the map.
+
+
+</li>
+<li>
+A JSON array is represented as a Scala list of type <span class="code">List[Any]</span>.
+
+
+</li>
+<li>
+A JSON string is represented as a Scala <span class="code">String</span>.
+
+
+</li>
+<li>
+A JSON numeric literal is represented as a Scala <span class="code">Double</span>.
+
+
+</li>
+<li>
+The values <span class="code">true</span>, <span class="code">false</span>, and <span class="code">null</span> are represented as the
+Scala values with the same names.
+
+
+</li></ul>
+
+
+<p>To produce this representation, you need to make use of one more
+combination form for parsers:
+<span class="code">^^</span>.<a id="i1109178044-1"/></p>
+
+<p>The <span class="code">^^</span> operator
+ <span style="font-style:italic">transforms</span> the result of a
+parser. Expressions using this operator have the form <span class="code">P</span>&nbsp;<span class="code">^^</span>&nbsp;<span class="code">f</span> where
+<span class="code">P</span> is a parser and <span class="code">f</span> is a function.  <span class="code">P</span>&nbsp;<span class="code">^^</span>&nbsp;<span class="code">f</span> parses the same
+sentences as just <span class="code">P</span>. Whenever <span class="code">P</span> returns with some
+result <span class="code">R</span>, the result of <span class="code">P</span>&nbsp;<span class="code">^^</span>&nbsp;<span class="code">f</span> is <span class="code">f(R)</span>.</p>
+
+<p>As an example, here is a parser that 
+parses a floating point number and converts it to a Scala value of type <span class="code">Double</span>:</p>
+
+<pre>
+  floatingPointNumber&nbsp;^^&nbsp;(_.toDouble)
+</pre>
+
+
+<p>And here is a parser that parses the string <span class="code">"true"</span> and returns
+Scala's boolean <span class="code">true</span> value:</p>
+
+<pre>
+  <code class="quotedstring">"true"</code>&nbsp;^^&nbsp;(x&nbsp;=&gt;&nbsp;<code class="vem">true</code>)
+</pre>
+
+
+<p>Now for more advanced transformations. Here's a new version of a parser
+for JSON objects that returns a Scala <span class="code">Map</span>:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;obj:&nbsp;<code class="typename">Parser[Map[String,&nbsp;Any]]</code>&nbsp;=&nbsp;<code class="comment">//&nbsp;Can&nbsp;be&nbsp;improved</code>
+  &nbsp;&nbsp;<code class="quotedstring">"{"</code><code style="font-size:large">~</code>repsep(member,&nbsp;<code class="quotedstring">","</code>)<code style="font-size:large">~</code><code class="quotedstring">"}"</code>&nbsp;^^&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;<code class="quotedstring">"{"</code><code style="font-size:large">~</code>ms<code style="font-size:large">~</code><code class="quotedstring">"}"</code>&nbsp;=&gt;&nbsp;<code class="typename">Map</code>()&nbsp;++&nbsp;ms&nbsp;}
+</pre>
+
+
+<p>Remember that the <span class="code"><span style="font-size:large">~</span></span> operator
+produces as its result an instance of a case class with the same name: <span class="code"><span style="font-size:large">~</span></span>. Here's a definition of that class&mdash;it's
+an inner class of trait
+<span class="code">Parsers</span>:<a id="i-1259402311-1"/></p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code style="font-size:large">~</code>[+A,&nbsp;+B](x:&nbsp;A,&nbsp;y:&nbsp;B)&nbsp;{
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;<code class="quotedstring">"("</code>&nbsp;+&nbsp;x&nbsp;+&nbsp;<code class="quotedstring">"<code style="font-size:large">~</code>"</code>&nbsp;+&nbsp;y&nbsp;+&nbsp;<code class="quotedstring">")"</code>
+  }
+</pre>
+
+
+<p>The name of the class is intentionally the same as the name of the
+sequence combinator method, <span class="code"><span style="font-size:large">~</span></span>.
+That way, you can match parser results with patterns that follow the same structure as the
+parsers themselves. For instance, the pattern <span class="code">"{"<span style="font-size:large">~</span>ms<span style="font-size:large">~</span>"}"</span>
+matches a result string <span class="code">"{"</span> followed by a result variable <span class="code">ms</span>, which is followed in turn by a result string <span class="code">"}"</span>. This
+pattern corresponds exactly to what is returned
+by the parser on the left of the <span class="code">^^</span>.
+In its desugared versions where the <span class="code"><span style="font-size:large">~</span></span> operator comes first, the same pattern reads
+<span class="code"><span style="font-size:large">~</span>(<span style="font-size:large">~</span>("{",</span>&nbsp;<span class="code">ms),</span>&nbsp;<span class="code">"}")</span>, but this is much less legible.</p>
+
+<p>The purpose of the <span class="code">"{"<span style="font-size:large">~</span>ms<span style="font-size:large">~</span>"}"</span> pattern is to strip off the braces so 
+that you can get at the list of members resulting from the <span class="code">repsep(member,</span>&nbsp;<span class="code">",")</span> parser.
+In cases like these there is also an alternative that avoids
+producing unnecessary parser results that are immediately discarded by
+the pattern match.  The alternative makes use of the <span class="code"><span style="font-size:large">~</span>&gt;</span> and <span class="code">&lt;<span style="font-size:large">~</span></span>
+parser
+combinators.<a id="i1302279396-1"/><a id="i1234233109-1"/><a id="i-1808209135-1"/>
+Both express sequential composition like
+<span class="code"><span style="font-size:large">~</span></span>, but <span class="code"><span style="font-size:large">~</span>&gt;</span> keeps only the result of its right operand, whereas
+<span class="code">&lt;<span style="font-size:large">~</span></span> keeps only the result of its left operand. 
+Using these combinators, the JSON object parser can be expressed more
+succinctly:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;obj:&nbsp;<code class="typename">Parser[Map[String,&nbsp;Any]]</code>&nbsp;=
+  &nbsp;&nbsp;<code class="quotedstring">"{"</code><code style="font-size:large">~</code>&gt;&nbsp;repsep(member,&nbsp;<code class="quotedstring">","</code>)&nbsp;&lt;<code style="font-size:large">~</code><code class="quotedstring">"}"</code>&nbsp;^^&nbsp;(<code class="typename">Map</code>()&nbsp;++&nbsp;_)
+</pre>
+
+
+<p><a href="combinator-parsing.html#lst-JSON1">Listing 33.5</a> shows a full JSON parser that
+returns meaningful results.
+If you run this parser on the <span class="code">address-book.json</span> file, you will get the following result
+(after adding some newlines and indentation):</p>
+
+<pre>
+  $&nbsp;scala&nbsp;JSON1Test&nbsp;address-book.json
+  [14.1]&nbsp;parsed:&nbsp;Map(
+  &nbsp;&nbsp;address&nbsp;book&nbsp;-&gt;&nbsp;Map(
+  &nbsp;&nbsp;&nbsp;&nbsp;name&nbsp;-&gt;&nbsp;John&nbsp;Smith,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;address&nbsp;-&gt;&nbsp;Map(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;street&nbsp;-&gt;&nbsp;10&nbsp;Market&nbsp;Street,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;city&nbsp;-&gt;&nbsp;San&nbsp;Francisco,&nbsp;CA,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;zip&nbsp;-&gt;&nbsp;94111),&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;phone&nbsp;numbers&nbsp;-&gt;&nbsp;List(408&nbsp;338-4238,&nbsp;408&nbsp;111-6892)
+  &nbsp;&nbsp;)
+  )
+</pre>
+
+
+<p>This is all you need to know in order to get started writing your own
+parsers.  As an aide to memory, <a href="combinator-parsing.html#table-parser-combinators">Table 33.1</a> lists the parser
+combinators that were discussed so far.</p>
+
+<p><a id="lst-JSON1"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;scala.util.parsing.combinator._
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;JSON1&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">JavaTokenParsers</code>&nbsp;{&nbsp;&nbsp;&nbsp;
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;obj:&nbsp;<code class="typename">Parser[Map[String,&nbsp;Any]]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"{"</code><code style="font-size:large">~</code>&gt;&nbsp;repsep(member,&nbsp;<code class="quotedstring">","</code>)&nbsp;&lt;<code style="font-size:large">~</code><code class="quotedstring">"}"</code>&nbsp;^^&nbsp;(<code class="typename">Map</code>()&nbsp;++&nbsp;_)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;arr:&nbsp;<code class="typename">Parser[List[Any]]</code>&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"["</code><code style="font-size:large">~</code>&gt;&nbsp;repsep(value,&nbsp;<code class="quotedstring">","</code>)&nbsp;&lt;<code style="font-size:large">~</code><code class="quotedstring">"]"</code>&nbsp;
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;member:&nbsp;<code class="typename">Parser[(String,&nbsp;Any)]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;stringLiteral<code style="font-size:large">~</code><code class="quotedstring">":"</code><code style="font-size:large">~</code>value&nbsp;^^&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;name<code style="font-size:large">~</code><code class="quotedstring">":"</code><code style="font-size:large">~</code>value&nbsp;=&gt;&nbsp;(name,&nbsp;value)&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;value:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=&nbsp;(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;obj
+  &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;arr&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;stringLiteral
+  &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;floatingPointNumber&nbsp;^^&nbsp;(_.toDouble)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;<code class="quotedstring">"null"</code>&nbsp;&nbsp;^^&nbsp;(x&nbsp;=&gt;&nbsp;<code class="vem">null</code>)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;<code class="quotedstring">"true"</code>&nbsp;&nbsp;^^&nbsp;(x&nbsp;=&gt;&nbsp;<code class="vem">true</code>)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;|&nbsp;<code class="quotedstring">"false"</code>&nbsp;^^&nbsp;(x&nbsp;=&gt;&nbsp;<code class="vem">false</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 33.5 - A full JSON parser that returns meaningful results.</h5>
+
+
+<p><a id="table-parser-combinators"/></p>
+
+<h5>Table 33.1 - Summary of parser combinators</h5>
+
+
+<div style="text-align: center">
+
+
+<table style="border-collapse: collapse">
+<tr class="topline ">
+  <td>
+    <span class="code"><span class="quotedstring">"..."</span></span>
+  </td>
+  <td>
+    literal
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code"><span class="quotedstring">"..."</span>.r</span>
+  </td>
+  <td>
+    regular expression
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">P<span style="font-size:large">~</span>Q</span>
+  </td>
+  <td>
+    sequential composition
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">P</span>&nbsp;<span class="code">&lt;<span style="font-size:large">~</span></span>&nbsp;<span class="code">Q,</span>&nbsp;<span class="code">P</span>&nbsp;<span class="code"><span style="font-size:large">~</span>&gt;</span>&nbsp;<span class="code">Q</span>
+  </td>
+  <td>
+    sequential composition; keep left/right only
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">P</span>&nbsp;<span class="code">|</span>&nbsp;<span class="code">Q</span>
+  </td>
+  <td>
+    alternative
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">opt(P)</span>
+  </td>
+  <td>
+    option
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">rep(P)</span>
+  </td>
+  <td>
+    repetition
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">repsep(P,</span>&nbsp;<span class="code">Q)</span>
+  </td>
+  <td>
+    interleaved repetition
+  </td>
+</tr>
+<tr class="bottomline">
+  <td>
+    <span class="code">P</span>&nbsp;<span class="code">^^</span>&nbsp;<span class="code">f</span>
+  </td>
+  <td>
+    result conversion
+  </td>
+</tr>
+</table>
+
+
+</div>
+
+
+<div class="aside">
+<h3>Turning off semicolon inference</h3>
+
+
+<p>Note that the body of the <span class="code">value</span> parser 
+in <a href="combinator-parsing.html#lst-JSON1">Listing 33.5</a> is enclosed in parentheses. This is a little
+trick to disable semicolon inference in parser expressions. You saw in <a href="classes-and-objects.html#sec-semicolon-inf">Section 4.2</a> that Scala assumes there's a
+semicolon between any two lines that can be separate statements<a id="i-615670524-1"/><a id="i561868586-1"/>
+syntactically, unless the first line ends in an infix operator, or the
+two lines are enclosed in parentheses or square brackets. Now, you
+could have written the <span class="code">|</span> operator at the end of the each alternative 
+instead of at the beginning of the following one, like this:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;value:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;obj&nbsp;|
+  &nbsp;&nbsp;arr&nbsp;|
+  &nbsp;&nbsp;stringLiteral&nbsp;|
+  &nbsp;&nbsp;...
+</pre>
+
+
+<p>In that case, no parentheses around the body of the <span class="code">value</span> parser would have been required. 
+However, some people prefer to see the <span class="code">|</span> operator at the beginning of the 
+second alternative rather than at the end of the first. 
+Normally, this would lead to an unwanted semicolon between the two 
+lines, like this:</p>
+
+<pre>
+  &nbsp;&nbsp;obj;&nbsp;&nbsp;<code class="comment">//&nbsp;semicolon&nbsp;implicitly&nbsp;inserted</code>
+  |&nbsp;arr
+</pre>
+
+
+<p>The semicolon changes the structure of the code, 
+causing it to fail compilation. Putting the whole expression in parentheses
+avoids the semicolon and makes the code compile correctly.</p>
+
+</div>
+
+
+<h4>Symbolic versus alphanumeric names</h4>
+
+
+<p>Many of the parser combinators in
+<a href="combinator-parsing.html#table-parser-combinators">Table 33.1</a> use symbolic names. This has
+both advantages and disadvantages.  On the minus side, symbolic names
+take time to learn. Users who are unfamiliar with Scala's combinator
+parsing libraries are probably mystified what <span class="code"><span style="font-size:large">~</span></span>, <span class="code"><span style="font-size:large">~</span>&gt;</span>, or <span class="code">^^</span>
+mean.  On the plus side, symbolic names are short, and can be chosen
+to have the "right" precedences and associativities. For instance,
+the parser combinators <span class="code"><span style="font-size:large">~</span></span>, <span class="code">^^</span>, and <span class="code">|</span> are chosen intentionally
+in decreasing order of precedence. A typical grammar production is
+composed of alternatives that have a parsing part and a
+transformation part. The parsing part usually contains several
+sequential items separated by <span class="code"><span style="font-size:large">~</span></span> operators. 
+With the chosen precedences of <span class="code"><span style="font-size:large">~</span></span>, <span class="code">^^</span>, and <span class="code">|</span> you can write 
+such a grammar production without needing any parentheses.</p>
+
+<p>Furthermore, symbolic operators take less visual real estate than
+alphabetic ones. That's important for a parser because it lets you
+concentrate on the grammar at hand, instead of the combinators
+themselves. To see the difference, imagine for a moment that
+sequential composition (<span class="code"><span style="font-size:large">~</span></span>) was called <span class="code">andThen</span> and alternative (<span class="code">|</span>) was
+called <span class="code">orElse</span>. The arithmetic expression parsers in
+<a href="combinator-parsing.html#lst-expression-parser">Listing 33.1</a>  <a href="combinator-parsing.html#lst-expression-parser">here</a> would look
+as follows:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">ArithHypothetical</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">JavaTokenParsers</code>&nbsp;{&nbsp;&nbsp;&nbsp;
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;expr:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;&nbsp;&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;term&nbsp;andThen&nbsp;rep((<code class="quotedstring">"+"</code>&nbsp;andThen&nbsp;term)&nbsp;orElse&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<code class="quotedstring">"-"</code>&nbsp;andThen&nbsp;term))
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;term:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;&nbsp;&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;factor&nbsp;andThen&nbsp;rep((<code class="quotedstring">"*"</code>&nbsp;andThen&nbsp;factor)&nbsp;orElse&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<code class="quotedstring">"/"</code>&nbsp;andThen&nbsp;factor))
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;factor:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;floatingPointNumber&nbsp;orElse&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;(<code class="quotedstring">"("</code>&nbsp;andThen&nbsp;expr&nbsp;andThen&nbsp;<code class="quotedstring">")"</code>)
+  }
+</pre>
+
+
+<p>You notice that the code becomes much longer, and that it's hard to
+"see" the grammar among all those operators and parentheses. 
+On the other hand, somebody new to combinator parsing could probably 
+figure out better what the code is supposed to do.</p>
+
+<div class="aside">
+<h3>Choosing between symbolic and alphabetic names</h3>
+
+
+<p>As guidelines for choosing between symbolic and alphabetic names we
+recommend the following:<a id="i-252867623-1"/><a id="i760884015-1"/><a id="i27050837-1"/><a id="i-1245815134-1"/></p>
+
+<ul>
+
+
+<li>
+Use symbolic names in cases where they already 
+have a universally established meaning. For instance, nobody would
+recommend writing <span class="code">add</span> instead of <span class="code">+</span> for numeric addition.
+
+
+</li>
+<li>
+Otherwise, give preference to alphabetic names if you want your code to 
+be understandable to casual readers.
+
+
+</li>
+<li>
+You can still choose symbolic names for domain-specific libraries, 
+if this gives clear advantages in legibility and you do not expect 
+anyway that a casual reader without a firm grounding in the domain 
+would be able to understand the code immediately.
+
+
+</li></ul>
+
+
+<p>In the case of parser combinators we are looking at a highly
+domain-specific language, which casual readers may have trouble understanding even
+with alphabetic names.  Furthermore, symbolic names give clear advantages
+in legibility for the expert.  So we believe their use is
+warranted in this application.</p>
+
+</div>
+
+
+<h3>33.6 Implementing combinator parsers</h3>
+
+
+<p>The previous sections have shown that Scala's combinator parsers
+provide a convenient means for constructing your own parsers. Since
+they are nothing more than a Scala library, they fit seamlessly into
+your Scala programs. So it's very easy to combine a parser with some
+code that processes the results it delivers, or to rig a parser
+so that it takes its input from some specific source (say, a file, a
+string, or a character array).</p>
+
+<p>How is this achieved? In the rest of this chapter you'll take a look
+"under the hood" of the combinator parser library. You'll see what a
+parser is, and how the primitive parsers and parser combinators
+encountered in previous sections are implemented. You can safely skip
+these parts if all you want to do is write some simple combinator parsers.
+On the other hand, reading the rest of this chapter should give you a
+deeper understanding of combinator parsers in particular, and of the
+design principles of a combinator domain-specific language in general.</p>
+
+<p>The core of Scala's combinator parsing framework is contained in the
+trait <span class="code">scala.util.parsing.combinator.Parsers</span>.<a id="i1073514242-1"/> This trait defines
+the <span class="code">Parser</span> type as well as all fundamental combinators.  Except
+where stated explicitly otherwise, the definitions explained in the
+following two subsections all reside in this trait. That is, they are assumed to be 
+contained in a trait definition that starts as follows:</p>
+
+<pre>
+  <code class="vem">package</code>&nbsp;scala.util.parsing.combinator
+  <code class="vem">trait</code>&nbsp;<code class="typename">Parsers</code>&nbsp;{
+  &nbsp;&nbsp;...&nbsp;<code class="comment">//&nbsp;code&nbsp;goes&nbsp;here&nbsp;unless&nbsp;otherwise&nbsp;stated</code>
+  }
+</pre>
+
+
+<p>A <span class="code">Parser</span> is in essence just a function from some input type
+to a parse result. As a first approximation, the type could be written as follows:</p>
+
+<pre>
+  <code class="vem">type</code>&nbsp;<code class="typename">Parser[T]</code>&nbsp;=&nbsp;<code class="typename">Input</code>&nbsp;=&gt;&nbsp;<code class="typename">ParseResult[T]</code>
+</pre>
+
+
+<h4>Parser input</h4>
+
+
+<p>Sometimes, a parser reads a stream of tokens instead of a raw sequence of
+characters.  A separate lexical analyzer is then used to convert a stream
+of raw characters into a stream of tokens.<a id="i262352408-1"/> The type of parser inputs is defined as follows:</p>
+
+<pre>
+  <code class="vem">type</code>&nbsp;<code class="typename">Input</code>&nbsp;=&nbsp;<code class="typename">Reader[Elem]</code>&nbsp;&nbsp;&nbsp;
+</pre>
+
+
+<p>The class <span class="code">Reader</span> comes from the package
+<span class="code">scala.util.parsing.input</span>.<a id="i1984859131-1"/>  It is similar to a <span class="code">Stream</span>, but also
+keeps track of the positions of all the elements it reads. The type
+<span class="code">Elem</span> represents individual input
+elements.<a id="i-2008629102-1"/> It is an abstract type
+member of the <span class="code">Parsers</span> trait:</p>
+
+<pre>
+  <code class="vem">type</code>&nbsp;<code class="typename">Elem</code>
+</pre>
+
+
+<p>This means that subclasses and subtraits of
+<span class="code">Parsers</span> need to instantiate class <span class="code">Elem</span> to the type of input
+elements that are being parsed. For instance, <span class="code">RegexParsers</span> and
+<span class="code">JavaTokenParsers</span> fix <span class="code">Elem</span> to be equal to <span class="code">Char</span>. But it would
+also be possible to set <span class="code">Elem</span> to some other type, such as the type
+of tokens returned from a separate lexer.</p>
+
+<h4>Parser results</h4>
+
+
+<p>A parser might either succeed or fail on some given input. Consequently class
+<span class="code">ParseResult</span> has two subclasses for representing success and
+failure:<a id="i-27560472-1"/></p>
+
+<pre>
+  <code class="vem">sealed</code>&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">ParseResult[+T]</code>&nbsp;
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Success[T]</code>(result:&nbsp;T,&nbsp;in:&nbsp;<code class="typename">Input</code>)&nbsp;
+  &nbsp;&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">ParseResult[T]</code>
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Failure</code>(msg:&nbsp;<code class="typename">String</code>,&nbsp;in:&nbsp;<code class="typename">Input</code>)&nbsp;
+  &nbsp;&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">ParseResult[Nothing]</code>
+</pre>
+
+
+<p>The <span class="code">Success</span> case carries the result returned from the parser in its
+<span class="code">result</span> parameter.<a id="i240639739-1"/>  The type of parser results is arbitrary; that's
+why <span class="code">ParseResult</span>, <span class="code">Success</span>, and <span class="code">Parser</span> are all parameterized
+with a type parameter <span class="code">T</span>.  The type parameter represents the kinds of results
+returned by a given parser.<a id="i-370701594-1"/> <span class="code">Success</span> also takes a second parameter,
+<span class="code">in</span>, which refers to the input immediately following the part that
+the parser consumed.  This field is needed for chaining parsers, so
+that one parser can operate after another.  Note that this is a
+purely functional approach to parsing.<a id="i-1568373391-1"/> Input is not read as a side
+effect, but it is kept in a stream. A parser analyzes some part of
+the input stream, and then returns the remaining part in its result.</p>
+
+<p>The other subclass of <span class="code">ParseResult</span> is
+<span class="code">Failure</span>.<a id="i1670336322-1"/> This class takes
+as a parameter a message that describes why the parser failed. Like
+<span class="code">Success</span>, <span class="code">Failure</span> also takes the remaining input stream as a
+second parameter. This is needed not for chaining (the parser won't
+continue after a failure), but to position the error message at the
+correct place in the input stream.</p>
+
+<p>Note that parse results are defined to be covariant in the type
+parameter <span class="code">T</span>. That is, a parser returning <span class="code">String</span>s as result, say,
+is compatible with a parser returning <span class="code">AnyRef</span>s.</p>
+
+<h4>The <span class="code">Parser</span> class</h4>
+
+
+<p>The previous characterization of parsers as functions from
+inputs to parse results was a bit oversimplified. The previous examples showed that parsers also implement <span style="font-style:italic">methods</span> such as <span class="code"><span style="font-size:large">~</span></span> for
+sequential composition of two parsers and <span class="code">|</span> for their alternative
+composition. So <span class="code">Parser</span> is in reality a class that inherits from
+the function type <span class="code">Input</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">ParseResult[T]</span> and additionally defines these methods:</p>
+
+<pre>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Parser[+T]</code>&nbsp;<code class="vem">extends</code>&nbsp;(<code class="typename">Input</code>&nbsp;=&gt;&nbsp;<code class="typename">ParseResult[T]</code>)&nbsp;
+  {&nbsp;p&nbsp;=&gt;
+  &nbsp;&nbsp;<code class="comment">//&nbsp;An&nbsp;unspecified&nbsp;method&nbsp;that&nbsp;defines&nbsp;</code>
+  &nbsp;&nbsp;<code class="comment">//&nbsp;the&nbsp;behavior&nbsp;of&nbsp;this&nbsp;parser.</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;apply(in:&nbsp;<code class="typename">Input</code>):&nbsp;<code class="typename">ParseResult[T]</code>
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;<code style="font-size:large">~</code>&nbsp;...
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;|&nbsp;...
+  &nbsp;&nbsp;...
+  }
+</pre>
+
+
+<p>Since parsers are (<i>i.e.</i>, inherit from) functions, they need to define an
+<span class="code">apply</span> method. You see an abstract <span class="code">apply</span> method in class
+<span class="code">Parser</span>, but this is just for documentation, as the same method is
+in any case inherited from the parent type <span class="code">Input</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">ParseResult[T]</span>
+(recall that this type is an abbreviation for 
+<span class="code">scala.Function1[Input,</span>&nbsp;<span class="code">ParseResult[T]]</span>).  
+The <span class="code">apply</span> method still needs to be implemented
+in the individual parsers that inherit from the abstract <span class="code">Parser</span> class. These parsers
+will be discussed after the following section on <span class="code">this</span> aliasing.</p>
+
+<h4>Aliasing <span class="code">this</span></h4>
+
+
+<p><a id="sec-this-aliasing"/></p>
+
+<p>The body of the <span class="code">Parser</span> class starts with a curious expression:<a id="i-206823911-1"/></p>
+
+<pre>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Parser[+T]</code>&nbsp;<code class="vem">extends</code>&nbsp;...&nbsp;{&nbsp;p&nbsp;=&gt;
+</pre>
+
+
+<p>A clause such as "<span class="code">id</span>&nbsp;<span class="code">=&gt;</span>" immediately after the opening brace of a
+class template defines the identifier <span class="code">id</span> as an alias<a id="i427194646-1"/><a id="i198894-1"/> for <span class="code">this</span> in
+the class. It's as if you had written:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;id&nbsp;=&nbsp;<code class="vem">this</code>
+</pre>
+
+
+<p>in the class body, except that the Scala compiler knows that <span class="code">id</span> is
+an alias for <span class="code">this</span>.  For instance, you could access an
+object-private member <span class="code">m</span> of the class using either <span class="code">id.m</span> or
+<span class="code">this.m</span>; the two are completely equivalent. The first expression would not compile if 
+<span class="code">id</span> were just defined as a <span class="code">val</span> with <span class="code">this</span> as its right hand
+side, because in that case the Scala compiler would treat <span class="code">id</span> as
+a normal identifier.</p>
+
+<p>You saw syntax like this in <a href="modular-programming-using-objects.html#sec-modules-traits">Section 29.4</a>,
+where it was used to give a <a href="glossary.html#g-1749196914">self type</a> to a trait.
+Aliasing can also be a good abbreviation when you need to access the
+<span class="code">this</span> of an outer class. Here's an example:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Outer</code>&nbsp;{&nbsp;outer&nbsp;=&gt;
+  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Inner</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;println(Outer.this&nbsp;eq&nbsp;outer)&nbsp;<code class="comment">//&nbsp;prints:&nbsp;true</code>
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>The example defines two nested classes, <span class="code">Outer</span> and <span class="code">Inner</span>. Inside
+<span class="code">Inner</span> the <span class="code">this</span> value of the <span class="code">Outer</span> class is referred to twice,
+using different expressions. The first expression shows the Java way
+of doing things: You can prefix the reserved word <span class="code">this</span> with the
+name of an outer class and a period; such an expression then refers to
+the <span class="code">this</span> of the outer class. The second expression shows the
+alternative that Scala gives you. By introducing an alias named
+<span class="code">outer</span> for <span class="code">this</span> in class <span class="code">Outer</span>, you can refer to this alias
+directly also in inner classes.<a id="i1909060649-1"/> The Scala way is more concise, and can
+also improve clarity, if you choose the name of the alias well. 
+You'll see examples of this <a href="combinator-parsing.html#sec-parsers-seq">here</a> and <a href="combinator-parsing.html#sec-parsers-alt">here</a>.</p>
+
+<h4>Single-token parsers</h4>
+
+
+<p>Trait <span class="code">Parsers</span> defines a generic parser <span class="code">elem</span> that can be used to
+parse any single token:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;elem(kind:&nbsp;<code class="typename">String</code>,&nbsp;p:&nbsp;<code class="typename">Elem</code>&nbsp;=&gt;&nbsp;<code class="typename">Boolean</code>)&nbsp;=&nbsp;
+  &nbsp;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Parser[Elem]</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;apply(in:&nbsp;<code class="typename">Input</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(p(in.first))&nbsp;<code class="typename">Success</code>(in.first,&nbsp;in.rest)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;<code class="typename">Failure</code>(kind&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;expected"</code>,&nbsp;in)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<p>This parser takes two parameters: a <span class="code">kind</span> string describing what kind
+of token should be parsed and a predicate <span class="code">p</span> on <span class="code">Elem</span>s, which indicates whether
+an element fits the class of tokens to be parsed.</p>
+
+<p>When applying the parser <span class="code">elem(kind,</span>&nbsp;<span class="code">p)</span> to some input <span class="code">in</span>, the
+first element of the input stream is tested with predicate <span class="code">p</span>.  If
+<span class="code">p</span> returns <span class="code">true</span>, the parser succeeds. Its result is the element
+itself, and its remaining input is the input stream starting just
+after the element that was parsed. On the other hand, if <span class="code">p</span> returns
+<span class="code">false</span>, the parser fails with an error message that indicates what
+kind of token was expected.</p>
+
+<h4>Sequential composition</h4>
+
+
+<p><a id="sec-parsers-seq"/></p>
+
+<p>The <span class="code">elem</span> parser only consumes a single element. To parse
+more interesting phrases, you can string parsers together with the
+sequential composition operator
+<span class="code"><span style="font-size:large">~</span></span>.<a id="i-1259402311-2"/> As you have seen before, 
+<span class="code">P<span style="font-size:large">~</span>Q</span> is a parser that applies first the <span class="code">P</span> parser to a given input string. 
+Then, if <span class="code">P</span> succeeds, the <span class="code">Q</span> parser is applied to the input 
+that's left after <span class="code">P</span> has done its job.</p>
+
+<p>The <span class="code"><span style="font-size:large">~</span></span> combinator is implemented as a method in class
+<span class="code">Parser</span>. Its definition is shown in <a href="combinator-parsing.html#lst-tilde-combinator">Listing 33.6</a>.
+The method is a member of the <span class="code">Parser</span>
+class.  Inside this class, <span class="code">p</span> is specified by the "<span class="code">p</span>&nbsp;<span class="code">=&gt;</span>" part as an
+alias of <span class="code">this</span>, so <span class="code">p</span> designates the left operand (or:
+receiver) of <span class="code"><span style="font-size:large">~</span></span>. Its right operand is represented by parameter
+<span class="code">q</span>.  Now, if <span class="code">p<span style="font-size:large">~</span>q</span> is run on some input <span class="code">in</span>, first <span class="code">p</span> is run
+on <span class="code">in</span> and the result is analyzed in a pattern match. If <span class="code">p</span>
+succeeds, <span class="code">q</span> is run on the remaining input <span class="code">in1</span>. If <span class="code">q</span> also
+succeeds, the parser as a whole succeeds.  Its result is a <span class="code"><span style="font-size:large">~</span></span> object
+containing both the result of <span class="code">p</span> (<i>i.e.</i>, <span class="code">x</span>) and the result of
+<span class="code">q</span> (<i>i.e.</i>, <span class="code">y</span>). On the other hand, if either <span class="code">p</span> or <span class="code">q</span> fails the result of <span class="code">p<span style="font-size:large">~</span>q</span> 
+is the <span class="code">Failure</span> object returned by <span class="code">p</span> or <span class="code">q</span>.
+<a id="lst-tilde-combinator"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Parser[+T]</code>&nbsp;...&nbsp;{&nbsp;p&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;...
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;<code style="font-size:large">~</code>&nbsp;[U](q:&nbsp;=&gt;&nbsp;<code class="typename">Parser[U]</code>)&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Parser[T<code style="font-size:large">~</code>U]</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;apply(in:&nbsp;<code class="typename">Input</code>)&nbsp;=&nbsp;p(in)&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Success</code>(x,&nbsp;in1)&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;q(in1)&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Success</code>(y,&nbsp;in2)&nbsp;=&gt;&nbsp;<code class="typename">Success</code>(<code class="vem">new</code>&nbsp;<code style="font-size:large">~</code>(x,&nbsp;y),&nbsp;in2)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;failure&nbsp;=&gt;&nbsp;failure
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;failure&nbsp;=&gt;&nbsp;failure
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 33.6 - The <span style="font-size:large">~</span> combinator method.</h5>
+
+
+<p>The result type of <span class="code"><span style="font-size:large">~</span></span> is a parser that returns an instance of
+the case class <span class="code"><span style="font-size:large">~</span></span> with elements of types <span class="code">T</span> and <span class="code">U</span>.  The
+type expression <span class="code">T<span style="font-size:large">~</span>U</span> is just a more legible shorthand for the
+parameterized type <span class="code"><span style="font-size:large">~</span>[T,</span>&nbsp;<span class="code">U]</span>. Generally, Scala always interprets a
+binary type operation such as <span class="code">A</span>&nbsp;<span class="code">op</span>&nbsp;<span class="code">B</span>, as the parameterized type
+<span class="code">op[A,</span>&nbsp;<span class="code">B]</span>. This is analogous to the situation for patterns, where
+a binary pattern <span class="code">P</span>&nbsp;<span class="code">op</span>&nbsp;<span class="code">Q</span> is also interpreted as an application,
+<i>i.e.</i>, <span class="code">op(P,</span>&nbsp;<span class="code">Q)</span>.</p>
+
+<p>The other two sequential composition operators, <span class="code">&lt;<span style="font-size:large">~</span></span> and <span class="code"><span style="font-size:large">~</span>&gt;</span>, could be
+defined just like <span class="code"><span style="font-size:large">~</span></span>,  only with some small adjustment in how
+the result is computed.<a id="i1302279396-2"/><a id="i1234233109-2"/> A more elegant technique, though, is 
+to define them in terms of <span class="code"><span style="font-size:large">~</span></span> as follows:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;&lt;<code style="font-size:large">~</code>&nbsp;[U](q:&nbsp;=&gt;&nbsp;<code class="typename">Parser[U]</code>):&nbsp;<code class="typename">Parser[T]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;(p<code style="font-size:large">~</code>q)&nbsp;^^&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;x<code style="font-size:large">~</code>y&nbsp;=&gt;&nbsp;x&nbsp;}
+  <code class="vem">def</code>&nbsp;<code style="font-size:large">~</code>&gt;&nbsp;[U](q:&nbsp;=&gt;&nbsp;<code class="typename">Parser[U]</code>):&nbsp;<code class="typename">Parser[U]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;(p<code style="font-size:large">~</code>q)&nbsp;^^&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;x<code style="font-size:large">~</code>y&nbsp;=&gt;&nbsp;y&nbsp;}
+</pre>
+
+
+<h4>Alternative composition</h4>
+
+
+<p><a id="sec-parsers-alt"/></p>
+
+<p>An alternative composition <span class="code">P</span>&nbsp;<span class="code">|</span>&nbsp;<span class="code">Q</span> applies either <span class="code">P</span> or <span class="code">Q</span> to a
+given input.<a id="i1608533927-1"/> It first tries <span class="code">P</span>. If <span class="code">P</span> succeeds, the whole parser
+succeeds with the result of <span class="code">P</span>. Otherwise, if <span class="code">P</span> fails, then
+<span class="code">Q</span> is tried <span style="font-style:italic">on the same input</span> as <span class="code">P</span>. The result of <span class="code">Q</span>
+is then the result of the whole parser.</p>
+
+<p>Here is a definition of <span class="code">|</span> as a method of class <span class="code">Parser</span>:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;|&nbsp;(q:&nbsp;=&gt;&nbsp;<code class="typename">Parser[T]</code>)&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Parser[T]</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;apply(in:&nbsp;<code class="typename">Input</code>)&nbsp;=&nbsp;p(in)&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;s1&nbsp;@&nbsp;<code class="typename">Success</code>(_,&nbsp;_)&nbsp;=&gt;&nbsp;s1
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;failure&nbsp;=&gt;&nbsp;q(in)&nbsp;
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>Note that if <span class="code">P</span> and <span class="code">Q</span> both fail, then the failure message is
+determined by <span class="code">Q</span>.  This subtle choice is discussed later, in
+<a href="combinator-parsing.html#sec-combinator-errors">Section 33.9</a>.</p>
+
+<h4>Dealing with recursion</h4>
+
+
+<p>Note that the <span class="code">q</span> parameter in methods <span class="code"><span style="font-size:large">~</span></span> and 
+<span class="code">|</span> is by-name&mdash;its type is preceded by <span class="code">=&gt;</span>.<a id="i999036029-1"/> This
+means that the actual parser argument will be evaluated only when <span class="code">q</span>
+is needed, which should only be the case after <span class="code">p</span> has run.
+This makes it possible to write recursive parsers like the following 
+one which parses a number enclosed by arbitrarily many parentheses:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;parens&nbsp;=&nbsp;floatingPointNumber&nbsp;|&nbsp;<code class="quotedstring">"("</code><code style="font-size:large">~</code>parens<code style="font-size:large">~</code><code class="quotedstring">")"</code>&nbsp;
+</pre>
+
+
+<p>If <span class="code">|</span> and <span class="code"><span style="font-size:large">~</span></span> took <a href="glossary.html#g-430862780"><em>by-value parameters</em></a>, this definition would<a id="i267370507-1"/><a id="i-471844177-1"/>
+immediately cause a stack overflow without reading anything,
+because the value of <span class="code">parens</span> occurs in the middle of its right-hand side.</p>
+
+<h4>Result conversion</h4>
+
+
+<p>The last method of class <span class="code">Parser</span> converts a parser's result.
+The parser <span class="code">P</span>&nbsp;<span class="code">^^</span>&nbsp;<span class="code">f</span> succeeds exactly when
+<span class="code">P</span> succeeds. In that case it returns <span class="code">P</span>'s result converted using
+the function <span class="code">f</span>. Here is the implementation of this method:</p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;^^&nbsp;[U](f:&nbsp;T&nbsp;=&gt;&nbsp;U):&nbsp;<code class="typename">Parser[U]</code>&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Parser[U]</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;apply(in:&nbsp;<code class="typename">Input</code>)&nbsp;=&nbsp;p(in)&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Success</code>(x,&nbsp;in1)&nbsp;=&gt;&nbsp;<code class="typename">Success</code>(f(x),&nbsp;in1)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;failure&nbsp;=&gt;&nbsp;failure
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+  }&nbsp;<code class="comment">//&nbsp;end&nbsp;Parser</code>
+</pre>
+
+
+<h4>Parsers that don't read any input</h4>
+
+
+<p>There are also two parsers that do not consume any input: <span class="code">success</span> and <span class="code">failure</span>.  The
+parser <span class="code">success(result)</span> always succeeds with the given <span class="code">result</span>.
+The parser <span class="code">failure(msg)</span> always fails with error message <span class="code">msg</span>.
+Both are implemented as methods in trait <span class="code">Parsers</span>, the outer
+trait that also contains class <span class="code">Parser</span>:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;success[T](v:&nbsp;T)&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Parser[T]</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;apply(in:&nbsp;<code class="typename">Input</code>)&nbsp;=&nbsp;<code class="typename">Success</code>(v,&nbsp;in)
+  }
+  <code class="vem">def</code>&nbsp;failure(msg:&nbsp;<code class="typename">String</code>)&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Parser[Nothing]</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;apply(in:&nbsp;<code class="typename">Input</code>)&nbsp;=&nbsp;<code class="typename">Failure</code>(msg,&nbsp;in)
+  }
+</pre>
+
+
+<h4>Option and repetition</h4>
+
+
+<p>Also defined in trait <span class="code">Parsers</span> are the option and repetition combinators
+<span class="code">opt</span>, <span class="code">rep</span>, and <span class="code">repsep</span>.<a id="i1073514242-2"/><a id="i1251140526-1"/><a id="i476382634-1"/><a id="i1315224406-1"/> They are all implemented in terms of 
+sequential composition, alternative, and result conversion:</p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;opt[T](p:&nbsp;=&gt;&nbsp;<code class="typename">Parser[T]</code>):&nbsp;<code class="typename">Parser[Option[T]]</code>&nbsp;=&nbsp;(
+  &nbsp;&nbsp;&nbsp;&nbsp;p&nbsp;^^&nbsp;<code class="typename">Some</code>(_)&nbsp;&nbsp;
+  &nbsp;&nbsp;|&nbsp;success(<code class="typename">None</code>)
+  &nbsp;&nbsp;)
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;rep[T](p:&nbsp;=&gt;&nbsp;<code class="typename">Parser[T]</code>):&nbsp;<code class="typename">Parser[List[T]]</code>&nbsp;=&nbsp;(
+  &nbsp;&nbsp;&nbsp;&nbsp;p<code style="font-size:large">~</code>rep(p)&nbsp;^^&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;x<code style="font-size:large">~</code>xs&nbsp;=&gt;&nbsp;x&nbsp;::&nbsp;xs&nbsp;}&nbsp;&nbsp;
+  &nbsp;&nbsp;|&nbsp;success(<code class="typename">List</code>())
+  &nbsp;&nbsp;)
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;repsep[T](p:&nbsp;=&gt;&nbsp;<code class="typename">Parser[T]</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;q:&nbsp;=&gt;&nbsp;<code class="typename">Parser[Any]</code>):&nbsp;<code class="typename">Parser[List[T]]</code>&nbsp;=&nbsp;(
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;p<code style="font-size:large">~</code>rep(q<code style="font-size:large">~</code>&gt;&nbsp;p)&nbsp;^^&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;r<code style="font-size:large">~</code>rs&nbsp;=&gt;&nbsp;r&nbsp;::&nbsp;rs&nbsp;}&nbsp;&nbsp;
+  &nbsp;&nbsp;|&nbsp;success(<code class="typename">List</code>())
+  &nbsp;&nbsp;)
+  <br />  }&nbsp;<code class="comment">//&nbsp;end&nbsp;Parsers</code>
+</pre>
+
+
+<h3>33.7 String literals and regular expressions</h3>
+
+
+<p>The parsers you saw so far
+made use of string literals
+and regular expressions to parse single words. The support for these
+comes from <span class="code">RegexParsers</span>, a subtrait of
+<span class="code">Parsers</span>:<a id="i519257659-2"/></p>
+
+<pre>
+  <code class="vem">trait</code>&nbsp;<code class="typename">RegexParsers</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Parsers</code>&nbsp;{&nbsp;
+</pre>
+
+
+<p>This trait is more specialized than trait <span class="code">Parsers</span> in that it only works
+for inputs that are sequences of characters:</p>
+
+<pre>
+  <code class="vem">type</code>&nbsp;<code class="typename">Elem</code>&nbsp;=&nbsp;<code class="typename">Char</code>
+</pre>
+
+
+<p>It defines two methods, <span class="code">literal</span> and <span class="code">regex</span>, with the following signatures:</p>
+
+<pre>
+  <code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;literal(s:&nbsp;<code class="typename">String</code>):&nbsp;<code class="typename">Parser[String]</code>&nbsp;=&nbsp;...
+  <code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;regex(r:&nbsp;<code class="typename">Regex</code>):&nbsp;<code class="typename">Parser[String]</code>&nbsp;=&nbsp;...
+</pre>
+
+
+<p>Note that both methods have an <span class="code">implicit</span> modifier, so they are automatically applied
+whenever a <span class="code">String</span> or <span class="code">Regex</span> is given but a <span class="code">Parser</span> is
+expected.<a id="i1803313949-1"/><a id="i961731205-1"/> That's
+why you can write string literals and regular expressions directly in a grammar, 
+without having to wrap them with one of these methods. For instance,
+the parser <span class="code">"("<span style="font-size:large">~</span>expr<span style="font-size:large">~</span>")"</span> will be automatically expanded to
+<span class="code">literal("(")<span style="font-size:large">~</span>expr<span style="font-size:large">~</span>literal(")")</span>.</p>
+
+<p>The <span class="code">RegexParsers</span> trait also takes care of handling white space
+between symbols.  To do this, it calls a method named
+<span class="code">handleWhiteSpace</span> before running a <span class="code">literal</span> or <span class="code">regex</span> parser.
+The <span class="code">handleWhiteSpace</span> method skips the longest input sequence that conforms to the <span class="code">whiteSpace</span>
+regular expression, which is defined by default as follows:</p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">protected</code>&nbsp;<code class="vem">val</code>&nbsp;whiteSpace&nbsp;=&nbsp;<code class="quotedstring">"""\s+"""</code>.r
+  }&nbsp;<code class="comment">//&nbsp;end&nbsp;RegexParsers</code>
+</pre>
+
+
+<p>If you prefer a different treatment of white space, you can override 
+the <span class="code">whiteSpace</span> <span class="code">val</span>. For instance, if you want white space not to be skipped at all, 
+you can override <span class="code">whiteSpace</span> with the empty regular expression:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">MyParsers</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">RegexParsers</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">val</code>&nbsp;whiteSpace&nbsp;=&nbsp;<code class="quotedstring">""</code>.r
+  &nbsp;&nbsp;...
+  }
+</pre>
+
+
+<h3>33.8 Lexing and parsing</h3>
+
+
+<p>The task of syntax analysis is often split into two phases.  The <span style="font-style:italic">
+  lexer</span> phase recognizes individual words in the input and classifies
+them into some <span style="font-style:italic">token</span> classes. This phase is also called <span style="font-style:italic">
+  lexical analysis</span>. This is followed by a <span style="font-style:italic">syntactical analysis</span>
+phase that analyzes sequences of tokens.<a id="i1371644930-1"/><a id="i1779690801-1"/> Syntactical analysis is also
+sometimes just called parsing, even though this is slightly imprecise,
+as lexical analysis can also be regarded as a parsing problem.</p>
+
+<p>The <span class="code">Parsers</span> trait as described in the previous section can be used for either phase,
+because its input elements are of the abstract type <span class="code">Elem</span>. For
+lexical analysis, <span class="code">Elem</span> would be instantiated to
+<span class="code">Char</span>, meaning the individual characters that
+make up a word are being parsed. The syntactical analyzer would in turn instantiate
+<span class="code">Elem</span> to the type of token returned by the lexer.</p>
+
+<p>Scala's parsing combinators provide several utility classes for lexical
+and syntactic analysis. These are contained in two sub-packages, one for each kind of analysis:</p>
+
+<pre>
+  scala.util.parsing.combinator.lexical&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  scala.util.parsing.combinator.syntactical&nbsp;&nbsp;&nbsp;
+</pre>
+
+
+<p>If you want to split your parser into a separate lexer and syntactical
+analyzer, you should consult the Scaladoc documentation for these packages.  But
+for simple parsers, the regular expression based approach shown previously in this chapter is usually sufficient.</p>
+
+<h3 id="sec-combinator-errors">33.9 Error reporting</h3>
+
+
+<p>There's one final topic that was not covered yet: how does the parser
+issue an error message? Error reporting for parsers is somewhat of a
+black art. One problem is that when a parser rejects some input, it
+generally has encountered many different failures.<a id="i1725890298-1"/>
+Each alternative parse
+must have failed, and recursively so at each choice point. Which
+of the usually numerous failures should be emitted as error message to
+the user?</p>
+
+<p>Scala's parsing library implements a simple heuristic: among all
+failures, the one that occurred at the latest position in the input is
+chosen. In other words, the parser picks the longest prefix that is
+still valid and issues an error message that describes why
+parsing the prefix could not be continued further. If there are
+several failure points at that latest position, the one that was
+visited last is chosen.</p>
+
+<p>For instance, consider running the JSON parser on a faulty address
+book which starts with the line:</p>
+
+<pre>
+  {&nbsp;<code class="quotedstring">"name"</code>:&nbsp;<code class="typename">John</code>,
+</pre>
+
+
+<p>The longest legal prefix of this phrase is "<span class="code">{</span>&nbsp;<span class="code">"name":</span>&nbsp;<span class="code"></span>".
+So the JSON parser will flag the word <span class="code">John</span> as an error. 
+The JSON parser expects a value at this point, but <span class="code">John</span> is
+an identifier, which does not count as a value (presumably, the author
+of the document had forgotten to enclose the name in quotation marks).
+The error message issued by the parser for this document is:</p>
+
+<pre>
+  [<code class="literal">1.13</code>]&nbsp;failure:&nbsp;<code class="quotedstring">"false"</code>&nbsp;expected&nbsp;but&nbsp;identifier&nbsp;<code class="typename">John</code>&nbsp;found
+  <br />  &nbsp;&nbsp;{&nbsp;<code class="quotedstring">"name"</code>:&nbsp;<code class="typename">John</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^
+</pre>
+
+
+<p>The part that "false" was expected comes from the fact that <span class="code">"false"</span>
+is the last alternative of the production for <span class="code">value</span> in the JSON
+grammar. So this was the last failure at this point.  Users who know
+the JSON grammar in detail
+can reconstruct the error message, but
+for non-experts this error message is probably surprising and can also
+be quite misleading.</p>
+
+<p>A better error message can be engineered by adding a 
+"catch-all" failure point as last alternative of a <span class="code">value</span>
+production:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;value:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=
+  &nbsp;&nbsp;obj&nbsp;|&nbsp;arr&nbsp;|&nbsp;stringLit&nbsp;|&nbsp;floatingPointNumber&nbsp;|&nbsp;<code class="quotedstring">"null"</code>&nbsp;|
+  &nbsp;&nbsp;<code class="quotedstring">"true"</code>&nbsp;|&nbsp;<code class="quotedstring">"false"</code>&nbsp;|&nbsp;failure(<code class="quotedstring">"illegal&nbsp;start&nbsp;of&nbsp;value"</code>)
+</pre>
+
+
+<p>This addition does not change the set of inputs that are accepted as valid
+documents. What it does is improve the error messages, because now it will
+be the explicitly added <span class="code">failure</span> that comes as last alternative and therefore 
+gets reported:</p>
+
+<pre>
+  [<code class="literal">1.13</code>]&nbsp;failure:&nbsp;illegal&nbsp;start&nbsp;of&nbsp;value
+  <br />  &nbsp;&nbsp;{&nbsp;<code class="quotedstring">"name"</code>:&nbsp;<code class="typename">John</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^
+</pre>
+
+
+<p>The implementation of the "latest possible" scheme of error 
+reporting uses a field named <span class="code">lastFailure</span>
+in trait <span class="code">Parsers</span> to mark the failure that occurred at the
+latest position in the input:</p>
+
+<pre>
+  <code class="vem">var</code>&nbsp;lastFailure:&nbsp;<code class="typename">Option[Failure]</code>&nbsp;=&nbsp;<code class="typename">None</code>
+</pre>
+
+
+<p>The field is initialized to <span class="code">None</span>.
+It is updated in the constructor of the <span class="code">Failure</span> class:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Failure</code>(msg:&nbsp;<code class="typename">String</code>,&nbsp;in:&nbsp;<code class="typename">Input</code>)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">ParseResult[Nothing]</code>&nbsp;{
+  <br />  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(lastFailure.isDefined&nbsp;&amp;&amp;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lastFailure.get.in.pos&nbsp;&lt;=&nbsp;in.pos)
+  &nbsp;&nbsp;&nbsp;&nbsp;lastFailure&nbsp;=&nbsp;<code class="typename">Some</code>(<code class="vem">this</code>)
+  }
+</pre>
+
+
+<p>The field is read by the <span class="code">phrase</span>
+method, which emits the final error message if the parser failed.
+Here is the implementation of <span class="code">phrase</span> in trait <span class="code">Parsers</span>:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;phrase[T](p:&nbsp;<code class="typename">Parser[T]</code>)&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Parser[T]</code>&nbsp;{
+  &nbsp;&nbsp;lastFailure&nbsp;=&nbsp;<code class="typename">None</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;apply(in:&nbsp;<code class="typename">Input</code>)&nbsp;=&nbsp;p(in)&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;s&nbsp;@&nbsp;<code class="typename">Success</code>(out,&nbsp;in1)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(in1.atEnd)&nbsp;s&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;<code class="typename">Failure</code>(<code class="quotedstring">"end&nbsp;of&nbsp;input&nbsp;expected"</code>,&nbsp;in1)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;f&nbsp;:&nbsp;<code class="typename">Failure</code>&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;lastFailure
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>The <span class="code">phrase</span> method runs its argument parser <span class="code">p</span>. If <span class="code">p</span> succeeds with a
+completely consumed input, the success result of <span class="code">p</span> is returned.
+If <span class="code">p</span> succeeds but the input is not read completely, a failure with message
+"end of input expected" is returned. If <span class="code">p</span> fails, the failure or error
+stored in <span class="code">lastFailure</span> is returned. Note that the treatment of
+<span class="code">lastFailure</span> is non-functional; it is updated as a side effect by
+the constructor of <span class="code">Failure</span> and by the <span class="code">phrase</span> method itself. A
+functional version of the same scheme would be possible, but it would
+require threading the <span class="code">lastFailure</span> value through every parser
+result, no matter whether this result is a <span class="code">Success</span> or a
+<span class="code">Failure</span>.</p>
+
+<h3>33.10 Backtracking versus LL(1)</h3>
+
+
+<p>The parser combinators employ <span style="font-style:italic">backtracking</span> to choose between
+different parsers in an alternative.<a id="i426003614-1"/> In an expression <span class="code">P</span>&nbsp;<span class="code">|</span>&nbsp;<span class="code">Q</span>, if
+<span class="code">P</span> fails, then <span class="code">Q</span> is run on the same input as <span class="code">P</span>.<a id="i-2138187530-1"/> This happens even
+if <span class="code">P</span> has parsed some tokens before failing. In this case the same
+tokens will be parsed again by <span class="code">Q</span>.</p>
+
+<p>Backtracking imposes only a few restrictions on how to formulate a
+grammar so that it can be parsed. Essentially, you just need to avoid
+left-recursive productions. A production such as:</p>
+
+<div style="text-align: center">
+
+
+<table style="border-collapse: collapse">
+<tr>
+  <td>
+    <span style="font-style:italic">expr</span>
+  </td>
+  <td>
+    ::=
+  </td>
+  <td>
+    <span style="font-style:italic">expr</span> &nbsp;<span class="code">"+"</span>&nbsp; <span style="font-style:italic">term</span> &nbsp;|&nbsp; <span style="font-style:italic">term</span>.
+  </td>
+</tr>
+</table>
+
+
+</div>
+
+
+<p>will always fail because <span class="code">expr</span> immediately calls itself and thus never
+progresses any further.<a href="combinator-parsing.html#footnotemain33-1">[1]</a>
+On the other hand, backtracking is potentially costly because the same
+input can be parsed several times. Consider for instance the
+production:</p>
+
+<div style="text-align: center">
+
+
+<table style="border-collapse: collapse">
+<tr>
+  <td>
+    <span style="font-style:italic">expr</span>
+  </td>
+  <td>
+    ::=
+  </td>
+  <td>
+    <span style="font-style:italic">term</span> &nbsp;<span class="code">"+"</span>&nbsp; <span style="font-style:italic">expr</span> &nbsp;|&nbsp; <span style="font-style:italic">term</span>.
+  </td>
+</tr>
+</table>
+
+
+</div>
+
+
+<p>What happens if the <span class="code">expr</span> parser is applied to an input such as <span class="code">(1</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">2)</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">3</span>
+which constitutes a legal term? The first alternative would be tried,
+and would fail when matching the <span class="code">+</span> sign. Then the second alternative would be tried 
+on the same term and this would succeed. In the end the term ended up
+being parsed twice.</p>
+
+<p>It is often possible to modify the grammar so that backtracking can be
+avoided. For instance, in the case of arithmetic expressions, either
+one of the following productions would work:</p>
+
+<div style="text-align: center">
+
+
+<table style="border-collapse: collapse">
+<tr>
+  <td>
+    <span style="font-style:italic">expr</span>
+  </td>
+  <td>
+    ::=
+  </td>
+  <td>
+    <span style="font-style:italic">term</span> &nbsp;[<span class="code">"+"</span>&nbsp; <span style="font-style:italic">expr</span>].
+  </td>
+</tr>
+<tr>
+  <td>
+    <span style="font-style:italic">expr</span>
+  </td>
+  <td>
+    ::=
+  </td>
+  <td>
+    <span style="font-style:italic">term</span> &nbsp;\{<span class="code">"+"</span>&nbsp; <span style="font-style:italic">term</span>\}.
+  </td>
+</tr>
+</table>
+
+
+</div>
+
+
+<p>Many languages admit so-called "LL(1)" grammars.<a href="combinator-parsing.html#footnotemain33-2">[2]</a> When a
+combinator parser is formed from such a grammar, it will never
+backtrack, <i>i.e.</i>, the input position will never be reset to an earlier
+value.
+For instance, the grammars for arithmetic expressions and JSON terms earlier
+in this chapter are both LL(1), so the backtracking capabilities of
+the parser combinator framework are never exercised for inputs from
+these languages.</p>
+
+<p>The combinator parsing framework allows you to express the expectation
+that a grammar is LL(1) explicitly, using a new operator
+<span class="code"><span style="font-size:large">~</span>!</span>.<a id="i1119621308-1"/>
+This operator is like sequential composition <span class="code"><span style="font-size:large">~</span></span> but it will never
+backtrack to "un-read" input elements that have already been parsed.
+Using this operator, the productions in the arithmetic expression parser could
+alternatively be written as follows:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;expr&nbsp;&nbsp;:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;term&nbsp;<code style="font-size:large">~</code>!&nbsp;rep(<code class="quotedstring">"+"</code>&nbsp;<code style="font-size:large">~</code>!&nbsp;term&nbsp;|&nbsp;<code class="quotedstring">"-"</code>&nbsp;<code style="font-size:large">~</code>!&nbsp;term)
+  <code class="vem">def</code>&nbsp;term&nbsp;&nbsp;:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;factor&nbsp;<code style="font-size:large">~</code>!&nbsp;rep(<code class="quotedstring">"*"</code>&nbsp;<code style="font-size:large">~</code>!&nbsp;factor&nbsp;|&nbsp;<code class="quotedstring">"/"</code>&nbsp;<code style="font-size:large">~</code>!&nbsp;factor)
+  <code class="vem">def</code>&nbsp;factor:&nbsp;<code class="typename">Parser[Any]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;<code class="quotedstring">"("</code>&nbsp;<code style="font-size:large">~</code>!&nbsp;expr&nbsp;<code style="font-size:large">~</code>!&nbsp;<code class="quotedstring">")"</code>&nbsp;|&nbsp;floatingPointNumber
+</pre>
+
+
+<p>One advantage of an LL(1) parser is that it can use a simpler input
+technique. Input can be read sequentially, and input elements can be
+discarded once they are read. That's another reason why LL(1) parsers
+are usually more efficient than backtracking parsers.<a id="i-1119687476-1"/></p>
+
+<h3>33.11 Conclusion</h3>
+
+
+<p>You have now seen all the essential elements of Scala's combinator parsing
+framework. It's surprisingly little code for something that's genuinely
+useful. With the framework you can construct parsers for a large class
+of context-free grammars. The framework lets you get started
+quickly, but it is also customizable to new kinds of grammars and input
+methods. Being a Scala library, it integrates seamlessly with the rest
+of the language. So it's easy to integrate a combinator parser in a
+larger Scala program.</p>
+
+<p>One downside of combinator parsers is that they are not very
+efficient, at least not when compared with parsers generated from special purpose
+tools such as Yacc or Bison. There are two reasons for this. First,
+the backtracking method used by combinator parsing is itself not very
+efficient. Depending on the grammar and the parse input, it might
+yield an exponential slow-down due to repeated backtracking. This can
+be fixed by making the grammar LL(1) and by using the committed sequential
+composition operator, <span class="code"><span style="font-size:large">~</span>!</span>.</p>
+
+<p>The second problem affecting the performance of combinator parsers is
+that they mix parser construction and input analysis in the same set
+of operations. In effect, a parser is generated anew for each input
+that's parsed.</p>
+
+<p>This problem can be overcome, but it requires a different
+implementation of the parser combinator framework. In an optimizing
+framework, a parser would no longer be represented as a function from
+inputs to parse results. Instead, it would be represented as a tree,
+where every construction step was represented as a case class. For
+instance, sequential composition could be represented by a case class
+<span class="code">Seq</span>, alternative by <span class="code">Alt</span>, and so on. The "outermost" parser
+method, <span class="code">phrase</span>, could then take this symbolic representation of a
+parser and convert it to highly efficient parsing tables, using
+standard parser generator algorithms.</p>
+
+<p>What's nice about all this is that from a user perspective nothing
+changes compared to plain combinator parsers. Users still write
+parsers in terms of <span class="code">ident</span>, <span class="code">floatingPointNumber</span>, <span class="code"><span style="font-size:large">~</span></span>, <span class="code">|</span>, and so on.
+They need not be aware that these methods generate a
+symbolic representation of a parser instead of a parser function.
+Since the <span class="code">phrase</span> combinator converts these representations into real parsers,
+everything works as before.</p>
+
+<p>The advantage of this scheme with respect to performance is two-fold.
+First, you can now factor out parser construction from input analysis.
+If you were to write:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;jsonParser&nbsp;=&nbsp;phrase(value)
+</pre>
+
+
+<p>and then apply <span class="code">jsonParser</span> to several different inputs, the 
+<span class="code">jsonParser</span> would be constructed only once, not every time an input is read.</p>
+
+<p>Second, the parser generation can use efficient parsing algorithms
+such as LALR(1).<a id="i-572333127-1"/><a href="combinator-parsing.html#footnotemain33-3">[3]</a> These algorithms usually lead to much
+faster parsers than parsers that operate with
+backtracking.</p>
+
+<p>At present, such an optimizing parser generator has not yet been
+written for Scala. But it would be perfectly possible to do so.  If
+someone contributes such a generator, it will be easy to integrate
+into the standard Scala library.
+Even postulating that such a generator will exist at some point in the
+future, however, there are reasons for keeping the current parser
+combinator framework around. It is much easier to understand
+and to adapt than a parser generator, and the difference in
+speed would often not matter in practice, unless you want to parse
+very large inputs.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 33:</h4>
+
+
+<p><a id="footnotemain33-1"/>[1] There are ways to avoid stack overflows
+even in the presence of left-recursion, but this requires 
+a more refined parsing combinator framework, which to date has
+not been implemented.</p>
+
+<p><a id="footnotemain33-2"/>[2] Aho, <i>et. al.</i>,
+<em>Compilers: Principles, Techniques, and Tools</em>.
+ <a href="bibliography.html#aho-sethi-ullman">[Aho86]</a><a id="i1109104818-2"/></p>
+
+<p><a id="footnotemain33-3"/>[3] Aho, <i>et. al.</i>, <em>Compilers: Principles, Techniques, and Tools</em>.  <a href="bibliography.html#aho-sethi-ullman">[Aho86]</a><a id="i-1383802058-1"/></p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

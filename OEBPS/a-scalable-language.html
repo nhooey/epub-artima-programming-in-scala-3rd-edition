@@ -1,0 +1,999 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-a-scalable-language">Chapter 1</a></h2>
+<h1>A Scalable Language</h1>
+
+
+<p>The name Scala stands for "scalable language."  The language is so
+named because it was designed to grow with the demands of its users.
+You can apply Scala to a wide range of programming tasks, from writing
+small scripts to building large systems.<a href="a-scalable-language.html#footnotemain1-1">[1]</a></p>
+
+<p>Scala is easy to get into. It runs on the standard Java platform and
+interoperates<a id="i648458520-1"/><a id="i239541118-1"/><a id="i1157110682-1"/><a id="i1003002536-1"/> seamlessly with all Java
+libraries.  It's quite a good language for writing scripts that pull
+together Java components.  But it can apply its strengths even more
+when used for building large systems and frameworks of reusable
+components.</p>
+
+<p>Technically, Scala is a blend of object-oriented and functional
+programming concepts in a statically typed language<a id="i-1150036974-1"/><a id="i717865003-1"/>. The fusion of
+object-oriented and functional programming shows up in many different
+aspects of Scala; it is probably more pervasive than in any other widely
+used language.  The two programming styles have complementary strengths
+when it comes to scalability.  Scala's functional programming constructs
+make it easy to build interesting things quickly from simple parts. Its
+object-oriented constructs make it easy to structure larger systems and adapt them to new demands. The combination of both styles in Scala
+makes it possible to express new kinds of programming patterns and
+component abstractions.  It also leads to a legible and concise
+programming style. And because it is so malleable, programming in Scala can
+be a lot of fun.</p>
+
+<p>This initial chapter answers the question, "Why Scala?" It gives a
+high-level view of Scala's design and the reasoning behind it.  After
+reading the chapter you should have a basic feel for what Scala is and
+what kinds of tasks it might help you accomplish.  Although this book
+is a Scala tutorial, this chapter isn't really part of the tutorial.
+If you're eager to start writing some Scala code, you should jump
+ahead to <a href="first-steps-in-scala.html">Chapter 2</a>.</p>
+
+<h3 id="sec-a-language-that-grows-on-you">1.1 A language that grows on you</h3>
+
+
+<p>Programs of different sizes tend to require different programming constructs.
+Consider, for example, the following small Scala program:</p>
+
+<pre>
+  <code class="vem">var</code>&nbsp;capital&nbsp;=&nbsp;<code class="typename">Map</code>(<code class="quotedstring">"US"</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"Washington"</code>,&nbsp;<code class="quotedstring">"France"</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"Paris"</code>)
+  <br />  capital&nbsp;+=&nbsp;(<code class="quotedstring">"Japan"</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"Tokyo"</code>)
+  <br />  println(capital(<code class="quotedstring">"France"</code>))&nbsp;
+</pre>
+
+
+<p>This program sets up a map from countries to their capitals, modifies the
+map by adding a new binding <span class="code">("Japan"</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">"Tokyo")</span>, and prints the
+capital associated with the country France.<a href="a-scalable-language.html#footnotemain1-2">[2]</a>  The notation in this example is
+high level, to the point, and not cluttered with extraneous semicolons
+or type annotations.<a id="i-2107785776-1"/><a id="i1449766718-1"/> Indeed, the feel is that of a modern
+"scripting" language like Perl,<a id="i389811529-1"/> Python,<a id="i-1190645252-1"/> or Ruby.<a id="i-1999895874-1"/>  One common
+characteristic of these languages, which is relevant for the example
+above, is that they each support an "associative map"
+construct<a id="i733051324-1"/> in
+the syntax of the language.</p>
+
+<p>Associative maps are very useful because they help keep programs
+legible and concise, but sometimes you might not agree with
+their "one size fits all" philosophy because you need to control the
+properties of the maps you use in your program in a more fine-grained
+way. Scala gives you this fine-grained control if you need it, 
+because maps in Scala are not language syntax. They are library
+abstractions that you can extend and adapt.</p>
+
+<p>In the above program, you'll get a default <span class="code">Map</span> implementation,
+but you can easily change that.
+You could for example specify a particular implementation, such as a
+<span class="code">HashMap</span> or a <span class="code">TreeMap</span>, or invoke the <span class="code">par</span> method to obtain
+a <span class="code">ParMap</span> that executes operations in parallel.
+You<a id="i-1874383620-1"/><a id="i-1964267956-1"/>
+could specify a default value for the map, or you could override any
+other method of the map you create. In each case, you can use the same easy access syntax for
+maps as in the example above.</p>
+
+<p>This example shows that Scala can give you both convenience and
+flexibility. Scala has a set of convenient constructs that help you
+get started quickly and let you program in a pleasantly concise style.
+At the same time, you have the assurance that you will not outgrow
+the language. You can always tailor the program to your
+requirements, because everything is based on library modules that you
+can select and adapt as needed.</p>
+
+<h4>Growing new types</h4>
+
+
+<p><a id="sec-growing-new-types"/></p>
+
+<p>Eric Raymond<a id="i-1761921411-1"/> introduced the cathedral and bazaar
+as two
+metaphors of software development.<a href="a-scalable-language.html#footnotemain1-3">[3]</a><a id="i-1761921411-2"/> The cathedral is a near-perfect
+building that takes a long time to build. Once built, it stays
+unchanged for a long time. The bazaar, by contrast, is adapted and
+extended each day by the people working in it. In Raymond's work the
+bazaar is a metaphor for open-source software development. Guy Steele
+noted in a talk 
+on "growing a language" that the same
+distinction can be applied to language design.<a href="a-scalable-language.html#footnotemain1-4">[4]</a><a id="i1916394333-1"/>
+Scala is much more like
+a bazaar than a cathedral, in the sense that it is designed to be extended
+and adapted by the people programming in it. Instead
+of providing all constructs you might ever need in one
+"perfectly complete" language, Scala puts the tools for building such
+constructs into your hands.<a id="i294325658-1"/></p>
+
+<p>Here's an example. Many applications need a type of integer
+that can become arbitrarily large without overflow or "wrap-around"
+of arithmetic operations. Scala defines such a type in library class
+<span class="code">scala.BigInt</span>.<a id="i1989635823-1"/> Here is the definition of a method using that type, which calculates
+the factorial of a passed integer value:<a href="a-scalable-language.html#footnotemain1-5">[5]</a></p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;factorial(x:&nbsp;<code class="typename">BigInt</code>):&nbsp;<code class="typename">BigInt</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(x&nbsp;==&nbsp;<code class="literal">0</code>)&nbsp;<code class="literal">1</code>&nbsp;<code class="vem">else</code>&nbsp;x&nbsp;*&nbsp;factorial(x&nbsp;-&nbsp;<code class="literal">1</code>)
+</pre>
+
+
+<p>Now, if you call <span class="code">factorial(30)</span> you would get:</p>
+
+<pre>
+  <code class="literal">265252859812191058636308480000000</code>
+</pre>
+
+
+<p><span class="code">BigInt</span> looks like a built-in type because you can use integer
+literals and operators such as <span class="code">*</span> and <span class="code">-</span> with values of that type.
+Yet it is just a class that happens to be defined in Scala's standard
+library.<a href="a-scalable-language.html#footnotemain1-6">[6]</a> If the
+class were missing, it would be straightforward for any Scala
+programmer to write an implementation, for instance, by wrapping
+Java's class <span class="code">java.math.BigInteger</span> (in fact that's how Scala's
+<span class="code">BigInt</span> class is implemented).<a id="i1854396478-1"/></p>
+
+<p>Of course, you could also use Java's class directly. But the result is
+not nearly as pleasant, because although Java allows you to create new types, those types don't 
+feel much like native language support:</p>
+
+<pre>
+  <code class="vem">import</code>&nbsp;java.math.BigInteger
+  <br />  <code class="vem">def</code>&nbsp;factorial(x:&nbsp;<code class="typename">BigInteger</code>):&nbsp;<code class="typename">BigInteger</code>&nbsp;=
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(x&nbsp;==&nbsp;BigInteger.ZERO)
+  &nbsp;&nbsp;&nbsp;&nbsp;BigInteger.ONE
+  &nbsp;&nbsp;<code class="vem">else</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;x.multiply(factorial(x.subtract(BigInteger.ONE)))
+</pre>
+
+
+<p><span class="code">BigInt</span> is representative of many other 
+number-like types&mdash;big decimals, complex numbers, rational numbers,
+confidence intervals, polynomials&mdash;the list goes on. Some programming
+languages implement some of these types natively. For instance,
+Lisp,<a id="i-503250946-1"/> Haskell,<a id="i-1250113500-1"/> and
+Python<a id="i-1190645252-2"/>
+implement big integers; Fortran<a id="i1138419364-1"/> and
+Python implement complex numbers.  But any language that attempted
+to implement all of these abstractions at the same time would simply become
+too big to be manageable. What's more, even if such a language were to exist,
+some applications would surely benefit from other number-like types 
+that were not supplied.
+So the approach of attempting to provide everything
+in one language doesn't scale very well. Instead, Scala allows users
+to grow and adapt the language in the directions 
+they need by defining easy-to-use
+libraries that <span style="font-style:italic">feel</span> like native language support.</p>
+
+<h4>Growing new control constructs</h4>
+
+
+<p>The previous example demonstrates that Scala lets you add new types that
+can be used as conveniently as built-in types.
+The same extension principle also applies to control structures.
+This kind of extensibility is illustrated by
+Akka,<a id="i2042656-1"/><a id="i-1422944994-1"/> a Scala API for "actor-based" concurrent programming.</p>
+
+<p>As multicore<a id="i-1206501288-1"/> processors continue to proliferate in the coming years, achieving
+acceptable performance may increasingly require that you exploit more<a id="i-2128194469-1"/>
+parallelism in your applications. Often, this will mean rewriting your
+code so that computations are distributed over several concurrent
+threads.  Unfortunately, creating dependable multi-threaded
+applications has proven challenging in practice. Java's threading
+model is built around shared memory and locking, a model that is often
+difficult to reason about, especially as systems scale up in size and
+complexity. It is hard to be sure you don't have a race condition or
+deadlock lurking&mdash;something that didn't show up during testing, but<a id="i503639951-1"/>
+might just show up in production.  An arguably safer alternative is
+a message passing architecture, such as the "actors" approach used by
+the Erlang<a id="i-1028679267-1"/> programming language.<a id="i-122023144-1"/></p>
+
+<p>Java comes with a rich, thread-based concurrency library.  Scala
+programs can use it like any other Java API. However, Akka is an additional
+Scala library that implements an actor model similar to Erlang's.<a id="i-1422944994-2"/><a id="i1338746414-1"/></p>
+
+<p>Actors are concurrency abstractions that can be implemented on top of
+threads. They communicate by sending messages to each other.  An actor
+can perform two basic operations, message send and receive. The send
+operation, denoted by an exclamation
+point<a id="i1971465955-1"/><a id="i-1037720528-1"/>
+(<span class="code">!</span>), sends a
+message to an actor. Here's an example in which the actor is named <span class="code">recipient</span>:</p>
+
+<pre>
+  recipient&nbsp;!&nbsp;msg
+</pre>
+
+
+<p>A send is asynchronous; that is, the sending actor can proceed
+immediately, without waiting for the message to be received and
+processed.  Every actor has a <span style="font-style:italic">mailbox</span> in which incoming messages
+are queued.  An actor handles messages that have arrived in its
+mailbox via a <span class="code">receive</span> block:<a id="i1209206976-1"/></p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;receive&nbsp;=&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Msg1</code>&nbsp;=&gt;&nbsp;...&nbsp;<code class="comment">//&nbsp;handle&nbsp;Msg1</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Msg2</code>&nbsp;=&gt;&nbsp;...&nbsp;<code class="comment">//&nbsp;handle&nbsp;Msg2</code>
+  &nbsp;&nbsp;<code class="comment">//&nbsp;...</code>
+  }
+</pre>
+
+
+<p>A receive block 
+consists of a number of cases that each query the mailbox with a message pattern.
+The first
+message in the mailbox that matches any of the cases is selected, and
+the corresponding action is performed on it. Once the mailbox does not
+contain any messages, the actor suspends and waits for further incoming messages.</p>
+
+<p>As an example, here is a simple Akka actor implementing a<a id="i2042656-2"/>
+checksum calculator service:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">ChecksumActor</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Actor</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">var</code>&nbsp;sum&nbsp;=&nbsp;<code class="literal">0</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;receive&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Data</code>(byte)&nbsp;=&gt;&nbsp;sum&nbsp;+=&nbsp;byte
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">GetChecksum</code>(requester)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;checksum&nbsp;=&nbsp;<code style="font-size:large">~</code>(sum&nbsp;&amp;&nbsp;<code class="literal">0xFF</code>)&nbsp;+&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;requester&nbsp;!&nbsp;checksum
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>This actor 
+first defines a local variable named <span class="code">sum</span> with initial value zero. 
+It defines a <span class="code">receive</span> block that will handle messages. 
+If it receives a <span class="code">Data</span> message, it adds the contained <span class="code">byte</span>
+to the <span class="code">sum</span> variable.
+If it receives a <span class="code">GetChecksum</span> message, it calculates a checksum from the current value
+of <span class="code">sum</span> and sends the result back to the <span class="code">requester</span> using the message send 
+<span class="code">requester</span>&nbsp;<span class="code">!</span>&nbsp;<span class="code">sum</span>.
+The <span class="code">requester</span> field is embedded in the <span class="code">GetChecksum</span> message; 
+it usually refers to the actor that made the request.</p>
+
+<p>We don't expect you to fully understand the actor example at this point.
+Rather, what's significant about this example for
+the topic of scalability is that
+neither the <span class="code">receive</span> block nor message send (<span class="code">!</span>)
+are built-in operations in Scala. Even though the
+<span class="code">receive</span> block may look and act very much like a built-in control construct,
+it is in fact a method defined in Akka's actors
+library.  Likewise, even though `<span class="code">!</span>' looks like a built-in operator,
+it too is just a method defined in the Akka actors library.  Both of
+these constructs are completely independent of the Scala programming language.</p>
+
+<p>The <span class="code">receive</span> block and send (<span class="code">!</span>) syntax look in Scala much like
+they look in Erlang, but in Erlang, these constructs are built into
+the language. Akka also implements most of Erlang's other concurrent
+programming constructs, such as monitoring failed actors and
+time-outs. All in all, the actor model has turned out to be a very pleasant
+means for expressing concurrent and distributed computations. 
+Even though they must be defined in a library, actors can feel like an integral part of the Scala language.</p>
+
+<p>This example illustrates that you can "grow" the Scala language in
+new directions even as specialized as concurrent programming. To be
+sure, you need good architects and programmers to do this. But the
+crucial thing is that it is feasible&mdash;you can design and implement
+abstractions in Scala that address radically new application domains,
+yet still feel like native language support when used.</p>
+
+<h3>1.2 What makes Scala scalable?</h3>
+
+
+<p>Scalability is influenced by many factors, ranging from syntax details<a id="i741587120-1"/><a id="i-885663216-1"/>
+to component abstraction constructs. If we were forced to name just
+one aspect of Scala that helps scalability, though, we'd pick its combination
+of object-oriented and functional programming (well, we cheated,
+that's really two aspects, but they are intertwined).</p>
+
+<p>Scala goes further than all other well-known languages in fusing
+object-oriented and functional programming into a uniform language
+design. For instance, where other languages might have objects and
+functions as two different concepts, in Scala a function value <span style="font-style:italic">
+  is</span> an object.  Function types are classes that can be inherited by
+subclasses. This might seem nothing more than an academic nicety, but
+it has deep consequences for scalability. In fact the actor concept
+shown previously could not have been implemented without this unification of
+functions and objects. 
+This section gives an overview of Scala's way of blending object-oriented
+and functional concepts.</p>
+
+<h4>Scala is object-oriented</h4>
+
+
+<p>Object-oriented programming has been immensely successful.  Starting<a id="i717865003-2"/>
+from Simula<a id="i1623537733-1"/> in the mid-60s and Smalltalk in the 70s, it is now
+available in more languages than not.
+In some domains, objects have
+taken over completely.  While there is not a precise definition of
+what object-oriented means, there is clearly something about objects
+that appeals to programmers.</p>
+
+<p>In principle, the motivation for object-oriented programming is very
+simple: all but the most trivial programs need some sort of
+structure. The most straightforward way to do this is to put data
+and operations into some form of containers.  The great idea of
+object-oriented programming is to make these containers fully general,
+so that they can contain operations as well as data, and that they
+are themselves values that can be stored in other containers, or
+passed as parameters to operations.  Such containers are called
+objects. Alan Kay,<a id="i438821039-1"/> the inventor of Smalltalk,<a id="i-817657147-1"/> remarked that in this
+way the simplest object has the same construction principle as a full
+computer: it combines data with operations under a formalized
+interface.<a href="a-scalable-language.html#footnotemain1-7">[7]</a>
+So objects have a lot to do with language scalability: the
+same techniques apply to the construction of small as well as large
+programs.</p>
+
+<p>Even though object-oriented programming has been mainstream for a long
+time, there are relatively few languages that have followed Smalltalk
+in pushing this construction principle to its logical conclusion.  For instance,
+many languages admit values that are not objects, such as the
+primitive values in Java. Or they allow static fields and methods that
+are not members of any object. These deviations from the pure idea of
+object-oriented programming look quite harmless at first, but they
+have an annoying tendency to complicate things and limit
+scalability.</p>
+
+<p>By contrast, Scala is an object-oriented language in pure form: every
+value is an object and every operation is a method call.  For example,
+when you say <span class="code">1</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">2</span> in Scala, you are actually invoking a method
+named <span class="code">+</span> defined in class <span class="code">Int</span>. You can define methods with operator-like names that
+clients of your API can then use in operator notation.  This is how
+the designer of Akka's actors<a id="i2042656-3"/><a id="i-1422944994-3"/> API enabled you to use expressions such
+as <span class="code">requester</span>&nbsp;<span class="code">!</span>&nbsp;<span class="code">sum</span> shown in the previous example: `<span class="code">!</span>' is a
+method of the <span class="code">Actor</span> class.</p>
+
+<p>Scala is more advanced than most other languages when it comes to
+composing objects. An example is Scala's <span class="textit"><a href="glossary.html#g110621198"><em>trait</em>s</a></span>.  Traits are
+like interfaces in Java, but they can also have method implementations
+and even fields.<a href="a-scalable-language.html#footnotemain1-8">[8]</a> Objects are constructed by <span style="font-style:italic">mixin composition</span>,
+which takes the members of a class and adds the members of a
+number of traits to them.
+In this way, different
+aspects of classes can be encapsulated in different traits. This looks
+a bit like multiple inheritance, but differs when it comes to the
+details. Unlike a class, a trait can add some new functionality to
+an unspecified superclass. This makes traits more "pluggable" than
+classes. In particular, it avoids the classical "diamond
+inheritance" problems of multiple inheritance, which arise when the
+same class is inherited via several different paths.</p>
+
+<h4>Scala is functional</h4>
+
+
+<p>In addition to being a pure object-oriented language, Scala is also a<a id="i1689782844-1"/>
+full-blown functional language. The ideas of functional programming
+are older than (electronic) computers. Their foundation was laid in
+Alonzo Church's<a id="i1963891034-1"/> lambda calculus,<a id="i878901123-1"/> which he developed in the 1930s. The
+first functional programming language was Lisp,<a id="i-503250946-2"/> which dates from the
+late 50s. Other popular functional languages are Scheme,<a id="i1475575635-1"/>
+SML,<a id="i-175084922-1"/> Erlang,<a id="i-1028679267-2"/>
+Haskell,<a id="i-1250113500-2"/> OCaml,<a id="i-1496851060-1"/> and
+F#.<a id="i724459531-1"/> For a long time, functional programming has been
+a bit on the sidelines&mdash;popular in academia, but not that widely used
+in industry. However, in recent years, there has been an increased interest in
+functional programming languages and techniques.</p>
+
+<p>Functional programming is guided by two main ideas.<a id="i-1849814556-1"/>  The first idea is
+that functions are first-class values.<a id="i-1098728772-1"/> In a functional language, a
+function is a value of the same status as, say, an integer or a
+string. You can pass functions as arguments to other functions, return
+them as results from functions, or store them in variables. You can
+also define a function inside another function, just as you can define
+an integer value inside a function.  And you can define functions
+without giving them a name, sprinkling your code with function
+literals as easily as you might write
+integer literals like <span class="code">42</span>.</p>
+
+<p>Functions that are first-class values provide a convenient means for
+abstracting over operations and creating new control structures.<a id="i14092899-1"/>  This
+generalization of functions provides great expressiveness, which often
+leads to very legible and concise programs. It also plays an important
+role for scalability.
+As an example, the ScalaTest<a id="i122343128-1"/> testing library offers an
+<span class="code">eventually</span><a id="i903380834-1"/> construct
+that takes a function as an argument. It is used like this:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;xs&nbsp;=&nbsp;<code class="literal">1</code>&nbsp;to&nbsp;<code class="literal">3</code>
+  <code class="vem">val</code>&nbsp;it&nbsp;=&nbsp;xs.iterator
+  eventually&nbsp;{&nbsp;it.next()&nbsp;shouldBe&nbsp;<code class="literal">3</code>&nbsp;}
+</pre>
+
+
+<p>The code inside <span class="code">eventually</span>&mdash;the assertion, <span class="code">it.next()</span>&nbsp;<span class="code">shouldBe</span>&nbsp;<span class="code">3</span>&mdash;is wrapped in a function
+that is passed unexecuted to the <span class="code">eventually</span> method. For a configured amount of time, <span class="code">eventually</span> will repeatedly execute the function
+until the assertion succeeds.</p>
+
+<p>In most traditional languages, by contrast, functions are not
+values. Languages that do have function values often
+relegate them to second-class status. For example, the function
+pointers of C<a id="i395906709-1"/> and C++<a id="i916374005-1"/> do not have the same status as non-functional
+values in those languages: Function pointers can only refer to global
+functions, they do not allow you to define first-class
+nested functions that refer to some values in their environment. Nor
+do they allow you to define unnamed function literals.</p>
+
+<p>The second main idea of functional programming is that the operations
+of a program should map input values to output values rather than
+change data in place.  To see the difference, consider the
+implementation of strings in Ruby<a id="i-1999895874-2"/> and Java.<a id="i2012001632-1"/>  In Ruby, a string is
+an array of characters.  Characters in a string can be changed
+individually. For instance you can change a semicolon character in a
+string to a period inside the same string object.  In Java
+and Scala, on the other hand, a string is a sequence of characters in
+the mathematical sense. Replacing a character in a string using
+an expression like <span class="code">s.replace(';',</span>&nbsp;<span class="code">'.')</span> yields a new string object,
+which is different from <span class="code">s</span>. Another way of expressing this is that
+strings are immutable<a id="i507699202-1"/> in Java whereas they are mutable in Ruby. So
+looking at just strings, Java is a functional language, whereas Ruby
+is not. Immutable data structures are one of the cornerstones of
+functional programming.  The Scala libraries define many more
+immutable data types on top of those found in the Java APIs. For
+instance, Scala has immutable lists, tuples, maps, and sets.</p>
+
+<p>Another way of stating this second idea of functional programming is
+that methods should not have any <span style="font-style:italic">side effects</span>.<a id="i18918201-1"/> They should
+communicate with their environment only by taking arguments and
+returning results. For instance, the <span class="code">replace</span> method in Java's
+<span class="code">String</span> class fits this description. It takes a string and two
+characters and yields a new string where all occurrences of one
+character are replaced by the other. There is no other effect of
+calling <span class="code">replace</span>. Methods like <span class="code">replace</span> are called
+<a href="glossary.html#g-1825668081"><em>referentially transparent</em></a>,<a id="i-1825668081-1"/> which means that for any given input the method call could
+be replaced by its result without affecting the program's semantics.</p>
+
+<p>Functional languages encourage immutable data structures and
+referentially transparent methods. Some functional languages even require them.
+Scala gives you a choice. When you want to, you can write in an <span style="font-style:italic">
+  imperative</span> style, which is what programming with mutable data and
+side effects is called.  But Scala generally makes it easy to avoid
+imperative constructs when you want because good functional alternatives
+exist.</p>
+
+<h3>1.3 Why Scala?</h3>
+
+
+<p>Is Scala for you? You will have to see and decide for yourself. We
+have found that there are actually many reasons besides scalability to
+like programming in Scala. Four of the most important aspects
+will be discussed in this section: compatibility, brevity,
+high-level abstractions, and advanced static typing.</p>
+
+<h4>Scala is compatible</h4>
+
+
+<p>Scala doesn't require you to leap backwards off the Java platform to<a id="i239541118-2"/><a id="i1128780868-1"/><a id="i1003002536-2"/>
+step forward from the Java language. It allows you to add value to
+existing code&mdash;to build on what you already have&mdash;because it was
+designed for seamless interoperability with Java.<a href="a-scalable-language.html#footnotemain1-9">[9]</a>  Scala programs compile to
+JVM bytecodes.  Their run-time performance is usually on par with<a id="i1751980831-1"/>
+Java programs.  Scala code can call Java methods, access Java fields,
+inherit from Java classes, and implement Java interfaces. None of this
+requires special syntax, explicit interface descriptions, or glue
+code.  In fact, almost all Scala code makes heavy use of Java
+libraries, often without programmers being aware of this fact.</p>
+
+<p>Another aspect of full interoperability is that Scala heavily re-uses
+Java types.  Scala's <span class="code">Int</span>s are represented as Java primitive
+integers of type <span class="code">int</span>, <span class="code">Float</span>s are represented as <span class="code">float</span>s,
+<span class="code">Boolean</span>s as <span class="code">boolean</span>s, and so on.  Scala arrays are mapped to
+Java arrays. Scala also re-uses many of the standard Java library
+types. For instance, the type of a string literal <span class="code">"abc"</span> in Scala is
+<span class="code">java.lang.String</span>, and a thrown exception must be a subclass of
+<span class="code">java.lang.Throwable</span>.</p>
+
+<p>Scala not only re-uses Java's types, but also "dresses them up" to
+make them nicer.  For instance, Scala's strings support methods like
+<span class="code">toInt</span> or <span class="code">toFloat</span>, which convert the string to an integer or<a id="i2133819883-1"/>
+floating-point number.  So you can write <span class="code">str.toInt</span> instead of <span class="code">Integer.parseInt(str)</span>. How can this be achieved
+without breaking interoperability? Java's <span class="code">String</span> class certainly
+has no <span class="code">toInt</span> method! In fact, Scala has a very general solution to
+solve this tension between advanced library design and
+interoperability. Scala lets you define <span style="font-style:italic">implicit conversions</span>,<a id="i456777265-1"/><a id="i-1068906551-1"/>
+which are always applied when types would not normally match up, or
+when non-existing members are selected. In the case above, when
+looking for a <span class="code">toInt</span> method on a string, the Scala compiler will
+find no such member of class <span class="code">String</span>, but it will find an implicit
+conversion that converts a Java <span class="code">String</span> to an instance of the Scala
+class <span class="code">StringOps</span>, which does define such a member. The conversion
+will then be applied implicitly before performing the <span class="code">toInt</span>
+operation.</p>
+
+<p>Scala code can also be invoked from Java code.  This is sometimes a
+bit more subtle, because Scala is a richer language than Java, so some
+of Scala's more advanced features need to be encoded before they can
+be mapped to Java. <a href="combining-scala-and-java.html">Chapter 31</a> explains the details.</p>
+
+<h4>Scala is concise</h4>
+
+
+<p>Scala programs tend to be short. Scala programmers have reported<a id="i-486479055-1"/><a id="i-1605476771-1"/>
+reductions in number of lines of up to a factor of ten compared to
+Java. These might be extreme cases. A more conservative estimate would
+be that a typical Scala program should have about half the number of
+lines of the same program written in Java. Fewer lines of code mean
+not only less typing, but also less effort at reading and
+understanding programs and fewer possibilities of defects.  There are
+several factors that contribute to this reduction in lines of code.</p>
+
+<p>First, Scala's syntax avoids some of the boilerplate that burdens Java
+programs. For instance, semicolons are optional in Scala and are
+usually left out. There are also several other areas where Scala's syntax
+is less noisy. As an example, compare how you write classes
+and constructors in Java and Scala.
+In Java, a class with a constructor often looks like this:</p>
+
+<pre>
+  //&nbsp;this&nbsp;is&nbsp;Java
+  class&nbsp;MyClass&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;int&nbsp;index;
+  &nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;String&nbsp;name;
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;MyClass(int&nbsp;index,&nbsp;String&nbsp;name)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.index&nbsp;=&nbsp;index;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>In Scala, you would likely write this instead:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">MyClass</code>(index:&nbsp;<code class="typename">Int</code>,&nbsp;name:&nbsp;<code class="typename">String</code>)
+</pre>
+
+
+<p>Given this code, the Scala compiler will produce a class that has two
+private instance variables, an <span class="code">Int</span> named <span class="code">index</span> and a <span class="code">String</span>
+named <span class="code">name</span>, and a constructor that takes initial values for those
+variables as parameters. The code of this constructor will initialize
+the two instance variables with the values passed as parameters.  In
+short, you get essentially the same functionality as the more verbose
+Java version.<a href="a-scalable-language.html#footnotemain1-10">[10]</a>
+ The Scala class is quicker to write, easier
+to read, and most importantly, less error prone than the Java
+class.</p>
+
+<p>Scala's type inference is another factor that contributes to its
+conciseness. Repetitive type information can be left out, so programs
+become less cluttered and more readable.</p>
+
+<p>But probably the most important key to compact code is code you don't
+have to write because it is done in a library for you.  Scala gives
+you many tools to define powerful libraries that let you capture and
+factor out common behavior. For instance, different aspects of library
+classes can be separated out into traits, which can then be mixed
+together in flexible ways. Or, library methods can be parameterized
+with operations, which lets you define constructs that are, in effect, your own control
+structures. Together, these constructs allow the definition of
+libraries that are both high-level and flexible to use.</p>
+
+<h4>Scala is high-level</h4>
+
+
+<p><a id="subsec-scala-is-high-level"/></p>
+
+<p>Programmers are constantly grappling with
+complexity.<a id="i1993414356-1"/>  To program
+productively, you must understand the code on which you are working.
+Overly complex code has been the downfall of many a software project.
+Unfortunately, important software usually has complex requirements.
+Such complexity can't be avoided; it must instead be managed.</p>
+
+<p>Scala helps you manage complexity by letting you raise
+the level of abstraction in the interfaces you design and use.  As an
+example, imagine you have a <span class="code">String</span> variable <span class="code">name</span>, and you want
+to find out whether or not that <span class="code">String</span> contains an upper case
+character. Prior to Java 8, you might have written a loop, like this:</p>
+
+<pre>
+  boolean&nbsp;nameHasUpperCase&nbsp;=&nbsp;false;&nbsp;&nbsp;//&nbsp;this&nbsp;is&nbsp;Java
+  for&nbsp;(int&nbsp;i&nbsp;=&nbsp;0;&nbsp;i&nbsp;&lt;&nbsp;name.length();&nbsp;++i)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(Character.isUpperCase(name.charAt(i)))&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nameHasUpperCase&nbsp;=&nbsp;true;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;break;
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>Whereas in Scala, you could write this:<a id="i-1394554846-1"/></p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;nameHasUpperCase&nbsp;=&nbsp;name.exists(_.isUpper)&nbsp;
+</pre>
+
+
+<p>The Java code treats strings as low-level entities that are stepped
+through character by character in a loop. The Scala code treats the same strings
+as higher-level sequences of characters that can be queried with <a href="glossary.html#g-1348032073"><em>predicates</em></a>.<a id="i1160678812-1"/><a id="i-468400421-1"/>
+Clearly the Scala code is much shorter and&mdash;for trained eyes&mdash;easier
+to understand than the Java code. So the Scala code weighs less heavily
+on the total complexity budget. It also gives you less opportunity to
+make mistakes.</p>
+
+<p>The predicate <span class="code">_.isUpper</span> is an example of a function literal in Scala.<a href="a-scalable-language.html#footnotemain1-11">[11]</a>
+It describes a function that takes a character argument (represented
+by the underscore character) and tests whether it is an upper case
+letter.<a href="a-scalable-language.html#footnotemain1-12">[12]</a></p>
+
+<p>Java 8 introduced support for <span class="textit">lambdas</span> and <span class="textit">streams</span>, which enable you
+to perform a similar operation in Java. Here's what it might look like:</p>
+
+<pre>
+  boolean&nbsp;nameHasUpperCase&nbsp;=&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;This&nbsp;is&nbsp;Java&nbsp;8</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;name.chars().anyMatch(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(int&nbsp;ch)&nbsp;-&gt;&nbsp;Character.isUpperCase((char)&nbsp;ch)
+  &nbsp;&nbsp;&nbsp;&nbsp;);
+</pre>
+
+
+<p>Although a great improvement over earlier versions of Java, the Java 8 code is
+still more verbose than the equivalent Scala code.
+This extra "heaviness" of Java code, as well as Java's long tradition of loops, may encourage many 
+Java programmers in need of new methods like <span class="code">exists</span> to just write out
+loops and live with the increased complexity in their code.</p>
+
+<p>On the other hand, function literals 
+in Scala are really lightweight, so they are used frequently.
+As you get
+to know Scala better you'll find more and more opportunities to define
+and use your own control abstractions.  You'll find that this helps
+avoid code duplication and thus keeps your programs shorter and
+clearer.<a id="i-1950695486-1"/></p>
+
+<p>Scala's functional programming style also offers high-level <span style="font-style:italic">
+  reasoning principles</span> for programming. The key idea is that functions
+are referentially transparent&mdash;a function application is
+characterized only by its result. You can, therefore, freely exchange
+a function application with the function's right hand side (<i>i.e.</i>, its
+body, which follows the equals sign) without worrying about any hidden
+side effects.  This principle gives many useful laws that you can
+employ to better understand or to refactor your code. As an example,
+take once more the <span class="code">exists</span> method described above. This method
+should satisfy the following law: for every sequence <span class="code">s</span> and for
+every pair of predicates <span class="code">p</span> and <span class="code">q</span> it should hold that</p>
+
+<pre>
+  s.exists(p)&nbsp;||&nbsp;s.exists(q)&nbsp;==&nbsp;s.exists(x&nbsp;=&gt;&nbsp;p(x)&nbsp;||&nbsp;q(x))&nbsp;
+</pre>
+
+
+<p>That is,
+querying the same sequence with two predicates <span class="code">p</span> and <span class="code">q</span> and
+or-ing the results is the same as querying with a single predicate
+that tests at the same time for <span class="code">p</span> or for <span class="code">q</span>.  A law like this is
+clearly useful for writing and refactoring programs. However, if
+<span class="code">exists</span> had side effects, it would in general not be correct to
+assume such a law because the left hand side executes <span class="code">exists</span> twice
+for each sequence element whereas the right hand side executes it only
+once per element.  So this is an example where purely functional code
+leads to more laws that are useful for understanding and refactoring
+your code.</p>
+
+<p>The functional programming style also eliminates aliasing problems
+encountered in imperative programming.  Aliasing happens when multiple
+variables refer to the same object. It gives rise to some thorny
+questions and complications.  For instance, does changing a field
+<span class="code">r.x</span> also affect <span class="code">s.x</span>? It does if <span class="code">r</span> and <span class="code">s</span> refer to the same
+object. In practice it is often very difficult to trace such
+aliases. Immutable data, on the other hand, can be shared freely,
+because a copy is indistinguishable from a shared reference.  This
+advantage is particularly crucial when writing concurrent code. (This
+is why Java has immutable strings.)</p>
+
+<h4>Scala is statically typed</h4>
+
+
+<p>A static type system classifies variables and expressions according to<a id="i587655017-1"/><a id="i1417392593-1"/>
+the kinds of values they hold and compute.  Scala stands out as a
+language with a very advanced static type system.  Starting from a system
+of nested class types much like Java's, it allows you to parameterize
+types with <span style="font-style:italic">generics</span>, to combine types using <span style="font-style:italic">intersections</span>,
+and to hide details of types using <span style="font-style:italic">abstract types</span>.<a href="a-scalable-language.html#footnotemain1-13">[13]</a>  These give a
+strong foundation for building and composing your own types, so that
+you can design interfaces that are at the same time safe and flexible to use.</p>
+
+<p>If you like dynamic languages, such as Perl, Python, Ruby, or Groovy,<a id="i716433724-1"/><a id="i2012339474-1"/>
+you might find it a bit strange that Scala's static type system is
+listed as one of its strong points. After all, the absence of a static
+type system has been cited by some as a major advantage of dynamic
+languages. The most common arguments against static types are
+that they make programs too verbose, prevent programmers
+from expressing themselves as they wish, and make impossible certain
+patterns of dynamic modifications of software systems. However, often
+these arguments do not go against the idea of static types in
+general, but against specific type systems, which are perceived to be
+too verbose or too inflexible. For instance, Alan Kay, the inventor of
+the Smalltalk language, once remarked: "I'm not against types, but I
+don't know of any type systems that aren't a complete pain, so I still
+like dynamic typing."<a href="a-scalable-language.html#footnotemain1-14">[14]</a></p>
+
+<p>We hope to convince you in this book that Scala's type system is
+far from being a "complete pain." In fact, it addresses nicely two
+of the usual concerns about static typing: Verbosity is avoided
+through type inference, and flexibility is gained through pattern
+matching and several new ways to write and compose types. With these
+impediments out of the way, the classical benefits of static type
+systems can be better appreciated. Among the most important of these
+benefits are verifiable properties of program abstractions, safe
+refactorings, and better documentation.</p>
+
+<p><b><span style="font-style:italic">Verifiable properties.</span></b>  
+Static type systems can prove
+the absence<a id="i-1604465616-1"/><a id="i-1721532539-1"/>
+of certain run-time errors. For instance, they can prove properties
+like: Booleans are never added to integers; private variables are not
+accessed from outside their class; functions are applied to the right
+number of arguments; only strings are ever added to a set of strings.</p>
+
+<p>Other kinds of errors are not detected by today's static type systems.
+For instance, they will usually not detect
+non-terminating functions, array bounds violations, or divisions by zero. They will also not
+detect that your program does not conform to its specification
+(assuming there is a spec, that is!). Static type systems have
+therefore been dismissed by some as not being very useful. The
+argument goes that since such type systems can only detect simple
+errors, whereas unit tests provide more extensive coverage, why bother
+with static types at all? We believe that these arguments miss the
+point.  Although a static type system certainly cannot <em>replace</em> unit testing,
+it can reduce the number of unit tests needed
+by taking care of some properties that would otherwise need to be
+tested. Likewise, unit testing cannot replace static typing.
+After all, as Edsger Dijkstra said,<a id="i-765987414-1"/> testing can only prove the
+presence of errors, never their absence.<a href="a-scalable-language.html#footnotemain1-15">[15]</a>
+So the guarantees that static
+typing gives may be simple, but they are real guarantees of a form
+no amount of testing can deliver.</p>
+
+<p><b><span style="font-style:italic">Safe refactorings.</span></b> A static type system provides a safety<a id="i1149458246-1"/>
+net that lets you make changes to a codebase with a high degree of
+confidence. Consider for instance a refactoring that adds an
+additional parameter to a method. In a statically typed language you
+can do the change, re-compile your system, and simply fix all lines
+that cause a type error. Once you have finished with this, you are
+sure to have found all places that need to be changed. 
+The same holds for many
+other simple refactorings, like changing a method name or moving
+methods from one class to another. In all cases a static type check
+will provide enough assurance that the new system works just like the
+old.</p>
+
+<p><b><span style="font-style:italic">Documentation.</span></b> Static types are program documentation
+that is checked by the compiler for correctness. Unlike a normal
+comment, a type annotation<a id="i-2107785776-2"/><a id="i1449766718-2"/> can never be out of date (at least not if
+the source file that contains it has recently passed a
+compiler). Furthermore, compilers and integrated development
+environments (IDEs) can make use of type annotations to provide better
+context help. For instance, an IDE can
+display all the members available for a selection by determining the
+static type of the expression on which the selection is made and
+looking up all members of that type.</p>
+
+<p>Even though static types are generally useful for program
+documentation, they can sometimes be annoying when they clutter the
+program.  Typically, useful documentation is what readers of a program
+cannot easily derive by themselves. In a method definition like:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;f(x:&nbsp;<code class="typename">String</code>)&nbsp;=&nbsp;...&nbsp;&nbsp;
+</pre>
+
+
+<p>it's useful to know that  <span class="code">f</span>'s 
+argument should be a <span class="code">String</span>.  On the other
+hand, at least one of the two annotations in the following example is
+annoying:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;x:&nbsp;<code class="typename">HashMap[Int,&nbsp;String]</code>&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">HashMap[Int,&nbsp;String]</code>()
+</pre>
+
+
+<p>Clearly, it should be enough to say just once that <span class="code">x</span> is a
+<span class="code">HashMap</span> with <span class="code">Int</span>s as keys and <span class="code">String</span>s as values; there's no
+need to repeat the same phrase twice.</p>
+
+<p>Scala has a very sophisticated type inference system that lets you omit almost all<a id="i-219390285-1"/><a id="i-24732165-1"/>
+type information that's usually considered annoying. In
+the previous example, the following two less annoying alternatives would work just as well:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;x&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">HashMap[Int,&nbsp;String]</code>()
+  <code class="vem">val</code>&nbsp;x:&nbsp;<code class="typename">Map[Int,&nbsp;String]</code>&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">HashMap</code>()&nbsp;
+</pre>
+
+
+<p>Type inference in Scala can go quite far. In fact, it's not uncommon
+for user code to have no explicit types at all. Therefore, Scala
+programs often look a bit like programs written in a dynamically typed<a id="i716433724-2"/><a id="i2012339474-2"/>
+scripting language. This holds particularly for client application
+code, which glues together pre-written library components. It's less
+true for the library components themselves, because these often employ
+fairly sophisticated types to allow flexible usage patterns.  
+This is only natural.  After
+all, the type signatures of the members that make up the interface of
+a reusable component should be explicitly given, because they
+constitute an essential part of the contract between the component and
+its clients.</p>
+
+<h3>1.4 Scala's roots</h3>
+
+
+<p>Scala's design has been influenced by many programming languages and<a id="i-1148185415-1"/>
+ideas in programming language research. In fact, only a few features
+of Scala are genuinely new; most have been already applied in some form
+in other languages. Scala's innovations come primarily from how
+its constructs are put together.  
+In this section, we list the main
+influences on Scala's design. The list cannot be exhaustive&mdash;there
+are simply too many smart ideas around in programming language design
+to enumerate them all here.</p>
+
+<p>At the surface level, Scala adopts a large part of the syntax of Java
+and C#, which in turn borrowed most of their syntactic conventions
+from C and C++.  Expressions, statements, and blocks are mostly as in
+Java, as is the syntax of classes, packages and imports.<a href="a-scalable-language.html#footnotemain1-16">[16]</a>  Besides syntax, Scala adopts other
+elements of Java, such as its basic types, its class libraries, and
+its execution model.</p>
+
+<p>Scala also owes much to other languages. Its uniform object model was
+pioneered by Smalltalk and taken up subsequently by Ruby. Its idea of
+universal nesting (almost every construct in Scala can be nested
+inside any other construct) is also present in Algol, Simula, and,
+more recently, in Beta and gbeta. Its uniform access principle for
+method invocation and field selection comes from Eiffel. Its approach
+to functional programming is quite similar in spirit to the ML family
+of languages, which has SML, OCaml, and F# as prominent members. Many
+higher-order functions in Scala's standard library are also present in
+ML or Haskell. Scala's implicit parameters were motivated by Haskell's
+type classes; they achieve analogous results in a more classical
+object-oriented setting. Scala's main actor-based concurrency library, Akka, was
+heavily inspired by Erlang.</p>
+
+<p>Scala is not the first language to emphasize scalability and
+extensibility.  The historic root of extensible languages that can
+span different application areas is Peter Landin's 1966 paper,<a id="i-440292728-1"/> "The Next 700
+Programming Languages."<a href="a-scalable-language.html#footnotemain1-17">[17]</a> (The language described in this paper, Iswim,
+stands beside Lisp as one of the pioneering functional languages.)  The
+specific idea of treating an infix operator as a function can be
+traced back to Iswim and Smalltalk.  Another important idea is to
+permit a function literal (or block) as a parameter, which enables libraries to
+define control structures.  Again, this goes back to Iswim and
+Smalltalk.  Smalltalk and Lisp both have a flexible 
+syntax that has been applied extensively for building
+internal domain-specific languages.<a id="i-837225081-1"/>  C++ is another scalable language
+that can be adapted and extended through operator overloading and its
+template system; compared to Scala it is built on a lower-level, more
+systems-oriented core.
+Scala is also not the first language to integrate functional and
+object-oriented programming, although it probably goes furthest in
+this direction. Other languages that have integrated some elements of
+functional programming into object-oriented programming (OOP) include Ruby, Smalltalk, and
+Python. On the Java platform, Pizza,<a id="i-1058604016-1"/> Nice,<a id="i-241957733-1"/> Multi-Java<a id="i-1250478654-1"/>&mdash;and Java 8 itself&mdash;have all
+extended a Java-like core with functional ideas. There are also
+primarily functional languages that have acquired an object system;
+examples are OCaml, F#, and PLT-Scheme.<a id="i-1496851060-2"/><a id="i724459531-2"/><a id="i383911262-1"/></p>
+
+<p>Scala has also contributed some innovations to the field of
+programming languages.  For instance, its abstract types provide a
+more object-oriented alternative to generic types, its traits allow
+for flexible component assembly, and its extractors provide a
+representation-independent way to do pattern matching. These
+innovations have been presented in papers at programming language
+conferences in recent years.<a href="a-scalable-language.html#footnotemain1-18">[18]</a></p>
+
+<h3>1.5 Conclusion</h3>
+
+
+<p>In this chapter, we gave you a glimpse of what Scala is and how it
+might help you in your programming.  To be sure, Scala is not a silver
+bullet that will magically make you more productive. To advance, you
+will need to apply Scala artfully, and that will require some learning
+and practice.  If you're coming to Scala from Java, the most
+challenging aspects of learning Scala may involve Scala's type system
+(which is richer than Java's) and its support for functional
+programming. The goal of this book is to guide you gently up Scala's
+learning curve, one step at a time. We think you'll find it a
+rewarding intellectual experience that will expand your horizons and
+make you think differently about program design.  Hopefully, you will
+also gain pleasure and inspiration from programming in Scala.</p>
+
+<p>In the next chapter, we'll get you started writing some Scala code.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 1:</h4>
+
+
+<p><a id="footnotemain1-1"/>[1] Scala is pronounced <em>skah-lah</em>.<a id="i-269622320-1"/><a id="i341209608-1"/></p>
+
+<p><a id="footnotemain1-2"/>[2] Please bear with
+us if you don't understand all the details of this program. They will be
+explained in the next two chapters.</p>
+
+<p><a id="footnotemain1-3"/>[3] Raymond, <em>The Cathedral
+and the Bazaar</em>.  <a href="bibliography.html#raymond-cathedral">[Ray99]</a></p>
+
+<p><a id="footnotemain1-4"/>[4] Steele,
+"Growing a language."  <a href="bibliography.html#steele-growing">[Ste99]</a><a id="i-1799668152-1"/></p>
+
+<p><a id="footnotemain1-5"/>[5] <span class="code">factorial(x)</span>, or <span class="code">x!</span>&nbsp;in mathematical notation, is the result of computing <span class="code">1</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">2</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">...</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">x</span>, with <span class="code">0!</span> defined to be <span class="code">1</span>.</p>
+
+<p><a id="footnotemain1-6"/>[6] Scala comes with a standard library, some of which
+will be covered in this book. For more information, you can also
+consult the library's Scaladoc documentation, which is available 
+in the distribution and online at <span class="code">http://www.scala-lang.org</span>.</p>
+
+<p><a id="footnotemain1-7"/>[7] Kay, "The Early History of Smalltalk."  <a href="bibliography.html#kay-early">[Kay96]</a></p>
+
+<p><a id="footnotemain1-8"/>[8] Starting with Java 8, interfaces can have default method
+implementations, but these do not offer all the features of Scala's traits.</p>
+
+<p><a id="footnotemain1-9"/>[9] Originally, there was
+an implementation of Scala that ran on the .NET platform, but it is no longer active.<a id="i77181-1"/> More recently,
+an implementation of Scala that runs on JavaScript, Scala.js,<a id="i-827373807-1"/> has become increasingly popular.</p>
+
+<p><a id="footnotemain1-10"/>[10] The only real difference is that the instance
+  variables produced in the Scala case will be final. You'll learn how
+  to make them non-final in <a href="composition-and-inheritance.html#sec-parametric-fields">Section 10.6</a>.</p>
+
+<p><a id="footnotemain1-11"/>[11] A function literal
+can be called a <em>predicate</em> if its result type is <span class="code">Boolean</span>.</p>
+
+<p><a id="footnotemain1-12"/>[12] This use of the underscore as a placeholder for arguments
+is described in <a href="functions-and-closures.html#sec-placeholder-syntax">Section 8.5</a>.</p>
+
+<p><a id="footnotemain1-13"/>[13] Generics
+are discussed in <a href="type-parameterization.html">Chapter 19</a>; intersections (<i>e.g.</i>, <span class="code">A</span>&nbsp;<span class="code">with</span>&nbsp;<span class="code">B</span>&nbsp;<span class="code">with</span>&nbsp;<span class="code">C</span>) in <a href="traits.html">Chapter 12</a>; and abstract types
+in <a href="abstract-members.html">Chapter 20</a>.</p>
+
+<p><a id="footnotemain1-14"/>[14] Kay, in an email on the meaning of
+object-oriented programming.  <a href="bibliography.html#kay-dynamic">[Kay03]</a></p>
+
+<p><a id="footnotemain1-15"/>[15] Dijkstra, "Notes on Structured Programming."  <a href="bibliography.html#dijkstra-notes">[Dij70]</a></p>
+
+<p><a id="footnotemain1-16"/>[16]  The
+major deviation from Java concerns the syntax for type annotations: it's
+"<span class="code">variable:</span>&nbsp;<span class="code">Type</span>" instead of "<span class="code">Type</span>&nbsp;<span class="code">variable</span>" in
+Java.  Scala's postfix type syntax resembles Pascal, Modula-2, or
+Eiffel.<a id="i-357661779-1"/> The main reason for this deviation has to do with type
+inference, which often lets you omit the type of a variable or the
+return type of a method.  Using the "<span class="code">variable:</span>&nbsp;<span class="code">Type</span>" syntax
+is easy&mdash;just leave out the colon and the type.  But in C-style
+"<span class="code">Type</span>&nbsp;<span class="code">variable</span>" syntax you cannot simply leave off the type; there
+would be no marker to start the definition anymore. You'd need
+some alternative keyword to be a placeholder for a missing type (C#
+3.0, which does some type inference, uses <span class="code">var</span> for this
+purpose). Such an alternative keyword feels more ad-hoc and less
+regular than Scala's approach.</p>
+
+<p><a id="footnotemain1-17"/>[17] Landin, "The Next 700 Programming Languages."  <a href="bibliography.html#landin-next">[Lan66]</a></p>
+
+<p><a id="footnotemain1-18"/>[18] For more information, see  <a href="bibliography.html#odersky-et-al-ecoop03">[Ode03]</a>,  <a href="bibliography.html#odersky-sca">[Ode05]</a>, and  <a href="bibliography.html#scala-ecoop07">[Emi07]</a> in the bibliography.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

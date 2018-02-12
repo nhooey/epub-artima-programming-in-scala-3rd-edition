@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-annotations">Chapter 27</a></h2>
+<h1>Annotations</h1>
+
+
+<p>Annotations are structured information added to program source code.
+Like comments, they can be sprinkled throughout a program
+and attached to any variable, method, expression, or other
+program element.  Unlike comments, they have structure, thus making
+them easier to machine process.</p>
+
+<p>This chapter shows how to use annotations in Scala.  It shows their general
+syntax and how to use several
+standard annotations.</p>
+
+<p>This chapter does not show how to write new annotation processing
+tools, because it is beyond the scope of this book.
+<a href="combining-scala-and-java.html">Chapter 31</a> shows one technique,
+but not the only one.
+Instead, this chapter focuses on how to use annotations, because it is more
+common to use annotations than to define new annotation processors.</p>
+
+<h3>27.1 Why have annotations?</h3>
+
+
+<p>There are many things you can do with a program other than compiling and
+running it.  Some examples are:</p>
+
+<ol>
+
+
+<li>Automatic generation of documentation as with
+Scaladoc<a id="i-827321774-1"/>.
+
+
+</li>
+<li>Pretty printing code so that it matches your preferred style.
+
+
+</li>
+<li>Checking code for common errors such as opening a file but,
+      on some control paths, never closing it.
+
+
+</li>
+<li>Experimental type checking, for example to manage
+      side effects or ensure ownership properties.
+
+
+</li></ol>
+
+
+<p>Such tools are called <a href="glossary.html#g-850220783"><em>meta-programming</em></a> tools, because they are
+programs that take other programs as
+input.<a id="i-850220783-1"/><a id="i544128342-1"/>
+Annotations support these tools by letting the programmer sprinkle
+directives to the tool throughout their source code.  Such directives
+let the tools be more effective than if they could have no user input.
+For example, annotations
+can improve the previously listed tools as follows:</p>
+
+<ol>
+
+
+<li>A documentation generator could be instructed to document
+      certain methods as deprecated.
+
+
+</li>
+<li>A pretty printer could be instructed to skip over parts
+      of the program that have been carefully hand formatted.
+
+
+</li>
+<li>A checker for non-closed files could be instructed to ignore
+      a particular file that has been manually verified to be
+      closed.
+
+
+</li>
+<li>A side-effects checker could be instructed to verify
+      that a specified method has no side effects.
+
+
+</li></ol>
+
+
+<p>In all of these cases, it would in theory be possible for the
+programming language to provide ways to insert the extra information.
+In fact, most of these are directly supported in some language or
+another.  However, there are too many such tools for one language to
+directly support them all.  Further, all of this information is
+completely ignored by the compiler, which after all just wants to make
+the code run.</p>
+
+<p>Scala's philosophy in cases like this is to include the minimum,
+orthogonal support in the core language such that a wide variety of
+meta-programming tools can be written.  In this case, that minimum
+support is a system of annotations.  The compiler understands just one
+feature, annotations, but it doesn't attach any meaning to individual
+annotations.  Each meta-programming tool can then define and use its
+own specific annotations.</p>
+
+<h3>27.2 Syntax of annotations</h3>
+
+
+<p>A typical use of an annotation looks like this:<a id="i526469630-1"/></p>
+
+<pre>
+  @deprecated&nbsp;<code class="vem">def</code>&nbsp;bigMistake()&nbsp;=&nbsp;<code class="comment">//...</code>
+</pre>
+
+
+<p>The annotation<a id="i-1632344653-1"/><a id="i86494153-1"/> is the <span class="code">@deprecated</span> part, and it applies to the
+entirety of the <span class="code">bigMistake</span> method (not shown&mdash;it's too
+embarrassing).  In this case, the method is being marked as something
+the author of <span class="code">bigMistake</span> wishes you not to use.  Maybe
+<span class="code">bigMistake</span> will be removed entirely from a future version of the
+code.</p>
+
+<p>In the previous example, a method is annotated as
+<span class="code">@deprecated</span>.  Annotations are allowed in other places too.
+Annotations are allowed on any kind of
+declaration or definition, including <span class="code">val</span>s, <span class="code">var</span>s, <span class="code">def</span>s,
+<span class="code">class</span>es, <span class="code">object</span>s, <span class="code">trait</span>s, and
+<span class="code">type</span>s.<a id="i1935725073-1"/><a id="i175307031-1"/><a id="i1767118133-1"/><a id="i1177206493-1"/><a id="i911241519-1"/><a id="i-1756036738-1"/>  The annotation
+applies to the entirety of the declaration or definition that follows
+it:</p>
+
+<pre>
+  @deprecated&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">QuickAndDirty</code>&nbsp;{
+  &nbsp;&nbsp;<code class="comment">//...</code>
+  }
+</pre>
+
+
+<p>Annotations can also be applied to an expression<a id="i726662607-1"/>, as with the
+<span class="code">@unchecked</span> annotation<a id="i-2035290207-3"/><a id="i-815574504-3"/> for pattern matching
+(see <a href="case-classes-and-pattern-matching.html">Chapter 15</a>).
+To do so, place a colon (<span class="code">:</span>) after the expression
+and then write the annotation.  Syntactically, it looks like
+the annotation is being used as a type:</p>
+
+<pre>
+  (e:&nbsp;@unchecked)&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;<code class="comment">//&nbsp;non-exhaustive&nbsp;cases...</code>
+  }
+</pre>
+
+
+<p>Finally, annotations can be placed on types.  Annotated types
+are described later in this chapter.</p>
+
+<p>So far the annotations shown have been simply an at sign followed
+by an annotation class.  Such simple annotations are common and
+useful, but annotations have a richer general form:<a id="i2008427102-1"/></p>
+
+<div style="text-align: center">
+
+
+<p><span class="code">@</span><em>annot</em>(<em>exp</em><sub>1</sub>, <em>exp</em><sub>2</sub>, ...)</p>
+
+</div>
+
+
+<p>The <em>annot</em> specifies the class of annotation.  
+All annotations must include that much.
+The <em>exp</em><a id="i-1204896229-1"/>
+parts are arguments to the annotation.  For annotations like
+<span class="code">@deprecated</span> that do not need any arguments, you would normally
+leave off the parentheses, but you can write <span class="code">@deprecated()</span> if
+you like.  For annotations that do have arguments, place the arguments
+in parentheses, for example, <span class="code">@serial(1234)</span>.</p>
+
+<p>The precise form of the arguments you may give to an annotation depends
+on the particular annotation class.  Most annotation processors only
+let you supply immediate constants such as <span class="code">123</span> or <span class="code">"hello"</span>.  The
+compiler itself supports arbitrary expressions, however, so long as
+they type check.  Some annotation classes can make use of this, for
+example, to let you refer to other variables that are in scope:</p>
+
+<pre>
+  @cool&nbsp;<code class="vem">val</code>&nbsp;normal&nbsp;=&nbsp;<code class="quotedstring">"Hello"</code>
+  @coolerThan(normal)&nbsp;<code class="vem">val</code>&nbsp;fonzy&nbsp;=&nbsp;<code class="quotedstring">"Heeyyy"</code>
+</pre>
+
+
+<p>Internally, Scala represents an annotation as just a constructor call
+of an annotation class&mdash;replace the `<span class="code">@</span>' by `<span class="code">new</span>' and you
+have a valid instance creation expression. This means that named and
+default annotation arguments are supported naturally, because Scala
+already has named and default arguments for method and constructor<a id="i463927682-1"/>
+calls. One slightly tricky bit concerns annotations that conceptually 
+take other annotations as arguments, which are required by some frameworks.<a id="i1452294669-1"/><a id="i1513606523-1"/>
+You cannot write an annotation directly as an argument to an annotation, 
+because annotations are not valid expressions. 
+In such cases you must use `<span class="code">new</span>' instead of `<span class="code">@</span>', as illustrated here:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">import</code>&nbsp;annotation._
+  <code class="output">import&nbsp;annotation._</code>
+  <br />  scala&gt;&nbsp;<code class="vem">class</code>&nbsp;strategy(arg:&nbsp;<code class="typename">Annotation</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Annotation</code>
+  <code class="output">defined&nbsp;class&nbsp;strategy</code>
+  <br />  scala&gt;&nbsp;<code class="vem">class</code>&nbsp;delayed&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Annotation</code>
+  <code class="output">defined&nbsp;class&nbsp;delayed</code>
+  <br />  scala&gt;&nbsp;@strategy(@delayed)&nbsp;<code class="vem">def</code>&nbsp;f()&nbsp;=&nbsp;{}&nbsp;
+  <code class="output">&lt;console&gt;:1:&nbsp;error:&nbsp;illegal&nbsp;start&nbsp;of&nbsp;simple&nbsp;expression</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;@strategy(@delayed)&nbsp;def&nbsp;f()&nbsp;=&nbsp;{}</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+  scala&gt;&nbsp;@strategy(<code class="vem">new</code>&nbsp;delayed)&nbsp;<code class="vem">def</code>&nbsp;f()&nbsp;=&nbsp;{}
+  <code class="output">f:&nbsp;()Unit</code>
+</pre>
+
+
+<h3>27.3 Standard annotations</h3>
+
+
+<p>Scala includes several standard annotations.<a id="i-178318765-1"/>  They are for features
+that are used widely enough to merit putting in the language
+specification, but that are not fundamental enough to merit their own
+syntax.  Over time, there should be a trickle of new annotations that
+are added to the standard in just the same way.</p>
+
+<h4>Deprecation</h4>
+
+
+<p>Sometimes you write a class or method that you later wish you had not.<a id="i86494153-2"/>
+Once it is available, though, code written by other people might call
+the method.  Thus, you cannot simply delete the method,
+because this would cause other people's code to stop compiling.</p>
+
+<p>Deprecation lets you gracefully remove a method or class that turns
+out to be a mistake.  You mark the method or class as deprecated, and
+then anyone who calls that method or class will get a deprecation
+warning.  They had better heed this warning and update their code!
+The idea is that after a suitable amount of time has passed, you feel
+safe in assuming that all reasonable clients will have stopped
+accessing the deprecated class or method and thus that you can safely
+remove it.</p>
+
+<p>You mark a method as deprecated simply by writing <span class="code">@deprecated</span>
+before it.  For example:</p>
+
+<pre>
+  @deprecated&nbsp;<code class="vem">def</code>&nbsp;bigMistake()&nbsp;=&nbsp;&nbsp;<code class="comment">//...</code>
+</pre>
+
+
+<p>Such an annotation will cause the Scala compiler to emit deprecation warnings
+whenever Scala code accesses the method.</p>
+
+<p>If you supply a string as an argument to <span class="code">@deprecated</span>, that
+string will be emitted along with the error message.  Use this message
+to explain to developers what they should use instead of the
+deprecated method.</p>
+
+<pre>
+  @deprecated(<code class="quotedstring">"use&nbsp;newShinyMethod()&nbsp;instead"</code>)
+  <code class="vem">def</code>&nbsp;bigMistake()&nbsp;=&nbsp;&nbsp;<code class="comment">//...</code>
+</pre>
+
+
+<p>Now any callers will get a message like this:</p>
+
+<pre>
+  $&nbsp;scalac&nbsp;-deprecation&nbsp;Deprecation2.scala&nbsp;
+  <code class="output">Deprecation2.scala:33:&nbsp;warning:&nbsp;method&nbsp;bigMistake&nbsp;in&nbsp;object</code>
+  <code class="output">Deprecation2&nbsp;is&nbsp;deprecated:&nbsp;use&nbsp;newShinyMethod()&nbsp;instead</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;bigMistake()</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+  <code class="output">one&nbsp;warning&nbsp;found</code>
+</pre>
+
+
+<h4>Volatile fields</h4>
+
+
+<p>Concurrent programming does not mix well with shared mutable state.
+For this reason, the focus of Scala's concurrency support is message
+passing and a minimum of shared mutable state.  See
+<a href="futures-and-concurrency.html">Chapter 32</a> for the details.</p>
+
+<p>Nonetheless, sometimes programmers want to use mutable state in their
+concurrent programs.  The <span class="code">@volatile</span> annotation<a id="i-882906061-1"/><a id="i915992882-1"/>
+helps in such
+cases.  It informs the compiler that the variable in question will be
+used by multiple threads.  Such variables are implemented so
+that reads and writes to the variable are slower, but accesses from
+multiple threads behave more predictably.</p>
+
+<p>The <span class="code">@volatile</span> keyword gives different guarantees on different
+platforms.  On the Java platform, however, you get the same behavior as if you
+wrote the field in Java code and marked it with the Java <span class="code">volatile</span>
+modifier.</p>
+
+<h4>Binary serialization</h4>
+
+
+<p>Many languages include a framework for binary <a href="glossary.html#g922807280"><em>serialization</em></a>.<a id="i-1448460597-1"/><a id="i2082703927-1"/>  A
+serialization framework helps you convert objects into a stream of
+bytes and <i>vice versa</i>.  This is useful if you want to save objects
+to disk or send them over the network.  XML can help with the same
+goals (see <a href="working-with-xml.html">Chapter 28</a>), but it has different
+trade offs regarding speed, space usage, flexibility, and portability.</p>
+
+<p>Scala does not have its own serialization framework.  Instead, you
+should use a framework from your underlying platform.  What Scala does
+is provide three annotations that are useful for a variety of
+frameworks.  Also, the Scala compiler for the Java platform interprets
+these annotations in the Java way (see
+<a href="combining-scala-and-java.html">Chapter 31</a>).</p>
+
+<p>The first annotation indicates whether a class is serializable at all.
+Most classes are serializable, but not all. A handle to a socket or GUI window, for example,
+cannot be serialized.  By default, a class is not
+considered serializable.  You should add a <span class="code">@serializable</span><a id="i-534731536-1"/><a id="i-897281643-1"/>
+annotation to any class you would like to be serializable.</p>
+
+<p>The second annotation helps deal with serializable classes changing as
+time goes by.  You can attach a serial number to the current version
+of a class by adding an annotation like<a id="i-744810718-1"/><a id="i-1236272573-1"/>
+<span class="code">@SerialVersionUID(1234)</span>, where <span class="code">1234</span> should be replaced by
+your serial number of choice.  The framework should store this number
+in the generated byte stream.  When you later reload that byte stream
+and try to convert it to an object, the framework can check that the
+current version of the class has the same version number as the
+version in the byte stream.  If you want to make a
+serialization-incompatible change to your class, then you can change
+the version number.  The framework will then automatically refuse to
+load old instances of the class.</p>
+
+<p>Finally, Scala provides a <span class="code">@transient</span> annotation<a id="i875595397-1"/><a id="i2078024116-1"/> for fields that
+should not be serialized at all.  If you mark a field as
+<span class="code">@transient</span>, then the framework should not save the field even
+when the surrounding object is serialized.  When the object is loaded,
+the field will be restored to the default value for the type of the
+field annotated as <span class="code">@transient</span>.</p>
+
+<h4>Automatic <span class="code">get</span> and <span class="code">set</span> methods</h4>
+
+
+<p>Scala code normally does not need explicit <span class="code">get</span> and <span class="code">set</span> methods for
+fields, because Scala blends the syntax for field access and method
+invocation.  Some platform-specific frameworks do expect <span class="code">get</span> and <span class="code">set</span> methods, however.  For that purpose, Scala provides the
+<span class="code">@scala.reflect.BeanProperty</span> annotation.<a id="i732073940-1"/><a id="i1595748955-1"/><a id="i-1969580643-4"/><a id="i553650449-3"/>
+If you add this annotation to a field, the compiler will automatically
+generate <span class="code">get</span> and <span class="code">set</span> methods for you.  If you annotate a field
+named <span class="code">crazy</span>, the <span class="code">get</span> method will be named <span class="code">getCrazy</span> and the <span class="code">set</span> method
+will be named <span class="code">setCrazy</span>.</p>
+
+<p>The generated <span class="code">get</span> and <span class="code">set</span> methods are only available after a compilation
+pass completes.  Thus, you cannot call these <span class="code">get</span> and <span class="code">set</span> methods from
+code you compile at the same time as the annotated fields.  This
+should not be a problem in practice, because in Scala code you can
+access the fields directly.  This feature is intended to support
+frameworks that expect regular <span class="code">get</span> and <span class="code">set</span> methods, and typically you
+do not compile the framework and the code that uses it at the same
+time.</p>
+
+<h4>Tailrec</h4>
+
+
+<p>You would typically add the <span class="code">@tailrec</span> annotation to a method that<a id="i726527906-1"/><a id="i-135595761-1"/><a id="i-1317428246-1"/>
+needs to be tail recursive, for instance because you expect that it
+would recurse very deeply otherwise. To make sure that the Scala
+compiler does perform the tail-recursion optimization described in
+<a href="functions-and-closures.html#sec-tail-recursion">Section 8.9</a> on this method, you can add <span class="code">
+@tailrec</span> in front of the method definition.  If the optimization
+cannot be performed, you will then get a warning together with an
+explanation of the reasons.</p>
+
+<h4>Unchecked</h4>
+
+
+<p>The <span class="code">@unchecked</span> annotation is interpreted by the compiler during<a id="i-2035290207-4"/><a id="i-815574504-4"/>
+pattern matches.  It tells the compiler not to worry if the
+<span class="code">match</span> expression seems to leave out some cases.  See
+<a href="case-classes-and-pattern-matching.html#sec-sealed-classes">Section 15.5</a> for details.</p>
+
+<h4>Native methods</h4>
+
+
+<p>The <span class="code">@native</span> annotation informs the compiler that a method's<a id="i-1241002280-1"/><a id="i2091795679-1"/><a id="i1448620333-1"/>
+implementation is supplied by the runtime rather than in Scala code.
+The compiler will toggle the appropriate flags in the output, and it
+will be up to the developer to supply the implementation using a
+mechanism such as the Java Native Interface (JNI).<a id="i555287182-1"/><a id="i73605-1"/></p>
+
+<p>When using the <span class="code">@native</span> annotation, a method body must be
+supplied, but it will not be emitted into the output. For example,
+here is how to declare that method <span class="code">beginCountdown</span> will be supplied
+by the runtime:</p>
+
+<pre>
+  @native
+  <code class="vem">def</code>&nbsp;beginCountdown()&nbsp;=&nbsp;{}
+</pre>
+
+
+<h3>27.4 Conclusion</h3>
+
+
+<p>This chapter described the platform-independent aspects of
+annotations that you will most commonly need to know about.  First of
+all it covered the syntax of annotations, because using
+annotations is far more common than defining new ones.  Second it showed how to use several annotations that are supported by the standard
+Scala compiler, including <span class="code">@deprecated</span>, <span class="code">@volatile</span>,
+<span class="code">@serializable</span>, <span class="code">@BeanProperty</span>, <span class="code">@tailrec</span>, and <span class="code">@unchecked</span>.</p>
+
+<p><a href="combining-scala-and-java.html">Chapter 31</a> gives additional,
+Java-specific information on annotations.  It covers annotations only
+available when targeting Java, additional meanings of standard
+annotations when targeting Java, how to interoperate with Java-based
+annotations, and how to use Java-based mechanisms to define and
+process annotations in Scala.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

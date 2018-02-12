@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-scalas-hierarchy">Chapter 11</a></h2>
+<h1>Scala's Hierarchy</h1>
+
+
+<p>Now that you've seen the details of class inheritance in the previous chapter, it is a good time
+to take a step back and look at Scala's class hierarchy as a whole. In Scala, every class inherits
+from a common superclass named <span class="code">Any</span>. Because every class is a subclass of <span class="code">Any</span>, the methods
+defined in <span class="code">Any</span> are "universal" methods: they may be invoked on any object. Scala also defines
+some interesting classes at the bottom of the hierarchy, <span class="code">Null</span> and <span class="code">Nothing</span>, which essentially
+act as common <em>sub</em>classes. For example, just as <span class="code">Any</span> is a superclass of every other class,
+<span class="code">Nothing</span> is a subclass of every other class. In this chapter, we'll give you a tour of Scala's
+class hierarchy.</p>
+
+<h3 id="sec-scalas-class-hierarchy">11.1 Scala's class hierarchy</h3>
+
+
+<p><a href="scalas-hierarchy.html#fig-class-hierarchy">Figure 11.1</a> shows an outline of Scala's
+class hierarchy. At the top of the hierarchy is class
+<span class="code">Any</span>, which defines methods that include the following:</p>
+
+<pre>
+  <code class="vem">final</code>&nbsp;<code class="vem">def</code>&nbsp;==(that:&nbsp;<code class="typename">Any</code>):&nbsp;<code class="typename">Boolean</code>
+  <code class="vem">final</code>&nbsp;<code class="vem">def</code>&nbsp;!=(that:&nbsp;<code class="typename">Any</code>):&nbsp;<code class="typename">Boolean</code>
+  <code class="vem">def</code>&nbsp;equals(that:&nbsp;<code class="typename">Any</code>):&nbsp;<code class="typename">Boolean</code>
+  <code class="vem">def</code>&nbsp;##:&nbsp;<code class="typename">Int</code>
+  <code class="vem">def</code>&nbsp;hashCode:&nbsp;<code class="typename">Int</code>
+  <code class="vem">def</code>&nbsp;toString:&nbsp;<code class="typename">String</code>
+</pre>
+
+
+<p>Because every class inherits from <span class="code">Any</span>, every object in a Scala program can be compared using<a id="i-1583721442-2"/><a id="i1095465388-2"/><a id="i15383763-2"/><a id="i-1108611945-2"/>
+<span class="code">==</span>, <span class="code">!=</span>, or <span class="code">equals</span>; hashed using <span class="code">##</span> or <span class="code">hashCode</span>; and<a id="i1926521799-1"/>
+formatted using <span class="code">toString</span>.<a id="i-1787342122-1"/><a id="i-720005867-2"/>
+The equality and inequality methods, <span class="code">==</span> and <span class="code">!=</span>, are declared <span class="code">final</span> 
+in class <span class="code">Any</span>, so they cannot be overridden
+in subclasses. The <span class="code">==</span> method is essentially the same as <span class="code">equals</span> and <span class="code">!=</span><a id="i-1939382283-1"/> is always the negation
+of <span class="code">equals</span>.<a href="scalas-hierarchy.html#footnotemain11-1">[1]</a>
+So individual classes can tailor what <span class="code">==</span> or <span class="code">!=</span>
+means by overriding the <span class="code">equals</span> method.  We'll show an example later
+in this chapter.</p>
+
+<p><a id="fig-class-hierarchy"/></p>
+
+<div style="text-align: center">
+<img src="images/scalaHierarchy160.png" alt="image images/scalaHierarchy160.png"/>
+
+
+<h5>Class hierarchy of Scala.<a id="i-395909855-1"/><a id="i1570311014-1"/><a id="i1398855960-1"/><a id="i1276473496-1"/><a id="i-1121985306-1"/><a id="i2002716718-1"/><a id="i695215832-1"/><a id="i-345413291-1"/></h5>
+
+
+</div>
+
+
+<p>The root class <span class="code">Any</span> has two subclasses: <span class="code">AnyVal</span> and <span class="code">AnyRef</span>.
+<span class="code">AnyVal</span> is the parent class of <span style="font-style:italic">value classes</span> in
+Scala.<a id="i-20487049-1"/><a id="i499600205-1"/><a id="i785702719-1"/><a id="i-2060175836-1"/>
+While you can define your own value classes (see <a href="scalas-hierarchy.html#sec-value-classes">Section 11.4</a>),
+there
+are nine value classes built into Scala: <span class="code">Byte</span>, <span class="code">Short</span>, <span class="code">Char</span>, <span class="code">Int</span>,
+<span class="code">Long</span>, <span class="code">Float</span>, <span class="code">Double</span>, <span class="code">Boolean</span>, and <span class="code">Unit</span>. The first eight
+of these correspond to Java's primitive types, and their values are<a id="i884498802-3"/>
+represented at run time as Java's primitive values.  The instances of these
+classes are all written as literals in Scala.  For example, <span class="code">42</span> is
+an instance of <span class="code">Int</span>, <span class="code">'x'</span> is an instance of
+<span class="code">Char</span>, and <span class="code">false</span> an instance of <span class="code">Boolean</span>.  You cannot create
+instances of these classes using <span class="code">new</span>. This is enforced by the "trick" that value
+classes are all defined to be both abstract and final.</p>
+
+<p>So if you were to write:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Int</code>
+</pre>
+
+
+<p>you would get:</p>
+
+<pre>
+  <code class="output">&lt;console&gt;:5:&nbsp;error:&nbsp;class&nbsp;Int&nbsp;is&nbsp;abstract;&nbsp;cannot&nbsp;be&nbsp;</code>
+  <code class="output">instantiated</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Int</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>The other value class, <span class="code">Unit</span>, corresponds roughly to Java's <span class="code">void</span>
+type; it is used as the result type of a method that does not
+otherwise return an interesting result.  <span class="code">Unit</span> has a single instance
+value, which is written <span class="code">()</span>, as discussed in
+<a href="builtin-control-structures.html#sec-while-loops">Section 7.2</a>.</p>
+
+<p>As explained in <a href="basic-types-and-operations.html">Chapter 5</a>, the value classes support the usual
+arithmetic and boolean operators as methods.  For instance, <span class="code">Int</span>
+has methods named <span class="code">+</span> and <span class="code">*</span>, and <span class="code">Boolean</span> has
+methods named <span class="code">||</span> and <span class="code">&amp;&amp;</span>.  Value classes also inherit all methods
+from class <span class="code">Any</span>. You can test this in the interpreter:</p>
+
+<div style="page-break-after:always"/>
+
+
+<pre>
+  scala&gt;&nbsp;<code class="literal">42.</code>toString
+  <code class="output">res1:&nbsp;String&nbsp;=&nbsp;42</code>
+  <br />  scala&gt;&nbsp;<code class="literal">42.</code>hashCode
+  <code class="output">res2:&nbsp;Int&nbsp;=&nbsp;42</code>
+  <br />  scala&gt;&nbsp;<code class="literal">42</code>&nbsp;equals&nbsp;<code class="literal">42</code>
+  <code class="output">res3:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+</pre>
+
+
+<p>Note that the value
+class space is flat; all value classes are subtypes of
+<span class="code">scala.AnyVal</span>, but they do not subclass each other.  Instead there
+are implicit conversions between different
+value class types. For example, an instance of class <span class="code">scala.Int</span> is
+automatically widened (by an implicit conversion) to an instance of class <span class="code">scala.Long</span> when
+required.</p>
+
+<p>As mentioned in <a href="basic-types-and-operations.html#sec-rich-wrappers">Section 5.10</a>,
+implicit conversions are also used to add more functionality to
+value types. For instance, the type <span class="code">Int</span> supports all of the operations below:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="literal">42</code>&nbsp;max&nbsp;<code class="literal">43</code>
+  <code class="output">res4:&nbsp;Int&nbsp;=&nbsp;43</code>
+  <br />  scala&gt;&nbsp;<code class="literal">42</code>&nbsp;min&nbsp;<code class="literal">43</code>
+  <code class="output">res5:&nbsp;Int&nbsp;=&nbsp;42</code>
+  <br />  scala&gt;&nbsp;<code class="literal">1</code>&nbsp;until&nbsp;<code class="literal">5</code>
+  <code class="output">res6:&nbsp;scala.collection.immutable.Range&nbsp;=&nbsp;Range(1,&nbsp;2,&nbsp;3,&nbsp;4)</code>
+  <br />  scala&gt;&nbsp;<code class="literal">1</code>&nbsp;to&nbsp;<code class="literal">5</code>
+  <code class="output">res7:&nbsp;scala.collection.immutable.Range.Inclusive</code>
+  <code class="output">&nbsp;&nbsp;=&nbsp;Range(1,&nbsp;2,&nbsp;3,&nbsp;4,&nbsp;5)</code>
+  <br />  scala&gt;&nbsp;3.abs
+  <code class="output">res8:&nbsp;Int&nbsp;=&nbsp;3</code>
+  <br />  scala&gt;&nbsp;(-<code class="literal">3</code>).abs
+  <code class="output">res9:&nbsp;Int&nbsp;=&nbsp;3</code>
+</pre>
+
+
+<p>Here's how this works: The methods <span class="code">min</span>, <span class="code">max</span>, <span class="code">until</span>, <span class="code">to</span>,<a id="i-256644535-3"/><a id="i-2103371977-2"/><a id="i-1690228669-2"/><a id="i574171488-3"/><a id="i-1171773097-2"/>
+and <span class="code">abs</span> are all defined in a class <span class="code">scala.runtime.RichInt</span>, and
+there is an implicit conversion from class <span class="code">Int</span> to <span class="code">RichInt</span>. The
+conversion is applied whenever a method is invoked on an <span class="code">Int</span>
+that is undefined in <span class="code">Int</span> but defined in <span class="code">RichInt</span>. Similar
+"booster classes" and implicit conversions exist for the other value classes.
+Implicit conversions will be discussed in detail in
+<a href="implicit-conversions-and-parameters.html">Chapter 21</a>.</p>
+
+<p>The other subclass of the root class <span class="code">Any</span> is class <span class="code">AnyRef</span>.  This
+is the base class of all <span style="font-style:italic">reference classes</span> in Scala.<a id="i-1054988553-1"/>  As mentioned previously, on the
+Java platform <span class="code">AnyRef</span> is in fact just an alias for class<a id="i-786400333-1"/>
+<span class="code">java.lang.Object</span>. So classes written in Java, as well as classes
+written in Scala, all inherit from <span class="code">AnyRef</span>.<a href="scalas-hierarchy.html#footnotemain11-2">[2]</a>
+One way to think of <span class="code">java.lang.Object</span>, therefore, is as the way <span class="code">AnyRef</span> is implemented on the
+Java platform. Thus, although you can use <span class="code">Object</span>
+and <span class="code">AnyRef</span> interchangeably in Scala programs on the Java platform, the recommended style
+is to use <span class="code">AnyRef</span> everywhere.<a id="i-1076915945-1"/></p>
+
+<h3 id="sec-impl-primitives">11.2 How primitives are implemented</h3>
+
+
+<p>How is all this implemented? In fact, Scala stores integers in the<a id="i-911544850-1"/>
+same way as Java&mdash;as 32-bit words. This is important for efficiency on
+the JVM and also for interoperability with Java libraries.  Standard
+operations like addition or multiplication are implemented as
+primitive operations.  However, Scala uses the "backup" class
+<span class="code">java.lang.Integer</span> whenever an integer needs to be seen as a (Java) object.
+This happens for instance when invoking the <span class="code">toString</span> method on an integer 
+number or when assigning an integer to a variable of type <span class="code">Any</span>.
+Integers of type <span class="code">Int</span> are converted transparently
+to "boxed integers" of type <span class="code">java.lang.Integer</span> whenever necessary.<a id="i292516588-1"/><a id="i1431094886-1"/></p>
+
+<p>All this sounds a lot like auto-boxing in Java 5 and it is indeed quite similar.
+There's one crucial difference though: Boxing in Scala is much less visible 
+than boxing in Java. Try the following in Java:</p>
+
+<pre>
+  <code class="comment">//&nbsp;This&nbsp;is&nbsp;Java</code>
+  boolean&nbsp;isEqual(int&nbsp;x,&nbsp;int&nbsp;y)&nbsp;{
+  &nbsp;&nbsp;<code class="vem">return</code>&nbsp;x&nbsp;==&nbsp;y;
+  }
+  System.out.println(isEqual(<code class="literal">421</code>,&nbsp;<code class="literal">421</code>));
+</pre>
+
+
+<p>You will surely get <span class="code">true</span>. Now, change the argument types of <span class="code">isEqual</span> to
+<span class="code">java.lang.Integer</span> (or <span class="code">Object</span>, the result will be the same):</p>
+
+<div style="page-break-after:always"/>
+
+
+<pre>
+  <code class="comment">//&nbsp;This&nbsp;is&nbsp;Java</code>
+  boolean&nbsp;isEqual(<code class="typename">Integer</code>&nbsp;x,&nbsp;<code class="typename">Integer</code>&nbsp;y)&nbsp;{
+  &nbsp;&nbsp;<code class="vem">return</code>&nbsp;x&nbsp;==&nbsp;y;
+  }
+  System.out.println(isEqual(<code class="literal">421</code>,&nbsp;<code class="literal">421</code>));
+</pre>
+
+
+<p>You will find that you get <span class="code">false</span>! What happens is that the number <span class="code">421</span> gets boxed twice,
+so that the arguments for <span class="code">x</span> and <span class="code">y</span> are two different objects.
+Because <span class="code">==</span> means reference equality on reference types,<a id="i1544052809-2"/> and <span class="code">Integer</span> is a reference type,
+the result is <span class="code">false</span>. This is one aspect where it shows that Java is not a 
+pure object-oriented language. There is a difference between primitive types and reference types
+that can be clearly observed.</p>
+
+<p>Now try the same experiment in Scala:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;isEqual(x:&nbsp;<code class="typename">Int</code>,&nbsp;y:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;x&nbsp;==&nbsp;y
+  <code class="output">isEqual:&nbsp;(x:&nbsp;Int,&nbsp;y:&nbsp;Int)Boolean</code>
+  <br />  scala&gt;&nbsp;isEqual(<code class="literal">421</code>,&nbsp;<code class="literal">421</code>)
+  <code class="output">res10:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+  <br />  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;isEqual(x:&nbsp;<code class="typename">Any</code>,&nbsp;y:&nbsp;<code class="typename">Any</code>)&nbsp;=&nbsp;x&nbsp;==&nbsp;y
+  <code class="output">isEqual:&nbsp;(x:&nbsp;Any,&nbsp;y:&nbsp;Any)Boolean</code>
+  <br />  scala&gt;&nbsp;isEqual(<code class="literal">421</code>,&nbsp;<code class="literal">421</code>)
+  <code class="output">res11:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+</pre>
+
+
+<p>The equality operation <span class="code">==</span> in Scala is
+designed to be transparent with respect to the type's
+representation. For value types, it is the natural (numeric or
+boolean) equality. For reference types other than Java's boxed numeric
+types, <span class="code">==</span> is treated as an alias of the <span class="code">equals</span> method inherited
+from <span class="code">Object</span>.  That method is originally defined as reference
+equality, but is overridden by many subclasses to implement their
+natural notion of equality.  This also means that in Scala you never
+fall into Java's well-known trap concerning string comparisons.  In
+Scala, string comparison works as it should:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;x&nbsp;=&nbsp;<code class="quotedstring">"abcd"</code>.substring(<code class="literal">2</code>)
+  <code class="output">x:&nbsp;String&nbsp;=&nbsp;cd</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;y&nbsp;=&nbsp;<code class="quotedstring">"abcd"</code>.substring(<code class="literal">2</code>)
+  <code class="output">y:&nbsp;String&nbsp;=&nbsp;cd</code>
+  <br />  scala&gt;&nbsp;x&nbsp;==&nbsp;y
+  <code class="output">res12:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+</pre>
+
+
+<p>In Java, the result of comparing <span class="code">x</span> with <span class="code">y</span> would be false.  The 
+programmer should have used <span class="code">equals</span> in this case, but it is easy
+to forget.</p>
+
+<p>However, there are situations where you need reference equality
+instead of user-defined equality.  For example, in some situations where
+efficiency is paramount, you would like to <em>hash cons</em><a id="i1337872025-1"/><a id="i-1199948289-1"/>
+with some classes and compare their instances with reference
+equality.<a href="scalas-hierarchy.html#footnotemain11-3">[3]</a>
+For these cases, class <span class="code">AnyRef</span>
+defines an additional <span class="code">eq</span> method, which cannot be<a id="i-795280463-2"/><a id="i2030434891-2"/>
+overridden and is implemented as reference equality (<i>i.e.</i>, it behaves
+like <span class="code">==</span> in Java for reference types). There's also the negation of <span class="code">eq</span>, which is called <span class="code">ne</span>.<a id="i-1620977796-2"/><a id="i1319501024-2"/>
+For example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;x&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">String</code>(<code class="quotedstring">"abc"</code>)
+  <code class="output">x:&nbsp;String&nbsp;=&nbsp;abc</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;y&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">String</code>(<code class="quotedstring">"abc"</code>)
+  <code class="output">y:&nbsp;String&nbsp;=&nbsp;abc</code>
+  <br />  scala&gt;&nbsp;x&nbsp;==&nbsp;y
+  <code class="output">res13:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+  <br />  scala&gt;&nbsp;x&nbsp;eq&nbsp;y
+  <code class="output">res14:&nbsp;Boolean&nbsp;=&nbsp;false</code>
+  <br />  scala&gt;&nbsp;x&nbsp;ne&nbsp;y
+  <code class="output">res15:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+</pre>
+
+
+<p>Equality in Scala is discussed further in <a href="object-equality.html">Chapter 30</a>.</p>
+
+<h3 id="sec-bottom-types">11.3 Bottom types</h3>
+
+
+<p>At the bottom of the type hierarchy in <a href="scalas-hierarchy.html#fig-class-hierarchy">Figure 11.1</a>
+you see the two classes
+<span class="code">scala.Null</span> and <span class="code">scala.Nothing</span>.  These are special types that handle some
+"corner cases" of Scala's object-oriented type system in a uniform way.<a id="i794065476-1"/><a id="i-1885936564-1"/></p>
+
+<p>Class <span class="code">Null</span> is the type of the <span class="code">null</span> reference; it is a subclass of
+every reference class (<i>i.e.</i>, every class that itself inherits from <span class="code">AnyRef</span>). 
+<span class="code">Null</span> is not compatible with value types.<a id="i-1844978241-1"/><a id="i-597441587-1"/><a id="i473754008-1"/> 
+You cannot, for example, assign a <span class="code">null</span> value to an integer
+variable:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;i:&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;<code class="vem">null</code>
+  <code class="output">&lt;console&gt;:7:&nbsp;error:&nbsp;an&nbsp;expression&nbsp;of&nbsp;type&nbsp;Null&nbsp;is&nbsp;ineligible&nbsp;</code>
+  <code class="output">for&nbsp;implicit&nbsp;conversion</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;i:&nbsp;Int&nbsp;=&nbsp;null</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>Type <span class="code">Nothing</span> is at the very bottom of Scala's class hierarchy; it is a subtype of every other type. However, there exist no values of
+this type whatsoever. Why does it make sense to have a type without
+values?  As discussed in <a href="builtin-control-structures.html#sec-try-expressions">Section 7.4</a>, one use of <span class="code">Nothing</span> is that it signals abnormal
+termination.</p>
+
+<p>For instance there's the <span class="code">error</span> method in the <span class="code">Predef</span> object of
+Scala's standard library, which is defined like this:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;error(message:&nbsp;<code class="typename">String</code>):&nbsp;<code class="typename">Nothing</code>&nbsp;=
+  &nbsp;&nbsp;<code class="vem">throw</code>&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">RuntimeException</code>(message)
+</pre>
+
+
+<p>The return type of <span class="code">error</span> is <span class="code">Nothing</span>, which tells users that 
+the method will not return normally (it throws an exception instead). 
+Because <span class="code">Nothing</span> is a subtype of every other type, 
+you can use methods like <span class="code">error</span> in very flexible ways. For instance:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;divide(x:&nbsp;<code class="typename">Int</code>,&nbsp;y:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(y&nbsp;!=&nbsp;<code class="literal">0</code>)&nbsp;x&nbsp;/&nbsp;y&nbsp;
+  &nbsp;&nbsp;<code class="vem">else</code>&nbsp;error(<code class="quotedstring">"can't&nbsp;divide&nbsp;by&nbsp;zero"</code>)
+</pre>
+
+
+<p>The "then" branch of the conditional, <span class="code">x</span>&nbsp;<span class="code">/</span>&nbsp;<span class="code">y</span>, has type <span class="code">Int</span>, whereas the
+else branch, the call to <span class="code">error</span>, has type <span class="code">Nothing</span>. Because <span class="code">Nothing</span> is a subtype of
+<span class="code">Int</span>, the type of the whole conditional is <span class="code">Int</span>, as required.</p>
+
+<h3 id="sec-value-classes">11.4 Defining your own value classes</h3>
+
+
+<p>As mentioned in <a href="scalas-hierarchy.html#sec-scalas-class-hierarchy">Section 11.1</a>, you can
+define your own value classes to augment the ones that are built
+in. Like the built-in value classes, an instance of your value class
+will usually compile to Java bytecode that does not use the wrapper
+class. In contexts where a wrapper is needed, such as with generic
+code, the value will get boxed and unboxed automatically.</p>
+
+<p>Only certain classes can be made into value classes. For a class to be
+a value class, it must have exactly one parameter and it must have
+nothing inside it except <span class="code">def</span>s. Furthermore, no other class can
+extend a value class, and a value class cannot redefine <span class="code">equals</span>
+or <span class="code">hashCode</span>.</p>
+
+<p>To define a value class, make it a subclass of <span class="code">AnyVal</span>, and put
+<span class="code">val</span> before the one parameter. Here is an example value class:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Dollars</code>(<code class="vem">val</code>&nbsp;amount:&nbsp;<code class="typename">Int</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">AnyVal</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString()&nbsp;=&nbsp;<code class="quotedstring">"$"</code>&nbsp;+&nbsp;amount
+  }
+</pre>
+
+
+<p>As described in <a href="composition-and-inheritance.html#sec-parametric-fields">Section 10.6</a>, the <span class="code">val</span> prefix
+allows the <span class="code">amount</span> parameter
+to be accessed as a field. For example, the following code
+creates an instance of the value class, then retrieves the amount
+from it:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;money&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Dollars</code>(<code class="literal">1000000</code>)
+  <code class="output">money:&nbsp;Dollars&nbsp;=&nbsp;$1000000</code>
+  scala&gt;&nbsp;money.amount
+  <code class="output">res16:&nbsp;Int&nbsp;=&nbsp;1000000</code>
+</pre>
+
+
+<p>In this example, <span class="code">money</span> refers to an instance of the value class. It is of
+type <span class="code">Dollars</span> in Scala source code, but the compiled Java bytecode
+will use type <span class="code">Int</span> directly.</p>
+
+<p>This example defines a <span class="code">toString</span> method, and the compiler figures
+out when to use it. That's why printing <span class="code">money</span> gives <span class="code">$1000000</span>,
+with a dollar sign, but printing <span class="code">money.amount</span> gives <span class="code">1000000</span>. You
+can even define multiple value types that are all backed by the same
+<span class="code">Int</span> value. For example:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">SwissFrancs</code>(<code class="vem">val</code>&nbsp;amount:&nbsp;<code class="typename">Int</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">AnyVal</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString()&nbsp;=&nbsp;amount&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;CHF"</code>
+  }
+</pre>
+
+
+<p>Even though both <span class="code">Dollars</span> and <span class="code">SwissFrancs</span> are represented as
+integers, it works fine to use them in the same scope:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;dollars&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Dollars</code>(<code class="literal">1000</code>)
+  <code class="output">dollars:&nbsp;Dollars&nbsp;=&nbsp;$1000</code>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;francs&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">SwissFrancs</code>(<code class="literal">1000</code>)
+  <code class="output">francs:&nbsp;SwissFrancs&nbsp;=&nbsp;1000&nbsp;CHF</code>
+</pre>
+
+
+<h4>Avoiding a types monoculture</h4>
+
+
+<p>To get the most benefit from the Scala class hierarchy, try to define
+a new class for each domain concept, even when it would be possible to
+reuse the same class for different purposes. Even if such a class is a
+so-called <em>tiny type</em><a id="i1646427993-1"/> with no methods or fields, defining the
+additional class is a way to help the compiler be helpful to you.</p>
+
+<p>For example, suppose you are writing some code to generate HTML. In
+HTML, a style name is represented as a string. So are anchor
+identifiers. HTML itself is also a string, so if you wanted, you could
+define helper code using strings to represent all of these things,
+like this:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;title(text:&nbsp;<code class="typename">String</code>,&nbsp;anchor:&nbsp;<code class="typename">String</code>,&nbsp;style:&nbsp;<code class="typename">String</code>):&nbsp;<code class="typename">String</code>&nbsp;=
+  &nbsp;&nbsp;s<code class="quotedstring">"&lt;a&nbsp;id='$anchor'&gt;&lt;h1&nbsp;class='$style'&gt;$text&lt;/h1&gt;&lt;/a&gt;"</code>
+</pre>
+
+
+<p>That type signature has four strings in it! Such <em>stringly typed</em><a id="i84163557-1"/>
+code is technically strongly typed, but since everything in sight is
+of type <span class="code">String</span>, the compiler cannot help you detect the use of one
+when you meant to write the other. For example, it won't stop you from
+this travesty:</p>
+
+<pre>
+  scala&gt;&nbsp;title(<code class="quotedstring">"chap:vcls"</code>,&nbsp;<code class="quotedstring">"bold"</code>,&nbsp;<code class="quotedstring">"Value&nbsp;Classes"</code>)
+  <code class="output">res17:&nbsp;String&nbsp;=&nbsp;&lt;a&nbsp;id='bold'&gt;&lt;h1&nbsp;class='Value&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;Classes'&gt;chap:vcls&lt;/h1&gt;&lt;/a&gt;</code>
+</pre>
+
+
+<p>This HTML is mangled. The intended display text "Value Classes" is
+being used as a style class, and the text being displayed is
+"chap.vcls," which was supposed to be an anchor. To top it off, the
+actual anchor identifier is "bold," which is supposed to be a style
+class. Despite this comedy of errors, the compiler utters not a peep.</p>
+
+<p>The compiler can be more helpful if you define a tiny type for each
+domain concept. For example, you could define a small class for styles,
+anchor identifiers, display text, and HTML. Since these classes have
+one parameter and no members, they can be defined as value classes:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Anchor</code>(<code class="vem">val</code>&nbsp;value:&nbsp;<code class="typename">String</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">AnyVal</code>
+  <code class="vem">class</code>&nbsp;<code class="typename">Style</code>(<code class="vem">val</code>&nbsp;value:&nbsp;<code class="typename">String</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">AnyVal</code>
+  <code class="vem">class</code>&nbsp;<code class="typename">Text</code>(<code class="vem">val</code>&nbsp;value:&nbsp;<code class="typename">String</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">AnyVal</code>
+  <code class="vem">class</code>&nbsp;<code class="typename">Html</code>(<code class="vem">val</code>&nbsp;value:&nbsp;<code class="typename">String</code>)&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">AnyVal</code>
+</pre>
+
+
+<p>Given these classes, it is possible to write a version of <span class="code">title</span>
+that has a less trivial type signature:</p>
+
+<div style="page-break-after:always"/>
+
+
+<pre>
+  <code class="vem">def</code>&nbsp;title(text:&nbsp;<code class="typename">Text</code>,&nbsp;anchor:&nbsp;<code class="typename">Anchor</code>,&nbsp;style:&nbsp;<code class="typename">Style</code>):&nbsp;<code class="typename">Html</code>&nbsp;=
+  &nbsp;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Html</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;s<code class="quotedstring">"&lt;a&nbsp;id='${anchor.value}'&gt;"</code>&nbsp;+
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;s<code class="quotedstring">"&lt;h1&nbsp;class='${style.value}'&gt;"</code>&nbsp;+
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;text.value&nbsp;+
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"&lt;/h1&gt;&lt;/a&gt;"</code>
+  &nbsp;&nbsp;)
+</pre>
+
+
+<p>If you try to use this version with the arguments in the wrong order,
+the compiler can now detect the error. For example:</p>
+
+<pre>
+  scala&gt;&nbsp;title(<code class="vem">new</code>&nbsp;<code class="typename">Anchor</code>(<code class="quotedstring">"chap:vcls"</code>),&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Style</code>(<code class="quotedstring">"bold"</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Text</code>(<code class="quotedstring">"Value&nbsp;Classes"</code>))
+  <code class="output">&lt;console&gt;:18:&nbsp;error:&nbsp;type&nbsp;mismatch;</code>
+  <code class="output">&nbsp;found&nbsp;&nbsp;&nbsp;:&nbsp;Anchor</code>
+  <code class="output">&nbsp;required:&nbsp;Text</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Anchor("chap:vcls"),</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+  <code class="output">&lt;console&gt;:19:&nbsp;error:&nbsp;type&nbsp;mismatch;</code>
+  <code class="output">&nbsp;found&nbsp;&nbsp;&nbsp;:&nbsp;Style</code>
+  <code class="output">&nbsp;required:&nbsp;Anchor</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Style("bold"),</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+  <code class="output">&lt;console&gt;:20:&nbsp;error:&nbsp;type&nbsp;mismatch;</code>
+  <code class="output">&nbsp;found&nbsp;&nbsp;&nbsp;:&nbsp;Text</code>
+  <code class="output">&nbsp;required:&nbsp;Style</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Text("Value&nbsp;Classes"))</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<h3>11.5 Conclusion</h3>
+
+
+<p>In this chapter we showed you the classes at the top and bottom of Scala's class hierarchy.
+Now that you've gotten a good foundation on class inheritance in Scala, you're ready to understand mixin composition.
+In the next chapter, you'll learn about traits.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 11:</h4>
+
+
+<p><a id="footnotemain11-1"/>[1] The only case where <span class="code">==</span> does not directly call <span class="code">equals</span> is for
+Java's boxed numeric classes, such as <span class="code">Integer</span> or <span class="code">Long</span>. In Java, a <span class="code">new</span>&nbsp;<span class="code">Integer(1)</span> does
+not <span class="code">equal</span> a <span class="code">new</span>&nbsp;<span class="code">Long(1)</span> even though for primitive values <span class="code">1</span>&nbsp;<span class="code">==</span>&nbsp;<span class="code">1L</span>. Since Scala is a 
+more regular language than Java, it was necessary to  correct this discrepancy by special-casing the <span class="code">==</span> method for these classes. 
+Likewise, the <span class="code">##</span> method provides a Scala version of hashing that is
+the same as Java's <span class="code">hashCode</span>, except for boxed numeric types, where it works consistently with <span class="code">==</span>. 
+For instance <span class="code">new</span>&nbsp;<span class="code">Integer(1)</span> and <span class="code">new</span>&nbsp;<span class="code">Long(1)</span> hash the same with <span class="code">##</span> even though their Java <span class="code">hashCode</span>s are different.</p>
+
+<p><a id="footnotemain11-2"/>[2] The reason <span class="code">AnyRef</span> alias exists, instead of just
+using the name <span class="code">java.lang.Object</span>, is because Scala was originally designed to work on both the Java
+and .NET platforms. On .NET, <span class="code">AnyRef</span> was an alias for <span class="code">System.Object</span>.<a id="i77181-2"/></p>
+
+<p><a id="footnotemain11-3"/>[3] You hash
+  cons instances of a class by caching all instances you have created
+  in a weak collection.  Then, any time you want a new instance of the
+  class, you first check the cache.  If the cache already has an
+  element equal to the one you are about to create, you can reuse the
+  existing instance.  As a result of this arrangement, any two
+  instances that are equal with <span class="code">equals()</span> are also equal with reference
+  equality.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

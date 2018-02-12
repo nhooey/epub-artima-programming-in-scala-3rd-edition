@@ -1,0 +1,725 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-modular-programming-using-objects">Chapter 29</a></h2>
+<h1>Modular Programming Using Objects</h1>
+
+
+<p>In <a href="a-scalable-language.html">Chapter 1</a>, we claimed that one way Scala is a scalable language
+is that you can use the same techniques to construct small as well as large programs.
+So far in this book we've focused primarily
+on <em>programming in the small</em><a id="i-908480700-1"/>: designing and implementing the smaller program pieces out of
+which you can construct a larger program.<a href="modular-programming-using-objects.html#footnotemain29-1">[1]</a>
+The other side of the story is <em>programming in the
+large</em><a id="i-915286664-1"/>: organizing and assembling the smaller pieces
+into larger programs, applications, or systems.
+We touched on this subject
+when we discussed packages and access modifiers
+in
+<a href="packages-and-imports.html">Chapter 13</a>.
+In short, packages and access modifiers enable you to<a id="i-1777778106-1"/>
+organize a large program using packages as <em>modules</em>, where a module is a "smaller program piece" with a
+well defined interface and a hidden implementation.<a id="i1227433863-1"/></p>
+
+<p>While the division of programs into packages is
+already quite helpful, it is limited because it provides no way
+to abstract.  You cannot reconfigure a package two different ways
+within the same program, and you cannot inherit between packages.  A
+package always includes one precise list of contents, and that list
+is fixed until you change the code.</p>
+
+<p>In this chapter, we'll discuss how you can use Scala's object-oriented
+features to make a program more modular.<a id="i1528987536-1"/> We'll first show how a
+simple singleton object can be used as a module.<a id="i1060016990-1"/> Then we'll explain how you can use traits and classes as abstractions over modules.
+These abstractions can be reconfigured into multiple modules, even
+multiple times within the same program.  Finally, we'll show a
+pragmatic technique for using traits to divide a module across
+multiple files.</p>
+
+<h3>29.1 The problem</h3>
+
+
+<p>As a program grows in size, it becomes increasingly important to organize it in a modular way.
+First, being able to compile different modules that make up the system separately helps
+different teams work independently.<a id="i1145716472-1"/> In addition, being able to unplug one implementation
+of a module and plug in another is useful, because it allows different configurations of a system to be used in
+different contexts, such as unit testing on a developer's desktop,
+integration testing, staging, and
+deployment.<a id="i324568938-1"/></p>
+
+<p>For example, you may have an application that uses a database and a message service.
+As you write code, you may want to run unit tests on your desktop that use mock versions of both the database and
+message service, which simulate these services sufficiently for testing without needing to talk across the network to a
+shared resource. During integration testing, you may
+want to use a mock message service but a live developer database. During staging and certainly during deployment,
+your organization will likely want to use live versions of both the database and message service.</p>
+
+<p>Any technique that aims to facilitate this kind of modularity needs to provide a few essentials.
+First, there should be a module construct that provides a good separation of interface and implementation.
+Second, there should be a way to replace one module with another that has the same interface without changing or recompiling the modules that depend
+on the replaced one. Lastly, there should be a way to wire modules together. This wiring task can by thought of as <em>configuring</em>
+the system.<a id="i2145337984-1"/></p>
+
+<p>One approach to solving this problem is <em>dependency
+injection</em><a id="i10210882-1"/><a id="i1768195241-1"/>, a technique supported on the Java platform by frameworks
+such as Spring<a id="i844238763-1"/>
+and Guice,<a id="i69159613-1"/> which are popular in the enterprise Java community.<a href="modular-programming-using-objects.html#footnotemain29-2">[2]</a> Spring, for example,
+essentially allows you to represent the interface of a module as a Java interface and implementations of the module as Java classes. You can
+specify dependencies between modules and "wire" an application
+together via external XML configuration files.<a id="i1866586400-1"/> Although you can
+use Spring with Scala and thereby use Spring's approach to achieving system-level modularity of your Scala programs, with Scala you have some
+alternatives enabled by the language itself. In the remainder of this
+chapter, we'll show how to use objects as modules
+to achieve the desired "in the large" modularity without using an external framework.</p>
+
+<h3>29.2 A recipe application</h3>
+
+
+<p>Imagine you are building an enterprise web application that will allow users to manage recipes. You want to
+partition the software into layers, including a <em>domain layer</em> and
+an <em>application layer</em>.<a id="i701062634-1"/><a id="i-679595592-1"/> In the domain layer, you'll define <em>domain objects</em>,
+which will capture business concepts and rules, as well as encapsulate state that will be persisted
+to an external relational database. In the application layer, you'll provide an 
+API organized in terms of the services the application offers to clients (including the user interface layer). The
+application layer will implement these services by coordinating tasks and
+delegating the work to the objects of the domain layer.<a href="modular-programming-using-objects.html#footnotemain29-3">[3]</a></p>
+
+<p>You want to be able to plug in real or
+mock versions of certain objects in each of these layers, so that you can more easily write unit tests
+for your application. To achieve this goal, you can treat the objects you want to mock as modules.
+In Scala, there is no need for objects to be "small" things, no need
+to use some other kind of construct for "big" things like modules.
+One of the ways Scala is a scalable
+language is that the same constructs are used for structures both
+small and large.<a id="i-885663216-2"/><a id="i741587120-2"/></p>
+
+<p>For example, since one of the "things" you want to mock in the domain layer is the object
+that represents the relational database, you'll make
+that one of the modules.  In the application layer, you'll treat a "database browser" object as a module. The database will hold all of the recipes that a
+person has collected.
+The browser will help search and browse that
+database, for example, to find every recipe that includes an ingredient
+you have on hand.</p>
+
+<p>The first thing to do is to model foods and recipes.  To keep things
+simple, a food will just have a name, as shown in <a href="modular-programming-using-objects.html#lst-food-entity">Listing 29.1</a>.
+A recipe will have a name, a list of ingredients, and some instructions, as
+shown in <a href="modular-programming-using-objects.html#lst-recipe-entity">Listing 29.2</a>.</p>
+
+<p><a id="lst-food-entity"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;org.stairwaybook.recipe
+  <br />  &nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Food</code>(<code class="vem">val</code>&nbsp;name:&nbsp;<code class="typename">String</code>)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;name
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.1 - A simple <span class="code">Food</span> entity class.</h5>
+
+
+<div style="page-break-after:always"/>
+
+
+<p><a id="lst-recipe-entity"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;org.stairwaybook.recipe
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Recipe</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;name:&nbsp;<code class="typename">String</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;ingredients:&nbsp;<code class="typename">List[Food]</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;instructions:&nbsp;<code class="typename">String</code>
+  &nbsp;&nbsp;)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;name
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.2 - Simple <span class="code">Recipe</span> entity class.</h5>
+
+
+<p>The <span class="code">Food</span> and <span class="code">Recipe</span> classes shown in <a href="modular-programming-using-objects.html#lst-food-entity">Listings 29.1</a> <a href="modular-programming-using-objects.html#lst-recipe-entity">and 29.2</a> represent <em>entities</em> that
+will be persisted in the
+database.<a id="i-2102114367-1"/><a id="i728984841-1"/><a href="modular-programming-using-objects.html#footnotemain29-4">[4]</a>
+<a href="modular-programming-using-objects.html#lst-example-foods-recipe">Listing 29.3</a>
+shows some singleton instances of these classes, which can be used when
+writing
+tests.<a id="i181822064-1"/><a id="i534212600-1"/></p>
+
+<p><a id="lst-example-foods-recipe"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;org.stairwaybook.recipe
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Apple</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>(<code class="quotedstring">"Apple"</code>)
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Orange</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>(<code class="quotedstring">"Orange"</code>)
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Cream</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>(<code class="quotedstring">"Cream"</code>)
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Sugar</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>(<code class="quotedstring">"Sugar"</code>)
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">FruitSalad</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Recipe</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"fruit&nbsp;salad"</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">List</code>(<code class="typename">Apple</code>,&nbsp;<code class="typename">Orange</code>,&nbsp;<code class="typename">Cream</code>,&nbsp;<code class="typename">Sugar</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"Stir&nbsp;it&nbsp;all&nbsp;together."</code>
+  &nbsp;&nbsp;)
+</pre>
+
+
+<h5>Listing 29.3 - <span class="code">Food</span> and <span class="code">Recipe</span> examples for use in tests.</h5>
+
+
+<p><a id="lst-mock-implementations"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;org.stairwaybook.recipe
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">SimpleDatabase</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allFoods&nbsp;=&nbsp;<code class="typename">List</code>(<code class="typename">Apple</code>,&nbsp;<code class="typename">Orange</code>,&nbsp;<code class="typename">Cream</code>,&nbsp;<code class="typename">Sugar</code>)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;foodNamed(name:&nbsp;<code class="typename">String</code>):&nbsp;<code class="typename">Option[Food]</code>&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allFoods.find(_.name&nbsp;==&nbsp;name)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allRecipes:&nbsp;<code class="typename">List[Recipe]</code>&nbsp;=&nbsp;<code class="typename">List</code>(<code class="typename">FruitSalad</code>)
+  &nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">SimpleBrowser</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;recipesUsing(food:&nbsp;<code class="typename">Food</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SimpleDatabase.allRecipes.filter(recipe&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recipe.ingredients.contains(food))
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.4 - Mock database and browser modules.</h5>
+
+
+<p>Scala uses objects for modules, so you can start modularizing your program by making two singleton<a id="i-1006990674-1"/><a id="i955954873-1"/><a id="i-536383362-1"/>
+objects to serve as mock implementations of the database and browser modules during testing.  Because it is a mock, the database module is backed by a
+simple in-memory list. Implementations of these objects are shown in <a href="modular-programming-using-objects.html#lst-mock-implementations">Listing 29.4</a>.
+You can use this database and browser as follows:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;apple&nbsp;=&nbsp;SimpleDatabase.foodNamed(<code class="quotedstring">"Apple"</code>).get
+  <code class="output">apple:&nbsp;Food&nbsp;=&nbsp;Apple</code>
+  <br />  scala&gt;&nbsp;SimpleBrowser.recipesUsing(apple)
+  <code class="output">res0:&nbsp;List[Recipe]&nbsp;=&nbsp;List(fruit&nbsp;salad)</code>
+</pre>
+
+
+<p>To make things a little more interesting, suppose the database sorts
+foods into categories.  To implement this, you can add a <span class="code">FoodCategory</span> class
+and a list of all categories in the database, as shown in <a href="modular-programming-using-objects.html#lst-categories-added">Listing 29.5</a>.
+Notice in this example that the <span class="code">private</span> keyword, so useful for
+implementing classes, is also useful for implementing
+modules.<a id="i-107999758-1"/> Items
+marked <span class="code">private</span> are part of the implementation of a module, and thus
+are particularly easy to change without affecting other modules.</p>
+
+<p>At this point, many more facilities could be added, but you get the
+idea.  Programs can be divided into singleton objects, which you can
+think of as modules.  This is not big news, but it becomes very useful
+when you consider abstraction (which we'll cover next).</p>
+
+<p><a id="lst-categories-added"/></p>
+
+<pre>
+  <code class="vem">package</code>&nbsp;org.stairwaybook.recipe
+  <br />  <code class="vem">object</code>&nbsp;<code class="typename">SimpleDatabase</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;allFoods&nbsp;=&nbsp;<code class="typename">List</code>(<code class="typename">Apple</code>,&nbsp;<code class="typename">Orange</code>,&nbsp;<code class="typename">Cream</code>,&nbsp;<code class="typename">Sugar</code>)
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;foodNamed(name:&nbsp;<code class="typename">String</code>):&nbsp;<code class="typename">Option[Food]</code>&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;allFoods.find(_.name&nbsp;==&nbsp;name)
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;allRecipes:&nbsp;<code class="typename">List[Recipe]</code>&nbsp;=&nbsp;<code class="typename">List</code>(<code class="typename">FruitSalad</code>)
+  <br />  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">FoodCategory</code>(name:&nbsp;<code class="typename">String</code>,&nbsp;foods:&nbsp;<code class="typename">List[Food]</code>)
+  <br />  &nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">var</code>&nbsp;categories&nbsp;=&nbsp;<code class="typename">List</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">FoodCategory</code>(<code class="quotedstring">"fruits"</code>,&nbsp;<code class="typename">List</code>(<code class="typename">Apple</code>,&nbsp;<code class="typename">Orange</code>)),
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">FoodCategory</code>(<code class="quotedstring">"misc"</code>,&nbsp;<code class="typename">List</code>(<code class="typename">Cream</code>,&nbsp;<code class="typename">Sugar</code>)))
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;allCategories&nbsp;=&nbsp;categories
+  }
+  <br />  <code class="vem">object</code>&nbsp;<code class="typename">SimpleBrowser</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;recipesUsing(food:&nbsp;<code class="typename">Food</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;SimpleDatabase.allRecipes.filter(recipe&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recipe.ingredients.contains(food))
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;displayCategory(category:&nbsp;<code class="typename">SimpleDatabase.FoodCategory</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;println(category)
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<h5>Listing 29.5 - Database and browser modules with categories added.</h5>
+
+
+<h3>29.3 Abstraction</h3>
+
+
+<p>Although the examples shown so far did manage to partition your application into separate database and browser modules, the
+design is not yet very "modular." The problem is that there is essentially a "hard link" from the browser module to
+the database modules:</p>
+
+<pre>
+  SimpleDatabase.allRecipes.filter(recipe&nbsp;=&gt;&nbsp;...
+</pre>
+
+
+<p>Because the <span class="code">SimpleBrowser</span> module mentions the <span class="code">SimpleDatabase</span> module by name, you won't be able
+to plug in a different implementation of the database module without modifying and recompiling
+the browser module.
+In addition, although there's no hard link from the <span class="code">SimpleDatabase</span> module to the <span class="code">SimpleBrowser</span>
+module,<a href="modular-programming-using-objects.html#footnotemain29-5">[5]</a>
+there's no clear way to enable the user interface layer, for example, to be configured to use different
+implementations of the browser module.</p>
+
+<p>When making these modules more pluggable, however, it is important to avoid duplicating code, because
+much code can likely be shared by different implementations of the same module.
+For example, suppose you want the same code base to support multiple recipe
+databases, and you want to be able to create a separate browser for
+each of these databases.  You would like to reuse the browser code for
+each of the instances, because the only thing different about the
+browsers is which database they refer to.  Except for the database
+implementation, the rest of the code can be reused character for
+character.  How can the program be arranged to minimize repetitive
+code?  How can the code be made reconfigurable, so that you can
+configure it using either database implementation?</p>
+
+<p>The answer is a familiar one: If a module is an object, then a
+template for a module is a class.  Just like a class describes the
+common parts of all its instances, a class can describe the parts of a
+module that are common to all of its possible configurations.</p>
+
+<p><a id="lst-browser-as-class"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Browser</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;database:&nbsp;<code class="typename">Database</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;recipesUsing(food:&nbsp;<code class="typename">Food</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;database.allRecipes.filter(recipe&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;recipe.ingredients.contains(food))
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;displayCategory(category:&nbsp;<code class="typename">database.FoodCategory</code>)&nbsp;=&nbsp;{&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(category)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.6 - A <span class="code">Browser</span> class with an abstract database <span class="code">val</span>.</h5>
+
+
+<p>The browser definition therefore becomes a class, instead of an
+object, and the database to use is specified as an abstract member of
+the class, as shown in <a href="modular-programming-using-objects.html#lst-browser-as-class">Listing 29.6</a>. The database also becomes a class, including as much as possible that
+is common between all databases, and declaring the missing parts that
+a database must define. 
+In this case, all database modules must
+define methods for <span class="code">allFoods</span>, <span class="code">allRecipes</span>, and <span class="code">allCategories</span>,
+but since they can
+use an arbitrary definition, the methods must be left abstract in the
+<span class="code">Database</span> class.  The <span class="code">foodNamed</span> method, by contrast, can
+be defined in the abstract <span class="code">Database</span> class, as shown in <a href="modular-programming-using-objects.html#lst-database-as-class">Listing 29.7</a>.</p>
+
+<p><a id="lst-database-as-class"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Database</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allFoods:&nbsp;<code class="typename">List[Food]</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allRecipes:&nbsp;<code class="typename">List[Recipe]</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;foodNamed(name:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allFoods.find(f&nbsp;=&gt;&nbsp;f.name&nbsp;==&nbsp;name)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">FoodCategory</code>(name:&nbsp;<code class="typename">String</code>,&nbsp;foods:&nbsp;<code class="typename">List[Food]</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allCategories:&nbsp;<code class="typename">List[FoodCategory]</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.7 - A <span class="code">Database</span> class with abstract methods.</h5>
+
+
+<p>The <span class="code">SimpleDatabase</span> object must be updated to inherit from the
+abstract <span class="code">Database</span> class, as shown in <a href="modular-programming-using-objects.html#lst-new-simple-database">Listing 29.8</a>.
+<a id="lst-new-simple-database"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">SimpleDatabase</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Database</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allFoods&nbsp;=&nbsp;<code class="typename">List</code>(<code class="typename">Apple</code>,&nbsp;<code class="typename">Orange</code>,&nbsp;<code class="typename">Cream</code>,&nbsp;<code class="typename">Sugar</code>)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allRecipes:&nbsp;<code class="typename">List[Recipe]</code>&nbsp;=&nbsp;<code class="typename">List</code>(<code class="typename">FruitSalad</code>)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">var</code>&nbsp;categories&nbsp;=&nbsp;<code class="typename">List</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">FoodCategory</code>(<code class="quotedstring">"fruits"</code>,&nbsp;<code class="typename">List</code>(<code class="typename">Apple</code>,&nbsp;<code class="typename">Orange</code>)),
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">FoodCategory</code>(<code class="quotedstring">"misc"</code>,&nbsp;<code class="typename">List</code>(<code class="typename">Cream</code>,&nbsp;<code class="typename">Sugar</code>)))
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allCategories&nbsp;=&nbsp;categories
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.8 - The <span class="code">SimpleDatabase</span> object as a <span class="code">Database</span> subclass.</h5>
+
+
+<p>Then, a specific browser module is made by instantiating the <span class="code">Browser</span>
+class and specifying which database to use, as shown in <a href="modular-programming-using-objects.html#lst-new-simple-browser">Listing 29.9</a>.</p>
+
+<p><a id="lst-new-simple-browser"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">SimpleBrowser</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Browser</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;database&nbsp;=&nbsp;<code class="typename">SimpleDatabase</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.9 - The <span class="code">SimpleBrowser</span> object as a <span class="code">Browser</span> subclass.</h5>
+
+
+<p>You can use these more pluggable modules the same as before:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;apple&nbsp;=&nbsp;SimpleDatabase.foodNamed(<code class="quotedstring">"Apple"</code>).get
+  <code class="output">apple:&nbsp;Food&nbsp;=&nbsp;Apple</code>
+  <br />  scala&gt;&nbsp;SimpleBrowser.recipesUsing(apple)
+  <code class="output">res1:&nbsp;List[Recipe]&nbsp;=&nbsp;List(fruit&nbsp;salad)</code>
+</pre>
+
+
+<p>Now, however, you can create a second mock database, and use the same browser
+class with it, as shown in <a href="modular-programming-using-objects.html#lst-student-database">Listing 29.10</a>:
+<a id="lst-student-database"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">StudentDatabase</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Database</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">FrozenFood</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>(<code class="quotedstring">"FrozenFood"</code>)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">HeatItUp</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Recipe</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"heat&nbsp;it&nbsp;up"</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">List</code>(<code class="typename">FrozenFood</code>),
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"Microwave&nbsp;the&nbsp;'food'&nbsp;for&nbsp;10&nbsp;minutes."</code>)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allFoods&nbsp;=&nbsp;<code class="typename">List</code>(<code class="typename">FrozenFood</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allRecipes&nbsp;=&nbsp;<code class="typename">List</code>(<code class="typename">HeatItUp</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allCategories&nbsp;=&nbsp;<code class="typename">List</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">FoodCategory</code>(<code class="quotedstring">"edible"</code>,&nbsp;<code class="typename">List</code>(<code class="typename">FrozenFood</code>)))
+  &nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">StudentBrowser</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Browser</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;database&nbsp;=&nbsp;<code class="typename">StudentDatabase</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.10 - A student database and browser.</h5>
+
+
+<h3 id="sec-modules-traits">29.4 Splitting modules into traits</h3>
+
+
+<p>Often a module is too large to fit comfortably into a single file.
+When that happens, you can use traits to split a module into separate
+files.<a id="i-865710043-2"/> For example, suppose you wanted to move categorization code out of the
+main <span class="code">Database</span> file and into its own.  You could create a trait for
+the code as shown in (<a href="modular-programming-using-objects.html#lst-trait-food-categories">Listing 29.11</a>).
+<a id="lst-trait-food-categories"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">FoodCategories</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">FoodCategory</code>(name:&nbsp;<code class="typename">String</code>,&nbsp;foods:&nbsp;<code class="typename">List[Food]</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allCategories:&nbsp;<code class="typename">List[FoodCategory]</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.11 - A trait for food categories.</h5>
+
+
+<p>Now class <span class="code">Database</span> can mix in the <span class="code">FoodCategories</span> trait instead of
+defining <span class="code">FoodCategory</span> and <span class="code">allCategories</span> itself, as shown in <a href="modular-programming-using-objects.html#lst-database-mixes-in">Listing 29.12</a>:
+<a id="lst-database-mixes-in"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Database</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">FoodCategories</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allFoods:&nbsp;<code class="typename">List[Food]</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allRecipes:&nbsp;<code class="typename">List[Recipe]</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;foodNamed(name:&nbsp;<code class="typename">String</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;allFoods.find(f&nbsp;=&gt;&nbsp;f.name&nbsp;==&nbsp;name)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.12 - A <span class="code">Database</span> class that mixes in the <span class="code">FoodCategories</span> trait.</h5>
+
+
+<p>You might try and divide <span class="code">SimpleDatabase</span>
+into two traits, one for foods and one for recipes. This would allow you
+to define <span class="code">SimpleDatabase</span> as shown in <a href="modular-programming-using-objects.html#lst-simple-traits">Listing 29.13</a>:
+<a id="lst-simple-traits"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">SimpleDatabase</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Database</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">SimpleFoods</code>&nbsp;<code class="vem">with</code>&nbsp;<code class="typename">SimpleRecipes</code>
+</pre>
+
+
+<h5>Listing 29.13 - A <span class="code">SimpleDatabase</span> object composed solely of mixins.</h5>
+
+
+<p>The <span class="code">SimpleFoods</span> trait could look as shown in <a href="modular-programming-using-objects.html#lst-simple-foods-trait">Listing 29.14</a>:
+<a id="lst-simple-foods-trait"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">SimpleFoods</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Pear</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Food</code>(<code class="quotedstring">"Pear"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allFoods&nbsp;=&nbsp;<code class="typename">List</code>(<code class="typename">Apple</code>,&nbsp;<code class="typename">Pear</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allCategories&nbsp;=&nbsp;<code class="typename">Nil</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.14 - A <span class="code">SimpleFoods</span> trait.</h5>
+
+
+<p>So far so good, but unfortunately, a
+problem arises if you try to define a <span class="code">SimpleRecipe</span>s trait like this:</p>
+
+<pre>
+  <code class="vem">trait</code>&nbsp;<code class="typename">SimpleRecipes</code>&nbsp;{&nbsp;<code class="comment">//&nbsp;Does&nbsp;not&nbsp;compile</code>
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">FruitSalad</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Recipe</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"fruit&nbsp;salad"</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">List</code>(<code class="typename">Apple</code>,&nbsp;<code class="typename">Pear</code>),&nbsp;&nbsp;<code class="comment">//&nbsp;Uh&nbsp;oh</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"Mix&nbsp;it&nbsp;all&nbsp;together."</code>
+  &nbsp;&nbsp;)
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;allRecipes&nbsp;=&nbsp;<code class="typename">List</code>(<code class="typename">FruitSalad</code>)
+  }
+</pre>
+
+
+<p>The problem is that <span class="code">Pear</span> is located in a different trait from
+the one that uses it, so it is out of scope.  The compiler has no
+idea that <span class="code">SimpleRecipes</span> is only ever mixed together with
+<span class="code">SimpleFoods</span>.</p>
+
+<p>However, there is a way you can tell this to the compiler.  Scala
+provides the <a href="glossary.html#g-1749196914"><em>self type</em></a> for precisely this situation.<a id="i979629307-1"/><a id="i-560124499-1"/><a id="i-178750838-1"/>
+Technically, a self type is an assumed type for <span class="code">this</span> whenever
+<span class="code">this</span> is mentioned within the class.<a id="i-1139406016-1"/><a id="i1634645853-1"/> Pragmatically, a self type
+specifies the requirements on any concrete class the trait is mixed
+into.  If you have a trait that is only ever used when mixed in with
+another trait or traits, then you can specify that those other traits
+should be assumed.  In the present case, it is enough to specify a
+self type of <span class="code">SimpleFoods</span>, as shown in <a href="modular-programming-using-objects.html#lst-simple-recipes-trait">Listing 29.15</a>:
+<a id="lst-simple-recipes-trait"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">trait</code>&nbsp;<code class="typename">SimpleRecipes</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">this</code>:&nbsp;<code class="typename">SimpleFoods</code>&nbsp;=&gt;
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">FruitSalad</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Recipe</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"fruit&nbsp;salad"</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">List</code>(<code class="typename">Apple</code>,&nbsp;<code class="typename">Pear</code>),&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Now&nbsp;Pear&nbsp;is&nbsp;in&nbsp;scope</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"Mix&nbsp;it&nbsp;all&nbsp;together."</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;allRecipes&nbsp;=&nbsp;<code class="typename">List</code>(<code class="typename">FruitSalad</code>)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.15 - A <span class="code">SimpleRecipes</span> trait with a self type.</h5>
+
+
+<p>Given the new self type, <span class="code">Pear</span> is now available.  Implicitly, the
+reference to <span class="code">Pear</span> is thought of as <span class="code">this.Pear</span>.  This is safe,
+ because any <em>concrete</em> class that mixes in <span class="code">SimpleRecipes</span> must
+also be a subtype of <span class="code">SimpleFoods</span>, which means that <span class="code">Pear</span> will be
+a member.  Abstract subclasses and traits do not have to follow this
+restriction, but since they cannot be instantiated with <span class="code">new</span>, there
+is no risk that the <span class="code">this.Pear</span> reference will fail.</p>
+
+<h3>29.5 Runtime linking</h3>
+
+
+<p>Scala modules can be
+linked together at runtime, and you can decide which modules will link to
+which depending on runtime
+computations.<a id="i775929709-1"/><a id="i1259075515-1"/> 
+For example, <a href="modular-programming-using-objects.html#lst-got-apples">Listing 29.16</a> shows a small
+program that chooses a database at runtime and then prints out all the
+apple recipes in it:
+<a id="lst-got-apples"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">GotApples</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;main(args:&nbsp;<code class="typename">Array[String]</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;db:&nbsp;<code class="typename">Database</code>&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>(args(<code class="literal">0</code>)&nbsp;==&nbsp;<code class="quotedstring">"student"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">StudentDatabase</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">SimpleDatabase</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">object</code>&nbsp;browser&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Browser</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;database&nbsp;=&nbsp;db
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;apple&nbsp;=&nbsp;SimpleDatabase.foodNamed(<code class="quotedstring">"Apple"</code>).get
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>(recipe&nbsp;&lt;-&nbsp;browser.recipesUsing(apple))
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(recipe)
+  &nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.16 - An app that dynamically selects a module implementation.</h5>
+
+
+<p>Now, if you use the simple database, you will find a
+recipe for fruit salad.  If you use the student database,
+you will find no recipes at all using apples:</p>
+
+<pre>
+  $&nbsp;scala&nbsp;<code class="typename">GotApples</code>&nbsp;simple
+  <code class="output">fruit&nbsp;salad</code>
+  $&nbsp;scala&nbsp;<code class="typename">GotApples</code>&nbsp;student
+  $
+</pre>
+
+
+<div class="aside">
+<h3>Configuring with Scala code</h3>
+
+
+<p>You may wonder if you are not backsliding to the hard links problem of the original examples in
+this chapter, because the <span class="code">GotApples</span> object shown
+in <a href="modular-programming-using-objects.html#lst-got-apples">Listing 29.16</a> contains hard links to both <span class="code">StudentDatabase</span> and <span class="code">SimpleDatabase</span>.
+The difference here is that the hard links are localized in one file
+that can be replaced.<a id="i475125994-1"/><a id="i-578074568-1"/></p>
+
+<p>Every modular application needs some way to specify the actual module implementations to use in a particular
+situation. This act of "configuring" the application will by definition involve the naming of
+concrete module implementations. For example, in a Spring application, you configure by naming
+implementations in an external XML file.<a id="i872568577-1"/><a id="i-1798539574-1"/> In Scala, you can configure via
+Scala code itself. One advantage to using
+Scala source over XML for configuration is that the process of running your configuration file through
+the Scala compiler should uncover any misspellings in it prior to its actual use.</p>
+
+</div>
+
+
+<h3 id="sec-tracking-module-instances">29.6 Tracking module instances</h3>
+
+
+<p>Despite using the same code, the different browser and database
+modules created in the previous section really are separate modules.  This means that
+each module has its own contents, including any nested classes.  
+<span class="code">FoodCategory</span> in <span class="code">SimpleDatabase</span>, for example, is a different class from
+<span class="code">FoodCategory</span> in <span class="code">StudentDatabase</span>!<a id="i-677980410-10"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;category&nbsp;=&nbsp;StudentDatabase.allCategories.head
+  <code class="output">category:&nbsp;StudentDatabase.FoodCategory&nbsp;=&nbsp;</code>
+  <code class="output">FoodCategory(edible,List(FrozenFood))</code>
+  <br />  scala&gt;&nbsp;SimpleBrowser.displayCategory(category)
+  <code class="output">&lt;console&gt;:21:&nbsp;error:&nbsp;type&nbsp;mismatch;</code>
+  <code class="output">&nbsp;found&nbsp;&nbsp;&nbsp;:&nbsp;StudentDatabase.FoodCategory</code>
+  <code class="output">&nbsp;required:&nbsp;SimpleBrowser.database.FoodCategory</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SimpleBrowser.displayCategory(category)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>If instead you prefer all <span class="code">FoodCategory</span>s to be the same, you can
+accomplish this by moving the definition of <span class="code">FoodCategory</span> outside of
+any class or trait.  The choice is yours, but as it is written, each
+<span class="code">Database</span> gets its own, unique <span class="code">FoodCategory</span> class.</p>
+
+<p>Since the two <span class="code">FoodCategory</span> classes shown in this example really are different, the compiler is correct
+to complain.  Sometimes, though, you may encounter a case where two
+types are the same but the compiler can't verify it.  You will
+see the compiler complaining that two types are not the same, even
+though you as the programmer know they are.</p>
+
+<p>In such cases you can often fix the problem using <em>singleton
+types</em>.  For example, in the <span class="code">GotApples</span> program, the type checker
+does not know that <span class="code">db</span> and <span class="code">browser.database</span> are the same.  This
+will cause type errors if you try to pass categories between the two
+objects:<a id="i-677980410-11"/></p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">GotApples</code>&nbsp;{
+  &nbsp;&nbsp;<code class="comment">//&nbsp;same&nbsp;definitions...</code>
+  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(category&nbsp;&lt;-&nbsp;db.allCategories)
+  &nbsp;&nbsp;&nbsp;&nbsp;browser.displayCategory(category)
+  &nbsp;&nbsp;<code class="comment">//&nbsp;...</code>
+  }
+  <code class="output">GotApples2.scala:14:&nbsp;error:&nbsp;type&nbsp;mismatch;</code>
+  <code class="output">&nbsp;found&nbsp;&nbsp;&nbsp;:&nbsp;db.FoodCategory</code>
+  <code class="output">&nbsp;required:&nbsp;browser.database.FoodCategory</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;browser.displayCategory(category)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+  <code class="output">one&nbsp;error&nbsp;found</code>
+</pre>
+
+
+<p>To avoid this error, you need to inform the type checker that they are
+the same object.<a id="i-677980410-12"/> You can do this by changing the definition
+of <span class="code">browser.database</span> as shown in <a href="modular-programming-using-objects.html#lst-db-type">Listing 29.17</a>:
+<a id="lst-db-type"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;browser&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Browser</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;database:&nbsp;db.type&nbsp;=&nbsp;db
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 29.17 - Using a singleton type.</h5>
+
+
+<p>This definition is the same as before except that <span class="code">database</span> has the<a id="i-1431142691-1"/>
+funny-looking type <span class="code">db.type</span>.  The "<span class="code">.type</span>" on the end means that
+this is a <em>singleton type</em>.<a id="i-108236764-2"/><a id="i-1108021686-1"/> A singleton type is extremely specific and
+holds only one object; in this case, whichever object is referred to by
+<span class="code">db</span>.  Usually such types are too specific to be useful, which is why
+the compiler is reluctant to insert them automatically.  In this case,
+though, the singleton type allows the compiler to know that <span class="code">db</span> and
+<span class="code">browser.database</span> are the same object&mdash;enough information to
+eliminate the type error.</p>
+
+<h3>29.7 Conclusion</h3>
+
+
+<p>This chapter has shown how to use Scala's objects as modules.  In
+addition to simple static modules, this approach gives you a variety
+of ways to create abstract, reconfigurable modules.  There are actually
+even more abstraction techniques than shown, since anything that
+works on a class also works on a class used to implement a module.
+As always, how much of this power you use should be a matter of taste.</p>
+
+<p>Modules are part of programming in the large, and thus are hard to
+experiment with.  You need a large program before it really makes a
+difference.  Nonetheless, after reading this chapter you know which
+Scala features to think about when you want to program in a modular
+style.  Think about these techniques when you write your own large
+programs and recognize these coding patterns when you see them in
+other people's code.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 29:</h4>
+
+
+<p><a id="footnotemain29-1"/>[1] This terminology was
+introduced in DeRemer, <i>et. al.</i>, "Programming-in-the-large versus
+programming-in-the-small."  <a href="bibliography.html#deremer-large-small">[DeR75]</a><a id="i1056566638-1"/></p>
+
+<p><a id="footnotemain29-2"/>[2] Fowler,<a id="i-110883654-1"/> "Inversion of control containers
+and the dependency injection pattern."  <a href="bibliography.html#fowler-dependency">[Fow04]</a></p>
+
+<p><a id="footnotemain29-3"/>[3] The naming of these layers follows that of Evans,
+<em>Domain-Driven Design</em>.
+ <a href="bibliography.html#evans-domain-driven-design">[Eva03]</a><a id="i-1668052528-1"/><a id="i-1497241897-1"/></p>
+
+<p><a id="footnotemain29-4"/>[4] These entity classes are simplified to keep the example uncluttered
+with too much real-world detail. But transforming these classes into entities that could be persisted
+with Hibernate<a id="i1100003378-1"/> or the Java Persistence Architecture,<a id="i-1968727662-1"/> , for example, would require only a few modifications, such as adding a private <span class="code">Long</span> <span class="code">id</span> field and
+a no-arg constructor, placing <span class="code">scala.reflect.BeanProperty</span> annotations on the fields, specifying appropriate mappings via
+annotations or a separate XML file, and so
+on.<a id="i-146150294-1"/></p>
+
+<p><a id="footnotemain29-5"/>[5] This is good, because each of these architectural layers should depend only on layers below them.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

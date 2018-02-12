@@ -1,0 +1,85 @@
+
+      .scriptsize {
+          font-size: 70%;
+      }
+
+      tr.topline td {
+        border-top: thin solid black;
+      }
+
+      tr.bottomline td {
+        border-bottom: thin solid black;
+      }
+
+      .aside {
+        padding: 0px 20px 10px 20px;
+        margin: 25px;
+        border: thin black solid;
+      }
+
+      .note {
+        padding: 0px 20px 5px 20px;
+        border-left: thin black solid;
+      }
+
+      .code {
+        font-family: monospace;
+        font-size: smaller;
+        overflow-wrap: break-word;
+        hyphens: none;
+        -webkit-hyphens: none;
+        -moz-hyphens: none;
+      }
+
+      pre {
+        font-size: smaller;
+        overflow-wrap: break-word;
+        hyphens: none;
+        -webkit-hyphens: none;
+        -moz-hyphens: none;
+      }
+
+      .glossaryname {
+        font-weight: bold;
+      }
+
+      .rm {
+        font-family: serif;
+      }
+
+      .textbf {
+        font-weight: bold;
+      }
+
+      .literal {
+        color: rgb(205, 123, 0); /* orange */
+      }
+
+      .typename {
+        color: rgb(103, 0, 154); /* purple */
+      }
+
+      .vem {
+        color: rgb(0, 0, 230); /* blue */
+      }
+
+      .quotedstring {
+        color: rgb(205, 123, 0); /* orange */
+      }
+
+      .comment {
+        color: rgb(76, 76, 76); /* gray .3 */
+      }
+
+      .output {
+        color: rgb(90, 0, 0); /* red */
+      }
+    
+      .textit {
+        font-style: italic;
+      }
+
+      .floatright {
+        float: right;
+      }
+

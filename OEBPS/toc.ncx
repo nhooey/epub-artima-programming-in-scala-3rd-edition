@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN"
+ "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
+<ncx version="2005-1" xml:lang="en"
+ xmlns="http://www.daisy.org/z3986/2005/ncx/">
+
+<head>
+  <meta name="dtb:uid" content="5ae923d1-efdb-480d-9203-64e7282bc8fe"/>
+  <meta name="dtb:depth" content="1"/>
+  <meta name="dtb:totalPageCount" content="0"/>
+  <meta name="dtb:maxPageNumber" content="0"/>
+</head>
+
+<docTitle>
+  <text>Programming in Scala, Third Edition</text>
+</docTitle>
+
+<navMap>
+  <navPoint id="navPoint-1" playOrder="1">
+    <navLabel>
+      <text>Cover</text>
+    </navLabel>
+    <content src="cover.html" />
+  </navPoint>
+
+  <navPoint id="navPoint-2" playOrder="2">
+    <navLabel>
+      <text>Praise for the earlier editions of Programming in Scala</text>
+    </navLabel>
+    <content src="praise-for-the-earlier-editions-of-programming-in-scala.html" />
+  </navPoint>
+  <navPoint id="navPoint-3" playOrder="3">
+    <navLabel>
+      <text>Title Page</text>
+    </navLabel>
+    <content src="praise-for-the-earlier-editions-of-programming-in-scala.html#titlepage" />
+  </navPoint>
+  <navPoint id="navPoint-4" playOrder="4">
+    <navLabel>
+      <text>Table of Contents</text>
+    </navLabel>
+    <content src="table-of-contents.html" />
+  </navPoint>
+  <navPoint id="navPoint-5" playOrder="5">
+    <navLabel>
+      <text>Foreword</text>
+    </navLabel>
+    <content src="foreword.html" />
+  </navPoint>
+  <navPoint id="navPoint-6" playOrder="6">
+    <navLabel>
+      <text>Acknowledgments</text>
+    </navLabel>
+    <content src="acknowledgments.html" />
+  </navPoint>
+  <navPoint id="navPoint-7" playOrder="7">
+    <navLabel>
+      <text>Introduction</text>
+    </navLabel>
+    <content src="introduction.html" />
+  </navPoint>
+  <navPoint id="navPoint-8" playOrder="8">
+    <navLabel>
+      <text>A Scalable Language</text>
+    </navLabel>
+    <content src="a-scalable-language.html" />
+  </navPoint>
+  <navPoint id="navPoint-9" playOrder="9">
+    <navLabel>
+      <text>First Steps in Scala</text>
+    </navLabel>
+    <content src="first-steps-in-scala.html" />
+  </navPoint>
+  <navPoint id="navPoint-10" playOrder="10">
+    <navLabel>
+      <text>Next Steps in Scala</text>
+    </navLabel>
+    <content src="next-steps-in-scala.html" />
+  </navPoint>
+  <navPoint id="navPoint-11" playOrder="11">
+    <navLabel>
+      <text>Classes and Objects</text>
+    </navLabel>
+    <content src="classes-and-objects.html" />
+  </navPoint>
+  <navPoint id="navPoint-12" playOrder="12">
+    <navLabel>
+      <text>Basic Types and Operations</text>
+    </navLabel>
+    <content src="basic-types-and-operations.html" />
+  </navPoint>
+  <navPoint id="navPoint-13" playOrder="13">
+    <navLabel>
+      <text>Functional Objects</text>
+    </navLabel>
+    <content src="functional-objects.html" />
+  </navPoint>
+  <navPoint id="navPoint-14" playOrder="14">
+    <navLabel>
+      <text>Built-in Control Structures</text>
+    </navLabel>
+    <content src="builtin-control-structures.html" />
+  </navPoint>
+  <navPoint id="navPoint-15" playOrder="15">
+    <navLabel>
+      <text>Functions and Closures</text>
+    </navLabel>
+    <content src="functions-and-closures.html" />
+  </navPoint>
+  <navPoint id="navPoint-16" playOrder="16">
+    <navLabel>
+      <text>Control Abstraction</text>
+    </navLabel>
+    <content src="control-abstraction.html" />
+  </navPoint>
+  <navPoint id="navPoint-17" playOrder="17">
+    <navLabel>
+      <text>Composition and Inheritance</text>
+    </navLabel>
+    <content src="composition-and-inheritance.html" />
+  </navPoint>
+  <navPoint id="navPoint-18" playOrder="18">
+    <navLabel>
+      <text>Scala's Hierarchy</text>
+    </navLabel>
+    <content src="scalas-hierarchy.html" />
+  </navPoint>
+  <navPoint id="navPoint-19" playOrder="19">
+    <navLabel>
+      <text>Traits</text>
+    </navLabel>
+    <content src="traits.html" />
+  </navPoint>
+  <navPoint id="navPoint-20" playOrder="20">
+    <navLabel>
+      <text>Packages and Imports</text>
+    </navLabel>
+    <content src="packages-and-imports.html" />
+  </navPoint>
+  <navPoint id="navPoint-21" playOrder="21">
+    <navLabel>
+      <text>Assertions and Tests</text>
+    </navLabel>
+    <content src="assertions-and-tests.html" />
+  </navPoint>
+  <navPoint id="navPoint-22" playOrder="22">
+    <navLabel>
+      <text>Case Classes and Pattern Matching</text>
+    </navLabel>
+    <content src="case-classes-and-pattern-matching.html" />
+  </navPoint>
+  <navPoint id="navPoint-23" playOrder="23">
+    <navLabel>
+      <text>Working with Lists</text>
+    </navLabel>
+    <content src="working-with-lists.html" />
+  </navPoint>
+  <navPoint id="navPoint-24" playOrder="24">
+    <navLabel>
+      <text>Working with Other Collections</text>
+    </navLabel>
+    <content src="working-with-other-collections.html" />
+  </navPoint>
+  <navPoint id="navPoint-25" playOrder="25">
+    <navLabel>
+      <text>Mutable Objects</text>
+    </navLabel>
+    <content src="mutable-objects.html" />
+  </navPoint>
+  <navPoint id="navPoint-26" playOrder="26">
+    <navLabel>
+      <text>Type Parameterization</text>
+    </navLabel>
+    <content src="type-parameterization.html" />
+  </navPoint>
+  <navPoint id="navPoint-27" playOrder="27">
+    <navLabel>
+      <text>Abstract Members</text>
+    </navLabel>
+    <content src="abstract-members.html" />
+  </navPoint>
+  <navPoint id="navPoint-28" playOrder="28">
+    <navLabel>
+      <text>Implicit Conversions and Parameters</text>
+    </navLabel>
+    <content src="implicit-conversions-and-parameters.html" />
+  </navPoint>
+  <navPoint id="navPoint-29" playOrder="29">
+    <navLabel>
+      <text>Implementing Lists</text>
+    </navLabel>
+    <content src="implementing-lists.html" />
+  </navPoint>
+  <navPoint id="navPoint-30" playOrder="30">
+    <navLabel>
+      <text>For Expressions Revisited</text>
+    </navLabel>
+    <content src="for-expressions-revisited.html" />
+  </navPoint>
+  <navPoint id="navPoint-31" playOrder="31">
+    <navLabel>
+      <text>Collections in Depth</text>
+    </navLabel>
+    <content src="collections-in-depth.html" />
+  </navPoint>
+  <navPoint id="navPoint-32" playOrder="32">
+    <navLabel>
+      <text>The Architecture of Scala Collections</text>
+    </navLabel>
+    <content src="the-architecture-of-scala-collections.html" />
+  </navPoint>
+  <navPoint id="navPoint-33" playOrder="33">
+    <navLabel>
+      <text>Extractors</text>
+    </navLabel>
+    <content src="extractors.html" />
+  </navPoint>
+  <navPoint id="navPoint-34" playOrder="34">
+    <navLabel>
+      <text>Annotations</text>
+    </navLabel>
+    <content src="annotations.html" />
+  </navPoint>
+  <navPoint id="navPoint-35" playOrder="35">
+    <navLabel>
+      <text>Working with XML</text>
+    </navLabel>
+    <content src="working-with-xml.html" />
+  </navPoint>
+  <navPoint id="navPoint-36" playOrder="36">
+    <navLabel>
+      <text>Modular Programming Using Objects</text>
+    </navLabel>
+    <content src="modular-programming-using-objects.html" />
+  </navPoint>
+  <navPoint id="navPoint-37" playOrder="37">
+    <navLabel>
+      <text>Object Equality</text>
+    </navLabel>
+    <content src="object-equality.html" />
+  </navPoint>
+  <navPoint id="navPoint-38" playOrder="38">
+    <navLabel>
+      <text>Combining Scala and Java</text>
+    </navLabel>
+    <content src="combining-scala-and-java.html" />
+  </navPoint>
+  <navPoint id="navPoint-39" playOrder="39">
+    <navLabel>
+      <text>Futures and Concurrency</text>
+    </navLabel>
+    <content src="futures-and-concurrency.html" />
+  </navPoint>
+  <navPoint id="navPoint-40" playOrder="40">
+    <navLabel>
+      <text>Combinator Parsing</text>
+    </navLabel>
+    <content src="combinator-parsing.html" />
+  </navPoint>
+  <navPoint id="navPoint-41" playOrder="41">
+    <navLabel>
+      <text>GUI Programming</text>
+    </navLabel>
+    <content src="gui-programming.html" />
+  </navPoint>
+  <navPoint id="navPoint-42" playOrder="42">
+    <navLabel>
+      <text>The SCells Spreadsheet</text>
+    </navLabel>
+    <content src="the-scells-spreadsheet.html" />
+  </navPoint>
+  <navPoint id="navPoint-43" playOrder="43">
+    <navLabel>
+      <text>Scala Scripts on Unix and Windows</text>
+    </navLabel>
+    <content src="scala-scripts-on-unix-and-windows.html" />
+  </navPoint>
+  <navPoint id="navPoint-44" playOrder="44">
+    <navLabel>
+      <text>Glossary</text>
+    </navLabel>
+    <content src="glossary.html#glossaryanchor" />
+  </navPoint>
+  <navPoint id="navPoint-45" playOrder="45">
+    <navLabel>
+      <text>Bibliography</text>
+    </navLabel>
+    <content src="bibliography.html#biblioanchor" />
+  </navPoint>
+  <navPoint id="navPoint-46" playOrder="46">
+    <navLabel>
+      <text>About the Authors</text>
+    </navLabel>
+    <content src="about-the-authors.html" />
+  </navPoint>
+  <navPoint id="navPoint-47" playOrder="47">
+    <navLabel>
+      <text>Book Index</text>
+    </navLabel>
+    <content src="book-index.html#indexanchor" />
+  </navPoint>
+</navMap>
+</ncx>

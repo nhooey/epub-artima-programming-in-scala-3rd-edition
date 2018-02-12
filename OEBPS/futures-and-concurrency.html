@@ -1,0 +1,1063 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-futures-and-concurrency">Chapter 32</a></h2>
+<h1>Futures and Concurrency</h1>
+
+
+<p>One consequence of the proliferation of multicore processors has been
+an increased interest in concurrency.
+Java provides concurrency support built around shared memory and locking. Although this
+support is sufficient, this approach turns out to be quite difficult to get right in practice.<a id="i-1261817322-1"/><a id="i-503567600-1"/><a id="i-2146835927-1"/>
+Scala's standard library offers an alternative that avoids these difficulties by
+focusing on asynchronous transformations of immutable state: the <span class="code">Future</span>.</p>
+
+<p>Although Java also offers a <span class="code">Future</span>, it is very different from Scala's.
+Both represent the result of an asynchronous computation, but Java's <span class="code">Future</span> requires that you access the result via a
+blocking <span class="code">get</span> method. Although you can call <span class="code">isDone</span> to find out if a Java <span class="code">Future</span> has completed
+before calling <span class="code">get</span>, thereby avoiding any blocking, you must wait until the Java <span class="code">Future</span> has completed before
+proceeding with any computation that uses the result.</p>
+
+<p>By contrast, you can specify transformations on a Scala <span class="code">Future</span> whether it has completed or not.
+Each transformation results in a new <span class="code">Future</span> representing the asynchronous result of
+the original <span class="code">Future</span> transformed by the function. The thread that performs the computation is
+determined by an implicitly provided <span class="textit">execution context</span>. This allows you to describe asynchronous computations
+as a series of transformations of immutable values, with no need to reason about shared memory and locks.</p>
+
+<h3>32.1 Trouble in paradise</h3>
+
+
+<p>On the Java platform, each object is associated with
+a logical <em>monitor</em>,<a id="i-328798631-1"/> which can be used to control multi-threaded access to data. To use
+this model, you decide
+what data will be shared by multiple threads and mark as "synchronized" sections of the code that access, or
+control access to, the shared data.
+The Java runtime employs a locking mechanism to ensure that only one thread at a time enters synchronized sections 
+guarded by the same lock,
+thereby enabling you to orchestrate multi-threaded access to the shared
+data.<a id="i2035919517-1"/></p>
+
+<p>For compatibility's sake, Scala provides access to Java's concurrency
+primitives.  The <span class="code">wait</span>, <span class="code">notify</span>, and <span class="code">notifyAll</span> methods can be
+called in Scala, and they have the same meaning as in Java.  Scala
+doesn't technically have a <span class="code">synchronized</span> keyword, but it includes a
+predefined <span class="code">synchronized</span> method that can be called as follows:</p>
+
+<pre>
+  <code class="vem">var</code>&nbsp;counter&nbsp;=&nbsp;<code class="literal">0</code>
+  synchronized&nbsp;{
+  &nbsp;&nbsp;<code class="comment">//&nbsp;One&nbsp;thread&nbsp;in&nbsp;here&nbsp;at&nbsp;a&nbsp;time</code>
+  &nbsp;&nbsp;counter&nbsp;=&nbsp;counter&nbsp;+&nbsp;<code class="literal">1</code>
+  }
+</pre>
+
+
+<p>Unfortunately, programmers have found it very difficult to reliably build robust multi-threaded applications
+using the shared data and locks model, especially as applications grow in size and complexity. The problem is that at each point in the program, you must reason about what data you are modifying or
+accessing that might be modified or accessed by other threads, and what locks are being held. At each method call, you must reason about what locks it will try to
+hold and convince yourself that it will not deadlock while<a id="i503639951-2"/>
+trying to obtain them.  Compounding the problem, the locks you reason about are
+not fixed at compile time, because the program is free
+to create new locks at run time as it progresses.</p>
+
+<p>Making things worse, testing is not reliable with multi-threaded code.<a id="i-670497952-1"/> Since
+threads are non-deterministic, you might successfully test a program
+one thousand times&mdash;and the program could still go wrong the first
+time it runs on a customer's machine.  With shared data and locks, you must get the
+program correct through reason alone.</p>
+
+<p>Moreover, you can't solve the problem by over-synchronizing either. It can be just as
+problematic to synchronize everything as it is to synchronize nothing. Although new lock operations may remove possibilities for race
+conditions, they simultaneously add possibilities for deadlocks.  A
+correct lock-using program must have neither race conditions nor deadlocks,
+so you cannot play it safe by overdoing it in either direction.</p>
+
+<p>The <span class="code">java.util.concurrent</span> library provides
+higher level abstractions for concurrent programming.<a id="i-1522908125-1"/>
+Using the concurrency utilities makes multi-threaded programming far less error prone than rolling your own abstractions with
+Java's low-level synchronization primitives. Nevertheless, the concurrent utilities are also based on the shared data
+and locks model, and as a result, do not solve the fundamental
+difficulties of using that model.<a id="i1837693870-1"/><a id="i1225979037-1"/><a id="i1954917920-1"/></p>
+
+<h3>32.2 Asynchronous execution and <span class="code">Try</span>s</h3>
+
+
+<p>Although not a silver bullet, Scala's <span class="code">Future</span> offers one way to deal with<a id="i634201779-1"/>
+concurrency that can reduce, and often eliminate, the need to reason about
+shared data and locks. When you invoke a Scala method, it performs a computation "while you wait" and
+returns a result. If that result is a <span class="code">Future</span>, the <span class="code">Future</span> represents
+another computation to be performed asynchronously, often by a completely
+different thread. As a result, many
+operations on <span class="code">Future</span> require an implicit <span class="textit">execution context</span> that
+provides a strategy for executing functions asynchronously. For example,
+if you try to create a future via the <span class="code">Future.apply</span> factory method<a id="i2121330216-1"/><a id="i-702563230-1"/>
+without providing an implicit execution context,
+an instance of <span class="code">scala.concurrent.ExecutionContext</span>,<a id="i-89859177-1"/>
+you'll get a compiler error:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">import</code>&nbsp;scala.concurrent.Future
+  <code class="output">import&nbsp;scala.concurrent.Future</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fut&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;Thread.sleep(<code class="literal">10000</code>);&nbsp;<code class="literal">21</code>&nbsp;+&nbsp;<code class="literal">21</code>&nbsp;}
+  <code class="output">&lt;console&gt;:11:&nbsp;error:&nbsp;Cannot&nbsp;find&nbsp;an&nbsp;implicit&nbsp;ExecutionContext.</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;You&nbsp;might&nbsp;pass&nbsp;an&nbsp;(implicit&nbsp;ec:&nbsp;ExecutionContext)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;parameter&nbsp;to&nbsp;your&nbsp;method&nbsp;or&nbsp;import</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;scala.concurrent.ExecutionContext.Implicits.global.</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;fut&nbsp;=&nbsp;Future&nbsp;{&nbsp;Thread.sleep(10000);&nbsp;21&nbsp;+&nbsp;21&nbsp;}</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>The error message gives you one way to solve the problem:
+importing a global execution context provided by Scala itself.
+On the JVM, the global execution context uses a thread pool.<a href="futures-and-concurrency.html#footnotemain32-1">[1]</a> Once you bring an implicit execution context into scope,
+you can create a future:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">import</code>&nbsp;scala.concurrent.ExecutionContext.Implicits.global
+  <code class="output">import&nbsp;scala.concurrent.ExecutionContext.Implicits.global</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fut&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;Thread.sleep(<code class="literal">10000</code>);&nbsp;<code class="literal">21</code>&nbsp;+&nbsp;<code class="literal">21</code>&nbsp;}
+  <code class="output">fut:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+</pre>
+
+
+<p>The future created in the previous example asynchronously executes the block of code, using
+the <span class="code">global</span> execution context, then completes with the value 42.
+Once it starts execution, that thread will sleep for ten seconds.
+Thus this future will take at least ten seconds to complete.</p>
+
+<p>Two methods on <span class="code">Future</span> allow you to poll: <span class="code">isCompleted</span> and <span class="code">value</span>.
+When invoked on a future that has not yet completed, <span class="code">isCompleted</span> will
+return <span class="code">false</span> and <span class="code">value</span> will return <span class="code">None</span>.</p>
+
+<pre>
+  scala&gt;&nbsp;fut.isCompleted
+  <code class="output">res0:&nbsp;Boolean&nbsp;=&nbsp;false</code>
+  <br />  scala&gt;&nbsp;fut.value
+  <code class="output">res1:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;None</code>
+</pre>
+
+
+<p>Once the future completes (in this case, after at least ten seconds
+has gone by), <span class="code">isCompleted</span> will return <span class="code">true</span> and <span class="code">value</span>
+will return a <span class="code">Some</span>:<a id="i-1388404182-1"/><a id="i1126777268-1"/><a id="i217604474-1"/><a id="i971355780-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;fut.isCompleted
+  <code class="output">res2:&nbsp;Boolean&nbsp;=&nbsp;true</code>
+  <br />  scala&gt;&nbsp;fut.value
+  <code class="output">res3:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(42))</code>
+</pre>
+
+
+<p>The option returned by <span class="code">value</span> contains
+a <span class="code">Try</span>. As shown in <a href="futures-and-concurrency.html#fig-try-hierarchy">Figure 32.1</a>, a <span class="code">Try</span> is either
+a <span class="code">Success</span>, which contains a value of type <span class="code">T</span>, or a <span class="code">Failure</span>, which
+contains an exception (an instance of <span class="code">java.lang.Throwable</span>). The purpose of <span class="code">Try</span> is to provide for asynchronous computations what the
+<span class="code">try</span> expression provides for synchronous computations: It allows you to
+deal with the possibility that the computation will complete
+abruptly with an exception rather than return a result.<a href="futures-and-concurrency.html#footnotemain32-2">[2]</a></p>
+
+<div class="figure"><a id="fig-try-hierarchy"/>
+
+
+<p><img src="images/tryHierarchy85.png" alt="image images/tryHierarchy85.png"/></p>
+
+</div>
+<h5> Figure 32.1 - Class hierarchy for <span class="code">Try</span>.<a id="i532116857-1"/><a id="i1073460856-1"/></h5>
+
+
+<p>For synchronous
+computations you can use <span class="code">try</span>/<span class="code">catch</span> to ensure that a thread that
+invokes a method catches and handles exceptions thrown by the method.
+For asynchronous computations, however,
+the thread that initiates the computation often moves on to other tasks. Later
+if that asynchronous computation fails with an exception, the original thread
+is no longer able to handle the exception in a <span class="code">catch</span> clause. Thus when working with 
+a <span class="code">Future</span> representing an asynchronous activity, you use <span class="code">Try</span> to deal with
+the possibility that the activity fails to yield a value and instead completes abruptly
+an exception. Here's an example that shows what happens when an asynchronous activity fails:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fut&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;Thread.sleep(<code class="literal">10000</code>);&nbsp;<code class="literal">21</code>&nbsp;/&nbsp;<code class="literal">0</code>&nbsp;}
+  <code class="output">fut:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;fut.value
+  <code class="output">res4:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;None</code>
+</pre>
+
+
+<p>Then, after ten seconds:</p>
+
+<pre>
+  scala&gt;&nbsp;fut.value
+  <code class="output">res5:&nbsp;Option[scala.util.Try[Int]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;Some(Failure(java.lang.ArithmeticException:&nbsp;/&nbsp;by&nbsp;zero))</code>
+</pre>
+
+
+<h3>32.3 Working with <span class="code">Future</span>s</h3>
+
+
+<p>Scala's <span class="code">Future</span> allows you to specify
+transformations on <span class="code">Future</span> results and obtain
+a <span class="textit">new future</span> that represents the composition of the two 
+asynchronous computations: the original and the transformation.</p>
+
+<h4>Transforming <span class="code">Future</span>s with <span class="code">map</span></h4>
+
+
+<p>The most fundamental such operation is <span class="code">map</span>.<a id="i-1389984145-1"/><a id="i1273958009-1"/> 
+Instead of blocking then continuing with another computation, you can
+just <span class="code">map</span> the next computation onto the future.
+The result will be a new future that represents the original
+asynchronously computed result transformed asynchronously by the function passed
+to <span class="code">map</span>.</p>
+
+<p>For example, the following future will complete
+after ten seconds:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fut&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;Thread.sleep(<code class="literal">10000</code>);&nbsp;<code class="literal">21</code>&nbsp;+&nbsp;<code class="literal">21</code>&nbsp;}
+  <code class="output">fut:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+</pre>
+
+
+<p>Mapping this future with a function that increments by one
+will yield another future. This new future will represent a
+computation consisting of the original addition followed by the subsequent
+increment:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;result&nbsp;=&nbsp;fut.map(x&nbsp;=&gt;&nbsp;x&nbsp;+&nbsp;<code class="literal">1</code>)
+  <code class="output">result:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;result.value
+  <code class="output">res5:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;None</code>
+</pre>
+
+
+<p>Once the original future completes and the function has been applied to its result, the
+future returned by <span class="code">map</span> will complete:</p>
+
+<pre>
+  scala&gt;&nbsp;result.value
+  <code class="output">res6:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(43))</code>
+</pre>
+
+
+<p>Note that the operations performed in this example&mdash;the future creation, the 21 + 21 sum calculation, and
+the 42 + 1 increment&mdash;may be performed by three different threads.</p>
+
+<h4>Transforming <span class="code">Future</span>s with <span class="code">for</span> expressions</h4>
+
+
+<p>Because Scala's future also declares a <span class="code">flatMap</span> method,<a id="i-212724097-1"/><a id="i1700331144-1"/> you can transform futures using a <span class="code">for</span> expression.<a id="i-1506494671-1"/>
+For example, consider the following two futures that will, after ten seconds, produce 42 and 46:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fut1&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;Thread.sleep(<code class="literal">10000</code>);&nbsp;<code class="literal">21</code>&nbsp;+&nbsp;<code class="literal">21</code>&nbsp;}
+  <code class="output">fut1:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fut2&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;Thread.sleep(<code class="literal">10000</code>);&nbsp;<code class="literal">23</code>&nbsp;+&nbsp;<code class="literal">23</code>&nbsp;}
+  <code class="output">fut2:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+</pre>
+
+
+<p>Given these two futures, you can obtain a new future representing
+the asynchronous sum of their results like this:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">for</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;&lt;-&nbsp;fut1
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y&nbsp;&lt;-&nbsp;fut2
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<code class="vem">yield</code>&nbsp;x&nbsp;+&nbsp;y
+  <code class="output">res7:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+</pre>
+
+
+<p>Once the original futures have completed, and the subsequent sum completes,
+you'll be able to see the result:</p>
+
+<pre>
+  scala&gt;&nbsp;res7.value
+  <code class="output">res8:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(88))</code>
+</pre>
+
+
+<p>Because <span class="code">for</span> expressions serialize their transformations,<a href="futures-and-concurrency.html#footnotemain32-3">[3]</a>
+if you don't create the futures before the <span class="code">for</span> expression,
+they won't run in parallel. For example, although the previous <span class="code">for</span>
+expression requires around ten seconds to complete, the following <span class="code">for</span>
+expression requires at least twenty seconds:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">for</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;x&nbsp;&lt;-&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;Thread.sleep(<code class="literal">10000</code>);&nbsp;<code class="literal">21</code>&nbsp;+&nbsp;<code class="literal">21</code>&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;y&nbsp;&lt;-&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;Thread.sleep(<code class="literal">10000</code>);&nbsp;<code class="literal">23</code>&nbsp;+&nbsp;<code class="literal">23</code>&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<code class="vem">yield</code>&nbsp;x&nbsp;+&nbsp;y
+  <code class="output">res9:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;res9.value
+  <code class="output">res27:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;None</code>
+  <br />  scala&gt;&nbsp;<code class="comment">//&nbsp;Will&nbsp;need&nbsp;at&nbsp;least&nbsp;20&nbsp;seconds&nbsp;to&nbsp;complete</code>
+  <br />  scala&gt;&nbsp;res9.value
+  <code class="output">res28:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(88))</code>
+</pre>
+
+
+<h4>Creating the <span class="code">Future</span>: <span class="code">Future.failed</span>, <span class="code">Future.successful</span>, <span class="code">Future.fromTry</span>, and <span class="code">Promise</span>s</h4>
+
+
+<p>Besides the <span class="code">apply</span> method, used in earlier examples to create futures, the <span class="code">Future</span> companion object also
+includes three factory methods for creating already-completed futures: <span class="code">successful</span>, <span class="code">failed</span>, and <span class="code">fromTry</span>. These factory methods
+do not require an <span class="code">ExecutionContext</span>.<a id="i1338824042-1"/><a id="i-1310847346-1"/></p>
+
+<p>The <span class="code">successful</span> factory method
+creates a future that has already succeeded:</p>
+
+<pre>
+  scala&gt;&nbsp;Future.successful&nbsp;{&nbsp;<code class="literal">21</code>&nbsp;+&nbsp;<code class="literal">21</code>&nbsp;}
+  res2:&nbsp;<code class="typename">scala.concurrent.Future[Int]</code>&nbsp;=&nbsp;...
+</pre>
+
+
+<p>The <span class="code">failed</span><a id="i1043356583-1"/><a id="i329824497-1"/> method creates a future that has already failed:</p>
+
+<pre>
+  scala&gt;&nbsp;Future.failed(<code class="vem">new</code>&nbsp;<code class="typename">Exception</code>(<code class="quotedstring">"bummer!"</code>))
+  res3:&nbsp;<code class="typename">scala.concurrent.Future[Nothing]</code>&nbsp;=&nbsp;...
+</pre>
+
+
+<p>The <span class="code">fromTry</span> method<a id="i359181829-1"/><a id="i-987153563-1"/> creates an already completed future from a <span class="code">Try</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">import</code>&nbsp;scala.util.{<code class="typename">Success</code>,<code class="typename">Failure</code>}
+  <code class="vem">import</code>&nbsp;scala.util.{<code class="typename">Success</code>,&nbsp;<code class="typename">Failure</code>}
+  <br />  scala&gt;&nbsp;Future.fromTry(<code class="typename">Success</code>&nbsp;{&nbsp;<code class="literal">21</code>&nbsp;+&nbsp;<code class="literal">21</code>&nbsp;})&nbsp;
+  res4:&nbsp;<code class="typename">scala.concurrent.Future[Int]</code>&nbsp;=&nbsp;...
+  <br />  scala&gt;&nbsp;Future.fromTry(<code class="typename">Failure</code>(<code class="vem">new</code>&nbsp;<code class="typename">Exception</code>(<code class="quotedstring">"bummer!"</code>)))&nbsp;
+  res5:&nbsp;<code class="typename">scala.concurrent.Future[Nothing]</code>&nbsp;=&nbsp;...
+</pre>
+
+
+<p>The most general way to create a future is to
+use a <span class="code">Promise</span>. Given a promise<a id="i515731113-1"/> you can obtain a future that is
+controlled by the promise. The future will complete when you complete the promise.
+Here's an example:<a id="i2130471540-1"/><a id="i-1314558614-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;pro&nbsp;=&nbsp;<code class="typename">Promise[Int]</code>
+  <code class="output">pro:&nbsp;scala.concurrent.Promise[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fut&nbsp;=&nbsp;pro.future
+  <code class="output">fut:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;fut.value
+  <code class="output">res8:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;None</code>
+</pre>
+
+
+<p>You can complete
+the promise with methods named <span class="code">success</span>,<a id="i-1996854080-1"/><a id="i-623661142-1"/> <span class="code">failure</span>, and <span class="code">complete</span>. These
+methods on <span class="code">Promise</span> are similar to
+those described previously for constructing already completed
+futures. For example, the <span class="code">success</span> method will complete the future successfully:</p>
+
+<pre>
+  scala&gt;&nbsp;pro.success(<code class="literal">42</code>)
+  <code class="output">res9:&nbsp;pro.type&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;fut.value
+  <code class="output">res10:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(42))</code>
+</pre>
+
+
+<p>The <span class="code">failure</span> method<a id="i726772761-1"/><a id="i-2044691727-1"/> takes an exception that will cause the future to fail
+with that exception. The <span class="code">complete</span> method<a id="i172934974-1"/><a id="i1338121824-1"/> takes a <span class="code">Try</span>. A <span class="code">completeWith</span>
+method,<a id="i689370776-1"/><a id="i-909785018-1"/> which takes a future, also exists; the promise's future will thereafter mirror
+the completion status of the future you passed to <span class="code">completeWith</span>.</p>
+
+<h4>Filtering: <span class="code">filter</span> and <span class="code">collect</span></h4>
+
+
+<p>Scala's future offers two methods, <span class="code">filter</span> and <span class="code">collect</span>, that allow you to ensure a property holds true
+about a future value. The <span class="code">filter</span>
+method<a id="i1823852756-1"/><a id="i1364617591-1"/> validates the future result, leaving it the same if it is valid.
+Here's an example that ensures an <span class="code">Int</span> is positive:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fut&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="literal">42</code>&nbsp;}
+  <code class="output">fut:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;valid&nbsp;=&nbsp;fut.filter(res&nbsp;=&gt;&nbsp;res&nbsp;&gt;&nbsp;<code class="literal">0</code>)
+  <code class="output">valid:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;valid.value
+  <code class="output">res0:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(42))</code>
+</pre>
+
+
+<p>If the future value is not valid, the future returned by <span class="code">filter</span> will fail with
+a <span class="code">NoSuchElementException</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;invalid&nbsp;=&nbsp;fut.filter(res&nbsp;=&gt;&nbsp;res&nbsp;&lt;&nbsp;<code class="literal">0</code>)
+  <code class="output">invalid:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;invalid.value
+  <code class="output">res1:&nbsp;Option[scala.util.Try[Int]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;Some(Failure(java.util.NoSuchElementException:</code>
+  <code class="output">&nbsp;&nbsp;Future.filter&nbsp;predicate&nbsp;is&nbsp;not&nbsp;satisfied))</code>
+</pre>
+
+
+<p>Because <span class="code">Future</span> also offers a <span class="code">withFilter</span> method,<a id="i-1671672129-1"/><a id="i-1286210351-1"/> you can
+perform the same operation with <span class="code">for</span> expression filters:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;valid&nbsp;=&nbsp;<code class="vem">for</code>&nbsp;(res&nbsp;&lt;-&nbsp;fut&nbsp;<code class="vem">if</code>&nbsp;res&nbsp;&gt;&nbsp;<code class="literal">0</code>)&nbsp;<code class="vem">yield</code>&nbsp;res
+  <code class="output">valid:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;valid.value
+  <code class="output">res2:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(42))</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;invalid&nbsp;=&nbsp;<code class="vem">for</code>&nbsp;(res&nbsp;&lt;-&nbsp;fut&nbsp;<code class="vem">if</code>&nbsp;res&nbsp;&lt;&nbsp;<code class="literal">0</code>)&nbsp;<code class="vem">yield</code>&nbsp;res
+  <code class="output">invalid:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;invalid.value
+  <code class="output">res3:&nbsp;Option[scala.util.Try[Int]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;Some(Failure(java.util.NoSuchElementException:</code>
+  <code class="output">&nbsp;&nbsp;Future.filter&nbsp;predicate&nbsp;is&nbsp;not&nbsp;satisfied))</code>
+</pre>
+
+
+<p><span class="code">Future</span>'s <span class="code">collect</span> method<a id="i160873094-1"/><a id="i-557339295-1"/> allows you to validate the future value and transform it in
+one operation. If the partial function passed to <span class="code">collect</span> is defined at the
+future result, the future returned by <span class="code">collect</span> will succeed with that value transformed
+by the function:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;valid&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fut&nbsp;collect&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;res&nbsp;<code class="vem">if</code>&nbsp;res&nbsp;&gt;&nbsp;<code class="literal">0</code>&nbsp;=&gt;&nbsp;res&nbsp;+&nbsp;<code class="literal">46</code>&nbsp;}
+  <code class="output">valid:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;valid.value
+  <code class="output">res17:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(88))</code>
+</pre>
+
+
+<p>Otherwise, the future will fail with <span class="code">NoSuchElementException</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;invalid&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fut&nbsp;collect&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;res&nbsp;<code class="vem">if</code>&nbsp;res&nbsp;&lt;&nbsp;<code class="literal">0</code>&nbsp;=&gt;&nbsp;res&nbsp;+&nbsp;<code class="literal">46</code>&nbsp;}
+  <code class="output">invalid:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;invalid.value
+  <code class="output">res18:&nbsp;Option[scala.util.Try[Int]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;Some(Failure(java.util.NoSuchElementException:</code>
+  <code class="output">&nbsp;&nbsp;Future.collect&nbsp;partial&nbsp;function&nbsp;is&nbsp;not&nbsp;defined&nbsp;at:&nbsp;42))</code>
+</pre>
+
+
+<h4>Dealing with failure: <span class="code">failed</span>, <span class="code">fallBackTo</span>, <span class="code">recover</span>, and <span class="code">recoverWith</span></h4>
+
+
+<p>Scala's future provides ways to work with futures that fail, including <span class="code">failed</span>, <span class="code">fallBackTo</span>, <span class="code">recover</span>, and <span class="code">recoverWith</span>. The 
+<span class="code">failed</span> method<a id="i2053859225-1"/><a id="i1132575058-1"/> will transform a failed future of any type into a successful
+<span class="code">Future[Throwable]</span> that holds onto the exception that caused
+the failure. Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;failure&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="literal">42</code>&nbsp;/&nbsp;<code class="literal">0</code>&nbsp;}
+  <code class="output">failure:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;failure.value
+  <code class="output">res23:&nbsp;Option[scala.util.Try[Int]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;Some(Failure(java.lang.ArithmeticException:&nbsp;/&nbsp;by&nbsp;zero))</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;expectedFailure&nbsp;=&nbsp;failure.failed
+  <code class="output">expectedFailure:&nbsp;scala.concurrent.Future[Throwable]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;expectedFailure.value
+  <code class="output">res25:&nbsp;Option[scala.util.Try[Throwable]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;Some(Success(java.lang.ArithmeticException:&nbsp;/&nbsp;by&nbsp;zero))</code>
+</pre>
+
+
+<p>If the future on which the <span class="code">failed</span> method is called ultimately succeeds,
+the future returned by <span class="code">failed</span> will itself fail with
+a <span class="code">NoSuchElementException</span>. The <span class="code">failed</span> method is appropriate,
+therefore, only when you expect that the future will fail.
+Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;success&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="literal">42</code>&nbsp;/&nbsp;<code class="literal">1</code>&nbsp;}
+  <code class="output">success:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;success.value
+  <code class="output">res21:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(42))</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;unexpectedSuccess&nbsp;=&nbsp;success.failed
+  <code class="output">unexpectedSuccess:&nbsp;scala.concurrent.Future[Throwable]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;unexpectedSuccess.value
+  <code class="output">res26:&nbsp;Option[scala.util.Try[Throwable]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;Some(Failure(java.util.NoSuchElementException:</code>
+  <code class="output">&nbsp;&nbsp;Future.failed&nbsp;not&nbsp;completed&nbsp;with&nbsp;a&nbsp;throwable.))</code>
+</pre>
+
+
+<p>The <span class="code">fallbackTo</span> method<a id="i-17509287-1"/><a id="i-431989870-1"/> allows you to provide an alternate future
+to use in case the future on which you invoke <span class="code">fallbackTo</span> fails.
+Here's an example in which a failed future falls back to a successful
+future:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fallback&nbsp;=&nbsp;failure.fallbackTo(success)
+  <code class="output">fallback:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;fallback.value
+  <code class="output">res27:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(42))</code>
+</pre>
+
+
+<p>If the original future on which <span class="code">fallbackTo</span> is invoked fails,
+a failure of the future passed to <span class="code">fallbackTo</span> is
+essentially ignored. The future
+returned by <span class="code">fallbackTo</span> will fail with the initial
+exception. Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;failedFallback&nbsp;=&nbsp;failure.fallbackTo(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="vem">val</code>&nbsp;res&nbsp;=&nbsp;<code class="literal">42</code>;&nbsp;require(res&nbsp;&lt;&nbsp;<code class="literal">0</code>);&nbsp;res&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+  <code class="output">failedFallback:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;failedFallback.value
+  <code class="output">res28:&nbsp;Option[scala.util.Try[Int]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;Some(Failure(java.lang.ArithmeticException:&nbsp;/&nbsp;by&nbsp;zero))</code>
+</pre>
+
+
+<p>The <span class="code">recover</span> method<a id="i-152382784-1"/><a id="i-724473753-1"/> allows you to transform a failed future
+into a successful one, allowing a successful future's result
+to pass through unchanged. For
+example, on a future that fails
+with <span class="code">ArithmeticException</span>, you can use the <span class="code">recover</span> method to transform
+the failure into a success, like this:</p>
+
+<pre>
+  &nbsp;scala&gt;&nbsp;<code class="vem">val</code>&nbsp;recovered&nbsp;=&nbsp;failedFallback&nbsp;recover&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;ex:&nbsp;<code class="typename">ArithmeticException</code>&nbsp;=&gt;&nbsp;-<code class="literal">1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">&nbsp;recovered:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  &nbsp;scala&gt;&nbsp;recovered.value
+  <code class="output">res32:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(-1))</code>
+</pre>
+
+
+<p>If the original future doesn't fail, the
+future returned by <span class="code">recover</span> will complete with the same
+value:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;unrecovered&nbsp;=&nbsp;fallback&nbsp;recover&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;ex:&nbsp;<code class="typename">ArithmeticException</code>&nbsp;=&gt;&nbsp;-<code class="literal">1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">unrecovered:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;unrecovered.value
+  <code class="output">res33:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(42))</code>
+</pre>
+
+
+<p>Similarly, if the partial function passed to <span class="code">recover</span> isn't defined at
+the exception with which the original future ultimately fails, that
+original failure will pass through:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;alsoUnrecovered&nbsp;=&nbsp;failedFallback&nbsp;recover&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;ex:&nbsp;<code class="typename">IllegalArgumentException</code>&nbsp;=&gt;&nbsp;-<code class="literal">2</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">alsoUnrecovered:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;alsoUnrecovered.value
+  <code class="output">res34:&nbsp;Option[scala.util.Try[Int]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;Some(Failure(java.lang.ArithmeticException:&nbsp;/&nbsp;by&nbsp;zero))</code>
+</pre>
+
+
+<p>The <span class="code">recoverWith</span> method<a id="i-1242555994-1"/><a id="i-1046291647-1"/> is similar to <span class="code">recover</span>, except instead
+of recovering to a value like <span class="code">recover</span>, the <span class="code">recoverWith</span>
+method allows you to recover to a future value. Here's an
+example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;alsoRecovered&nbsp;=&nbsp;failedFallback&nbsp;recoverWith&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;ex:&nbsp;<code class="typename">ArithmeticException</code>&nbsp;=&gt;&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="literal">42</code>&nbsp;+&nbsp;<code class="literal">46</code>&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">alsoRecovered:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;alsoRecovered.value
+  <code class="output">res35:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(88))</code>
+</pre>
+
+
+<p>As with <span class="code">recover</span>, if either the original future doesn't fail,
+or the partial function passed to <span class="code">recoverWith</span> isn't defined at
+the exception the original future ultimately fails with, the
+original success (or failure) will pass through to the future
+returned by <span class="code">recoverWith</span>.</p>
+
+<h4>Mapping both possibilities: <span class="code">transform</span></h4>
+
+
+<p><span class="code">Future</span>'s <span class="code">transform</span> method<a id="i1345650888-1"/><a id="i1282076639-1"/> accepts two functions
+with which to transform a future: one to use in case
+of success and the other in case of failure:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;first&nbsp;=&nbsp;success.transform(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res&nbsp;=&gt;&nbsp;res&nbsp;*&nbsp;-<code class="literal">1</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ex&nbsp;=&gt;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Exception</code>(<code class="quotedstring">"see&nbsp;cause"</code>,&nbsp;ex)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+  <code class="output">first:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+</pre>
+
+
+<p>If the future succeeds, the first function is used:</p>
+
+<pre>
+  scala&gt;&nbsp;first.value
+  <code class="output">res42:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(-42))</code>
+</pre>
+
+
+<p>If the future fails, the second function is used:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;second&nbsp;=&nbsp;failure.transform(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;res&nbsp;=&gt;&nbsp;res&nbsp;*&nbsp;-<code class="literal">1</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ex&nbsp;=&gt;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Exception</code>(<code class="quotedstring">"see&nbsp;cause"</code>,&nbsp;ex)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+  <code class="output">second:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;second.value
+  <code class="output">res43:&nbsp;Option[scala.util.Try[Int]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;Some(Failure(java.lang.Exception:&nbsp;see&nbsp;cause))</code>
+</pre>
+
+
+<p>Note that with the <span class="code">transform</span> method shown in the previous examples, you can't
+change a successful future into a failed one, nor can you change a failed future
+into a successful one. 
+To make this kind of transformation easier, Scala 2.12 introduced an alternate overloaded form of <span class="code">transform</span> that<a id="i88737196-5"/>
+takes a function from <span class="code">Try</span> to <span class="code">Try</span>. Here are some examples:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;firstCase&nbsp;=&nbsp;success.transform&nbsp;{&nbsp;<code class="comment">//&nbsp;Scala&nbsp;2.12</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Success</code>(res)&nbsp;=&gt;&nbsp;<code class="typename">Success</code>(res&nbsp;*&nbsp;-<code class="literal">1</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Failure</code>(ex)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Failure</code>(<code class="vem">new</code>&nbsp;<code class="typename">Exception</code>(<code class="quotedstring">"see&nbsp;cause"</code>,&nbsp;ex))
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  first:&nbsp;<code class="typename">scala.concurrent.Future[Int]</code>&nbsp;=&nbsp;...
+  <br />  scala&gt;&nbsp;firstCase.value
+  <code class="output">res6:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(-42))</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;secondCase&nbsp;=&nbsp;failure.transform&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Success</code>(res)&nbsp;=&gt;&nbsp;<code class="typename">Success</code>(res&nbsp;*&nbsp;-<code class="literal">1</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Failure</code>(ex)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Failure</code>(<code class="vem">new</code>&nbsp;<code class="typename">Exception</code>(<code class="quotedstring">"see&nbsp;cause"</code>,&nbsp;ex))
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">secondCase:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;secondCase.value
+  <code class="output">res8:&nbsp;Option[scala.util.Try[Int]]&nbsp;=</code>
+  &nbsp;&nbsp;&nbsp;<code class="typename">Some</code>(<code class="typename">Failure</code>(<code class="typename">java.lang.Exception</code>:&nbsp;see&nbsp;cause))
+</pre>
+
+
+<p>Here's an example of using the new <span class="code">transform</span> method to transform a failure 
+into a success:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;nonNegative&nbsp;=&nbsp;failure.transform&nbsp;{&nbsp;<code class="comment">//&nbsp;Scala&nbsp;2.12</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Success</code>(res)&nbsp;=&gt;&nbsp;<code class="typename">Success</code>(res.abs&nbsp;+&nbsp;<code class="literal">1</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Failure</code>(_)&nbsp;=&gt;&nbsp;<code class="typename">Success</code>(<code class="literal">0</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">nonNegative:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;nonNegative.value
+  <code class="output">res11:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(0))</code>
+</pre>
+
+
+<h4>Combining futures: <span class="code">zip</span>, <span class="code">Future.fold</span>, <span class="code">Future.reduce</span>, <span class="code">Future.sequence</span>, and <span class="code">Future.traverse</span></h4>
+
+
+<p><span class="code">Future</span> and its companion object offer methods that allow you to combine 
+multiple futures. The <span class="code">zip</span> method<a id="i-1389589174-1"/><a id="i-576155948-1"/> will transform two successful futures
+into a future tuple of both values. Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;zippedSuccess&nbsp;=&nbsp;success&nbsp;zip&nbsp;recovered
+  <code class="output">zippedSuccess:&nbsp;scala.concurrent.Future[(Int,&nbsp;Int)]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;zippedSuccess.value
+  <code class="output">res46:&nbsp;Option[scala.util.Try[(Int,&nbsp;Int)]]&nbsp;=</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Some</code>(<code class="typename">Success</code>((<code class="literal">42</code>,-<code class="literal">1</code>)))
+</pre>
+
+
+<p>If either of the futures fail, however, the future returned by
+<span class="code">zip</span> will also fail with the same exception:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;zippedFailure&nbsp;=&nbsp;success&nbsp;zip&nbsp;failure
+  <code class="output">zippedFailure:&nbsp;scala.concurrent.Future[(Int,&nbsp;Int)]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;zippedFailure.value
+  <code class="output">res48:&nbsp;Option[scala.util.Try[(Int,&nbsp;Int)]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;Some(Failure(java.lang.ArithmeticException:&nbsp;/&nbsp;by&nbsp;zero))</code>
+</pre>
+
+
+<p>If both futures fail, the failed future that results will contain
+the exception stored in the initial future, the one on which 
+<span class="code">zip</span> was invoked.</p>
+
+<p><span class="code">Future</span>'s companion object offers a <span class="code">fold</span> method<a id="i-2005196253-1"/><a id="i1171341749-1"/> that
+allows you to accumulate a result across a <span class="code">TraversableOnce</span>
+collection of futures, yielding a future result. If all futures in
+the collection succeed, the resulting future will succeed with
+the accumulated result. If any future in the collection fails, the resulting future
+will fail. If multiple futures fail, the result will fail
+with the same exception with which the first future (earliest in
+the <span class="code">TraversableOnce</span> collection) fails.
+Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fortyTwo&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="literal">21</code>&nbsp;+&nbsp;<code class="literal">21</code>&nbsp;}
+  <code class="output">fortyTwo:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fortySix&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="literal">23</code>&nbsp;+&nbsp;<code class="literal">23</code>&nbsp;}
+  <code class="output">fortySix:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;futureNums&nbsp;=&nbsp;<code class="typename">List</code>(fortyTwo,&nbsp;fortySix)
+  <code class="output">futureNums:&nbsp;List[scala.concurrent.Future[Int]]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;folded&nbsp;=
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Future.fold(futureNums)(0)&nbsp;{&nbsp;(acc,&nbsp;num)&nbsp;=&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;acc&nbsp;+&nbsp;num</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code>
+  <code class="output">folded:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;folded.value
+  <code class="output">res53:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(88))</code>
+</pre>
+
+
+<p>The <span class="code">Future.reduce</span> method<a id="i-1081335906-1"/><a id="i1635871834-1"/> performs a fold without a zero, using
+the initial future result as the start value. Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;reduced&nbsp;=
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Future.reduce(futureNums)&nbsp;{&nbsp;(acc,&nbsp;num)&nbsp;=&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;acc&nbsp;+&nbsp;num</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code>
+  <code class="output">reduced:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;reduced.value
+  <code class="output">res54:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(88))</code>
+</pre>
+
+
+<p>If you pass an empty
+collection to <span class="code">reduce</span>, the resulting future will fail with a
+<span class="code">NoSuchElementException</span>.</p>
+
+<p>The <span class="code">Future.sequence</span> method<a id="i1360532195-1"/><a id="i-1604674187-1"/> transforms a <span class="code">TraversableOnce</span> collection of futures into a 
+future <span class="code">TraversableOnce</span> of values. For instance, in the following
+example, <span class="code">sequence</span> is used to transform a <span class="code">List[Future[Int]]</span> to
+a <span class="code">Future[List[Int]]</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;futureList&nbsp;=&nbsp;Future.sequence(futureNums)
+  <code class="output">futureList:&nbsp;scala.concurrent.Future[List[Int]]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;futureList.value
+  <code class="output">res55:&nbsp;Option[scala.util.Try[List[Int]]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;Some(Success(List(42,&nbsp;46)))</code>
+</pre>
+
+
+<p>The <span class="code">Future.traverse</span> method<a id="i-551617710-1"/><a id="i-1636098202-1"/> 
+will change a <span class="code">TraversableOnce</span> of any element type into
+a <span class="code">TraversableOnce</span> of futures and "sequence" that
+into a future <span class="code">TraversableOnce</span> of values. For example, here a <span class="code">List[Int]</span> is transformed
+into a <span class="code">Future[List[Int]]</span> by <span class="code">Future.traverse</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;traversed&nbsp;=
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Future.traverse(List(1,&nbsp;2,&nbsp;3))&nbsp;{&nbsp;i&nbsp;=&gt;&nbsp;Future(i)&nbsp;}</code>
+  <code class="output">traversed:&nbsp;scala.concurrent.Future[List[Int]]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;traversed.value
+  <code class="output">res58:&nbsp;Option[scala.util.Try[List[Int]]]&nbsp;=&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;Some(Success(List(1,&nbsp;2,&nbsp;3)))</code>
+</pre>
+
+
+<h4>Performing side-effects: <span class="code">foreach</span>, <span class="code">onComplete</span>, and <span class="code">andThen</span></h4>
+
+
+<p>Sometimes you may need to perform a side effect after a future completes. <span class="code">Future</span> provides
+several methods for this purpose. The most basic method is <span class="code">foreach</span>, which will perform a side effect
+if a future completes successfully.<a id="i-541819994-1"/><a id="i541315137-1"/> For instance, in the following example a <span class="code">println</span> is not executed
+in the case of a failed future, just a successful future:</p>
+
+<pre>
+  scala&gt;&nbsp;failure.foreach(ex&nbsp;=&gt;&nbsp;println(ex))
+  <br />  scala&gt;&nbsp;success.foreach(res&nbsp;=&gt;&nbsp;println(res))
+  <code class="output">42</code>
+</pre>
+
+
+<p>Since <span class="code">for</span> without <span class="code">yield</span> will rewrite to an invocation
+of <span class="code">foreach</span>, you can also accomplish the same
+effect using <span class="code">for</span> expressions:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(res&nbsp;&lt;-&nbsp;failure)&nbsp;println(res)
+  <br />  scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(res&nbsp;&lt;-&nbsp;success)&nbsp;println(res)
+  <code class="output">42</code>
+</pre>
+
+
+<p><span class="code">Future</span> also offers two methods for registering "callback"
+functions. The <span class="code">onComplete</span> method
+will be executed whether the future ultimately
+succeeds or fails.<a id="i-1956458092-1"/><a id="i1655500727-1"/> The function will be passed a <span class="code">Try</span>&mdash;a
+<span class="code">Success</span> holding the result if the future succeeded, else a <span class="code">Failure</span>
+holding the exception that caused the future to fail.
+Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">import</code>&nbsp;scala.util.{<code class="typename">Success</code>,&nbsp;<code class="typename">Failure</code>}
+  <code class="output">import&nbsp;scala.util.{Success,&nbsp;Failure}</code>
+  <br />  scala&gt;&nbsp;success&nbsp;onComplete&nbsp;{
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Success(res)&nbsp;=&gt;&nbsp;println(res)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Failure(ex)&nbsp;=&gt;&nbsp;println(ex)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code>
+  <code class="output">42</code>
+  <br />  scala&gt;&nbsp;failure&nbsp;onComplete&nbsp;{
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Success(res)&nbsp;=&gt;&nbsp;println(res)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Failure(ex)&nbsp;=&gt;&nbsp;println(ex)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code>
+  <code class="output">java.lang.ArithmeticException:&nbsp;/&nbsp;by&nbsp;zero</code>
+</pre>
+
+
+<p><span class="code">Future</span> does not guarantee any order of execution
+for callback functions registered with <span class="code">onComplete</span>. If you want to
+enforce an order for callback functions, you must use <span class="code">andThen</span> instead.<a id="i-522076688-1"/><a id="i-886602953-1"/> The <span class="code">andThen</span> method returns
+a new future that mirrors (succeeds or fails in the
+same way as) the original future on which you
+invoke <span class="code">andThen</span>, but it does not complete until 
+the callback function has been fully executed:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;newFuture&nbsp;=&nbsp;success&nbsp;andThen&nbsp;{
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Success(res)&nbsp;=&gt;&nbsp;println(res)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Failure(ex)&nbsp;=&gt;&nbsp;println(ex)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code>
+  <code class="output">42</code>
+  <code class="output">newFuture:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;newFuture.value
+  <code class="output">res76:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(42))</code>
+</pre>
+
+
+<p>Note that if a callback function passed to <span class="code">andThen</span> throws an exception when executed, that exception will
+not be propagated to subsequent callbacks or reported via the resulting future.</p>
+
+<h4>Other methods added in 2.12: <span class="code">flatten</span>, <span class="code">zipWith</span>, and <span class="code">transformWith</span></h4>
+
+
+<p>The <span class="code">flatten</span> method,<a id="i-1187330208-1"/><a id="i1701496775-1"/> added in 2.12, transforms a <span class="code">Future</span> nested inside another <span class="code">Future</span> into a
+<span class="code">Future</span> of the nested type. For example, <span class="code">flatten</span> can transform a <span class="code">Future[Future[Int]]</span>
+into a <span class="code">Future[Int]</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;nestedFuture&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="literal">42</code>&nbsp;}&nbsp;}
+  <code class="output">nestedFuture:&nbsp;Future[Future[Int]]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;flattened&nbsp;=&nbsp;nestedFuture.flatten&nbsp;<code class="comment">//&nbsp;Scala&nbsp;2.12</code>
+  <code class="output">flattened:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;Future(Success(42))</code>
+</pre>
+
+
+<p>The <span class="code">zipWith</span> method, added in 2.12, essentially zips two <span class="code">Future</span>s together, then
+performs a <span class="code">map</span> on the resulting tuple. Here's an example of the
+two-step process, a <span class="code">zip</span> followed by a <span class="code">map</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;futNum&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="literal">21</code>&nbsp;+&nbsp;<code class="literal">21</code>&nbsp;}
+  <code class="output">futNum:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;futStr&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="quotedstring">"ans"</code>&nbsp;+&nbsp;<code class="quotedstring">"wer"</code>&nbsp;}
+  <code class="output">futStr:&nbsp;scala.concurrent.Future[String]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;zipped&nbsp;=&nbsp;futNum&nbsp;zip&nbsp;futStr
+  <code class="output">zipped:&nbsp;scala.concurrent.Future[(Int,&nbsp;String)]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;mapped&nbsp;=&nbsp;zipped&nbsp;map&nbsp;{
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;(num,&nbsp;str)&nbsp;=&gt;&nbsp;s"$num&nbsp;is&nbsp;the&nbsp;$str"&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code>
+  <code class="output">mapped:&nbsp;scala.concurrent.Future[String]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;mapped.value
+  <code class="output">res2:&nbsp;Option[scala.util.Try[String]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;Some(Success(42&nbsp;is&nbsp;the&nbsp;answer))</code>
+</pre>
+
+
+<p>The <span class="code">zipWith</span> method allows you to perform the same operation in
+one step:<a id="i996770531-1"/><a id="i-62204252-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fut&nbsp;=&nbsp;futNum.zipWith(futStr)&nbsp;{&nbsp;<code class="comment">//&nbsp;Scala&nbsp;2.12</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;(num,&nbsp;str)&nbsp;=&gt;&nbsp;s<code class="quotedstring">"$num&nbsp;is&nbsp;the&nbsp;$str"</code>&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">zipWithed:&nbsp;scala.concurrent.Future[String]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;fut.value
+  <code class="output">res3:&nbsp;Option[scala.util.Try[String]]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;Some(Success(42&nbsp;is&nbsp;the&nbsp;answer))</code>
+</pre>
+
+
+<p><span class="code">Future</span> also gained a <span class="code">transformWith</span> method in Scala 2.12, which
+allows you to transform a future using a function from <span class="code">Try</span>
+to <span class="code">Future</span>.<a id="i-488373330-1"/><a id="i968615609-1"/>
+Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;flipped&nbsp;=&nbsp;success.transformWith&nbsp;{&nbsp;<code class="comment">//&nbsp;Scala&nbsp;2.12</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Success</code>(res)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="vem">throw</code>&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Exception</code>(res.toString)&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Failure</code>(ex)&nbsp;=&gt;&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;<code class="literal">21</code>&nbsp;+&nbsp;<code class="literal">21</code>&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">flipped:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;flipped.value
+  <code class="output">res5:&nbsp;Option[scala.util.Try[Int]]&nbsp;=</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Some</code>(<code class="typename">Failure</code>(<code class="typename">java.lang.Exception</code>:&nbsp;<code class="literal">42</code>))
+</pre>
+
+
+<p>The <span class="code">transformWith</span> method is similar to the new, overloaded <span class="code">transform</span> method added in Scala 2.12, 
+except instead of yielding a <span class="code">Try</span> in your passed function as in <span class="code">transform</span>, <span class="code">transformWith</span> allows you to yield a future.</p>
+
+<h3>32.4 Testing with <span class="code">Future</span>s</h3>
+
+
+<p>One advantage of Scala's futures is that they help you avoid blocking. On most JVM implementations,
+after creating just a few thousand threads, the cost of context switching between threads will
+degrade performance to an unnacceptable level.  By avoiding blocking, you can keep the finite
+number of threads you decide to work with busy. Nevertheless, Scala does allow you to block
+on a future result when you need to.
+Scala's <span class="code">Await</span> object facilitates blocking to wait for future results. Here's
+an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">import</code>&nbsp;scala.concurrent.Await
+  <code class="output">import&nbsp;scala.concurrent.Await</code>
+  <br />  scala&gt;&nbsp;<code class="vem">import</code>&nbsp;scala.concurrent.duration._
+  <code class="output">import&nbsp;scala.concurrent.duration._</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fut&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;Thread.sleep(<code class="literal">10000</code>);&nbsp;<code class="literal">21</code>&nbsp;+&nbsp;<code class="literal">21</code>&nbsp;}
+  <code class="output">fut:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;x&nbsp;=&nbsp;Await.result(fut,&nbsp;<code class="literal">15.</code>seconds)&nbsp;<code class="comment">//&nbsp;blocks</code>
+  <code class="output">x:&nbsp;Int&nbsp;=&nbsp;42</code>
+</pre>
+
+
+<p><span class="code">Await.result</span> takes a <span class="code">Future</span> and a <span class="code">Duration</span>.
+The <span class="code">Duration</span> indicates how long <span class="code">Await.result</span> should wait for a <span class="code">Future</span> to complete before timing out. In this
+example, fifteen seconds was specified for the <span class="code">Duration</span>. Thus the <span class="code">Await.result</span> method should not time out
+ before the future completes with its eventual value, 42.</p>
+
+<p>One place where blocking has been generally accepted is in tests of asynchronous code.
+Now that the <span class="code">Await.result</span> has returned, you can perform a
+computation using that result, such as an assertion in a test:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">import</code>&nbsp;org.scalatest.Matchers._
+  <code class="vem">import</code>&nbsp;org.scalatest.Matchers._
+  <br />  scala&gt;&nbsp;x&nbsp;should&nbsp;be&nbsp;(<code class="literal">42</code>)
+  <code class="output">res0:&nbsp;org.scalatest.Assertion&nbsp;=&nbsp;Succeeded</code>
+</pre>
+
+
+<p>Alternatively, you can use blocking constructs provided by ScalaTest's trait <span class="code">ScalaFutures</span>. For
+example, the <span class="code">futureValue</span> method, implicitly added to <span class="code">Future</span> by <span class="code">ScalaFutures</span>,
+will block until the future completes. If the future fails, <span class="code">futureValue</span>
+will throw a <span class="code">TestFailedException</span> describing the problem. If the future succeeds, <span class="code">futureValue</span> will
+return the successful result of the future so you can
+perform asssertions on that value:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">import</code>&nbsp;org.scalatest.concurrent.ScalaFutures._
+  <code class="output">import&nbsp;org.scalatest.concurrent.ScalaFutures._</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;fut&nbsp;=&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;Thread.sleep(<code class="literal">10000</code>);&nbsp;<code class="literal">21</code>&nbsp;+&nbsp;<code class="literal">21</code>&nbsp;}
+  <code class="output">fut:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
+  <br />  scala&gt;&nbsp;fut.futureValue&nbsp;should&nbsp;be&nbsp;(<code class="literal">42</code>)&nbsp;<code class="comment">//&nbsp;futureValue&nbsp;blocks</code>
+  <code class="output">res1:&nbsp;org.scalatest.Assertion&nbsp;=&nbsp;Succeeded</code>
+</pre>
+
+
+<p>While blocking in tests is often fine, ScalaTest 3.0 adds
+"async" testing styles that allow you
+to test futures without blocking. Given a future,
+instead of blocking and performing assertions on the
+result, you can map assertions directly onto that future and return
+the resulting <span class="code">Future[Assertion]</span> to ScalaTest. An example is shown in
+<a href="futures-and-concurrency.html#lst-scalatest-future-assertion">Listing 32.1</a>.
+When the future assertion completes, ScalaTest will fire events (test succeeded,
+test failed, <i>etc.</i>) to the test reporter
+asynchronously.</p>
+
+<p><a id="lst-scalatest-future-assertion"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;org.scalatest.AsyncFunSpec
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;scala.concurrent.Future
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">AddSpec</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">AsyncFunSpec</code>&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;addSoon(addends:&nbsp;<code class="typename">Int</code>*):&nbsp;<code class="typename">Future[Int]</code>&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Future</code>&nbsp;{&nbsp;addends.sum&nbsp;}
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;describe(<code class="quotedstring">"addSoon"</code>)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;it(<code class="quotedstring">"will&nbsp;eventually&nbsp;compute&nbsp;a&nbsp;sum&nbsp;of&nbsp;passed&nbsp;Ints"</code>)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;futureSum:&nbsp;<code class="typename">Future[Int]</code>&nbsp;=&nbsp;addSoon(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;You&nbsp;can&nbsp;map&nbsp;assertions&nbsp;onto&nbsp;a&nbsp;Future,&nbsp;then&nbsp;return</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;the&nbsp;resulting&nbsp;Future[Assertion]&nbsp;to&nbsp;ScalaTest:</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;futureSum&nbsp;map&nbsp;{&nbsp;sum&nbsp;=&gt;&nbsp;assert(sum&nbsp;==&nbsp;<code class="literal">3</code>)&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 32.1 - Returning a future assertion to ScalaTest.</h5>
+
+
+<p>The async testing use case illustrates a general principle for working with futures:
+Once in "future space," try to stay in future space. Don't block on a future
+then continue the computation with the result. Stay asynchronous by performing
+a series of transformations, each of which returns a new future to transform.
+To get results out of future space, register side effects to be performed
+asynchronously once futures complete. This approach will help you make maximum use
+of your threads.</p>
+
+<h3>32.5 Conclusion</h3>
+
+
+<p>Concurrent programming gives you great power.  It lets you simplify
+your code and take advantage of multiple processors. It's unfortunate that the most widely used concurrency
+primitives, threads, locks, and monitors, are such a minefield of
+deadlocks and race conditions. Futures provide a way out of that minefield, letting you
+write concurrent programs without as great a risk of
+deadlocks and race conditions. This chapter has introduced several
+fundamental constructs for working with futures in Scala, including how
+to create futures, how to transform them, and how to
+test them, among other nuts and bolts.  It then
+showed you how to use these constructs as part of a general futures
+style.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 32:</h4>
+
+
+<p><a id="footnotemain32-1"/>[1] On Scala.js,<a id="i-827373807-2"/>
+the global execution context places tasks on the JavaScript event
+queue.</p>
+
+<p><a id="footnotemain32-2"/>[2] Note that
+the Java <span class="code">Future</span> also has a way to deal with the potential of an exception
+being thrown by the asynchronous computation: its <span class="code">get</span> method will throw that
+exception wrapped in an <span class="code">ExecutionException</span>.</p>
+
+<p><a id="footnotemain32-3"/>[3] The <span class="code">for</span> expression shown in this example will be rewritten as a call to <span class="code">fut1.flatMap</span> passing in a function that calls <span class="code">fut2.map</span>: <span class="code">fut1.flatMap(x</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">fut2.map(y</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y))</span>.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

@@ -1,0 +1,1293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-implicit-conversions-and-parameters">Chapter 21</a></h2>
+<h1>Implicit Conversions and Parameters</h1>
+
+
+<p>There's a fundamental difference between your own code and other people's libraries: You can change or extend your own code as you wish,
+but if you want to use someone else's libraries, you usually have to
+take them as they are. A number of constructs have sprung up in programming languages to
+alleviate this problem. Ruby<a id="i-1999895874-3"/> has
+modules, and Smalltalk<a id="i-817657147-2"/> lets packages add to each other's classes.
+These are very powerful but also dangerous, in that you can modify the behavior of a class for an entire application, some parts
+of which you might not know.
+C# 3.0 has static extension methods<a id="i1246302635-1"/>, which are more local but also more
+restrictive, in that you can only add methods, not fields, to a class, and you can't make a class
+implement new interfaces.</p>
+
+<p>Scala's answer is implicit conversions and parameters.<a id="i-174456078-1"/><a id="i-1068906551-2"/> These can make existing
+libraries much more pleasant to deal with by letting you leave out
+tedious, obvious details that obscure the interesting parts of your code.
+Used tastefully, this
+results in code that is focused on the interesting, non-trivial parts
+of your program.  This chapter shows you how implicits work, and
+it presents some of the most common ways they are used.</p>
+
+<h3 id="sec-implicit-conversions">21.1 Implicit conversions</h3>
+
+
+<p>Before delving into the details of implicit conversions, take a look
+at a typical example of their use.  Implicit conversions are often
+helpful for working with two bodies of software that were developed
+without each other in mind. Each library has its own way to encode a
+concept that is essentially the same thing.  Implicit conversions help
+by reducing the number of explicit conversions that are needed from
+one type to another.</p>
+
+<p>Java includes a library named Swing for implementing cross-platform
+user interfaces. One of the things Swing does is process events from
+the operating system, convert them to platform-independent event
+objects, and pass those events to parts of an application called
+event listeners.</p>
+
+<p>If Swing had been written with Scala in mind, event listeners would
+probably have been represented by a function type. Callers could then
+use the function literal syntax as a lightweight way to specify what
+should happen for a certain class of events. Since Java doesn't have
+function literals, Swing uses the next best thing, an inner class that
+implements a one-method interface. In the case of action listeners,
+the interface is <span class="code">ActionListener</span>.</p>
+
+<p>Without the use of implicit conversions, a Scala program that uses
+Swing must use inner classes just like in Java. Here's an example that
+creates a button and hooks up an action listener to it.  The action
+listener is invoked whenever the button is pressed, at which point it
+prints the string <span class="code">"pressed!"</span>:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;button&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">JButton</code>
+  button.addActionListener(
+  &nbsp;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">ActionListener</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;actionPerformed(event:&nbsp;<code class="typename">ActionEvent</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"pressed!"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+  )
+</pre>
+
+
+<p>This code has a lot of information-free boilerplate. The fact that
+this listener is an <span class="code">ActionListener</span>, the fact that the callback method
+is named <span class="code">actionPerformed</span>, and the fact that the argument is an
+<span class="code">ActionEvent</span> are all implied for any argument to
+<span class="code">addActionListener</span>. The only new information here is the code to be
+performed, namely the call to <span class="code">println</span>. This new information is
+drowned out by the boilerplate. Someone reading this code will need to have an
+eagle's eye to pick through the noise and find the informative part.</p>
+
+<p>A more Scala-friendly version would take a function as an argument,
+greatly reducing the amount of boilerplate:</p>
+
+<pre>
+  button.addActionListener(&nbsp;<code class="comment">//&nbsp;Type&nbsp;mismatch!</code>
+  &nbsp;&nbsp;(_:&nbsp;<code class="typename">ActionEvent</code>)&nbsp;=&gt;&nbsp;println(<code class="quotedstring">"pressed!"</code>)
+  )
+</pre>
+
+
+<p>As written so far, this code doesn't work.<a href="implicit-conversions-and-parameters.html#footnotemain21-1">[1]</a> The <span class="code">addActionListener</span>
+method wants an action listener but is getting a function. With
+implicit conversions, however, this code can be made to work.</p>
+
+<p>The first step is to write an implicit conversion between the two
+types.  Here is an implicit conversion from functions to action
+listeners:</p>
+
+<pre>
+  <code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;function2ActionListener(f:&nbsp;<code class="typename">ActionEvent</code>&nbsp;=&gt;&nbsp;<code class="typename">Unit</code>)&nbsp;=
+  &nbsp;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">ActionListener</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;actionPerformed(event:&nbsp;<code class="typename">ActionEvent</code>)&nbsp;=&nbsp;f(event)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<p>This is a one-argument method that takes a function and returns an
+action listener. Like any other one-argument method, it can be called
+directly and have its result passed on to another expression:</p>
+
+<pre>
+  button.addActionListener(
+  &nbsp;&nbsp;function2ActionListener(
+  &nbsp;&nbsp;&nbsp;&nbsp;(_:&nbsp;<code class="typename">ActionEvent</code>)&nbsp;=&gt;&nbsp;println(<code class="quotedstring">"pressed!"</code>)
+  &nbsp;&nbsp;)
+  )
+</pre>
+
+
+<p>This is already an improvement on the version with the inner class. Note
+how arbitrary amounts of boilerplate end up replaced by a function
+literal and a call to a method. It gets better, though, with implicit
+conversions. Because <span class="code">function2ActionListener</span> is marked as
+implicit, it can be left out and the compiler will insert it
+automatically. 
+Here is the result:</p>
+
+<pre>
+  <code class="comment">//&nbsp;Now&nbsp;this&nbsp;works</code>
+  button.addActionListener(
+  &nbsp;&nbsp;(_:&nbsp;<code class="typename">ActionEvent</code>)&nbsp;=&gt;&nbsp;println(<code class="quotedstring">"pressed!"</code>)
+  )
+</pre>
+
+
+<p>The way this code works is that the compiler first tries to compile it
+as is, but it sees a type error. Before giving up, it looks for an
+implicit conversion that can repair the problem. In this case, it
+finds <span class="code">function2ActionListener</span>. It tries that conversion method,
+sees that it works, and moves on. The compiler works hard here so that
+the developer can ignore one more fiddly detail. Action listener?
+Action event function? Either one will work&mdash;use the one that's more
+convenient.</p>
+
+<p>In this section, we illustrated some some of the power of implicit conversions
+and how they let you dress up existing libraries. 
+In the next sections, you'll learn the rules that determine when 
+implicit conversions are tried and how they are found.</p>
+
+<h3 id="sec-rules-for-implicits">21.2 Rules for implicits</h3>
+
+
+<p>Implicit definitions are those that the compiler is allowed to insert
+into a program in order to fix any of its type errors.  For example,
+if <span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span> does not type check, then the compiler might change it to
+<span class="code">convert(x)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span>, where <span class="code">convert</span> is some available implicit
+conversion.  If <span class="code">convert</span> changes <span class="code">x</span> into something that has
+a <span class="code">+</span> method, then this change might fix a program so that it type
+checks and runs correctly.  If <span class="code">convert</span> really is just a simple
+conversion function, then leaving it out of the source code can be a
+clarification.</p>
+
+<p>Implicit conversions are governed by the following general rules:</p>
+
+<p><b>Marking rule: Only definitions marked <span class="code">implicit</span> are
+available.</b>  The <span class="code">implicit</span> keyword is used to mark which
+declarations the compiler may use as implicits.  You can use it to
+mark any variable, function, or object definition. Here's
+an example of an implicit function definition:<a href="implicit-conversions-and-parameters.html#footnotemain21-2">[2]</a></p>
+
+<pre>
+  <code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;intToString(x:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;x.toString
+</pre>
+
+
+<p>The compiler will only change <span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span> to <span class="code">convert(x)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span> if
+<span class="code">convert</span> is marked as <span class="code">implicit</span>.  This way, you avoid the
+confusion that would result if the compiler picked random functions
+that happen to be in scope and inserted them as "conversions."  The
+compiler will only select among the definitions you have explicitly marked
+as implicit.</p>
+
+<p><b>Scope rule: An inserted implicit conversion must 
+be in scope as a single identifier, or be associated with the source or 
+target type of the conversion.</b> 
+The Scala compiler will only consider implicit conversions that are in
+scope.<a id="i1011304421-1"/> To make
+an implicit conversion available, therefore, you must in some way bring it into scope. Moreover, with one exception,
+the implicit conversion must be in scope <em>as a single identifier</em>.
+The compiler will not insert a conversion of the form
+<span class="code">someVariable.convert</span>. For example, it will not expand <span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span> to <span class="code">someVariable.convert(x)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span>. 
+If you want to make <span class="code">someVariable.convert</span> available
+as an implicit, you would need to import it, which would make it available as a single identifier. Once imported, the compiler would be free to
+apply it as <span class="code">convert(x)</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span>.
+In fact, it is common for libraries to include a <span class="code">Preamble</span> object
+including a number of useful implicit conversions.  Code that
+uses the library can then do a single "<span class="code">import</span>&nbsp;<span class="code">Preamble._</span>" to access
+the library's implicit conversions.</p>
+
+<p>There's one exception to the "single identifier" rule.
+The compiler will also look for implicit definitions in the companion object of the source 
+or expected target types of the conversion<a id="i1755659460-1"/>. For example, if you're attempting to pass a <span class="code">Dollar</span> object to a method that takes a <span class="code">Euro</span>,
+the source type is <span class="code">Dollar</span> and the target type is <span class="code">Euro</span>.  You could, therefore, package
+an implicit conversion from <span class="code">Dollar</span> to <span class="code">Euro</span> in
+the companion object of either class, <span class="code">Dollar</span> or <span class="code">Euro</span>.</p>
+
+<p>Here's an example in which the implicit definition is placed
+in <span class="code">Dollar</span>'s companion object:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">Dollar</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;dollarToEuro(x:&nbsp;<code class="typename">Dollar</code>):&nbsp;<code class="typename">Euro</code>&nbsp;=&nbsp;...
+  }
+  <code class="vem">class</code>&nbsp;<code class="typename">Dollar</code>&nbsp;{&nbsp;...&nbsp;}
+</pre>
+
+
+<p>In this case, the conversion <span class="code">dollarToEuro</span> is said to be <span style="font-style:italic">associated</span> to the 
+type <span class="code">Dollar</span>. The compiler will find such an associated conversion every time
+it needs to convert from an instance of type <span class="code">Dollar</span>. There's no need to
+import the conversion separately into your program.</p>
+
+<p>The Scope Rule helps with modular reasoning.  When you read code in
+a file, the only things you need to consider from other files are
+those that are either imported or are explicitly referenced through a
+fully qualified name.  This benefit is at least as important for
+implicits as for explicitly written code.  If implicits took
+effect system-wide, then to understand a file you would have to know
+about every implicit introduced anywhere in the program!</p>
+
+<p><b>One-at-a-time rule: Only one implicit is inserted.</b>  The compiler
+will never rewrite <span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span> to <span class="code">convert1(convert2(x))</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">y</span>.  Doing so
+would cause compile times to increase dramatically on erroneous code,
+and it would increase the difference between what the programmer
+writes and what the program actually does.  For sanity's sake, the
+compiler does not insert further implicit conversions when it is
+already in the middle of trying another implicit. However, it's
+possible to circumvent this restriction by having implicits take
+implicit parameters, which will be described later in this
+chapter<a id="i-568821387-2"/>.</p>
+
+<p><b>Explicits-first rule: Whenever code type checks as it is
+written, no implicits are attempted.</b>  The compiler will not change
+code that already works.  A corollary of this rule is that you can
+always replace implicit identifiers by explicit ones, thus making the
+code longer but with less apparent ambiguity.  You can trade between
+these choices on a case-by-case basis.  Whenever you see code that
+seems repetitive and verbose, implicit conversions can help you
+decrease the tedium.  Whenever code seems terse to the point of
+obscurity, you can insert conversions explicitly.  The amount of
+implicits you leave the compiler to insert is ultimately a matter of
+style.</p>
+
+<h4>Naming an implicit conversion</h4>
+
+
+<p>Implicit conversions can have arbitrary names. The name of an implicit
+conversion matters only in two situations: If you want to write it
+explicitly in a method application and
+for determining which implicit conversions are available at 
+any place in the program.
+To illustrate the second point, say you have an object with two 
+implicit conversions:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">MyConversions</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;stringWrapper(s:&nbsp;<code class="typename">String</code>):
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">IndexedSeq[Char]</code>&nbsp;=&nbsp;...
+  &nbsp;&nbsp;<code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;intToString(x:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">String</code>&nbsp;=&nbsp;...
+  }
+</pre>
+
+
+<p>In your application, you want to make use of the <span class="code">stringWrapper</span> conversion,
+but you don't want integers to be converted automatically to strings 
+by means of the <span class="code">intToString</span> conversion. You can achieve this by importing
+only one conversion, but not the other:</p>
+
+<pre>
+  <code class="vem">import</code>&nbsp;MyConversions.stringWrapper
+  ...&nbsp;<code class="comment">//&nbsp;code&nbsp;making&nbsp;use&nbsp;of&nbsp;stringWrapper</code>
+</pre>
+
+
+<p>In this example, it was important that the implicit conversions had
+names, because only that way could you selectively import one and not the other.</p>
+
+<h4>Where implicits are tried</h4>
+
+
+<p>There are three places implicits are used in the language: conversions
+to an expected type, conversions of the receiver of a selection, and
+implicit parameters. Implicit conversions to an expected type let you
+use one type in a context where a different type is expected.  For
+example, you might have a <span class="code">String</span> and want to pass it to a method that requires an
+<span class="code">IndexedSeq[Char]</span>.
+Conversions of the receiver let you adapt
+the receiver of a method call (<i>i.e.</i>, the object on which a method is invoked), if the method is not applicable on the
+original type. An example is <span class="code">"abc".exists</span>, which is converted to
+<span class="code">stringWrapper("abc").exists</span> because the <span class="code">exists</span> method is not
+available on <span class="code">String</span>s but is available on <span class="code">IndexedSeq</span>s.  
+Implicit parameters, on the other hand, are
+usually used to provide more information to the called function about what the
+caller wants.  Implicit parameters are especially useful with generic
+functions, where the called function might otherwise know nothing at all about
+the type of one or more arguments. We will examine each of these three kinds of implicits in the next sections.</p>
+
+<h3>21.3 Implicit conversion to an expected type</h3>
+
+
+<p>Implicit conversion to an expected type is the first place 
+the compiler will use implicits.  
+The rule is simple.  Whenever the compiler sees an X, but
+needs a Y, it will look for an implicit function that converts X to
+Y.
+For example, normally a double cannot be used as an integer because
+it loses precision:<a id="i-677980410-7"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;i:&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;<code class="literal">3.5</code>
+  <code class="output">&lt;console&gt;:7:&nbsp;error:&nbsp;type&nbsp;mismatch;</code>
+  <code class="output">&nbsp;found&nbsp;&nbsp;&nbsp;:&nbsp;Double(3.5)</code>
+  <code class="output">&nbsp;required:&nbsp;Int</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;i:&nbsp;Int&nbsp;=&nbsp;3.5</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>However, you can define an implicit conversion to smooth this over:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;doubleToInt(x:&nbsp;<code class="typename">Double</code>)&nbsp;=&nbsp;x.toInt
+  <code class="output">doubleToInt:&nbsp;(x:&nbsp;Double)Int</code>
+  <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;i:&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;<code class="literal">3.5</code>
+  <code class="output">i:&nbsp;Int&nbsp;=&nbsp;3</code>
+</pre>
+
+
+<p>What happens here is that the compiler sees a <span class="code">Double</span>, specifically
+<span class="code">3.5</span>, in a context where it requires an <span class="code">Int</span>.
+So far, the compiler is looking at an ordinary type error.
+Before giving up, though, it
+searches for an implicit conversion from <span class="code">Double</span> to <span class="code">Int</span>.  In this
+case, it finds one: <span class="code">doubleToInt</span>, because <span class="code">doubleToInt</span> is in scope as a single identifier. (Outside the interpreter, you might
+bring <span class="code">doubleToInt</span> into scope via an <span class="code">import</span> or possibly through inheritance.) The compiler then inserts a call
+to <span class="code">doubleToInt</span> automatically.  Behind the scenes, the code becomes:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;i:&nbsp;<code class="typename">Int</code>&nbsp;=&nbsp;doubleToInt(<code class="literal">3.5</code>)
+</pre>
+
+
+<p>This is literally an <em>implicit</em> conversion.  You did 
+not explicitly ask for conversion.  Instead, you marked <span class="code">doubleToInt</span> as
+an available implicit conversion by bringing it into scope as a single identifier, and then the compiler automatically
+used it when it needed to convert from a <span class="code">Double</span> to an <span class="code">Int</span>.</p>
+
+<p>Converting <span class="code">Double</span>s to <span class="code">Int</span>s might raise some eyebrows because,
+it's a dubious idea to have something that causes a loss in precision
+happen invisibly. So this is not really a conversion we recommend. It
+makes much more sense to go the other way, from some more constrained
+type to a more general one. For instance, an <span class="code">Int</span> can be converted
+without loss of precision to a <span class="code">Double</span>, so an implicit conversion
+from <span class="code">Int</span> to <span class="code">Double</span> makes sense. In fact, that's exactly
+what happens. The <span class="code">scala.Predef</span> object, which is implicitly imported into
+every Scala program, defines implicit conversions that convert
+"smaller" numeric types to "larger" ones. 
+For instance, you will find in
+<span class="code">Predef</span> the following conversion:</p>
+
+<pre>
+  <code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;int2double(x:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">Double</code>&nbsp;=&nbsp;x.toDouble
+</pre>
+
+
+<p>That's why in Scala <span class="code">Int</span> values can be stored in variables of type <span class="code">Double</span>. There's no special rule in the type system for this; it's just an implicit 
+conversion that gets applied.<a href="implicit-conversions-and-parameters.html#footnotemain21-3">[3]</a></p>
+
+<h3>21.4 Converting the receiver</h3>
+
+
+<p>Implicit conversions also apply to the receiver of a method call, the object on which the method is invoked.
+This kind of implicit conversion has two main uses.  First,
+receiver conversions allow smoother integration of a new class
+into an existing class hierarchy. And second, they support writing
+domain-specific languages (DSLs) within the language.<a id="i49254319-1"/></p>
+
+<p>To see how it works, suppose you write down 
+<span class="code">obj.doIt</span>, and <span class="code">obj</span>
+does not have a member named <span class="code">doIt</span>.  The compiler will try to insert
+conversions before giving up.  In this case, the conversion needs to
+apply to the receiver, <span class="code">obj</span>.  The compiler will act as if the
+expected "type" of <span class="code">obj</span> was "has a member named <span class="code">doIt</span>."  This
+"has a <span class="code">doIt</span>" type is not a normal Scala type, but it
+is there conceptually and is why the compiler will insert an implicit
+conversion in this case.</p>
+
+<h4>Interoperating with new types</h4>
+
+
+<p>As mentioned previously, one major use of receiver conversions is allowing smoother integration
+of new types with existing types. In particular, they allow you to enable client programmers to use
+instances of existing types as if they were instances of your new type.
+Take,
+for example, class <span class="code">Rational</span>
+shown in <a href="functional-objects.html#lst-overloaded-methods">Listing 6.5</a>  <a href="functional-objects.html#lst-overloaded-methods">here</a>.
+Here's a snippet of that
+class again:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">Rational</code>(n:&nbsp;<code class="typename">Int</code>,&nbsp;d:&nbsp;<code class="typename">Int</code>)&nbsp;{
+  &nbsp;&nbsp;...
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;+&nbsp;(that:&nbsp;<code class="typename">Rational</code>):&nbsp;<code class="typename">Rational</code>&nbsp;=&nbsp;...
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;+&nbsp;(that:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">Rational</code>&nbsp;=&nbsp;...
+  }
+</pre>
+
+
+<p>Class <span class="code">Rational</span> has two overloaded variants of the <span class="code">+</span> method,
+which take <span class="code">Rational</span>s and <span class="code">Int</span>s, respectively, as arguments.
+So you can either add two rational numbers or a rational number and an integer:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;oneHalf&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Rational</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)
+  <code class="output">oneHalf:&nbsp;Rational&nbsp;=&nbsp;1/2</code>
+  <br />  scala&gt;&nbsp;oneHalf&nbsp;+&nbsp;oneHalf
+  <code class="output">res0:&nbsp;Rational&nbsp;=&nbsp;1/1</code>
+  <br />  scala&gt;&nbsp;oneHalf&nbsp;+&nbsp;<code class="literal">1</code>
+  <code class="output">res1:&nbsp;Rational&nbsp;=&nbsp;3/2</code>
+</pre>
+
+
+<p>What about an expression like <span class="code">1</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">oneHalf</span>?  This expression is
+tricky because the receiver, <span class="code">1</span>, does not have a suitable <span class="code">+</span>
+method.  So the following gives an error:<a id="i1859455133-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="literal">1</code>&nbsp;+&nbsp;oneHalf
+  <code class="output">&lt;console&gt;:6:&nbsp;error:&nbsp;overloaded&nbsp;method&nbsp;value&nbsp;+&nbsp;with</code>
+  <code class="output">alternatives&nbsp;(Double)Double&nbsp;&lt;and&gt;&nbsp;...&nbsp;cannot&nbsp;be&nbsp;applied</code>
+  <code class="output">to&nbsp;(Rational)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;+&nbsp;oneHalf</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>To allow this kind of mixed arithmetic, you need to define an 
+implicit conversion from <span class="code">Int</span> to <span class="code">Rational</span>:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;intToRational(x:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Rational</code>(x,&nbsp;<code class="literal">1</code>)
+  <code class="output">intToRational:&nbsp;(x:&nbsp;Int)Rational</code>
+</pre>
+
+
+<p>With the conversion in place, converting the receiver does the trick:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="literal">1</code>&nbsp;+&nbsp;oneHalf
+  <code class="output">res2:&nbsp;Rational&nbsp;=&nbsp;3/2</code>
+</pre>
+
+
+<p>What happens behind the scenes here is that the Scala compiler first tries to
+type check the expression <span class="code">1</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">oneHalf</span> as it is. This fails
+because <span class="code">Int</span> has several <span class="code">+</span> methods, but none that takes 
+a <span class="code">Rational</span> argument. Next, the compiler searches for
+an implicit conversion from <span class="code">Int</span> to another type that has a <span class="code">+</span> method 
+which can be applied to a <span class="code">Rational</span>. 
+It finds your conversion
+and applies it, which yields:</p>
+
+<pre>
+  intToRational(<code class="literal">1</code>)&nbsp;+&nbsp;oneHalf
+</pre>
+
+
+<p>In this case, the compiler found the implicit conversion function because
+you entered its definition into the interpreter, which 
+brought it into scope for the remainder of the interpreter session.</p>
+
+<h4>Simulating new syntax</h4>
+
+
+<p><a id="sec-simulating-new-syntax"/></p>
+
+<p>The other major use of implicit conversions 
+is to simulate adding new syntax.
+Recall that you can
+make a <span class="code">Map</span> using syntax like this:</p>
+
+<pre>
+  <code class="typename">Map</code>(<code class="literal">1</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"one"</code>,&nbsp;<code class="literal">2</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"two"</code>,&nbsp;<code class="literal">3</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"three"</code>)
+</pre>
+
+
+<p>Have you wondered how the <span class="code">-&gt;</span> is supported?<a id="i483527409-1"/>  It's not syntax!
+Instead, <span class="code">-&gt;</span> is a method of the class <span class="code">ArrowAssoc</span>, a class defined
+inside the standard Scala preamble (<span class="code">scala.Predef</span>).  The preamble
+also defines an implicit conversion from <span class="code">Any</span> to <span class="code">ArrowAssoc</span>.
+When you write <span class="code">1</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">"one"</span>, the compiler inserts a conversion from
+<span class="code">1</span> to <span class="code">ArrowAssoc</span> so that the <span class="code">-&gt;</span> method can be found. 
+Here are the relevant definitions:</p>
+
+<pre>
+  <code class="vem">package</code>&nbsp;scala
+  <code class="vem">object</code>&nbsp;<code class="typename">Predef</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">ArrowAssoc[A]</code>(x:&nbsp;A)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;-&gt;&nbsp;[B](y:&nbsp;B):&nbsp;<code class="typename">Tuple2[A,&nbsp;B]</code>&nbsp;=&nbsp;<code class="typename">Tuple2</code>(x,&nbsp;y)
+  &nbsp;&nbsp;}
+  &nbsp;&nbsp;<code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;any2ArrowAssoc[A](x:&nbsp;A):&nbsp;<code class="typename">ArrowAssoc[A]</code>&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">ArrowAssoc</code>(x)
+  &nbsp;&nbsp;...
+  }
+</pre>
+
+
+<p>This "rich wrappers" pattern is common in libraries that provide
+syntax-like extensions to the language, so you should be ready to
+recognize the pattern when you see it.<a id="i807731316-2"/><a id="i681737575-2"/>  Whenever you see someone calling
+methods that appear not to exist in the receiver class, 
+they are probably using implicits.
+Similarly, if you see a class named <span class="code">RichSomething</span> (<i>e.g.</i>, <span class="code">RichInt</span> or
+<span class="code">RichBoolean</span>),  that class is likely adding syntax-like methods to
+type <span class="code">Something</span>.</p>
+
+<p>You have already seen this rich wrappers pattern 
+for the basic types described in
+<a href="basic-types-and-operations.html">Chapter 5</a>.
+As you can now see, these rich wrappers apply more widely,
+often letting you get by with an internal DSL defined as a library where programmers in
+other languages might feel the need to develop an external DSL.<a id="i367427817-1"/></p>
+
+<h4>Implicit classes</h4>
+
+
+<p>Implicit classes<a id="i-1972624620-1"/><a id="i-2080002837-1"/><a id="i1275741881-1"/> were
+added in Scala 2.10 to make it easier to write rich wrapper
+classes. An implicit class is a class that is preceded by the
+<span class="code">implicit</span> keyword. For any such class, the compiler generates an
+implicit conversion from the class's constructor parameter to the
+class itself. Such a conversion is just what you need if you plan to
+use the class for the rich wrappers pattern.</p>
+
+<p>For example, suppose you have a class named <span class="code">Rectangle</span> for
+representing the width and height of a rectangle on the screen:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Rectangle</code>(width:&nbsp;<code class="typename">Int</code>,&nbsp;height:&nbsp;<code class="typename">Int</code>)
+</pre>
+
+
+<p>If you use this class very frequently, you might want to use the rich
+wrappers pattern so you can more easily construct it. Here's one way
+to do so.</p>
+
+<pre>
+  <code class="vem">implicit</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">RectangleMaker</code>(width:&nbsp;<code class="typename">Int</code>)&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;x(height:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;<code class="typename">Rectangle</code>(width,&nbsp;height)
+  }
+</pre>
+
+
+<p>The above definition defines a <span class="code">RectangleMaker</span> class in the usual manner. In
+addition, it causes the following conversion to be automatically
+generated:</p>
+
+<pre>
+  <code class="comment">//&nbsp;Automatically&nbsp;generated</code>
+  <code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;<code class="typename">RectangleMaker</code>(width:&nbsp;<code class="typename">Int</code>)&nbsp;=
+  &nbsp;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">RectangleMaker</code>(width)
+</pre>
+
+
+<p>As a result, you can create points by putting an <span class="code">x</span> in between
+two integers:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;myRectangle&nbsp;=&nbsp;<code class="literal">3</code>&nbsp;x&nbsp;<code class="literal">4</code>
+  <code class="output">&nbsp;&nbsp;myRectangle:&nbsp;Rectangle&nbsp;=&nbsp;Rectangle(3,4)</code>
+</pre>
+
+
+<p>This is how it works: Since type <span class="code">Int</span> has no method
+named <span class="code">x</span>, the compiler will look for an implicit conversion from
+<span class="code">Int</span> to something that does. It will find the generated
+<span class="code">RectangleMaker</span> conversion, and <span class="code">RectangleMaker</span> does have a method
+named <span class="code">x</span>. The compiler inserts a call to this conversion, after
+which the call to <span class="code">x</span> type checks and does what is desired.</p>
+
+<p>As a warning to the adventurous, it might be tempting to think that
+any class can have <span class="code">implicit</span> put in front of it. It's not so. An
+implicit class cannot be a case class, and its constructor must have
+exactly one parameter. Also, an implicit class must be located
+within some other object, class, or trait. In practice, so long as you
+use implicit classes as rich wrappers to add a few methods onto an
+existing class, these restrictions should not matter.</p>
+
+<h3>21.5 Implicit parameters</h3>
+
+
+<p>The remaining place the compiler inserts implicits is within argument
+lists.<a id="i-568821387-3"/><a id="i-1127720187-1"/>
+The compiler will sometimes replace <span class="code">someCall(a)</span> with <span class="code">someCall(a)(b)</span>, or
+<span class="code">new</span>&nbsp;<span class="code">SomeClass(a)</span> with <span class="code">new</span>&nbsp;<span class="code">SomeClass(a)(b)</span>, thereby adding a missing parameter
+list to complete a function call. It is the entire last curried parameter list that's supplied, not just the last parameter. For example, if <span class="code">someCall</span>'s missing
+last parameter list takes three parameters, the compiler might replace <span class="code">someCall(a)</span> with <span class="code">someCall(a)(b,</span>&nbsp;<span class="code">c,</span>&nbsp;<span class="code">d)</span>.  For this usage, not only must the inserted
+identifiers, such as <span class="code">b</span>, <span class="code">c</span>, and <span class="code">d</span> in <span class="code">(b,</span>&nbsp;<span class="code">c,</span>&nbsp;<span class="code">d)</span>, be marked <span class="code">implicit</span> where they are defined, but also the last parameter
+list in <span class="code">someCall</span>'s or <span class="code">someClass</span>'s definition must be marked <span class="code">implicit</span>.</p>
+
+<p>Here's a simple example.  Suppose you have a class <span class="code">PreferredPrompt</span>, which encapsulates
+a shell prompt string (such as, say <span class="code">"$</span>&nbsp;<span class="code">"</span> or <span class="code">"&gt;</span>&nbsp;<span class="code">"</span>) that is preferred by a user:</p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">PreferredPrompt</code>(<code class="vem">val</code>&nbsp;preference:&nbsp;<code class="typename">String</code>)
+</pre>
+
+
+<p>Also, suppose you have a <span class="code">Greeter</span> object with a <span class="code">greet</span> method, which takes two parameter lists. The first
+parameter list takes a string user name, and the second parameter list takes a <span class="code">PreferredPrompt</span>:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">Greeter</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;greet(name:&nbsp;<code class="typename">String</code>)(<code class="vem">implicit</code>&nbsp;prompt:&nbsp;<code class="typename">PreferredPrompt</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"Welcome,&nbsp;"</code>&nbsp;+&nbsp;name&nbsp;+&nbsp;<code class="quotedstring">".&nbsp;The&nbsp;system&nbsp;is&nbsp;ready."</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;println(prompt.preference)
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>The last parameter list is marked <span class="code">implicit</span>, which means it can be supplied implicitly. But you can still
+provide the <span class="code">prompt</span> explicitly, like this:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;bobsPrompt&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">PreferredPrompt</code>(<code class="quotedstring">"relax&gt;&nbsp;"</code>)
+  <code class="output">bobsPrompt:&nbsp;PreferredPrompt&nbsp;=&nbsp;PreferredPrompt@714d36d6</code>
+  <br />  scala&gt;&nbsp;Greeter.greet(<code class="quotedstring">"Bob"</code>)(bobsPrompt)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <code class="output">Welcome,&nbsp;Bob.&nbsp;The&nbsp;system&nbsp;is&nbsp;ready.</code>
+  <code class="output">relax&gt;&nbsp;</code>
+</pre>
+
+
+<p>To let the compiler supply the parameter implicitly, you must first define a variable of the expected
+type, which in this case is <span class="code">PreferredPrompt</span>. You could do this, for example, in a preferences object:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">JoesPrefs</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">implicit</code>&nbsp;<code class="vem">val</code>&nbsp;prompt&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">PreferredPrompt</code>(<code class="quotedstring">"Yes,&nbsp;master&gt;&nbsp;"</code>)
+  }
+</pre>
+
+
+<p>Note that the <span class="code">val</span> itself is marked implicit. If it wasn't, the compiler would not use it to supply the
+missing parameter list. It will also not use it if it isn't in scope as a single identifier, as shown in this example:<a id="i-1437022486-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;Greeter.greet(<code class="quotedstring">"Joe"</code>)
+  <code class="output">&lt;console&gt;:13:&nbsp;error:&nbsp;could&nbsp;not&nbsp;find&nbsp;implicit&nbsp;value&nbsp;for&nbsp;</code>
+  <code class="output">parameter&nbsp;prompt:&nbsp;PreferredPrompt</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Greeter.greet("Joe")</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>Once you bring it into scope via an import, however, it will be used to supply the missing parameter list:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">import</code>&nbsp;JoesPrefs._&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <code class="output">import&nbsp;JoesPrefs._</code>
+  <br />  scala&gt;&nbsp;Greeter.greet(<code class="quotedstring">"Joe"</code>)
+  <code class="output">Welcome,&nbsp;Joe.&nbsp;The&nbsp;system&nbsp;is&nbsp;ready.</code>
+  <code class="output">Yes,&nbsp;master&gt;&nbsp;</code>
+</pre>
+
+
+<p>Note that the <span class="code">implicit</span> keyword applies to an entire parameter list,
+not to individual parameters.  <a href="implicit-conversions-and-parameters.html#lst-multiple-implicit-params">Listing 21.1</a> shows an example in which the last parameter
+list of <span class="code">Greeter</span>'s <span class="code">greet</span> method, which is again marked <span class="code">implicit</span>, has two parameters: <span class="code">prompt</span> (of type <span class="code">PreferredPrompt</span>) and <span class="code">drink</span>
+(of type <span class="code">PreferredDrink</span>).</p>
+
+<p>Singleton object <span class="code">JoesPrefs</span> declares two implicit <span class="code">val</span>s, <span class="code">prompt</span> of
+type <span class="code">PreferredPrompt</span> and <span class="code">drink</span> of type <span class="code">PreferredDrink</span>. As before, however,
+so long as these are not in scope as single identifiers, they won't be used to fill
+in a missing parameter list to <span class="code">greet</span>:<a id="i-1437022486-2"/></p>
+
+<pre>
+  scala&gt;&nbsp;Greeter.greet(<code class="quotedstring">"Joe"</code>)&nbsp;
+  <code class="output">&lt;console&gt;:19:&nbsp;error:&nbsp;could&nbsp;not&nbsp;find&nbsp;implicit&nbsp;value&nbsp;for&nbsp;</code>
+  <code class="output">parameter&nbsp;prompt:&nbsp;PreferredPrompt</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Greeter.greet("Joe")</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>You can bring both implicit <span class="code">val</span>s into scope with an import:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">import</code>&nbsp;JoesPrefs._
+  <code class="output">import&nbsp;JoesPrefs._</code>
+</pre>
+
+
+<p>Because both <span class="code">prompt</span> and <span class="code">drink</span> are now in scope as single identifiers,
+you can use them to supply the last parameter list explicitly, like this:</p>
+
+<pre>
+  scala&gt;&nbsp;Greeter.greet(<code class="quotedstring">"Joe"</code>)(prompt,&nbsp;drink)
+  <code class="output">Welcome,&nbsp;Joe.&nbsp;The&nbsp;system&nbsp;is&nbsp;ready.</code>
+  <code class="output">But&nbsp;while&nbsp;you&nbsp;work,&nbsp;why&nbsp;not&nbsp;enjoy&nbsp;a&nbsp;cup&nbsp;of&nbsp;tea?</code>
+  <code class="output">Yes,&nbsp;master&gt;&nbsp;</code>
+</pre>
+
+
+<p>And because all the rules for implicit parameters are now met, you can alternatively let the Scala compiler
+supply <span class="code">prompt</span> and <span class="code">drink</span> for you by leaving off the last parameter list:</p>
+
+<pre>
+  scala&gt;&nbsp;Greeter.greet(<code class="quotedstring">"Joe"</code>)
+  <code class="output">Welcome,&nbsp;Joe.&nbsp;The&nbsp;system&nbsp;is&nbsp;ready.</code>
+  <code class="output">But&nbsp;while&nbsp;you&nbsp;work,&nbsp;why&nbsp;not&nbsp;enjoy&nbsp;a&nbsp;cup&nbsp;of&nbsp;tea?</code>
+  <code class="output">Yes,&nbsp;master&gt;&nbsp;</code>
+</pre>
+
+
+<p><a id="lst-multiple-implicit-params"/></p>
+
+<pre>
+  <code class="vem">class</code>&nbsp;<code class="typename">PreferredPrompt</code>(<code class="vem">val</code>&nbsp;preference:&nbsp;<code class="typename">String</code>)
+  <code class="vem">class</code>&nbsp;<code class="typename">PreferredDrink</code>(<code class="vem">val</code>&nbsp;preference:&nbsp;<code class="typename">String</code>)
+  <br />  <code class="vem">object</code>&nbsp;<code class="typename">Greeter</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;greet(name:&nbsp;<code class="typename">String</code>)(<code class="vem">implicit</code>&nbsp;prompt:&nbsp;<code class="typename">PreferredPrompt</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;drink:&nbsp;<code class="typename">PreferredDrink</code>)&nbsp;=&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"Welcome,&nbsp;"</code>&nbsp;+&nbsp;name&nbsp;+&nbsp;<code class="quotedstring">".&nbsp;The&nbsp;system&nbsp;is&nbsp;ready."</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;print(<code class="quotedstring">"But&nbsp;while&nbsp;you&nbsp;work,&nbsp;"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"why&nbsp;not&nbsp;enjoy&nbsp;a&nbsp;cup&nbsp;of&nbsp;"</code>&nbsp;+&nbsp;drink.preference&nbsp;+&nbsp;<code class="quotedstring">"?"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;println(prompt.preference)
+  &nbsp;&nbsp;}
+  }
+  <br />  <code class="vem">object</code>&nbsp;<code class="typename">JoesPrefs</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">implicit</code>&nbsp;<code class="vem">val</code>&nbsp;prompt&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">PreferredPrompt</code>(<code class="quotedstring">"Yes,&nbsp;master&gt;&nbsp;"</code>)
+  &nbsp;&nbsp;<code class="vem">implicit</code>&nbsp;<code class="vem">val</code>&nbsp;drink&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">PreferredDrink</code>(<code class="quotedstring">"tea"</code>)
+  }
+</pre>
+
+
+<h5>Listing 21.1 - An implicit parameter list with multiple parameters.</h5>
+
+
+<p>One thing to note about the previous examples is that we didn't use <span class="code">String</span> as the type
+of <span class="code">prompt</span> or <span class="code">drink</span>, even though ultimately it was a <span class="code">String</span> that each
+of them provided through their <span class="code">preference</span> fields. Because the compiler selects implicit parameters
+by matching types of parameters against types of values in scope, implicit parameters usually have "rare"
+or "special" enough types that accidental matches are unlikely. 
+For example, the types <span class="code">PreferredPrompt</span> and
+<span class="code">PreferredDrink</span> in <a href="implicit-conversions-and-parameters.html#lst-multiple-implicit-params">Listing 21.1</a> were defined solely to serve as implicit parameter types.
+As a result, it is unlikely that implicit variables of these types will be in scope if they
+aren't intended to be used as implicit parameters to <span class="code">Greeter.greet</span>.</p>
+
+<p>Another thing to know about implicit parameters is that they are perhaps most often used to provide
+information about a type mentioned <em>explicitly</em> in an earlier parameter list,
+similar to the type classes of Haskell.</p>
+
+<p>As an example, consider the <span class="code">maxListOrdering</span> function shown in <a href="implicit-conversions-and-parameters.html#lst-max-list-take-one">Listing 21.2</a>, 
+which returns the maximum element of the passed list.</p>
+
+<p><a id="lst-max-list-take-one"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;maxListOrdering[T](elements:&nbsp;<code class="typename">List[T]</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(ordering:&nbsp;<code class="typename">Ordering[T]</code>):&nbsp;T&nbsp;=&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;elements&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>()&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">throw</code>&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">IllegalArgumentException</code>(<code class="quotedstring">"empty&nbsp;list!"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>(x)&nbsp;=&gt;&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;x&nbsp;::&nbsp;rest&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;maxRest&nbsp;=&nbsp;maxListOrdering(rest)(ordering)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(ordering.gt(x,&nbsp;maxRest))&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;maxRest
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 21.2 - A function with an upper bound.</h5>
+
+
+<p>The signature of <span class="code">maxListOrdering</span> is similar to that of <span class="code">orderedMergeSort</span>,
+shown in <a href="type-parameterization.html#lst-upper-bound-sort">Listing 19.12</a>  <a href="type-parameterization.html#lst-upper-bound-sort">here</a>: It takes
+a <span class="code">List[T]</span> as its argument, and now it takes an additional argument of type <span class="code">Ordering[T]</span>.
+This additional argument specifies which ordering to use when comparing elements of type
+<span class="code">T</span>. As such, this version can be used for types that don't have a built-in ordering.
+Additionally, this version can be used for types that <em>do</em> have a built-in ordering, but
+for which you occasionally want to use some other ordering.</p>
+
+<p>This version is more general, but it's also more cumbersome to
+use. Now a caller must specify an explicit ordering even if <span class="code">T</span> is
+something like <span class="code">String</span> or <span class="code">Int</span> that has an obvious default
+ordering. To make the new method more convenient, it helps to make the
+second argument implicit. This approach is shown in <a href="implicit-conversions-and-parameters.html#lst-max-list-take-two">Listing 21.3</a>.</p>
+
+<p>The <span class="code">ordering</span> parameter in this example is used to describe the
+ordering of <span class="code">T</span>s.
+ In the body of <span class="code">maxListImpParm</span>, this ordering is used
+in two places: a recursive call to <span class="code">maxListImpParm</span>, and an
+<span class="code">if</span> expression that checks whether the head of the list is larger than the
+maximum element of the rest of the list.</p>
+
+<p><a id="lst-max-list-take-two"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;maxListImpParm[T](elements:&nbsp;<code class="typename">List[T]</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<code class="vem">implicit</code>&nbsp;ordering:&nbsp;<code class="typename">Ordering[T]</code>):&nbsp;T&nbsp;=
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;elements&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>()&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">throw</code>&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">IllegalArgumentException</code>(<code class="quotedstring">"empty&nbsp;list!"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>(x)&nbsp;=&gt;&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;x&nbsp;::&nbsp;rest&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;maxRest&nbsp;=&nbsp;maxListImpParm(rest)(ordering)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(ordering.gt(x,&nbsp;maxRest))&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;maxRest
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 21.3 - A function with an implicit parameter.</h5>
+
+
+<p>The <span class="code">maxListImpParm</span> function is an example of an implicit parameter used to provide more information
+about a type mentioned explicitly in an earlier parameter list. To be specific,
+the implicit parameter <span class="code">ordering</span>, of type <span class="code">Ordering[T]</span>, provides
+more information about type <span class="code">T</span>&mdash;in this case, how to order <span class="code">T</span>s. Type <span class="code">T</span> is mentioned in <span class="code">List[T]</span>, the type
+of parameter <span class="code">elements</span>, which appears in the earlier parameter list. Because <span class="code">elements</span> must always be provided
+explicitly in any invocation of <span class="code">maxListImpParm</span>, the compiler will know <span class="code">T</span> at compile time and can therefore determine
+whether an implicit definition of type <span class="code">Ordering[T]</span> is available. If so, it can pass in the second parameter list, <span class="code">ordering</span>, implicitly.</p>
+
+<p>This pattern is so common that the standard Scala library
+provides implicit "ordering" methods for many common types.  You could therefore use
+this <span class="code">maxListImpParm</span> method with a variety of types:</p>
+
+<pre>
+  scala&gt;&nbsp;maxListImpParm(<code class="typename">List</code>(<code class="literal">1</code>,<code class="literal">5</code>,<code class="literal">10</code>,<code class="literal">3</code>))
+  <code class="output">res9:&nbsp;Int&nbsp;=&nbsp;10</code>
+  <br />  scala&gt;&nbsp;maxListImpParm(<code class="typename">List</code>(<code class="literal">1.5</code>,&nbsp;<code class="literal">5.2</code>,&nbsp;<code class="literal">10.7</code>,&nbsp;<code class="literal">3.14159</code>))
+  <code class="output">res10:&nbsp;Double&nbsp;=&nbsp;10.7</code>
+  <br />  scala&gt;&nbsp;maxListImpParm(<code class="typename">List</code>(<code class="quotedstring">"one"</code>,&nbsp;<code class="quotedstring">"two"</code>,&nbsp;<code class="quotedstring">"three"</code>))
+  <code class="output">res11:&nbsp;String&nbsp;=&nbsp;two</code>
+</pre>
+
+
+<p>In the first case, the compiler inserted an <span class="code">ordering</span> for
+<span class="code">Int</span>s; in the second case, for
+<span class="code">Double</span>s; in the third case, for <span class="code">String</span>s.</p>
+
+<h4>A style rule for implicit parameters</h4>
+
+
+<p>As a style rule, it is best to use a custom named type in the
+types of implicit parameters. For example, the types of <span class="code">prompt</span> and <span class="code">drink</span> in the previous example
+was not <span class="code">String</span>, but <span class="code">PreferredPrompt</span> and <span class="code">PreferredDrink</span>, respectively. As a
+counterexample, consider that the <span class="code">maxListImpParm</span> function could just as
+well have been written with the following type signature:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;maxListPoorStyle[T](elements:&nbsp;<code class="typename">List[T]</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<code class="vem">implicit</code>&nbsp;orderer:&nbsp;(T,&nbsp;T)&nbsp;=&gt;&nbsp;<code class="typename">Boolean</code>):&nbsp;T
+</pre>
+
+
+<p>To use this version of the function, though, the caller would have to
+supply an <span class="code">orderer</span> parameter of type <span class="code">(T,</span>&nbsp;<span class="code">T)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span>.  This is a
+fairly generic type that includes any function from two <span class="code">T</span>s to a
+<span class="code">Boolean</span>.  It does not indicate anything at all about what the type is
+for; it could be an equality test, a less-than test, a greater-than
+test, or something else entirely.</p>
+
+<p>The actual code for <span class="code">maxListImpParm</span>, given in <a href="implicit-conversions-and-parameters.html#lst-max-list-take-two">Listing 21.3</a>, shows better style.  It uses an <span class="code">ordering</span>
+parameter of type <span class="code">Ordering[T]</span>.  The word <span class="code">Ordering</span> in this type
+indicates exactly what the implicit parameter is used for: it is for
+ordering elements of <span class="code">T</span>.  Because this <span class="code">ordering</span> type is more
+explicit, it's no trouble to add implicit providers for this
+type in the standard library.  To contrast, imagine the chaos that
+would ensue if you added an implicit of type <span class="code">(T,</span>&nbsp;<span class="code">T)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">Boolean</span> in the
+standard library, and the compiler started sprinkling it around in
+people's code.  You would end up with code that compiles and runs, but
+that does fairly arbitrary tests against pairs of items! Thus the style rule: Use at least one role-determining name within the
+type of an implicit parameter.</p>
+
+<h3 id="sec-context-bounds">21.6 Context bounds</h3>
+
+
+<p>The previous example showed an opportunity to use an implicit but did
+not.  Note that when you use <span class="code">implicit</span> on a parameter, not only will the
+compiler try to <em>supply</em> that parameter with an implicit value,
+but the compiler will also <em>use</em> that parameter as an available
+implicit in the body of the method!  Thus, the first use of <span class="code">ordering</span>
+within the body of the method
+can be left out.</p>
+
+<p><a id="lst-max-list-take-three"/></p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;maxList[T](elements:&nbsp;<code class="typename">List[T]</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<code class="vem">implicit</code>&nbsp;ordering:&nbsp;<code class="typename">Ordering[T]</code>):&nbsp;T&nbsp;=
+  <br />  &nbsp;&nbsp;elements&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>()&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">throw</code>&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">IllegalArgumentException</code>(<code class="quotedstring">"empty&nbsp;list!"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>(x)&nbsp;=&gt;&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;x&nbsp;::&nbsp;rest&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;maxRest&nbsp;=&nbsp;maxList(rest)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;(ordering)&nbsp;is&nbsp;implicit</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(ordering.gt(x,&nbsp;maxRest))&nbsp;x&nbsp;&nbsp;<code class="comment">//&nbsp;this&nbsp;ordering&nbsp;is</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;maxRest&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;still&nbsp;explicit</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 21.4 - A function that uses an implicit parameter internally.</h5>
+
+
+<p>When the compiler examines the code in <a href="implicit-conversions-and-parameters.html#lst-max-list-take-three">Listing 21.4</a>, it will see that the
+types do not match up.  The expression <span class="code">maxList(rest)</span> only
+supplies one parameter list, but <span class="code">maxList</span> requires two.
+Since the second parameter list is implicit, the compiler
+does not give up type checking immediately. Instead, it looks
+for an implicit parameter of the appropriate type, in this case
+<span class="code">Ordering[T]</span>. In this case, it finds one and rewrites the
+call to <span class="code">maxList(rest)(ordering)</span>, after which the code type checks.</p>
+
+<p>There is also a way to eliminate the second use of <span class="code">ordering</span>. It
+involves the following method defined in the standard library:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;implicitly[T](<code class="vem">implicit</code>&nbsp;t:&nbsp;T)&nbsp;=&nbsp;t
+</pre>
+
+
+<p>The effect of calling <span class="code">implicitly[Foo]</span> is that the compiler will
+look for an implicit definition of type <span class="code">Foo</span>. It will then call the
+<span class="code">implicitly</span> method with that object, which in turn returns the
+object right back. Thus you can write <span class="code">implicitly[Foo]</span> whenever you
+want to find an implicit object of type <span class="code">Foo</span> in the current scope.
+For example, <a href="implicit-conversions-and-parameters.html#lst-max-list-take-three-b">Listing 21.5</a> shows a use of
+<span class="code">implicitly[Ordering[T]]</span> to retrieve the <span class="code">ordering</span> parameter by its
+type.</p>
+
+<p>Look closely at this last version of <span class="code">maxList</span>. There is not a single
+mention of the <span class="code">ordering</span> parameter in the text of the method. The
+second parameter could just as well be named "<span class="code">comparator</span>":</p>
+
+<div style="page-break-after:always"/>
+
+
+<pre>
+  <code class="vem">def</code>&nbsp;maxList[T](elements:&nbsp;<code class="typename">List[T]</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<code class="vem">implicit</code>&nbsp;comparator:&nbsp;<code class="typename">Ordering[T]</code>):&nbsp;T&nbsp;=&nbsp;<code class="comment">//&nbsp;same&nbsp;body...</code>
+</pre>
+
+
+<p><a id="lst-max-list-take-three-b"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;maxList[T](elements:&nbsp;<code class="typename">List[T]</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<code class="vem">implicit</code>&nbsp;ordering:&nbsp;<code class="typename">Ordering[T]</code>):&nbsp;T&nbsp;=
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;elements&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>()&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">throw</code>&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">IllegalArgumentException</code>(<code class="quotedstring">"empty&nbsp;list!"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>(x)&nbsp;=&gt;&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;x&nbsp;::&nbsp;rest&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;maxRest&nbsp;=&nbsp;maxList(rest)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(implicitly[<code class="typename">Ordering[T]</code>].gt(x,&nbsp;maxRest))&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;maxRest
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 21.5 - A function that uses <span class="code">implicitly</span>.</h5>
+
+
+<p>For that matter, this version works as well:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;maxList[T](elements:&nbsp;<code class="typename">List[T]</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<code class="vem">implicit</code>&nbsp;iceCream:&nbsp;<code class="typename">Ordering[T]</code>):&nbsp;T&nbsp;=&nbsp;<code class="comment">//&nbsp;same&nbsp;body...</code>
+</pre>
+
+
+<p>Because this pattern is common, Scala lets you
+leave out the name of this parameter and shorten
+the method header by using a <em>context bound</em>.<a id="i-956942778-2"/>
+Using a context bound, you would write the signature of <span class="code">maxList</span> as shown
+in <a href="implicit-conversions-and-parameters.html#lst-max-list-context-bound">Listing 21.6</a>. The syntax <span class="code">[T</span>&nbsp;<span class="code">:</span>&nbsp;<span class="code">Ordering]</span> is a context bound, and it does two
+things. First, it introduces a type parameter <span class="code">T</span> as normal. Second,
+it adds an implicit parameter of type <span class="code">Ordering[T]</span>. In previous
+versions of <span class="code">maxList</span>, that parameter was called <span class="code">ordering</span>, but
+when using a context bound you don't know what the parameter will be
+called. As shown earlier, you often don't need to know what the
+parameter is called.</p>
+
+<p>Intuitively, you can think of a context bound as saying something
+<em>about</em> a type parameter. When you write <span class="code">[T</span>&nbsp;<span class="code">&lt;:</span>&nbsp;<span class="code">Ordered[T]]</span> you
+are saying that a <span class="code">T</span> <em>is</em> an <span class="code">Ordered[T]</span>. To contrast, when
+you write <span class="code">[T</span>&nbsp;<span class="code">:</span>&nbsp;<span class="code">Ordering]</span> you are not so much saying what <span class="code">T</span> is;
+rather, you are saying that there is some form of ordering associated
+with <span class="code">T</span>. Thus, a context bound is quite flexible. It allows you to
+use code that requires orderings&mdash;or any other property of a
+type&mdash;without having to change the definition of that type.</p>
+
+<p><a id="lst-max-list-context-bound"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;maxList[T&nbsp;:&nbsp;<code class="typename">Ordering</code>](elements:&nbsp;<code class="typename">List[T]</code>):&nbsp;T&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;elements&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>()&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">throw</code>&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">IllegalArgumentException</code>(<code class="quotedstring">"empty&nbsp;list!"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">List</code>(x)&nbsp;=&gt;&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;x&nbsp;::&nbsp;rest&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;maxRest&nbsp;=&nbsp;maxList(rest)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(implicitly[<code class="typename">Ordering[T]</code>].gt(x,&nbsp;maxRest))&nbsp;x
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;maxRest
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 21.6 - A function with a context bound.</h5>
+
+
+<h3 id="sec-when-multiple-conversions-apply">21.7 When multiple conversions apply</h3>
+
+
+<p>It can happen that multiple implicit conversions are in scope and each would work.<a id="i2142988268-1"/> For the most part, Scala refuses to insert a
+conversion in such a case. Implicits work well when the conversion
+left out is completely obvious and pure boilerplate. If
+multiple conversions apply, then the choice isn't so obvious after all.</p>
+
+<p>Here's a simple example. There is a method that takes a sequence,
+a conversion that turns an integer into a range, and a conversion
+that turns an integer into a list of digits:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;printLength(seq:&nbsp;<code class="typename">Seq[Int]</code>)&nbsp;=&nbsp;println(seq.length)
+  <code class="output">printLength:&nbsp;(seq:&nbsp;Seq[Int])Unit</code>
+  <br />  scala&gt;&nbsp;<code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;intToRange(i:&nbsp;<code class="typename">Int</code>)&nbsp;=&nbsp;<code class="literal">1</code>&nbsp;to&nbsp;i
+  <code class="output">intToRange:&nbsp;(i:&nbsp;</code>
+  <code class="output">Int)scala.collection.immutable.Range.Inclusive</code>
+  <br />  scala&gt;&nbsp;<code class="vem">implicit</code>&nbsp;<code class="vem">def</code>&nbsp;intToDigits(i:&nbsp;<code class="typename">Int</code>)&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;i.toString.toList.map(_.toInt)
+  <code class="output">intToDigits:&nbsp;(i:&nbsp;Int)List[Int]</code>
+  <br />  scala&gt;&nbsp;printLength(<code class="literal">12</code>)
+  <code class="output">&lt;console&gt;:26:&nbsp;error:&nbsp;type&nbsp;mismatch;</code>
+  <code class="output">&nbsp;found&nbsp;&nbsp;&nbsp;:&nbsp;Int(12)</code>
+  <code class="output">&nbsp;required:&nbsp;Seq[Int]</code>
+  <code class="output">Note&nbsp;that&nbsp;implicit&nbsp;conversions&nbsp;are&nbsp;not&nbsp;applicable&nbsp;because&nbsp;</code>
+  <code class="output">they&nbsp;are&nbsp;ambiguous:</code>
+  <code class="output">&nbsp;both&nbsp;method&nbsp;intToRange&nbsp;of&nbsp;type&nbsp;(i:&nbsp;</code>
+  <code class="output">Int)scala.collection.immutable.Range.Inclusive</code>
+  <code class="output">&nbsp;and&nbsp;method&nbsp;intToDigits&nbsp;of&nbsp;type&nbsp;(i:&nbsp;Int)List[Int]</code>
+  <code class="output">&nbsp;are&nbsp;possible&nbsp;conversion&nbsp;functions&nbsp;from&nbsp;Int(12)&nbsp;to&nbsp;Seq[Int]</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printLength(12)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>The ambiguity here is real. Converting an integer to a sequence of
+digits is completely different from converting it to a range. In this
+case, the programmer should specify which one is intended and be
+explicit. Up through Scala 2.7, that was the end of the story. Whenever multiple
+implicit conversions applied, the compiler refused to choose between
+them. The situation was just as with method overloading. If you try
+to call <span class="code">foo(null)</span> and there are two different <span class="code">foo</span> overloads
+that accept <span class="code">null</span>, the compiler will refuse. It will say that the
+method call's target is ambiguous.</p>
+
+<p>Scala 2.8 loosened this rule. If one of the available conversions is
+strictly <em>more specific</em> than the others, then the compiler
+will choose the more specific one. The idea is that whenever there is a
+reason to believe a programmer would always choose one of the
+conversions over the others, don't require the programmer to write it
+explicitly. After all, method overloading has the same relaxation.
+Continuing the previous example, if one of the available <span class="code">foo</span>
+methods takes a <span class="code">String</span> while the other takes an <span class="code">Any</span>, then choose
+the <span class="code">String</span> version. It's clearly more specific.</p>
+
+<p>To be more precise, one implicit conversion is <em>more specific</em>
+than another if one of the following applies:</p>
+
+<ul>
+
+
+<li>The argument type of the former is a subtype of the latter's.
+
+
+</li>
+<li>Both conversions are methods, and the enclosing class of the
+  former extends the enclosing class of the latter.
+
+
+</li></ul>
+
+
+<p>The motivation to revisit this issue and revise the rule was to improve
+interoperation between Java collections, Scala collections, and
+strings.</p>
+
+<p>Here's a simple example:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;cba&nbsp;=&nbsp;<code class="quotedstring">"abc"</code>.reverse
+</pre>
+
+
+<p>What is the type inferred for <span class="code">cba</span>? Intuitively, the type should be
+<span class="code">String</span>.  Reversing a string should yield another string, right?
+However, in Scala 2.7, what happened was that "abc" was converted to a
+Scala collection. Reversing a Scala collection yields a Scala
+collection, so the type of <span class="code">cba</span> would be a collection. There's also
+an implicit conversion back to a string, but that didn't patch up
+every problem. For example, in versions prior to Scala 2.8, <span class="code">"abc"</span>&nbsp;<span class="code">==</span>&nbsp;<span class="code">"abc".reverse.reverse</span> was
+false!</p>
+
+<p>With Scala 2.8, the type of <span class="code">cba</span> is <span class="code">String</span>. The old implicit
+conversion to a Scala collection (now named <span class="code">WrappedString</span>)<a id="i-260905957-1"/><a id="i-61010514-1"/> is retained. However, there is a more
+specific conversion supplied from <span class="code">String</span> to a new type called
+<span class="code">StringOps</span>.<a id="i1341725017-2"/><a id="i-1007334645-2"/> <span class="code">StringOps</span> has many methods such as <span class="code">reverse</span>, but
+instead of returning a collection, they return a <span class="code">String</span>. The
+conversion to <span class="code">StringOps</span> is defined directly in <span class="code">Predef</span>, whereas
+the conversion to a Scala collection is defined in a new class,
+<span class="code">LowPriorityImplicits</span>,<a id="i-486218258-1"/> which is extended by <span class="code">Predef</span>. Whenever a choice exists between these two conversions, the compiler chooses the
+conversion to <span class="code">StringOps</span>, because it's defined in a subclass of
+the class where the other conversion is defined.</p>
+
+<h3>21.8 Debugging implicits</h3>
+
+
+<p>Implicits are a powerful feature in Scala, but one that's sometimes difficult to get right. This section contains a few tips for debugging implicits.</p>
+
+<p>Sometimes you might wonder why the compiler did not find an implicit
+conversion that you think should apply. In that case it helps to write
+the conversion out explicitly. If that also gives an error message,
+you then know why the compiler could not apply your implicit.</p>
+
+<p>For instance, assume that you mistakenly took
+<span class="code">wrapString</span> to be a conversion from <span class="code">String</span>s to <span class="code">List</span>s,
+instead of <span class="code">IndexedSeq</span>s. You would wonder why the following code
+does not work:<a id="i-677980410-8"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;chars:&nbsp;<code class="typename">List[Char]</code>&nbsp;=&nbsp;<code class="quotedstring">"xyz"</code>
+  <code class="output">&lt;console&gt;:24:&nbsp;error:&nbsp;type&nbsp;mismatch;</code>
+  <code class="output">&nbsp;found&nbsp;&nbsp;&nbsp;:&nbsp;String("xyz")</code>
+  <code class="output">&nbsp;required:&nbsp;List[Char]</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;chars:&nbsp;List[Char]&nbsp;=&nbsp;"xyz"</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>Again, it helps to write the <span class="code">wrapString</span> conversion explicitly to find out what went wrong:<a id="i-677980410-9"/></p>
+
+<div style="page-break-after:always"/>
+
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;chars:&nbsp;<code class="typename">List[Char]</code>&nbsp;=&nbsp;wrapString(<code class="quotedstring">"xyz"</code>)
+  <code class="output">&lt;console&gt;:24:&nbsp;error:&nbsp;type&nbsp;mismatch;</code>
+  <code class="output">&nbsp;found&nbsp;&nbsp;&nbsp;:&nbsp;scala.collection.immutable.WrappedString</code>
+  <code class="output">&nbsp;required:&nbsp;List[Char]</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;chars:&nbsp;List[Char]&nbsp;=&nbsp;wrapString("xyz")</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;^</code>
+</pre>
+
+
+<p>With this, you have found the cause of the error: <span class="code">wrapString</span> has
+the wrong return type. On the other hand, it's also possible 
+that inserting the conversion
+explicitly will make the error go away. In that case you know that one
+of the other rules
+(such as the Scope Rule)
+was preventing the implicit conversion
+from being applied.</p>
+
+<p>When you are debugging a program, it can sometimes help to see what implicit
+conversions the compiler is inserting.  The <span class="code">-Xprint:typer</span> option to
+the compiler is useful for this.  If you run <span class="code">scalac</span> with this
+option, the compiler will show you what your code looks like
+after all implicit conversions have been added by the type checker.
+An example is shown in <a href="implicit-conversions-and-parameters.html#lst-example">Listing 21.7</a> and <a href="implicit-conversions-and-parameters.html#lst-print-typer">Listing 21.8</a>.
+If you look at the last statement in each of these listings, you'll see that the second parameter
+list to <span class="code">enjoy</span>, which was left off in the code in <a href="implicit-conversions-and-parameters.html#lst-example">Listing 21.7</a>,
+"<span class="code">enjoy("reader")</span>,"
+was inserted by the compiler, as shown in <a href="implicit-conversions-and-parameters.html#lst-print-typer">Listing 21.8</a>:</p>
+
+<pre>
+  <code class="output">Mocha.this.enjoy("reader")(Mocha.this.pref)</code>
+</pre>
+
+
+<p>If you are brave, try <span class="code">scala</span>&nbsp;<span class="code">-Xprint:typer</span> to get an interactive
+shell that prints out the post-typing source code it uses internally.
+If you do so, be prepared to see an enormous amount of boilerplate
+surrounding the meat of your code.</p>
+
+<p><a id="lst-example"/></p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">Mocha</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">App</code>&nbsp;{
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">PreferredDrink</code>(<code class="vem">val</code>&nbsp;preference:&nbsp;<code class="typename">String</code>)
+  <br />  &nbsp;&nbsp;<code class="vem">implicit</code>&nbsp;<code class="vem">val</code>&nbsp;pref&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">PreferredDrink</code>(<code class="quotedstring">"mocha"</code>)
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;enjoy(name:&nbsp;<code class="typename">String</code>)(<code class="vem">implicit</code>&nbsp;drink:&nbsp;<code class="typename">PreferredDrink</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;print(<code class="quotedstring">"Welcome,&nbsp;"</code>&nbsp;+&nbsp;name)
+  &nbsp;&nbsp;&nbsp;&nbsp;print(<code class="quotedstring">".&nbsp;Enjoy&nbsp;a&nbsp;"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;print(drink.preference)
+  &nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"!"</code>)
+  &nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;enjoy(<code class="quotedstring">"reader"</code>)
+  }
+</pre>
+
+
+<h5>Listing 21.7 - Sample code that uses an implicit parameter.</h5>
+
+
+<p><a id="lst-print-typer"/></p>
+
+<pre>
+  $&nbsp;scalac&nbsp;-<code class="typename">Xprint</code>:typer&nbsp;mocha.scala
+  <code class="output">[[syntax&nbsp;trees&nbsp;at&nbsp;end&nbsp;of&nbsp;typer]]<code class="comment"></code>
+//&nbsp;Scala&nbsp;source:&nbsp;mocha.scala</code>
+  <code class="output">package&nbsp;&lt;empty&gt;&nbsp;{</code>
+  <code class="output">&nbsp;&nbsp;final&nbsp;object&nbsp;Mocha&nbsp;extends&nbsp;java.lang.Object&nbsp;with&nbsp;Application</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;with&nbsp;ScalaObject&nbsp;{</code>
+  <br />  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment"></code>
+//&nbsp;...</code>
+  <br />  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;private[this]&nbsp;val&nbsp;pref:&nbsp;Mocha.PreferredDrink&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;new&nbsp;Mocha.this.PreferredDrink("mocha");</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;implicit&nbsp;&lt;stable&gt;&nbsp;&lt;accessor&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;pref:&nbsp;Mocha.PreferredDrink&nbsp;=&nbsp;Mocha.this.pref;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;enjoy(name:&nbsp;String)</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(implicit&nbsp;drink:&nbsp;Mocha.PreferredDrink):&nbsp;Unit&nbsp;=&nbsp;{</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scala.this.Predef.print("Welcome,&nbsp;".+(name));</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scala.this.Predef.print(".&nbsp;Enjoy&nbsp;a&nbsp;");</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scala.this.Predef.print(drink.preference);</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;scala.this.Predef.println("!")</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;};</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;Mocha.this.enjoy("reader")(Mocha.this.pref)</code>
+  <code class="output">&nbsp;&nbsp;}</code>
+  <code class="output">}</code>
+</pre>
+
+
+<h5>Listing 21.8 - Sample code after type checking and insertion of implicits.</h5>
+
+
+<h3>21.9 Conclusion</h3>
+
+
+<p>Implicits are a powerful, code-condensing feature of Scala.  This
+chapter has shown you Scala's rules about implicits and several common programming situations where you can profit from
+using implicits.</p>
+
+<p>As a word of warning, implicits can make code confusing if
+they are used too frequently.  Thus, before adding a new implicit
+conversion, first ask whether you can achieve a similar effect through
+other means, such as inheritance, mixin composition, or method
+overloading.  If all of these fail, however, and you feel like a lot
+of your code is still tedious and redundant, then implicits might just
+be able to help you out.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 21:</h4>
+
+
+<p><a id="footnotemain21-1"/>[1] As will be explained in <a href="combining-scala-and-java.html#sec-java-8-and-scala-212">Section 31.5</a>, it does work in Scala 2.12.<a id="i88737196-3"/></p>
+
+<p><a id="footnotemain21-2"/>[2] Variables and singleton objects marked implicit can be
+used as <em>implicit parameters</em>. This use case will be described later in this chapter.</p>
+
+<p><a id="footnotemain21-3"/>[3] The Scala compiler backend will treat the conversion specially, however, 
+translating it to a special "<span class="code">i2d</span>" bytecode. 
+So the compiled image is the same as in Java.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

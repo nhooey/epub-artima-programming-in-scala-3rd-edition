@@ -1,0 +1,958 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-packages-and-imports">Chapter 13</a></h2>
+<h1>Packages and Imports</h1>
+
+
+<p>When working on a program, especially a large one,
+it is important to minimize <em>coupling</em>&mdash;the extent to which
+the various parts of the program rely on the other parts. Low coupling reduces the risk that a small, seemingly innocuous change
+in one part of the program will have devastating consequences in another part.  One way to
+minimize coupling is to write in a modular style.  You divide the program into a number of smaller modules, each of which has
+an inside and an outside.  When working on the inside of a
+module&mdash;its <em>implementation</em>&mdash;you need only coordinate with
+other programmers working on that very same module.  Only when you must change the outside of a module&mdash;its <em>interface</em>&mdash;is it
+necessary to coordinate with developers working on other modules.<a id="i750867693-1"/></p>
+
+<p>This chapter shows several constructs that help you program in a
+modular style.  It shows how to place things in packages, make
+names visible through imports, and control the visibility of
+definitions through access modifiers.  The constructs are similar in
+spirit to constructs in Java, but there are some
+differences&mdash;usually ways that are more consistent&mdash;so it's worth reading this
+chapter even if you already know Java.</p>
+
+<h3>13.1 Putting code in packages</h3>
+
+
+<p>Scala code resides in the Java platform's global hierarchy of packages.
+The example code
+you've seen so far in this book has been in the <em>unnamed</em> package.<a id="i305704921-1"/><a id="i38834278-1"/>
+You can place code into named packages in Scala in two ways. First, you
+can place the contents of an entire file into a package
+by putting a <span class="code">package</span> clause at the top of the file, as shown in <a href="packages-and-imports.html#lst-entire-file-package">Listing 13.1</a>.</p>
+
+<p><a id="lst-entire-file-package"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;bobsrockets.navigation
+  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Navigator</code>
+</pre>
+
+
+<h5>Listing 13.1 - Placing the contents of an entire file into a package.<a id="i-1154528502-1"/></h5>
+
+
+<p>The <span class="code">package</span> clause of <a href="packages-and-imports.html#lst-entire-file-package">Listing 13.1</a> places class <span class="code">Navigator</span> into the package named
+<span class="code">bobsrockets.navigation</span>.  Presumably, this is the navigation
+software developed by Bob's Rockets, Inc.</p>
+
+<div class="note">
+<h4>Note</h4>
+Because Scala code is part of the Java ecosystem, it is
+recommended to follow Java's reverse-domain-name convention for Scala packages that you release to the public. 
+Thus, a better name for <span class="code">Navigator</span>'s package might be <span class="code">com.bobsrockets.navigation</span>. In this chapter, however,
+we'll leave off the "<span class="code">com.</span>" to make the examples easier to understand.
+
+
+</div>
+
+
+<p>The other way you can place code into packages in Scala is more like
+C# namespaces.<a id="i-999496559-1"/> You follow a package clause
+by a section in curly braces that contains the definitions that go
+into the package.  This syntax is called a
+<em>packaging</em>.<a id="i1802065795-1"/> The packaging shown in
+<a href="packages-and-imports.html#lst-dot-and-nested">Listing 13.2</a> has the same effect as the code in
+<a href="packages-and-imports.html#lst-entire-file-package">Listing 13.1</a>:
+<a id="lst-dot-and-nested"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;bobsrockets.navigation&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Navigator</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 13.2 - Long form of a simple package declaration.</h5>
+
+
+<p>For such simple examples, you might as well use the syntactic sugar
+shown in <a href="packages-and-imports.html#lst-entire-file-package">Listing 13.1</a>.  However, one use of
+the more general notation is to have different parts of a file in
+different packages.  For example, you might include a class's tests in
+the same file as the original code, but put the tests in a different
+package, as shown<a id="i-1775661018-1"/> in
+<a href="packages-and-imports.html#lst-nesting-packages">Listing 13.3</a>.</p>
+
+<p><a id="lst-nesting-packages"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;bobsrockets&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">package</code>&nbsp;navigation&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;In&nbsp;package&nbsp;bobsrockets.navigation</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Navigator</code>
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">package</code>&nbsp;tests&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;In&nbsp;package&nbsp;bobsrockets.navigation.tests</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">NavigatorSuite</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 13.3 - Multiple packages in the same file.</h5>
+
+
+<p><a id="lst-concise"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;bobsrockets&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">package</code>&nbsp;navigation&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Navigator</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;No&nbsp;need&nbsp;to&nbsp;say&nbsp;bobsrockets.navigation.StarMap</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;map&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">StarMap</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">StarMap</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Ship</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;No&nbsp;need&nbsp;to&nbsp;say&nbsp;bobsrockets.navigation.Navigator</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;nav&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">navigation.Navigator</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">package</code>&nbsp;fleets&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Fleet</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;No&nbsp;need&nbsp;to&nbsp;say&nbsp;bobsrockets.Ship</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;addShip()&nbsp;=&nbsp;{&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Ship</code>&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 13.4 - Concise access to classes and packages.</h5>
+
+
+<p><a id="lst-enclosing"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;bobsrockets&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Ship</code>
+  &nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;bobsrockets.fleets&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Fleet</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Doesn't&nbsp;compile!&nbsp;Ship&nbsp;is&nbsp;not&nbsp;in&nbsp;scope.</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;addShip()&nbsp;=&nbsp;{&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Ship</code>&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 13.5 - Symbols in enclosing packages not automatically available.</h5>
+
+
+<p><a id="lst-hiding-packages"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="comment">//&nbsp;In&nbsp;file&nbsp;launch.scala</code>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;launch&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Booster3</code>
+  &nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;<code class="comment">//&nbsp;In&nbsp;file&nbsp;bobsrockets.scala</code>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;bobsrockets&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">package</code>&nbsp;navigation&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">package</code>&nbsp;launch&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Booster1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">MissionControl</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;booster1&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">launch.Booster1</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;booster2&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">bobsrockets.launch.Booster2</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;booster3&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;_root_.launch.Booster3
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">package</code>&nbsp;launch&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Booster2</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 13.6 - Accessing hidden package names.</h5>
+
+
+<h3>13.2 Concise access to related code</h3>
+
+
+<p>When code is divided into a package hierarchy, it doesn't just help
+people browse through the code.  It also tells the compiler that code
+in the same package is related in some way to each other.  Scala takes
+advantage of this relatedness by allowing short, unqualified names
+when accessing code that is in the same package.</p>
+
+<p><a href="packages-and-imports.html#lst-concise">Listing 13.4</a> gives three simple examples.  First, as you
+would expect, a class can be accessed from within its own package
+without needing a prefix.  That's why <span class="code">new</span>&nbsp;<span class="code">StarMap</span> compiles.  Class
+<span class="code">StarMap</span> is in the same package, <span class="code">bobsrockets.navigation</span>, as the
+<span class="code">new</span> expression that accesses it, so the package name doesn't need
+to be prefixed.</p>
+
+<p>Second, a package itself can be accessed from its containing
+package without needing a prefix. In <a href="packages-and-imports.html#lst-concise">Listing 13.4</a>, look
+at how class <span class="code">Navigator</span> is instantiated.  The <span class="code">new</span> expression
+appears in package <span class="code">bobsrockets</span>, which is the containing package of
+<span class="code">bobsrockets.navigation</span>.  Thus, it can access package
+<span class="code">bobsrockets.navigation</span> as simply <span class="code">navigation</span>.</p>
+
+<p>Third, when using the curly-braces packaging syntax, all names
+accessible in scopes outside the packaging are also available inside
+it.  An example in <a href="packages-and-imports.html#lst-concise">Listing 13.4</a> is the way <span class="code">addShip()</span>
+creates a new <span class="code">Ship</span>. The method is defined within two packagings: an
+outer one for <span class="code">bobsrockets</span>, and an inner one for
+<span class="code">bobsrockets.fleets</span>. Since <span class="code">Ship</span> is accessible in the outer
+packaging, it can be referenced from within <span class="code">addShip()</span>.</p>
+
+<p>Note that this kind of access is only available if you explicitly nest
+the packagings.  If you stick to one package per file, then&mdash;like in
+Java&mdash;the only names available will be the ones defined in the
+current package.  In <a href="packages-and-imports.html#lst-enclosing">Listing 13.5</a>, the packaging of
+<span class="code">bobsrockets.fleets</span> has been moved to the top level.  Since it is no
+longer enclosed in a packaging for <span class="code">bobsrockets</span>, names from
+<span class="code">bobsrockets</span> are not immediately in scope.  As a result, <span class="code">new</span>&nbsp;<span class="code">Ship</span>
+gives a compile error. If nesting packages with braces shifts your code uncomfortably to the right, you can also use multiple package
+clauses without the braces.<a href="packages-and-imports.html#footnotemain13-1">[1]</a> For instance, the code below also defines
+class <span class="code">Fleet</span> in two nested packages <span class="code">bobrockets</span> and <span class="code">fleets</span>, 
+just like you saw it in <a href="packages-and-imports.html#lst-concise">Listing 13.4</a>:</p>
+
+<pre>
+  <code class="vem">package</code>&nbsp;bobsrockets
+  <code class="vem">package</code>&nbsp;fleets
+  <code class="vem">class</code>&nbsp;<code class="typename">Fleet</code>&nbsp;{
+  &nbsp;&nbsp;<code class="comment">//&nbsp;No&nbsp;need&nbsp;to&nbsp;say&nbsp;bobsrockets.Ship</code>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;addShip()&nbsp;=&nbsp;{&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Ship</code>&nbsp;}
+  }
+</pre>
+
+
+<p>One final trick is important to know.  Sometimes, you end up coding in
+a heavily crowded scope where package names are hiding each other.  In
+<a href="packages-and-imports.html#lst-hiding-packages">Listing 13.6</a>, the scope of class <span class="code">MissionControl</span>
+includes three separate packages named <span class="code">launch</span>!  There's one
+<span class="code">launch</span> in <span class="code">bobsrockets.navigation</span>, one in <span class="code">bobsrockets</span>,
+and one at the top level.  How would you reference each of
+<span class="code">Booster1</span>, <span class="code">Booster2</span>, and
+<span class="code">Booster3</span>?<a id="i-370748244-1"/><a id="i-33124968-1"/></p>
+
+<p>Accessing the first one is easiest.  A reference to <span class="code">launch</span> by
+itself will get you to package <span class="code">bobsrockets.navigation.launch</span>,
+because that is the <span class="code">launch</span> package defined in the closest enclosing
+scope.  Thus, you can refer to the first booster class as simply
+<span class="code">launch.Booster1</span>.  Referring to the second one also is not tricky.
+You can write <span class="code">bobrockets.launch.Booster2</span> and be clear about which
+one you are referencing.  That leaves the question of the third
+booster class: How can you access <span class="code">Booster3</span>, considering
+that a nested <span class="code">launch</span> package shadows the top-level one?</p>
+
+<p>To help in this situation, Scala provides a package named <span class="code">_root_</span>
+that is outside any package a user can write. Put another way, every
+top-level package you can write is treated as a member of package
+<span class="code">_root_</span>.  For example, both <span class="code">launch</span> and <span class="code">bobsrockets</span> of
+<a href="packages-and-imports.html#lst-hiding-packages">Listing 13.6</a> are members of package
+<span class="code">_root_</span>. As a result, <span class="code">_root_.launch</span> gives you the top-level
+<span class="code">launch</span> package, and <span class="code">_root_.launch.Booster3</span> designates the
+outermost booster class.</p>
+
+<h3 id="sec-imports">13.3 Imports</h3>
+
+
+<p>In Scala, packages and their members can be imported using <span class="code">import</span><a id="i1926037870-2"/>
+clauses.  Imported items can then be accessed by a simple name
+like <span class="code">File</span>, as opposed to requiring a qualified name like
+<span class="code">java.io.File</span>. For example, consider the code shown in <a href="packages-and-imports.html#lst-bobs-fruits">Listing 13.7</a>.</p>
+
+<p><a id="lst-bobs-fruits"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;bobsdelights
+  <br />  &nbsp;&nbsp;<code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Fruit</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;name:&nbsp;<code class="typename">String</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;color:&nbsp;<code class="typename">String</code>
+  &nbsp;&nbsp;)
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Fruits</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Apple</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Fruit</code>(<code class="quotedstring">"apple"</code>,&nbsp;<code class="quotedstring">"red"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Orange</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Fruit</code>(<code class="quotedstring">"orange"</code>,&nbsp;<code class="quotedstring">"orange"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Pear</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Fruit</code>(<code class="quotedstring">"pear"</code>,&nbsp;<code class="quotedstring">"yellowish"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;menu&nbsp;=&nbsp;<code class="typename">List</code>(<code class="typename">Apple</code>,&nbsp;<code class="typename">Orange</code>,&nbsp;<code class="typename">Pear</code>)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 13.7 - Bob's delightful fruits, ready for import.</h5>
+
+
+<p>An <span class="code">import</span> clause makes members of a package or object available by their
+names alone without needing to prefix them by the package or object name.
+Here are some simple examples:</p>
+
+<pre>
+  <code class="comment">//&nbsp;easy&nbsp;access&nbsp;to&nbsp;Fruit</code>
+  <code class="vem">import</code>&nbsp;bobsdelights.Fruit
+  <br />  <code class="comment">//&nbsp;easy&nbsp;access&nbsp;to&nbsp;all&nbsp;members&nbsp;of&nbsp;bobsdelights</code>
+  <code class="vem">import</code>&nbsp;bobsdelights._
+  <br />  <code class="comment">//&nbsp;easy&nbsp;access&nbsp;to&nbsp;all&nbsp;members&nbsp;of&nbsp;Fruits</code>
+  <code class="vem">import</code>&nbsp;bobsdelights.Fruits._
+</pre>
+
+
+<p>The first of these corresponds to Java's single type import and the second
+to Java's <em>on-demand</em> import.<a id="i-410901588-1"/><a id="i-1858203568-1"/>
+The only difference is that Scala's on-demand
+imports are written with a trailing underscore (<span class="code">_</span>) instead of an
+asterisk (<span class="code">*</span>). (After all, <span class="code">*</span> is a valid identifier in Scala!)
+The third import clause above corresponds to
+Java's import of static class fields.</p>
+
+<p>These three imports give you a taste of what imports can do,
+but Scala imports are actually much more general.  For one,
+imports in Scala can appear anywhere, not just at the beginning of a
+compilation unit. Also, they can refer to arbitrary values. For instance,
+the import shown in <a href="packages-and-imports.html#lst-importing-object-members">Listing 13.8</a> is possible:
+<a id="lst-importing-object-members"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;showFruit(fruit:&nbsp;<code class="typename">Fruit</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">import</code>&nbsp;fruit._
+  &nbsp;&nbsp;&nbsp;&nbsp;println(name&nbsp;+&nbsp;<code class="quotedstring">"s&nbsp;are&nbsp;"</code>&nbsp;+&nbsp;color)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 13.8 - Importing the members of a regular (not singleton) object.</h5>
+
+
+<p>Method <span class="code">showFruit</span> imports all members of its parameter <span class="code">fruit</span>,
+which is of type <span class="code">Fruit</span>. The subsequent <span class="code">println</span> statement can
+refer to <span class="code">name</span> and <span class="code">color</span> directly. These two references are
+equivalent to <span class="code">fruit.name</span> and <span class="code">fruit.color</span>.
+This syntax is particularly
+useful when you use objects as modules, which will be described in
+<a href="modular-programming-using-objects.html">Chapter 29</a>.</p>
+
+<div class="aside">
+<h3>Scala's flexible imports</h3>
+
+
+<p>Scala's <span class="code">import</span> clauses are quite a bit more flexible than
+Java's. There are three principal differences. In Scala, imports:</p>
+
+<ul>
+
+
+<li>may appear anywhere
+
+
+</li>
+<li>may refer to objects (singleton or regular)
+in addition to packages
+
+
+</li>
+<li>let you rename and hide some of the imported members
+
+
+</li></ul>
+
+
+</div>
+
+
+<p>Another way Scala's imports are flexible is that
+they can import packages themselves, not just their non-package
+members.  This is only natural if you think of nested packages
+being contained in their surrounding package. For example, in <a href="packages-and-imports.html#lst-importing-package-name">Listing 13.9</a>, 
+the package <span class="code">java.util.regex</span> is imported. This makes <span class="code">regex</span> usable as a simple name. To access
+the <span class="code">Pattern</span> singleton object from the <span class="code">java.util.regex</span> package, you can just say, <span class="code">regex.Pattern</span>,
+as shown in <a href="packages-and-imports.html#lst-importing-package-name">Listing 13.9</a>:</p>
+
+<p><a id="lst-importing-package-name"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;java.util.regex
+  <br />  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">AStarB</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;Accesses&nbsp;java.util.regex.Pattern</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;pat&nbsp;=&nbsp;regex.Pattern.compile(<code class="quotedstring">"a*b"</code>)
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 13.9 - Importing a package name.</h5>
+
+
+<p>Imports in Scala can also rename or hide members. This is done with an
+<span style="font-style:italic">import selector clause</span> enclosed in braces, which follows the
+object from which members are imported. Here are some examples:<a id="i-1172048805-1"/><a id="i-303565265-1"/><a id="i1981623788-1"/><a id="i-1574838534-1"/></p>
+
+<p><span class="code">import</span>&nbsp;<span class="code">Fruits.{Apple,</span>&nbsp;<span class="code">Orange}</span></p>
+
+<p><br />
+This imports just members <span class="code">Apple</span> and <span class="code">Orange</span> from object
+<span class="code">Fruits</span>.</p>
+
+<p><span class="code">import</span>&nbsp;<span class="code">Fruits.{Apple</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">McIntosh,</span>&nbsp;<span class="code">Orange}</span></p>
+
+<p><br />
+This imports the two members <span class="code">Apple</span> and <span class="code">Orange</span> from object<a id="i-252838726-1"/><a id="i-1444404533-1"/>
+<span class="code">Fruits</span>. However, the <span class="code">Apple</span> object is renamed to <span class="code">McIntosh</span>,
+so this object can be accessed with either <span class="code">Fruits.Apple</span> or
+<span class="code">McIntosh</span>. A renaming clause is always of the form 
+"<span class="code">&lt;original-name&gt;</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">&lt;new-name&gt;</span>".</p>
+
+<p><span class="code">import</span>&nbsp;<span class="code">java.sql.{Date</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">SDate}</span></p>
+
+<p><br />
+This imports the SQL date class as <span class="code">SDate</span>, so that you
+can simultaneously import the normal Java date class
+as simply <span class="code">Date</span>.</p>
+
+<p><span class="code">import</span>&nbsp;<span class="code">java.{sql</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">S}</span></p>
+
+<p><br />
+This imports the <span class="code">java.sql</span> package as <span class="code">S</span>, so that you
+can write things like <span class="code">S.Date</span>.</p>
+
+<p><span class="code">import</span>&nbsp;<span class="code">Fruits.{_}</span></p>
+
+<p><br />
+This imports all members from object <span class="code">Fruits</span>. It means the same
+thing as <span class="code">import</span>&nbsp;<span class="code">Fruits._</span>.<a id="i91932059-1"/></p>
+
+<p><span class="code">import</span>&nbsp;<span class="code">Fruits.{Apple</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">McIntosh,</span>&nbsp;<span class="code">_}</span></p>
+
+<p><br />
+This imports all members from object <span class="code">Fruits</span> but renames <span class="code">Apple</span> to <span class="code">McIntosh</span>.</p>
+
+<p><span class="code">import</span>&nbsp;<span class="code">Fruits.{Pear</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">_,</span>&nbsp;<span class="code">_}</span><a id="i1258079951-1"/></p>
+
+<p><br />
+This imports all members of <span class="code">Fruits</span> <span style="font-style:italic">except</span> <span class="code">Pear</span>.
+A clause of the form "<span class="code">&lt;original-name&gt;</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">_</span>"
+excludes <span class="code">&lt;original-name&gt;</span> from the names that are imported. In a sense, renaming 
+something to `<span class="code">_</span>' means hiding it altogether. This is useful to avoid<a id="i-236944399-1"/>
+ambiguities. Say you have two packages, <span class="code">Fruits</span> and <span class="code">Notebooks</span>, which both define a class
+<span class="code">Apple</span>. If you want to get just the notebook named <span class="code">Apple</span>, and not the fruit, 
+you could still use two imports on demand like this:</p>
+
+<pre>
+  <code class="vem">import</code>&nbsp;Notebooks._
+  <code class="vem">import</code>&nbsp;Fruits.{<code class="typename">Apple</code>&nbsp;=&gt;&nbsp;_,&nbsp;_}
+</pre>
+
+
+<p>This would import all <span class="code">Notebooks</span> and all <span class="code">Fruits</span>, except for <span class="code">Apple</span>.</p>
+
+<p><br />
+These examples demonstrate the great flexibility Scala offers
+when it comes to importing members selectively and possibly under
+different names.  In summary, an import selector can
+consist of the following:</p>
+
+<ul>
+
+
+<li>A simple name <span class="code">x</span>. This includes <span class="code">x</span> in the set of imported names.
+
+
+</li>
+<li>A renaming clause <span class="code">x</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">y</span>. This makes the member named <span class="code">x</span> visible
+      under the name <span class="code">y</span>.
+
+
+</li>
+<li>A hiding clause  <span class="code">x</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">_</span>. This excludes <span class="code">x</span> from the set of imported names.
+
+
+</li>
+<li>A <em>catch-all</em> `<span class="code">_</span>'. This imports all members except those members
+      mentioned in a preceding clause. If a catch-all is given, it must come
+      last in the list of import selectors.
+
+
+</li></ul>
+
+
+<p>The simpler import clauses shown at the beginning of this section
+can be seen as special abbreviations of 
+import clauses with a selector clause. For example, "<span class="code">import</span>&nbsp;<span class="code">p._</span>" is equivalent to
+"<span class="code">import</span>&nbsp;<span class="code">p.{_}</span>" and "<span class="code">import</span>&nbsp;<span class="code">p.n</span>" is equivalent to "<span class="code">import</span>&nbsp;<span class="code">p.{n}</span>".</p>
+
+<h3>13.4 Implicit imports</h3>
+
+
+<p>Scala adds some imports implicitly to every program. In essence, it is as if<a id="i-1027603681-1"/><a id="i586706545-2"/><a id="i1384274725-1"/>
+the following three import clauses had been added to the top of every source file with 
+extension "<span class="code">.scala</span>":</p>
+
+<pre>
+  <code class="vem">import</code>&nbsp;java.lang._&nbsp;<code class="comment">//&nbsp;everything&nbsp;in&nbsp;the&nbsp;java.lang&nbsp;package</code>
+  <code class="vem">import</code>&nbsp;scala._&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;everything&nbsp;in&nbsp;the&nbsp;scala&nbsp;package</code>
+  <code class="vem">import</code>&nbsp;Predef._&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;everything&nbsp;in&nbsp;the&nbsp;Predef&nbsp;object</code>
+</pre>
+
+
+<p>The <span class="code">java.lang</span> package contains standard Java classes. It is always
+implicitly imported in Scala source files.<a href="packages-and-imports.html#footnotemain13-2">[2]</a> Because <span class="code">java.lang</span> is imported implicitly, 
+you can write <span class="code">Thread</span> instead of <span class="code">java.lang.Thread</span>, for instance.</p>
+
+<p>As you have no doubt realized by now, the <span class="code">scala</span> package contains
+the standard Scala library, with many common classes and
+objects. Because <span class="code">scala</span> is imported implicitly, you can write
+<span class="code">List</span> instead of <span class="code">scala.List</span>, for instance.</p>
+
+<p>The <span class="code">Predef</span> object contains many definitions of types, methods, and
+implicit conversions that are commonly used on Scala programs. For example, because
+<span class="code">Predef</span> is imported implicitly, you can write <span class="code">assert</span> instead of
+<span class="code">Predef.assert</span>.</p>
+
+<p>These three import clauses are treated a bit specially in that
+later imports overshadow earlier ones. For instance, the
+<span class="code">StringBuilder</span> class is defined both in package <span class="code">scala</span> and, from
+Java version 1.5 on, also in package <span class="code">java.lang</span>.  Because the
+<span class="code">scala</span> import overshadows the <span class="code">java.lang</span> import, the simple name
+<span class="code">StringBuilder</span> will refer to <span class="code">scala.StringBuilder</span>, not
+<span class="code">java.lang.StringBuilder</span>.</p>
+
+<h3 id="sec-access-modifiers">13.5 Access modifiers</h3>
+
+
+<p>Members of packages, classes, or objects can be labeled with the<a id="i436061376-1"/>
+access modifiers <span class="code">private</span> and <span class="code">protected</span>. These modifiers restrict
+access to the members to certain regions of code.  Scala's
+treatment of access modifiers roughly follows Java's but there are
+some important differences which are explained in this section.</p>
+
+<h4>Private members</h4>
+
+
+<p>Private members in Scala are treated similarly to Java. A member labeled<a id="i-698337515-1"/><a id="i835454125-1"/>
+<span class="code">private</span> is visible only inside the class or
+object that contains the member definition. 
+In Scala, this rule applies
+also for inner classes.  This treatment is more consistent, but
+differs from Java.  Consider the example shown in <a href="packages-and-imports.html#lst-private-access-differs">Listing 13.10</a>.</p>
+
+<p><a id="lst-private-access-differs"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Outer</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Inner</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">def</code>&nbsp;f()&nbsp;=&nbsp;{&nbsp;println(<code class="quotedstring">"f"</code>)&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">InnerMost</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f()&nbsp;<code class="comment">//&nbsp;OK</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;(<code class="vem">new</code>&nbsp;<code class="typename">Inner</code>).f()&nbsp;<code class="comment">//&nbsp;error:&nbsp;f&nbsp;is&nbsp;not&nbsp;accessible</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 13.10 - How private access differs in Scala and Java.</h5>
+
+
+<p>In Scala, the access <span class="code">(new</span>&nbsp;<span class="code">Inner).f()</span> is illegal because <span class="code">f</span> is declared <span class="code">private</span>
+in <span class="code">Inner</span> and the access is not from within class <span class="code">Inner</span>. By contrast,
+the first access to <span class="code">f</span> in class <span class="code">InnerMost</span> is OK, because that access is 
+contained in the body of class <span class="code">Inner</span>. Java would permit both accesses 
+because it lets an outer class access private members of its inner
+classes.</p>
+
+<h4>Protected members</h4>
+
+
+<p>Access to <span class="code">protected</span> members in Scala is also a bit more restrictive than in Java.<a id="i-711542007-1"/>
+In Scala, a <span class="code">protected</span> member is only accessible from subclasses of
+the class in which the member is defined.  In Java such accesses are
+also possible from other classes in the same package. In Scala, there
+is another way to achieve this effect<a href="packages-and-imports.html#footnotemain13-3">[3]</a> so <span class="code">protected</span>
+is free to be left as is. The example shown
+in <a href="packages-and-imports.html#lst-protected-access-differs">Listing 13.11</a> illustrates protected accesses.
+<a id="lst-protected-access-differs"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;p&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Super</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">protected</code>&nbsp;<code class="vem">def</code>&nbsp;f()&nbsp;=&nbsp;{&nbsp;println(<code class="quotedstring">"f"</code>)&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Sub</code>&nbsp;<code class="vem">extends</code>&nbsp;<code class="typename">Super</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;f()
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Other</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<code class="vem">new</code>&nbsp;<code class="typename">Super</code>).f()&nbsp;&nbsp;<code class="comment">//&nbsp;error:&nbsp;f&nbsp;is&nbsp;not&nbsp;accessible</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 13.11 - How protected access differs in Scala and Java.</h5>
+
+
+<p>In <a href="packages-and-imports.html#lst-protected-access-differs">Listing 13.11</a>, the access to <span class="code">f</span> in class <span class="code">Sub</span> is OK because <span class="code">f</span> is
+declared <span class="code">protected</span> in <span class="code">Super</span> and <span class="code">Sub</span> is a subclass of
+<span class="code">Super</span>. By contrast the access to <span class="code">f</span> in <span class="code">Other</span> is not permitted,
+because <span class="code">Other</span> does not inherit from <span class="code">Super</span>. In Java, the latter
+access would be still permitted because <span class="code">Other</span> is in the same
+package as <span class="code">Sub</span>.</p>
+
+<h4>Public members</h4>
+
+
+<p>Scala has no explicit modifier for public members:
+Any member not labeled <span class="code">private</span> or <span class="code">protected</span> is
+public. Public
+members can be accessed from anywhere.</p>
+
+<p><a id="lst-access-qualifiers"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;bobsrockets
+  <br />  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;navigation&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>[bobsrockets]&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Navigator</code>&nbsp;{&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">protected</code>[navigation]&nbsp;<code class="vem">def</code>&nbsp;useStarChart()&nbsp;=&nbsp;{}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">LegOfJourney</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>[<code class="typename">Navigator</code>]&nbsp;<code class="vem">val</code>&nbsp;distance&nbsp;=&nbsp;<code class="literal">100</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>[<code class="vem">this</code>]&nbsp;<code class="vem">var</code>&nbsp;speed&nbsp;=&nbsp;<code class="literal">200</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;launch&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">import</code>&nbsp;navigation._
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Vehicle</code>&nbsp;{&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>[launch]&nbsp;<code class="vem">val</code>&nbsp;guide&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Navigator</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 13.12 - Flexible scope of protection with access qualifiers.</h5>
+
+
+<h4>Scope of protection</h4>
+
+
+<p><a id="subsec-scope-of-protection"/></p>
+
+<p>Access modifiers in Scala can be augmented with qualifiers. A modifier
+of the form <span class="code">private[X]</span> or <span class="code">protected[X]</span> means that access is private or protected
+"up to" <span class="code">X</span>, where <span class="code">X</span> designates some enclosing package, class or singleton object.<a id="i488929967-1"/></p>
+
+<p>Qualified access modifiers give you very fine-grained control over
+visibility. In particular they enable you to express Java's
+accessibility notions, such as package private, package protected, or
+private up to outermost class, which are not directly expressible with
+simple modifiers in Scala. But they also let you express accessibility
+rules that cannot be expressed in Java.</p>
+
+<p><a href="packages-and-imports.html#lst-access-qualifiers">Listing 13.12</a> presents an example with many access qualifiers being used. 
+In this listing, class <span class="code">Navigator</span> is labeled <span class="code">private[bobsrockets]</span>.
+This means that this class is visible in all classes and objects
+that are contained in package <span class="code">bobsrockets</span>. In particular, the access
+to <span class="code">Navigator</span> in object <span class="code">Vehicle</span> is permitted because <span class="code">Vehicle</span> is
+contained 
+in package <span class="code">launch</span>, which is contained in
+<span class="code">bobsrockets</span>.  On the other hand, all code outside the
+package <span class="code">bobsrockets</span> cannot access class <span class="code">Navigator</span>.</p>
+
+<p>This technique is quite useful in large projects that span several
+packages. It allows you to define things that are visible in several
+sub-packages of your project but that remain hidden from clients
+external to your project. The same technique is not possible in Java.
+There, once a definition escapes its immediate package boundary, it is
+visible to the world at large.</p>
+
+<p>Of course, the qualifier of a <span class="code">private</span> may also be the directly
+enclosing package. An example is the access modifier of <span class="code">guide</span>
+in object <span class="code">Vehicle</span> in <a href="packages-and-imports.html#lst-access-qualifiers">Listing 13.12</a>. Such an access modifier is equivalent to Java's
+package-private access.<a id="i908525335-1"/></p>
+
+<p><a id="tab-leg-of-journey-private"/></p>
+
+<h5>Table 13.1 - Effects of private qualifiers on <span class="code">LegOfJourney.distance</span></h5>
+
+
+<div style="text-align: center">
+
+
+<table style="border-collapse: collapse">
+<tr class="topline ">
+  <td>
+    <em>no access modifier</em>
+  </td>
+  <td>
+    public access
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">private[bobsrockets]</span>
+  </td>
+  <td>
+    access within outer package
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">private[navigation]</span>
+  </td>
+  <td>
+    same as package visibility in Java
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">private[Navigator]</span>
+  </td>
+  <td>
+    same as <span class="code">private</span> in Java
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">private[LegOfJourney]</span>
+  </td>
+  <td>
+    same as <span class="code">private</span> in Scala
+  </td>
+</tr>
+<tr class="bottomline">
+  <td>
+    <span class="code">private[this]</span>
+  </td>
+  <td>
+    access only from same object
+  </td>
+</tr>
+</table>
+
+
+</div>
+
+
+<p>All qualifiers can also be applied to <span class="code">protected</span>, with the same
+meaning as <span class="code">private</span>. That is, a modifier <span class="code">protected[X]</span> in a
+class <span class="code">C</span> allows access to the labeled definition in all subclasses
+of <span class="code">C</span> and also within the enclosing package, class, or object <span class="code">X</span>.
+For instance, the <span class="code">useStarChart</span> method in <a href="packages-and-imports.html#lst-access-qualifiers">Listing 13.12</a>
+is accessible in all subclasses of <span class="code">Navigator</span> and also in all
+code contained in the enclosing package <span class="code">navigation</span>. It thus
+corresponds exactly to the meaning of <span class="code">protected</span> in Java.</p>
+
+<p>The qualifiers of <span class="code">private</span> can also refer to an enclosing class or
+object.  For instance the <span class="code">distance</span> variable in class <span class="code">LegOfJourney</span> in <a href="packages-and-imports.html#lst-access-qualifiers">Listing 13.12</a> is
+labeled <span class="code">private[Navigator]</span>, so it is visible from everywhere in
+class <span class="code">Navigator</span>. This gives the same access capabilities as for
+private members of inner classes in Java. A <span class="code">private[C]</span> where <span class="code">C</span>
+is the outermost enclosing class is the same as just <span class="code">private</span> in
+Java.<a id="i570723644-1"/><a id="i-1579182668-1"/></p>
+
+<p>Finally, Scala also has an access modifier that is even more<a id="i-1909160422-1"/><a id="i623710400-1"/>
+restrictive than <span class="code">private</span>.  A definition labeled <span class="code">private[this]</span>
+is accessible only from within the same object that contains the
+definition. Such a definition is called <span style="font-style:italic">object-private</span>.
+For instance, the definition of <span class="code">speed</span>
+in class <span class="code">Navigator</span> in <a href="packages-and-imports.html#lst-access-qualifiers">Listing 13.12</a> is
+object-private. This means that any access must not only
+be within class <span class="code">Navigator</span>, it must also be made from
+the very same instance of <span class="code">Navigator</span>.  Thus 
+the accesses "<span class="code">speed</span>" and "<span class="code">this.speed</span>" would be
+legal from within <span class="code">Navigator</span>.</p>
+
+<p>The following access, though, would not be allowed, even if it
+appeared inside class <span class="code">Navigator</span>:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;other&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Navigator</code>
+  other.speed&nbsp;<code class="comment">//&nbsp;this&nbsp;line&nbsp;would&nbsp;not&nbsp;compile</code>
+</pre>
+
+
+<p>Marking a member <span class="code">private[this]</span> is a guarantee that 
+it will not be seen from other objects of the same class. This can be
+useful for documentation. It also sometimes lets
+you write 
+more general variance annotations (see
+<a href="type-parameterization.html#variance-object-local">Section 19.7</a> for details).</p>
+
+<p>To summarize, <a href="packages-and-imports.html#tab-leg-of-journey-private">Table 13.1</a>  <a href="packages-and-imports.html#tab-leg-of-journey-private">here</a> lists the effects of <span class="code">private</span>
+qualifiers. Each line shows a qualified private modifier and what it
+would mean if such a modifier were attached to
+the <span class="code">distance</span> variable declared in class
+<span class="code">LegOfJourney</span> in <a href="packages-and-imports.html#lst-access-qualifiers">Listing 13.12</a>.</p>
+
+<h4>Visibility and companion objects</h4>
+
+
+<p><a id="i-565810484-1"/></p>
+
+<p>In Java, static members and instance members belong to the same class,
+so access modifiers apply uniformly to them. You have already seen
+that in Scala there are no static members; instead you can have a
+companion object that contains members that exist only once.
+For instance, in <a href="packages-and-imports.html#lst-companion-private">Listing 13.13</a> object <span class="code">Rocket</span> is a companion
+of class <span class="code">Rocket</span>.
+<a id="lst-companion-private"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Rocket</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">import</code>&nbsp;Rocket.fuel
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">def</code>&nbsp;canGoHomeAgain&nbsp;=&nbsp;fuel&nbsp;&gt;&nbsp;<code class="literal">20</code>
+  &nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">Rocket</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">private</code>&nbsp;<code class="vem">def</code>&nbsp;fuel&nbsp;=&nbsp;<code class="literal">10</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;chooseStrategy(rocket:&nbsp;<code class="typename">Rocket</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(rocket.canGoHomeAgain)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;goHome()
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pickAStar()
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;goHome()&nbsp;=&nbsp;{}
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;pickAStar()&nbsp;=&nbsp;{}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 13.13 - Accessing private members of companion classes and objects.</h5>
+
+
+<p>Scala's access rules privilege companion objects and classes when it
+comes to private or protected accesses. A class shares all its access
+rights with its companion object and <i>vice versa</i>.  In particular,
+an object can access all private members of its companion class, just
+as a class can access all private members of its companion object.</p>
+
+<p>For instance, the <span class="code">Rocket</span> class in <a href="packages-and-imports.html#lst-companion-private">Listing 13.13</a> can access method <span class="code">fuel</span>,
+which is declared <span class="code">private</span> in object <span class="code">Rocket</span>. Analogously, the
+<span class="code">Rocket</span> object can access the private method <span class="code">canGoHomeAgain</span>
+in class <span class="code">Rocket</span>.</p>
+
+<p>One exception where the similarity between Scala and Java breaks down
+concerns <span class="code">protected</span> <span class="code">static</span> members.  A protected static member of
+a Java class <span class="code">C</span> can be accessed in all subclasses of <span class="code">C</span>.  By
+contrast, a <span class="code">protected</span> member in a companion object makes no sense,
+as singleton objects don't have any subclasses.</p>
+
+<h3 id="sec-package-objects">13.6 Package objects</h3>
+
+
+<p>So far, the only code you have seen added to packages are classes,
+traits, and standalone objects.  These are by far the most common
+definitions that are placed at the top level of a package. But Scala
+doesn't limit you to just those&mdash;Any kind of definition that you can put
+inside a class can also be at the top level of a package. If
+you have some helper method you'd like to be in scope for an entire
+package, go ahead and put it right at the top level of the package.</p>
+
+<p>To do so, put the definitions in a <em>package object</em><a id="i-853360368-1"/>.  Each package is allowed to have one package object.  Any
+definitions placed in a package object are considered members of the
+package itself.</p>
+
+<p>An example is shown in <a href="packages-and-imports.html#lst-package-object">Listing 13.14</a>.  File
+<span class="texttt">package.scala</span> holds a package object for package
+<span class="code">bobsdelights</span>.  Syntactically, a package object looks much like one
+of the curly-braces packagings shown earlier in the chapter.  The only
+difference is that it includes the <span class="code">object</span> keyword.  It's a package
+<em>object</em>, not a <em>package</em>.  The contents of the curly braces
+can include any definitions you like.  In this case, the package
+object includes the <span class="code">showFruit</span> utility method from
+<a href="packages-and-imports.html#lst-importing-object-members">Listing 13.8</a>.</p>
+
+<p>Given that definition, any other code in any package can import
+the method just like it would import a class.  For example,
+<a href="packages-and-imports.html#lst-package-object">Listing 13.14</a> also shows the standalone object
+<span class="code">PrintMenu</span>, which is located in a different package.  <span class="code">PrintMenu</span>
+can import the utility method <span class="code">showFruit</span> in the same way it would
+import the class <span class="code">Fruit</span>.</p>
+
+<p><a id="lst-package-object"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="comment">//&nbsp;In&nbsp;file&nbsp;bobsdelights/package.scala</code>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;<code class="vem">object</code>&nbsp;bobsdelights&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;showFruit(fruit:&nbsp;<code class="typename">Fruit</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">import</code>&nbsp;fruit._
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(name&nbsp;+&nbsp;<code class="quotedstring">"s&nbsp;are&nbsp;"</code>&nbsp;+&nbsp;color)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+  <br />  &nbsp;&nbsp;<code class="comment">//&nbsp;In&nbsp;file&nbsp;PrintMenu.scala</code>
+  &nbsp;&nbsp;<code class="vem">package</code>&nbsp;printmenu
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;bobsdelights.Fruits
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;bobsdelights.showFruit
+  <br />  &nbsp;&nbsp;<code class="vem">object</code>&nbsp;<code class="typename">PrintMenu</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">def</code>&nbsp;main(args:&nbsp;<code class="typename">Array[String]</code>)&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(fruit&nbsp;&lt;-&nbsp;Fruits.menu)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;showFruit(fruit)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+</pre>
+
+
+<h5>Listing 13.14 - A package object.</h5>
+
+
+<p>Looking ahead, there are other uses of package objects for kinds of
+definitions you haven't seen yet.  Package objects are frequently used
+to hold package-wide type aliases
+(<a href="abstract-members.html">Chapter 20</a>) and implicit conversions
+(<a href="implicit-conversions-and-parameters.html">Chapter 21</a>).
+The top-level <span class="code">scala</span> package has a package object, and its definitions
+are available to all Scala code.</p>
+
+<p>Package objects are compiled to class files named <span class="code">package.class</span>
+that are the located in the directory of the package that they
+augment. It's useful to keep the same convention for source files. So
+you would typically put the source file of the package object
+<span class="code">bobsdelights</span> of <a href="packages-and-imports.html#lst-package-object">Listing 13.14</a> into a file named
+<span class="code">package.scala</span> that resides in the <span class="code">bobsdelights</span> directory.</p>
+
+<h3>13.7 Conclusion</h3>
+
+
+<p>In this chapter, you saw the basic constructs for dividing a program into
+packages.  This gives you a simple and useful kind of modularity, so
+that you can work with very large bodies of code without different
+parts of the code trampling on each other.  Scala's system is the same
+in spirit as Java's packages, but there are some
+differences where Scala chooses to be more consistent or more general.</p>
+
+<p>Looking ahead, <a href="modular-programming-using-objects.html">Chapter 29</a> describes a more flexible module
+system than division into packages.  In addition to letting you
+separate code into several namespaces, that approach allows modules to
+be parameterized and inherit from each other. In the next chapter, we'll turn our attention
+to assertions and unit testing.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 13:</h4>
+
+
+<p><a id="footnotemain13-1"/>[1] This style of multiple package clauses without braces is called <em>chained package clauses</em><a id="i2070019594-1"/><a id="i-1154528502-2"/>.</p>
+
+<p><a id="footnotemain13-2"/>[2] Scala also originally had an
+implementation on <span class="code">.NET</span>.<a id="i77181-3"/>, where namespace <span class="code">System</span>, 
+the <span class="code">.NET</span> analogue of package <span class="code">java.lang</span>, was imported instead.</p>
+
+<p><a id="footnotemain13-3"/>[3] Using <span class="textit">qualifiers</span>, described in "Scope of protection"  <a href="packages-and-imports.html#subsec-scope-of-protection">here</a>.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

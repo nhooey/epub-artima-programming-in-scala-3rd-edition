@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="front4"></a></h2>
+<h1>Introduction</h1>
+
+
+<p>This book is a tutorial for the Scala programming language, written by
+people directly involved in the development of Scala.  Our goal is
+that by reading this book, you can learn everything you need to be a
+productive Scala programmer. All examples in this book
+compile with Scala version 2.11.7, except for those marked
+<span class="code">2.12</span>, which compile with 2.12.0-M3.<a id="i88737196-2"/></p>
+
+<h3>Who should read this book</h3>
+
+
+<p>The main target audience for this book is programmers who want to learn to program
+in Scala. If you want to do your next software project in Scala, then
+this is the book for you.  In addition, the book should be interesting
+to programmers wishing to expand their horizons by learning new concepts.
+If you're a Java programmer, for example, reading this book will expose
+you to many concepts from functional programming as well as advanced
+object-oriented ideas. We believe learning about Scala, and the ideas behind it, can help you become a better
+programmer in general.</p>
+
+<p>General programming knowledge is assumed.  
+While Scala is a fine first programming language, this is not
+the book to use to learn programming.</p>
+
+<p>On the other hand, no specific knowledge of programming languages is
+required.  Even though most people use Scala on the Java platform,
+this book does not presume you know anything about Java. However,
+we expect many readers to be familiar with Java, and so we sometimes
+compare Scala to Java to help such readers understand the differences.</p>
+
+<h3>How to use this book</h3>
+
+
+<p>Because the main purpose of this book is to serve as a tutorial,
+the recommended way to read this book is in chapter order, from front to back. We have tried hard to introduce
+one topic at a time, and explain new topics only in terms of topics we've
+already introduced. Thus, if you skip to the back to get an early peek
+at something, you may find it explained in terms of concepts you don't quite
+understand. To the extent you read the chapters in order, we think you'll
+find it quite straightforward to gain competency in Scala, one step at a time.</p>
+
+<p>If you see a term you do not know, be sure to check the glossary and
+the index.  Many readers will skim parts of the book, and that is just
+fine.  The glossary and index can help you backtrack whenever you skim
+over something too quickly.</p>
+
+<p>After you have read the book once, it should also serve as a language
+reference.  There is a formal specification of the Scala language, but<a id="i1552805019-1"/>
+the language specification tries for precision at the expense of
+readability.  Although this book doesn't cover every detail of Scala,
+it is 
+quite comprehensive and should serve as an approachable language
+reference as you become more adept at programming in Scala.</p>
+
+<h3>How to learn Scala</h3>
+
+
+<p>You will learn a lot about Scala simply by reading this book from
+cover to cover.  You can learn Scala faster and more thoroughly,
+though, if you do a few extra things.</p>
+
+<p>First of all, you can take advantage of the many program examples
+included in the book.  Typing them in yourself is a way to force your
+mind through each line of code.  Trying variations is a way to make
+them more fun and to make sure you really understand how they work.</p>
+
+<p>Second, keep in touch with the numerous online forums.  That way, you
+and other Scala enthusiasts can help each other.  There are numerous
+mailing lists, discussion forums, a chat room, a wiki, and multiple Scala-specific
+article feeds.  Take some time to find ones that fit your information
+needs. You will spend a lot less time stuck on little problems, so you
+can spend your time on deeper, more important questions.</p>
+
+<p>Finally, once you have read enough, take on a programming project of
+your own.  Work on a small program from scratch or develop an add-in
+to a larger program.  You can only go so far by reading.</p>
+
+<h3>EBook features</h3>
+
+
+<p>This book is available in both paper and PDF eBook form.
+The eBook is not simply an electronic copy of the paper version of
+the book.  While the content is the same as in the paper version, the
+eBook has been carefully designed and optimized for reading on a computer screen.</p>
+
+<p>The first thing to notice is that most references within the eBook are
+hyperlinked.  If you select a reference to a chapter, figure, or
+glossary entry, your PDF viewer should take you immediately to the
+selected item so that you do not have to flip around to find it.</p>
+
+<p>Additionally, at the bottom of each page in the eBook are a number of navigation
+links. The Cover, Overview, and Contents links
+take you to the front matter of the book.  The Glossary and
+Index links take you to reference parts of the book. Finally, the
+Discuss link takes you to an online forum where you
+discuss questions with other readers, the authors, and the larger Scala community.
+If you find a typo, or something you think could be explained better, please
+click on the Suggest link, which will take you to an online web
+application where you can give the authors feedback.</p>
+
+<p>Although the same pages appear in the eBook as in the printed book, blank
+pages are removed and the remaining pages renumbered. The pages are numbered differently 
+so that it is easier for you to determine PDF page numbers when printing only
+a portion of the eBook. The pages in the eBook are, therefore, numbered exactly as
+your PDF viewer will number them.</p>
+
+<h3>Typographic conventions</h3>
+
+
+<p>The first time a <em>term</em> is used, it is italicized.
+Small code examples, such as <span class="code">x</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">1</span>, are written inline with a
+mono-spaced font.
+Larger code examples are put into mono-spaced quotation blocks like this:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;hello()&nbsp;=&nbsp;{
+  &nbsp;&nbsp;println(<code class="quotedstring">"Hello,&nbsp;world!"</code>)
+  }
+</pre>
+
+
+<p>When interactive shells are shown, responses from the shell are shown
+in a lighter font:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="literal">3</code>&nbsp;+&nbsp;<code class="literal">4</code>
+  <code class="output">res0:&nbsp;Int&nbsp;=&nbsp;7</code>
+</pre>
+
+
+<h3>Content overview</h3>
+
+
+<ul>
+
+
+<li><a href="a-scalable-language.html">Chapter 1</a> "A Scalable
+  Language," gives an overview of Scala's design
+as well as the reasoning, and history, behind it.<br /><br />
+
+
+</li>
+<li><a href="first-steps-in-scala.html">Chapter 2</a> "First Steps in
+  Scala," shows you how to do a number of basic programming
+  tasks in Scala, without going into great detail about how they work. The goal of this chapter is
+  to get your fingers started typing and running Scala code.<br /><br />
+
+
+</li>
+<li><a href="next-steps-in-scala.html">Chapter 3</a> "Next Steps in
+  Scala," shows you several
+  more basic programming tasks that will help you get up to speed quickly in Scala. After completing
+  this chapter, you should be able to start using Scala for simple scripting tasks.<br /><br />
+
+
+</li>
+<li><a href="classes-and-objects.html">Chapter 4</a> "Classes and
+  Objects," starts the in-depth coverage of Scala with a description of
+  its basic object-oriented building blocks and instructions on how to compile and run a Scala application.<br /><br />
+
+
+</li>
+<li><a href="basic-types-and-operations.html">Chapter 5</a> "Basic Types and
+  Operations," covers Scala's basic types, their literals, the operations you can perform on them, how
+  precedence and associativity works, and what rich wrappers are.<br /><br />
+
+
+</li>
+<li><a href="functional-objects.html">Chapter 6</a> "Functional Objects," dives more deeply into the object-oriented features of Scala, using functional (<i>i.e.</i>, immutable) rational
+  numbers as an example.<br /><br />
+
+
+</li>
+<li><a href="builtin-control-structures.html">Chapter 7</a> "Built-in Control
+  Structures," shows you how to use Scala's built-in control structures:
+  <span class="code">if</span>, <span class="code">while</span>, <span class="code">for</span>, <span class="code">try</span>, and <span class="code">match</span>.<br /><br /> 
+
+
+</li>
+<li><a href="functions-and-closures.html">Chapter 8</a> "Functions and Closures," 
+provides in-depth coverage of functions, the basic building block of functional languages.<br /><br />
+
+
+</li>
+<li><a href="control-abstraction.html">Chapter 9</a> "Control Abstraction," shows how
+to augment Scala's basic control structures by defining your own control abstractions.<br /><br />
+
+
+</li>
+<li><a href="composition-and-inheritance.html">Chapter 10</a> "Composition and
+  Inheritance," discusses more of Scala's support for object-oriented
+  programming.  The topics are not as fundamental as those in Chapter 4,
+  but they frequently arise in practice.<br /><br />
+
+
+</li>
+<li><a href="scalas-hierarchy.html">Chapter 11</a> "Scala's Hierarchy," explains
+  Scala's inheritance hierarchy and discusses its universal methods and bottom types.<br /><br />
+
+
+</li>
+<li><a href="traits.html">Chapter 12</a> "Traits," covers
+  Scala's mechanism for mixin composition. The chapter shows how traits work, describes common
+uses, and explains how traits improve on traditional multiple inheritance.<br /><br />
+
+
+</li>
+<li><a href="packages-and-imports.html">Chapter 13</a> "Packages and
+  Imports," discusses issues with programming
+  in the large, including top-level packages, import statements,
+  and access control modifiers like <span class="code">protected</span> and <span class="code">private</span>.<br /><br />
+
+
+</li>
+<li><a href="assertions-and-tests.html">Chapter 14</a> "Assertions and
+  Tests," shows Scala's assertion mechanism and gives a tour of several tools 
+  available for writing tests in Scala, focusing on ScalaTest in particular.<br /><br />
+
+
+</li>
+<li><a href="case-classes-and-pattern-matching.html">Chapter 15</a> "Case Classes
+  and Pattern Matching," introduces twin constructs that support you
+  when writing regular, non-encapsulated data structures.  Case classes and pattern matching are particularly helpful for tree-like recursive data.<br /><br />
+
+
+</li>
+<li><a href="working-with-lists.html">Chapter 16</a> "Working with Lists," explains in detail lists, which are probably the most commonly used data
+  structure in Scala programs.<br /><br />
+
+
+</li>
+<li><a href="working-with-other-collections.html">Chapter 17</a> "Working with Other Collections," shows you how to
+  use the basic Scala collections, such as lists, arrays, tuples,
+  sets, and maps.<br /><br />
+
+
+</li>
+<li><a href="mutable-objects.html">Chapter 18</a> "Mutable Objects," explains mutable objects and the syntax Scala provides
+  to express them. The chapter concludes with a
+  case study on discrete event simulation, which shows some mutable objects in action.<br /><br />
+
+
+</li>
+<li><a href="type-parameterization.html">Chapter 19</a> "Type
+  Parameterization," explains some of the techniques for information
+  hiding introduced in Chapter 13 by
+  means of a concrete example: the design of a class for purely
+  functional queues.  The chapter builds up to a description of
+  variance of type parameters and how it interacts with information
+  hiding.<br /><br />
+
+
+</li>
+<li><a href="abstract-members.html">Chapter 20</a> "Abstract Members," describes all kinds of abstract members that Scala
+  supports; not only methods, but also fields and types, can be
+  declared abstract.<br /><br />
+
+
+</li>
+<li><a href="implicit-conversions-and-parameters.html">Chapter 21</a> "Implicit
+  Conversions and Parameters," covers two constructs that can help you omit
+  tedious details from source code, letting the compiler supply
+ them instead.<br /><br />
+
+
+</li>
+<li><a href="implementing-lists.html">Chapter 22</a> "Implementing Lists," describes the
+  implementation of class <span class="code">List</span>.  It is important to understand how
+  lists work in Scala, and furthermore the implementation demonstrates
+  the use of several of Scala's features.<br /><br />
+
+
+</li>
+<li><a href="for-expressions-revisited.html">Chapter 23</a> "For Expressions Revisited," shows
+  how <span class="code">for</span> expressions are translated to invocations of <span class="code">map</span>, <span class="code">flatMap</span>, <span class="code">filter</span>, and <span class="code">foreach</span>.<br /><br />
+
+
+</li>
+<li><a href="collections-in-depth.html">Chapter 24</a> "Collections
+  in Depth," gives a detailed tour of the collections library.<br /><br />
+
+
+</li>
+<li><a href="the-architecture-of-scala-collections.html">Chapter 25</a> "The Architecture of Scala
+  Collections," shows how the collection library is built and how you
+  can implement your own collections.<br /><br />
+
+
+</li>
+<li><a href="extractors.html">Chapter 26</a> "Extractors," shows how to pattern match
+  against arbitrary classes, not just case classes.<br /><br />
+
+
+</li>
+<li><a href="annotations.html">Chapter 27</a> "Annotations," shows how to work with
+  language extension via annotation.  The chapter describes several standard
+  annotations and shows you how to make your own.<br /><br />
+
+
+</li>
+<li><a href="working-with-xml.html">Chapter 28</a> "Working with XML," explains
+  how to process XML in Scala.  The chapter shows you idioms for generating
+  XML, parsing it, and processing it once it is parsed.<br /><br />
+
+
+</li>
+<li><a href="modular-programming-using-objects.html">Chapter 29</a> "Modular Programming Using Objects," shows
+  how you can use Scala's objects as a modules system.<br /><br />
+
+
+</li>
+<li><a href="object-equality.html">Chapter 30</a> "Object Equality," points out several
+  issues to consider when writing an <span class="code">equals</span> method.  There are
+  several pitfalls to avoid.<br /><br />
+
+
+</li>
+<li><a href="combining-scala-and-java.html">Chapter 31</a> "Combining Scala and
+  Java," discusses issues that arise when combining Scala and Java together in the
+same project, and suggests ways to deal with them.<br /><br />
+
+
+</li>
+<li><a href="futures-and-concurrency.html">Chapter 32</a> "Futures and
+  Concurrency," shows you how to use Scala's <span class="code">Future</span>. Although you can use the Java
+  platform's concurrency primitives and libraries for Scala programs, futures can help you avoid the
+  deadlocks and race conditions that plague the traditional "threads and locks" approach to concurrency.<br /><br />
+
+
+</li>
+<li><a href="combinator-parsing.html">Chapter 33</a> "Combinator Parsing," shows
+  how to build parsers using Scala's library of parser combinators.<br /><br />
+
+
+</li>
+<li><a href="gui-programming.html">Chapter 34</a> "GUI Programming," gives a quick
+  tour of a Scala library that simplifies GUI programming with Swing.<br /><br />
+
+
+</li>
+<li><a href="the-scells-spreadsheet.html">Chapter 35</a> "The <span class="code">SCells</span> Spreadsheet," ties everything
+  together by showing a complete spreadsheet application written in Scala.<br /><br />
+
+
+</li></ul>
+
+
+<h3>Resources</h3>
+
+
+<p>At <a href="http://www.scala-lang.org">http://www.scala-lang.org</a>, the main website for Scala, you'll find the latest Scala release
+and links to documentation and community resources.
+For a more condensed page of links to Scala resources, visit this book's website:
+<a href="http://booksites.artima.com/programming_in_scala_3ed">http://booksites.artima.com/programming_in_scala_3ed</a>.
+To interact with other readers of this book, check out 
+the Programming in Scala Forum, at:
+<a href="http://www.artima.com/forums/forum.jsp?forum=282">http://www.artima.com/forums/forum.jsp?forum=282</a>.</p>
+
+<h3>Source code</h3>
+
+
+<p>You can download a ZIP file containing the source code of this book, which is released
+under the Apache 2.0 open source license, from the book's website:<a id="i742232475-1"/><a id="i1840350167-1"/><a id="i1878821113-1"/>
+<a href="http://booksites.artima.com/programming_in_scala_3ed">http://booksites.artima.com/programming_in_scala_3ed</a>.</p>
+
+<h3>Errata</h3>
+
+
+<p>Although this book has been heavily reviewed and checked, errors will<a id="i-1149733563-1"/>
+inevitably slip through.
+For a (hopefully short) list of errata for this book, visit
+<a href="http://booksites.artima.com/programming_in_scala_3ed/errata">http://booksites.artima.com/programming_in_scala_3ed/errata</a>.<br />
+If you find an error, please report it at the above URL, so that
+we can fix it in a future printing or edition of
+this book.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+
+<div style="text-align: center">
+<span style="font-size:xx-large">Programming in Scala, Third Edition 
+  <span style="font-size:large">
+  <br />
+    <span style="font-size:x-large"> Third Edition</span>
+  </span></span>
+
+
+</div>
+
+
+ <div style="text-align: center; font-size:x-large">
+</div>
+
+
+<div style="text-align: center">
+
+
+<p><span style="font-size:medium"><span class="code">println("Hello,</span>&nbsp;<span class="code">reader!")</span></span></p>
+
+</div>
+
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

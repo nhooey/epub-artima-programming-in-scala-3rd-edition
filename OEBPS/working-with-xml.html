@@ -1,0 +1,747 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-working-with-xml">Chapter 28</a></h2>
+<h1>Working with XML</h1>
+
+
+<p>This chapter introduces Scala's support for XML.<a id="i87031-1"/>  After discussing
+semi-structured data<a id="i-408699718-1"/><a id="i-158920554-1"/> in general, it shows the essential functionality
+in Scala for manipulating XML: how to make nodes with XML literals,
+how to save and load XML to files, and how to take apart XML nodes
+using query methods and pattern matching.  This chapter
+is just a brief introduction to what is possible with XML, but it
+shows enough to get you started.</p>
+
+<h3>28.1 Semi-structured data</h3>
+
+
+<p>XML is a form of <a href="glossary.html#g-408699718"><em>semi-structured data</em></a>.  It is more structured
+than plain strings, because it organizes the contents of the data into
+a tree.  Plain XML is less structured than the objects of a
+programming language, though, as it admits free-form text between tags
+and it lacks a type system.<a href="working-with-xml.html#footnotemain28-1">[1]</a></p>
+
+<p>Semi-structured data is very helpful any time you need to serialize
+program data for saving in a file or shipping across a network.
+Instead of converting structured data all the way down to bytes, you
+convert it to and from semi-structured data.  You then use
+pre-existing library routines to convert between semi-structured data
+and binary data, saving your time for more important problems.</p>
+
+<p>There are many forms of semi-structured data, but XML is the most
+widely used on the Internet.  There are XML tools on most operating
+systems, and most programming languages have XML libraries available.
+Its popularity is self-reinforcing.  The more tools and libraries are
+developed in response to XML's popularity, the more likely software
+engineers are to choose XML as part of their formats.  If you write
+software that communicates over the Internet, then sooner or later you
+will need to interact with some service that speaks XML.</p>
+
+<p>For all of these reasons, Scala includes special support for
+processing XML.  This chapter shows you Scala's support for
+constructing XML, processing it with regular methods, and processing
+it with Scala's pattern matching.  In addition to these nuts and
+bolts, the chapter shows along the way several common idioms for using
+XML in Scala.</p>
+
+<h3>28.2 XML overview</h3>
+
+
+<p>XML is built out of two basic
+elements,<a id="i-84923540-1"/><a id="i-1968563942-1"/>
+text<a id="i599729872-1"/><a id="i-891684874-1"/> and
+tags.<a id="i599725500-1"/><a id="i-1699783286-1"/><a href="working-with-xml.html#footnotemain28-2">[2]</a>  Text is, as usual, any sequence of characters.  Tags,
+written like <span class="code">&lt;pod&gt;</span>, consist of a less-than sign, an alphanumeric
+label, and a greater than sign.  Tags can be <em>start</em> or
+<em>end</em> tags.  An end tag looks just like a start tag except
+that it has a slash just before the tag's label, like this: <span class="code">&lt;/pod&gt;</span>.</p>
+
+<p>Start and end tags must match each other, just like parentheses.
+Any start tag must eventually be followed by an end
+tag with the same label.  Thus the following is illegal:</p>
+
+<pre>
+  //&nbsp;Illegal&nbsp;XML
+  One&nbsp;&lt;pod&gt;,&nbsp;two&nbsp;&lt;pod&gt;,&nbsp;three&nbsp;&lt;pod&gt;&nbsp;zoo
+</pre>
+
+
+<p>Further, the contents of any two matching tags must itself be valid
+XML.  You cannot have two pairs of matching tags overlap each other:</p>
+
+<pre>
+  //&nbsp;Also&nbsp;illegal
+  &lt;pod&gt;Three&nbsp;&lt;peas&gt;&nbsp;in&nbsp;the&nbsp;&lt;/pod&gt;&lt;/peas&gt;
+</pre>
+
+
+<p>You could, however, write it like this:</p>
+
+<pre>
+  &lt;pod&gt;Three&nbsp;&lt;peas&gt;&lt;/peas&gt;&nbsp;in&nbsp;the&nbsp;&lt;/pod&gt;
+</pre>
+
+
+<p>Since tags are required to match in this way, XML is structured as
+nested <em>elements</em>.  Each pair of matching start and end tags
+forms
+an element, and elements may be nested within each other.  In the above
+example, the entirety of <span class="code">&lt;pod&gt;Three</span>&nbsp;<span class="code">&lt;peas&gt;&lt;/peas&gt;</span>&nbsp;<span class="code">in</span>&nbsp;<span class="code">the</span>&nbsp;<span class="code">&lt;/pod&gt;</span> is an element, and
+<span class="code">&lt;peas&gt;&lt;/peas&gt;</span> is an element nested within it.</p>
+
+<div style="page-break-after:always"/>
+
+
+<p>Those are the basics.  Two other things you should know are,
+first, there is a shorthand notation for a start tag followed
+immediately by its matching end tag.  Simply write one tag with a
+slash put after the tag's label.  Such a tag comprises an <em>empty
+element</em>.  Using an empty element, the previous example could just as well
+be written as follows:</p>
+
+<pre>
+  &lt;pod&gt;Three&nbsp;&lt;peas/&gt;&nbsp;in&nbsp;the&nbsp;&lt;/pod&gt;
+</pre>
+
+
+<p>Second, start tags can have <em>attributes</em> attached to
+them.  An
+attribute is a name-value pair written with an equals sign in the
+middle.<a id="i-1944660140-1"/><a id="i2120320186-1"/>  The attribute name itself is plain, unstructured text, and the value is surrounded
+by either double quotes (<span class="code">""</span>) or single quotes (<span class="code">"</span>).  Attributes
+look like this:</p>
+
+<pre>
+  &lt;pod&nbsp;peas="3"&nbsp;strings="true"/&gt;
+</pre>
+
+
+<h3>28.3 XML literals</h3>
+
+
+<p>Scala lets you type in XML as a <a href="glossary.html#g182460591">literal</a> anywhere that an expression
+is valid.<a id="i-598913593-1"/><a id="i-1924909791-1"/>  Simply type a start tag and then continue
+writing XML content.  The compiler will go into an XML-input mode and
+will read content as XML until it sees the end tag matching the start
+tag you began with:</p>
+
+<pre>
+  scala&gt;&nbsp;&lt;a&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;is&nbsp;some&nbsp;XML.
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Here&nbsp;is&nbsp;a&nbsp;tag:&nbsp;&lt;atag/&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/a&gt;
+  <code class="output">res0:&nbsp;scala.xml.Elem&nbsp;=</code>
+  <code class="output">&lt;a&gt;</code>
+  <code class="output">&nbsp;&nbsp;This&nbsp;is&nbsp;some&nbsp;XML.</code>
+  <code class="output">&nbsp;&nbsp;Here&nbsp;is&nbsp;a&nbsp;tag:&nbsp;&lt;atag/&gt;</code>
+  <code class="output">&lt;/a&gt;</code>
+</pre>
+
+
+<p>The result of this expression is of type <span class="code">Elem</span>,
+meaning it is an XML
+element with a label ("<span class="code">a</span>") and children ("<span class="code">This</span>&nbsp;<span class="code">is</span>&nbsp;<span class="code">some</span>&nbsp;<span class="code">XML</span>...,"
+<i>etc.</i>).<a id="i583597511-1"/> Some other important XML classes are:</p>
+
+<ul>
+
+
+<li>Class <span class="code">Node</span> is the abstract superclass of all XML node
+      classes.<a id="i1729641978-1"/>
+
+
+</li>
+<li>Class <span class="code">Text</span> is a node holding just text.  For example, the "stuff"
+      part of <span class="code">&lt;a&gt;stuff&lt;/a&gt;</span> is of class <span class="code">Text</span>.<a id="i1739516731-1"/>
+
+
+</li>
+<li>Class <span class="code">NodeSeq</span> holds a sequence of nodes.  Many methods in the
+      XML library process <span class="code">NodeSeq</span>s in places you might expect them to
+      process individual <span class="code">Node</span>s.  You can still use such methods with
+      individual nodes, however, since <span class="code">Node</span> extends from <span class="code">NodeSeq</span>.
+      This may sound weird, but it works out well for XML.  You can
+      think of an individual <span class="code">Node</span> as a one-element
+<span class="code">NodeSeq</span>.<a id="i808041077-1"/>
+
+
+</li></ul>
+
+
+<p>You are not restricted to writing out the exact XML you want,
+character for character.  You can evaluate Scala code in the middle of
+an XML literal by using curly braces (<span class="code">{}</span>) as an
+escape.<a id="i1212676591-1"/><a id="i544063905-1"/> Here is a
+simple example:</p>
+
+<pre>
+  scala&gt;&nbsp;&lt;a&gt;&nbsp;{<code class="quotedstring">"hello"</code>&nbsp;+&nbsp;<code class="quotedstring">",&nbsp;world"</code>}&nbsp;&lt;/a&gt;
+  <code class="output">res1:&nbsp;scala.xml.Elem&nbsp;=&nbsp;&lt;a&gt;&nbsp;hello,&nbsp;world&nbsp;&lt;/a&gt;</code>
+</pre>
+
+
+<p>A braces escape can include arbitrary Scala content, including further
+XML literals.  Thus, as the nesting level increases, your code can
+switch back and forth between XML and ordinary Scala code. Here's an example:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;yearMade&nbsp;=&nbsp;<code class="literal">1955</code>
+  <code class="output">yearMade:&nbsp;Int&nbsp;=&nbsp;1955</code>
+  <br />  scala&gt;&nbsp;&nbsp;&lt;a&gt;&nbsp;{&nbsp;<code class="vem">if</code>&nbsp;(yearMade&nbsp;&lt;&nbsp;<code class="literal">2000</code>)&nbsp;&lt;old&gt;{yearMade}&lt;/old&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;<code class="typename">xml.NodeSeq.Empty</code>&nbsp;}
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/a&gt;
+  <code class="output">res2:&nbsp;scala.xml.Elem&nbsp;=</code>
+  <code class="output">&lt;a&gt;&nbsp;&lt;old&gt;1955&lt;/old&gt;</code>
+  <code class="output">&nbsp;&lt;/a&gt;</code>
+</pre>
+
+
+<p>If the code inside the curly braces evaluates to either an XML node or a
+sequence of XML nodes, those nodes are inserted directly as is.
+In the above example, if <span class="code">yearMade</span> is less than 2000, it is wrapped
+in <span class="code">&lt;old&gt;</span> tags and added to the <span class="code">&lt;a&gt;</span> element.  Otherwise, nothing is added.  Note in the above example that
+"nothing" as an XML node is denoted with <span class="code">xml.NodeSeq.Empty</span>.</p>
+
+<p>An expression inside a brace escape does not have to evaluate to an
+XML node.  It can evaluate to any Scala value.  In such a case, the result
+is converted to a string and inserted as a text node:</p>
+
+<pre>
+  scala&gt;&nbsp;&lt;a&gt;&nbsp;{<code class="literal">3</code>&nbsp;+&nbsp;<code class="literal">4</code>}&nbsp;&lt;/a&gt;
+  <code class="output">res3:&nbsp;scala.xml.Elem&nbsp;=&nbsp;&lt;a&gt;&nbsp;7&nbsp;&lt;/a&gt;</code>
+</pre>
+
+
+<p>Any <span class="code">&lt;</span>, <span class="code">&gt;</span>, and <span class="code">&amp;</span> characters in the text will be escaped
+if you print the node back out:</p>
+
+<div style="page-break-after:always"/>
+
+
+<pre>
+  scala&gt;&nbsp;&lt;a&gt;&nbsp;{<code class="quotedstring">"&lt;/a&gt;potential&nbsp;security&nbsp;hole&lt;a&gt;"</code>}&nbsp;&lt;/a&gt;
+  <code class="output">res4:&nbsp;scala.xml.Elem&nbsp;=&nbsp;&lt;a&gt;&nbsp;&amp;lt;/a&amp;gt;potential&nbsp;security&nbsp;</code>
+  <code class="output">hole&amp;lt;a&amp;gt;&nbsp;&lt;/a&gt;</code>
+</pre>
+
+
+<p>To contrast, if you create XML with low-level string operations, you
+will run into traps such as the following:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="quotedstring">"&lt;a&gt;"</code>&nbsp;+&nbsp;<code class="quotedstring">"&lt;/a&gt;potential&nbsp;security&nbsp;hole&lt;a&gt;"</code>&nbsp;+&nbsp;<code class="quotedstring">"&lt;/a&gt;"</code>
+  <code class="output">res5:&nbsp;String&nbsp;=&nbsp;&lt;a&gt;&lt;/a&gt;potential&nbsp;security&nbsp;hole&lt;a&gt;&lt;/a&gt;</code>
+</pre>
+
+
+<p>What happens here is that a user-supplied string has included XML tags
+of its own, in this case <span class="code">&lt;/a&gt;</span> and <span class="code">&lt;a&gt;</span>.  This behavior can allow
+some nasty surprises for the original programmer, because it allows
+the user to affect the resulting XML tree outside of the space
+provided for the user inside the <span class="code">&lt;a&gt;</span> element.  You can prevent this
+entire class of problems by always constructing XML using XML
+literals, not string
+appends.</p>
+
+<h3>28.4 Serialization</h3>
+
+
+<p>You have now seen enough of Scala's XML support to write the first
+part of a serializer: conversion from internal data structures to
+XML.<a id="i-426160987-1"/><a id="i-1549258323-1"/>
+All you need for this are XML literals and their brace escapes.</p>
+
+<p>As an example, suppose you are implementing a database to keep track
+of your extensive collection of vintage Coca-Cola thermometers.  You
+might make the following internal class to hold entries in the catalog:</p>
+
+<pre>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">CCTherm</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;description:&nbsp;<code class="typename">String</code>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;yearMade:&nbsp;<code class="typename">Int</code>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;dateObtained:&nbsp;<code class="typename">String</code>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;bookPrice:&nbsp;<code class="typename">Int</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;in&nbsp;US&nbsp;cents</code>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;purchasePrice:&nbsp;<code class="typename">Int</code>&nbsp;&nbsp;<code class="comment">//&nbsp;in&nbsp;US&nbsp;cents</code>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;condition:&nbsp;<code class="typename">Int</code>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;1&nbsp;to&nbsp;10</code>
+  <br />  &nbsp;&nbsp;<code class="vem">override</code>&nbsp;<code class="vem">def</code>&nbsp;toString&nbsp;=&nbsp;description
+  }
+</pre>
+
+
+<p>This is a straightforward, data-heavy class that holds various pieces
+of information such as when the thermometer was made, when you got it,
+and how much you paid for it.</p>
+
+<p>To convert instances of this class to XML, simply add a <span class="code">toXML</span>
+method that uses XML literals and brace escapes, like this:</p>
+
+<pre>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">CCTherm</code>&nbsp;{
+  &nbsp;&nbsp;...
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;toXML&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;cctherm&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;description&gt;{description}&lt;/description&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;yearMade&gt;{yearMade}&lt;/yearMade&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dateObtained&gt;{dateObtained}&lt;/dateObtained&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;bookPrice&gt;{bookPrice}&lt;/bookPrice&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;purchasePrice&gt;{purchasePrice}&lt;/purchasePrice&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;condition&gt;{condition}&lt;/condition&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;/cctherm&gt;
+  }
+</pre>
+
+
+<p>Here is the method in action:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;therm&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">CCTherm</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;description&nbsp;=&nbsp;<code class="quotedstring">"hot&nbsp;dog&nbsp;#5"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;yearMade&nbsp;=&nbsp;<code class="literal">1952</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;dateObtained&nbsp;=&nbsp;<code class="quotedstring">"March&nbsp;14,&nbsp;2006"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;bookPrice&nbsp;=&nbsp;<code class="literal">2199</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;purchasePrice&nbsp;=&nbsp;<code class="literal">500</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;condition&nbsp;=&nbsp;<code class="literal">9</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">therm:&nbsp;CCTherm&nbsp;=&nbsp;hot&nbsp;dog&nbsp;#5</code>
+  <br />  scala&gt;&nbsp;therm.toXML
+  <code class="output">res6:&nbsp;scala.xml.Elem&nbsp;=</code>
+  <code class="output">&lt;cctherm&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;description&gt;hot&nbsp;dog&nbsp;#5&lt;/description&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;yearMade&gt;1952&lt;/yearMade&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dateObtained&gt;March&nbsp;14,&nbsp;2006&lt;/dateObtained&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;bookPrice&gt;2199&lt;/bookPrice&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;purchasePrice&gt;500&lt;/purchasePrice&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;condition&gt;9&lt;/condition&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/cctherm&gt;</code>
+</pre>
+
+
+<div class="note">
+<h4>Note</h4>
+The "<span class="code">new</span>&nbsp;<span class="code">CCTherm</span>" expression in the previous example works even though <span class="code">CCTherm</span> is an abstract class, because
+this syntax actually instantiates an anonymous subclass of <span class="code">CCTherm</span>. Anonymous classes were
+described in <a href="abstract-members.html#sec-val-init">Section 20.5</a>.
+
+
+</div>
+
+
+<p>By the way, if you want to include a curly brace (`<span class="code">{</span>' or `<span class="code">}</span>') as XML text, as
+opposed to using them to escape to Scala code, simply write two curly braces
+in a row:</p>
+
+<pre>
+  scala&gt;&nbsp;&lt;a&gt;&nbsp;{{{{brace&nbsp;yourself!}}}}&nbsp;&lt;/a&gt;
+  <code class="output">res7:&nbsp;scala.xml.Elem&nbsp;=&nbsp;&lt;a&gt;&nbsp;{{brace&nbsp;yourself!}}&nbsp;&lt;/a&gt;</code>
+</pre>
+
+
+<h3>28.5 Taking XML apart</h3>
+
+
+<p>Among the many methods available for the XML classes, there are three in particular
+that you should be aware of.  They allow you to
+take apart XML without thinking too much about the precise way
+XML is represented in Scala.
+These methods are based on the XPath language for processing
+XML.<a id="i83750045-1"/><a id="i1385250650-1"/>
+As is common in Scala, you can write them directly in Scala code
+instead of needing to invoke an external tool.</p>
+
+<p><b>Extracting text.</b>  By calling the <span class="code">text</span> method 
+on any XML node you retrieve
+all of the text within that node, minus any element
+tags:<a id="i-620325929-1"/><a id="i-892340276-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;&lt;a&gt;Sounds&nbsp;&lt;tag/&gt;&nbsp;good&lt;/a&gt;.text
+  <code class="output">res8:&nbsp;String&nbsp;=&nbsp;Sounds&nbsp;&nbsp;good</code>
+</pre>
+
+
+<p>Any encoded characters are decoded automatically:</p>
+
+<pre>
+  scala&gt;&nbsp;&lt;a&gt;&nbsp;input&nbsp;---&amp;gt;&nbsp;output&nbsp;&lt;/a&gt;.text
+  <code class="output">res9:&nbsp;String&nbsp;=&nbsp;"&nbsp;input&nbsp;---&gt;&nbsp;output&nbsp;"</code>
+</pre>
+
+
+<p><b>Extracting sub-elements.</b>  If you want to find a sub-element by
+      tag name, 
+simply call <span class="code">\</span> with the name of the tag:</p>
+
+<pre>
+  scala&gt;&nbsp;&lt;a&gt;&lt;b&gt;&lt;c&gt;hello&lt;/c&gt;&lt;/b&gt;&lt;/a&gt;&nbsp;\&nbsp;<code class="quotedstring">"b"</code>
+  <code class="output">res10:&nbsp;scala.xml.NodeSeq&nbsp;=&nbsp;NodeSeq(&lt;b&gt;&lt;c&gt;hello&lt;/c&gt;&lt;/b&gt;)</code>
+</pre>
+
+
+<p>You can do a "deep search" and look through sub-sub-elements, <i>etc.</i>,
+by using <span class="code">\\</span> instead of the <span class="code">\</span> operator:<a id="i1322432817-1"/><a id="i32859236-1"/><a id="i583597511-2"/></p>
+
+<pre>
+  scala&gt;&nbsp;&nbsp;&lt;a&gt;&lt;b&gt;&lt;c&gt;hello&lt;/c&gt;&lt;/b&gt;&lt;/a&gt;&nbsp;\&nbsp;<code class="quotedstring">"c"</code>
+  <code class="output">res11:&nbsp;scala.xml.NodeSeq&nbsp;=&nbsp;NodeSeq()</code>
+  <br />  scala&gt;&nbsp;&nbsp;&lt;a&gt;&lt;b&gt;&lt;c&gt;hello&lt;/c&gt;&lt;/b&gt;&lt;/a&gt;&nbsp;\\&nbsp;<code class="quotedstring">"c"</code>
+  <code class="output">res12:&nbsp;scala.xml.NodeSeq&nbsp;=&nbsp;NodeSeq(&lt;c&gt;hello&lt;/c&gt;)</code>
+  <br />  scala&gt;&nbsp;&nbsp;&lt;a&gt;&lt;b&gt;&lt;c&gt;hello&lt;/c&gt;&lt;/b&gt;&lt;/a&gt;&nbsp;\&nbsp;<code class="quotedstring">"a"</code>
+  <code class="output">res13:&nbsp;scala.xml.NodeSeq&nbsp;=&nbsp;NodeSeq()</code>
+  <br />  scala&gt;&nbsp;&nbsp;&lt;a&gt;&lt;b&gt;&lt;c&gt;hello&lt;/c&gt;&lt;/b&gt;&lt;/a&gt;&nbsp;\\&nbsp;<code class="quotedstring">"a"</code>
+  <code class="output">res14:&nbsp;scala.xml.NodeSeq&nbsp;=&nbsp;</code>
+  <code class="output">NodeSeq(&lt;a&gt;&lt;b&gt;&lt;c&gt;hello&lt;/c&gt;&lt;/b&gt;&lt;/a&gt;)</code>
+</pre>
+
+
+<div class="note">
+<h4>Note</h4>
+
+
+<p>Scala uses <span class="code">\</span> and <span class="code">\\</span> instead of XPath's <span class="code">/</span> and
+<span class="code">//</span>. The reason is that <span class="code">//</span> starts a comment in Scala!  Thus,
+some other symbol has to be used, and using the other kind of slashes
+works well.</p>
+
+</div>
+
+
+<p><b>Extracting attributes.</b>
+You can extract tag attributes using the
+      same <span class="code">\</span> and <span class="code">\\</span>
+methods.<a id="i-1944660140-2"/><a id="i2120320186-2"/>  Simply put an at sign (<span class="code">@</span>) before
+      the attribute name:<a id="i-1417487143-1"/><a id="i-2110526308-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;joe&nbsp;=&nbsp;&lt;employee
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name=<code class="quotedstring">"Joe"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;rank=<code class="quotedstring">"code&nbsp;monkey"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;serial=<code class="quotedstring">"123"</code>/&gt;
+  <code class="output">joe:&nbsp;scala.xml.Elem&nbsp;=&nbsp;&lt;employee&nbsp;name="Joe"&nbsp;rank="code&nbsp;monkey"</code>
+  <code class="output">&nbsp;serial="123"/&gt;</code>
+  <br />  scala&gt;&nbsp;&nbsp;joe&nbsp;\&nbsp;<code class="quotedstring">"@name"</code>
+  <code class="output">res15:&nbsp;scala.xml.NodeSeq&nbsp;=&nbsp;Joe</code>
+  <br />  scala&gt;&nbsp;&nbsp;joe&nbsp;\&nbsp;<code class="quotedstring">"@serial"</code>
+  <code class="output">res16:&nbsp;scala.xml.NodeSeq&nbsp;=&nbsp;123</code>
+</pre>
+
+
+<h3>28.6 Deserialization</h3>
+
+
+<p>Using the previous methods for taking XML apart, you can now write the
+dual of a serializer, a parser from XML back into your internal
+data
+structures.<a id="i-1744729332-1"/><a id="i1294189452-1"/> 
+For example, you can parse back a <span class="code">CCTherm</span>
+instance by using the following code:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;fromXML(node:&nbsp;<code class="typename">scala.xml.Node</code>):&nbsp;<code class="typename">CCTherm</code>&nbsp;=
+  &nbsp;&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">CCTherm</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;description&nbsp;&nbsp;&nbsp;=&nbsp;(node&nbsp;\&nbsp;<code class="quotedstring">"description"</code>).text
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;yearMade&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;(node&nbsp;\&nbsp;<code class="quotedstring">"yearMade"</code>).text.toInt
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;dateObtained&nbsp;&nbsp;=&nbsp;(node&nbsp;\&nbsp;<code class="quotedstring">"dateObtained"</code>).text
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;bookPrice&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;(node&nbsp;\&nbsp;<code class="quotedstring">"bookPrice"</code>).text.toInt
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;purchasePrice&nbsp;=&nbsp;(node&nbsp;\&nbsp;<code class="quotedstring">"purchasePrice"</code>).text.toInt
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;condition&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;=&nbsp;(node&nbsp;\&nbsp;<code class="quotedstring">"condition"</code>).text.toInt
+  &nbsp;&nbsp;}
+</pre>
+
+
+<p>This code searches through an input XML node, named <span class="code">node</span>, to find each of
+the six pieces of data needed to specify a <span class="code">CCTherm</span>.  The data that
+is text is extracted with <span class="code">.text</span> and left as is.  
+Here is this method in
+action:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;node&nbsp;=&nbsp;therm.toXML
+  <code class="output">node:&nbsp;scala.xml.Elem&nbsp;=</code>
+  <code class="output">&lt;cctherm&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;description&gt;hot&nbsp;dog&nbsp;#5&lt;/description&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;yearMade&gt;1952&lt;/yearMade&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dateObtained&gt;March&nbsp;14,&nbsp;2006&lt;/dateObtained&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;bookPrice&gt;2199&lt;/bookPrice&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;purchasePrice&gt;500&lt;/purchasePrice&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;condition&gt;9&lt;/condition&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/cctherm&gt;</code>
+  <br />  scala&gt;&nbsp;fromXML(node)
+  <code class="output">res17:&nbsp;CCTherm&nbsp;=&nbsp;hot&nbsp;dog&nbsp;#5</code>
+</pre>
+
+
+<h3>28.7 Loading and saving</h3>
+
+
+<p>There is one last part needed to write a data serializer: conversion
+between XML and streams of bytes.  This last part is the easiest,
+because there are library routines that will do it all for you.  You
+simply have to call the right routine on the right data.</p>
+
+<p>To convert XML to a string, all you need is
+<span class="code">toString</span>.  The
+presence of a workable <span class="code">toString</span> is why you can experiment with XML
+in the Scala shell.  However, it is better to use a library routine
+and convert all the way to bytes.  That way, the resulting XML can
+include a directive that specifies which character encoding was used.
+If you encode the string to bytes yourself, then the onus is on you to
+keep track of the character encoding.<a id="i1598423906-1"/><a id="i1840683213-1"/></p>
+
+<p>To convert from XML to a file of bytes, you can use the
+<span class="code">XML.save</span> command.<a id="i-2053547351-1"/><a id="i1587478341-1"/>
+You must specify a file name and a node to be saved:</p>
+
+<pre>
+  scala.xml.XML.save(<code class="quotedstring">"therm1.xml"</code>,&nbsp;node)
+</pre>
+
+
+<p>After running the above command, the resulting file <span class="texttt">therm1.xml</span>
+looks like the following:</p>
+
+<pre>
+  &lt;?xml&nbsp;version='1.0'&nbsp;encoding='UTF-8'?&gt;
+  &lt;cctherm&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;description&gt;hot&nbsp;dog&nbsp;#5&lt;/description&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;yearMade&gt;1952&lt;/yearMade&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dateObtained&gt;March&nbsp;14,&nbsp;2006&lt;/dateObtained&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;bookPrice&gt;2199&lt;/bookPrice&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;purchasePrice&gt;500&lt;/purchasePrice&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;condition&gt;9&lt;/condition&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/cctherm&gt;
+</pre>
+
+
+<p>Loading is simpler than saving, because the file includes everything
+the loader needs to know.  Simply call <span class="code">XML.loadFile</span> on a file
+name:<a id="i1775530286-1"/><a id="i1708565962-1"/></p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;loadnode&nbsp;=&nbsp;xml.XML.loadFile(<code class="quotedstring">"therm1.xml"</code>)
+  <code class="output">loadnode:&nbsp;scala.xml.Elem&nbsp;=</code>
+  <code class="output">&lt;cctherm&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;description&gt;hot&nbsp;dog&nbsp;#5&lt;/description&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;yearMade&gt;1952&lt;/yearMade&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dateObtained&gt;March&nbsp;14,&nbsp;2006&lt;/dateObtained&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;bookPrice&gt;2199&lt;/bookPrice&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;purchasePrice&gt;500&lt;/purchasePrice&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;condition&gt;9&lt;/condition&gt;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&lt;/cctherm&gt;</code>
+  <br />  scala&gt;&nbsp;fromXML(loadnode)
+  <code class="output">res14:&nbsp;CCTherm&nbsp;=&nbsp;hot&nbsp;dog&nbsp;#5</code>
+</pre>
+
+
+<p>Those are the basic methods you need.  There are many variations on
+these loading and saving methods, including methods for reading and
+writing to various kinds of readers, writers, input and output
+streams.</p>
+
+<h3>28.8 Pattern matching on XML</h3>
+
+
+<p>So far you have seen how to dissect XML using <span class="code">text</span> and the XPath-like methods,
+<span class="code">\</span> and <span class="code">\\</span>.<a id="i1974282179-1"/><a id="i1884986778-1"/> These are good when you know exactly what
+kind of XML structure you are taking apart.  Sometimes, though, there
+are a few possible structures the XML could have.  Maybe there are
+multiple kinds of records within the data, for example because you
+have extended your thermometer collection to include clocks and
+sandwich plates.  Maybe you simply want to skip over any white space
+between tags.  Whatever the reason, you can use the pattern matcher to
+sift through the possibilities.</p>
+
+<p>An XML pattern looks just like an XML literal.  The main difference is
+that if you insert a <span class="code">{}</span> escape, then the code inside the <span class="code">{}</span> is
+not an expression but a
+pattern.<a id="i-2088304360-1"/><a id="i1428654986-1"/><a id="i428757728-1"/> A pattern embedded in <span class="code">{}</span> can use
+the full Scala pattern language, including binding new variables,
+performing type tests, and ignoring content using the <span class="code">_</span> and <span class="code">_*</span>
+patterns.
+Here is a simple example:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;proc(node:&nbsp;<code class="typename">scala.xml.Node</code>):&nbsp;<code class="typename">String</code>&nbsp;=
+  &nbsp;&nbsp;node&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;&lt;a&gt;{contents}&lt;/a&gt;&nbsp;=&gt;&nbsp;<code class="quotedstring">"It's&nbsp;an&nbsp;a:&nbsp;"</code>&nbsp;+&nbsp;contents
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;&lt;b&gt;{contents}&lt;/b&gt;&nbsp;=&gt;&nbsp;<code class="quotedstring">"It's&nbsp;a&nbsp;b:&nbsp;"</code>&nbsp;+&nbsp;contents
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="quotedstring">"It's&nbsp;something&nbsp;else."</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<p>This function has a pattern match with three cases. The first case
+looks for an <span class="code">&lt;a&gt;</span> element whose contents consist of a single sub-node.  It binds those contents to a variable named <span class="code">contents</span> and then evaluates the code to
+the right of the associated right arrow (<span class="code">=&gt;</span>).  The second case
+does the same thing but looks for a <span class="code">&lt;b&gt;</span> instead of an <span class="code">&lt;a&gt;</span>, and
+the third case matches anything not matched by any other case.  Here
+is the function in use:</p>
+
+<pre>
+  scala&gt;&nbsp;proc(&lt;a&gt;apple&lt;/a&gt;)
+  <code class="output">res18:&nbsp;String&nbsp;=&nbsp;It's&nbsp;an&nbsp;a:&nbsp;apple</code>
+  scala&gt;&nbsp;proc(&lt;b&gt;banana&lt;/b&gt;)
+  <code class="output">res19:&nbsp;String&nbsp;=&nbsp;It's&nbsp;a&nbsp;b:&nbsp;banana</code>
+  scala&gt;&nbsp;proc(&lt;c&gt;cherry&lt;/c&gt;)
+  <code class="output">res20:&nbsp;String&nbsp;=&nbsp;It's&nbsp;something&nbsp;else.</code>
+</pre>
+
+
+<p>Most likely this function is not exactly what you want, because it looks
+precisely for contents consisting of a single sub-node within the <span class="code">&lt;a&gt;</span> or <span class="code">&lt;b&gt;</span>.  Thus
+it will fail to match in cases like the following:</p>
+
+<pre>
+  scala&gt;&nbsp;proc(&lt;a&gt;a&nbsp;&lt;em&gt;red&lt;/em&gt;&nbsp;apple&lt;/a&gt;)
+  <code class="output">res21:&nbsp;String&nbsp;=&nbsp;It's&nbsp;something&nbsp;else.</code>
+  scala&gt;&nbsp;proc(&lt;a/&gt;)
+  <code class="output">res22:&nbsp;String&nbsp;=&nbsp;It's&nbsp;something&nbsp;else.</code>
+</pre>
+
+
+<p>If you want the function to match in cases like these, you can match
+against a sequence of nodes instead of a single one.  The pattern for
+"any sequence" of XML nodes is written
+`<span class="code">_*</span>'.<a id="i521514024-1"/> Visually, this sequence
+looks like the wildcard pattern (<span class="code">_</span>) followed by a regex-style
+Kleene star (<span class="code">*</span>).  Here is the updated function that matches a
+sequence of sub-elements instead of a single sub-element:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;proc(node:&nbsp;<code class="typename">scala.xml.Node</code>):&nbsp;<code class="typename">String</code>&nbsp;=
+  &nbsp;&nbsp;node&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;&lt;a&gt;{contents&nbsp;@&nbsp;_*}&lt;/a&gt;&nbsp;=&gt;&nbsp;<code class="quotedstring">"It's&nbsp;an&nbsp;a:&nbsp;"</code>&nbsp;+&nbsp;contents
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;&lt;b&gt;{contents&nbsp;@&nbsp;_*}&lt;/b&gt;&nbsp;=&gt;&nbsp;<code class="quotedstring">"It's&nbsp;a&nbsp;b:&nbsp;"</code>&nbsp;+&nbsp;contents
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="quotedstring">"It's&nbsp;something&nbsp;else."</code>
+  &nbsp;&nbsp;}
+</pre>
+
+
+<p>Notice that the result of the <span class="code">_*</span> is bound to
+the <span class="code">contents</span> variable by using the <span class="code">@</span> pattern described
+in <a href="case-classes-and-pattern-matching.html#sec-var-binding">Section 15.2</a>.
+Here is the new version in action:</p>
+
+<pre>
+  scala&gt;&nbsp;proc(&lt;a&gt;a&nbsp;&lt;em&gt;red&lt;/em&gt;&nbsp;apple&lt;/a&gt;)
+  <code class="output">res23:&nbsp;String&nbsp;=&nbsp;It's&nbsp;an&nbsp;a:&nbsp;ArrayBuffer(a&nbsp;,&nbsp;&lt;em&gt;red&lt;/em&gt;,&nbsp;&nbsp;</code>
+  <code class="output">apple)</code>
+  scala&gt;&nbsp;proc(&lt;a/&gt;)
+  <code class="output">res24:&nbsp;String&nbsp;=&nbsp;It's&nbsp;an&nbsp;a:&nbsp;WrappedArray()</code>
+</pre>
+
+
+<p>As a final tip, be aware that XML patterns work very nicely with
+<span class="code">for</span> expressions
+as a way to iterate through some parts of an XML tree
+while ignoring other parts.<a id="i-96590517-1"/>  For example, suppose you wish to skip
+over the white space between records in the following XML structure:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;catalog&nbsp;=
+  &nbsp;&nbsp;&lt;catalog&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;cctherm&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;description&gt;hot&nbsp;dog&nbsp;#5&lt;/description&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;yearMade&gt;1952&lt;/yearMade&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dateObtained&gt;March&nbsp;14,&nbsp;2006&lt;/dateObtained&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;bookPrice&gt;2199&lt;/bookPrice&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;purchasePrice&gt;500&lt;/purchasePrice&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;condition&gt;9&lt;/condition&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;/cctherm&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;cctherm&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;description&gt;Sprite&nbsp;Boy&lt;/description&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;yearMade&gt;1964&lt;/yearMade&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;dateObtained&gt;April&nbsp;28,&nbsp;2003&lt;/dateObtained&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;bookPrice&gt;1695&lt;/bookPrice&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;purchasePrice&gt;595&lt;/purchasePrice&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;condition&gt;5&lt;/condition&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&lt;/cctherm&gt;
+  &nbsp;&nbsp;&lt;/catalog&gt;
+</pre>
+
+
+<p>Visually, it looks like there are two nodes inside the <span class="code">&lt;catalog&gt;</span> element.  Actually, though, there are five.  There
+is white space before, after, and between the two elements!  If you
+do not consider this white space, you might incorrectly process
+the thermometer records as follows:</p>
+
+<pre>
+  catalog&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;&lt;catalog&gt;{therms&nbsp;@&nbsp;_*}&lt;/catalog&gt;&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(therm&nbsp;&lt;-&nbsp;therms)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"processing:&nbsp;"</code>&nbsp;+&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(therm&nbsp;\&nbsp;<code class="quotedstring">"description"</code>).text)
+  }
+</pre>
+
+
+<pre>
+  <code class="output">processing:&nbsp;</code>
+  <code class="output">processing:&nbsp;hot&nbsp;dog&nbsp;#5</code>
+  <code class="output">processing:&nbsp;</code>
+  <code class="output">processing:&nbsp;Sprite&nbsp;Boy</code>
+  <code class="output">processing:&nbsp;</code>
+</pre>
+
+
+<p>Notice all of the lines that try to process white space as if it were
+a true thermometer record.  What you would really like to do is ignore
+the white space and process only those sub-nodes that are inside a
+<span class="code">&lt;cctherm&gt;</span> element.  You can describe this subset using the pattern
+<span class="code">&lt;cctherm&gt;{_*}&lt;/cctherm&gt;</span>, and you can restrict the <span class="code">for</span> expression
+to iterating over items that match that pattern:</p>
+
+<pre>
+  catalog&nbsp;<code class="vem">match</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;&lt;catalog&gt;{therms&nbsp;@&nbsp;_*}&lt;/catalog&gt;&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(therm&nbsp;@&nbsp;&lt;cctherm&gt;{_*}&lt;/cctherm&gt;&nbsp;&nbsp;&lt;-&nbsp;&nbsp;therms)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(<code class="quotedstring">"processing:&nbsp;"</code>&nbsp;+&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(therm&nbsp;\&nbsp;<code class="quotedstring">"description"</code>).text)
+  }
+</pre>
+
+
+<pre>
+  <code class="output">processing:&nbsp;hot&nbsp;dog&nbsp;#5</code>
+  <code class="output">processing:&nbsp;Sprite&nbsp;Boy</code>
+</pre>
+
+
+<h3>28.9 Conclusion</h3>
+
+
+<p>This chapter has only scratched the surface of what you can do with
+XML.  There are many other extensions, libraries, and tools you could
+learn about, some customized for Scala, some made for Java but usable
+in Scala, and some language-neutral.  What you should walk away from this
+chapter with is how to use semi-structured data for interchange, and
+how to access semi-structured data via Scala's XML support.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 28:</h4>
+
+
+<p><a id="footnotemain28-1"/>[1] There are type
+  systems for XML, such as XML Schemas, but they are beyond the scope
+  of this book.</p>
+
+<p><a id="footnotemain28-2"/>[2] The
+  full story is more complicated, but this is enough to be effective
+  with XML.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

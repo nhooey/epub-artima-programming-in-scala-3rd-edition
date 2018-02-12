@@ -1,0 +1,1188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-next-steps-in-scala">Chapter 3</a></h2>
+<h1>Next Steps in Scala</h1>
+
+
+<p>This chapter continues the previous chapter's introduction to Scala. In this chapter,
+we'll introduce some more advanced features. When you complete this chapter,
+you should have enough knowledge to enable you to start writing useful scripts in Scala.
+As with the previous chapter, we recommend you try out these examples as you go. The best
+way to get a feel for Scala is to start writing Scala code.</p>
+
+<h3><a id="step7">Step 7. Parameterize arrays with types</a></h3>
+
+
+<p>In Scala, you can instantiate
+objects, or class instances, using <span class="code">new</span>. When you instantiate an object in Scala, you can
+<em>parameterize</em><a id="i1621984850-1"/><a id="i-676617420-1"/><a id="i534686151-1"/><a id="i-780439702-1"/><a id="i1292813002-1"/> it with values and types.
+Parameterization means "configuring" an instance when you
+create it.
+You parameterize an instance with values by passing objects to a constructor<a id="i-1995954247-1"/> in parentheses.
+For example, the following Scala code instantiates
+a new <span class="code">java.math.BigInteger</span> and parameterizes it with the value <span class="code">"12345"</span>:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;big&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">java.math.BigInteger</code>(<code class="quotedstring">"12345"</code>)
+</pre>
+
+
+<p>You parameterize an instance with types by specifying one or more types
+in square brackets. An example is shown in <a href="next-steps-in-scala.html#lst-param-array">Listing 3.1</a>.
+In this example, <span class="code">greetStrings</span> is a value of type <span class="code">Array[String]</span> (an "array of string")
+that is initialized to length 3 by parameterizing it with the value <span class="code">3</span> in the first line of code.
+If you run the code in <a href="next-steps-in-scala.html#lst-param-array">Listing 3.1</a> as a script, you'll see yet another <span class="code">Hello,</span>&nbsp;<span class="code">world!</span> greeting.
+Note that when you parameterize an instance with both a type and a value, the type comes first in its
+square brackets, followed by the value in parentheses.</p>
+
+<p><a id="lst-param-array"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;greetStrings&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Array[String]</code>(<code class="literal">3</code>)
+  <br />  &nbsp;&nbsp;greetStrings(<code class="literal">0</code>)&nbsp;=&nbsp;<code class="quotedstring">"Hello"</code>
+  &nbsp;&nbsp;greetStrings(<code class="literal">1</code>)&nbsp;=&nbsp;<code class="quotedstring">",&nbsp;"</code>
+  &nbsp;&nbsp;greetStrings(<code class="literal">2</code>)&nbsp;=&nbsp;<code class="quotedstring">"world!\n"</code>
+  <br />  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(i&nbsp;&lt;-&nbsp;<code class="literal">0</code>&nbsp;to&nbsp;<code class="literal">2</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;print(greetStrings(i))
+</pre>
+
+
+<h5>Listing 3.1 - Parameterizing an array with a type.</h5>
+
+
+<div class="note">
+<h4>Note</h4>
+
+
+<p>Although the code in <a href="next-steps-in-scala.html#lst-param-array">Listing 3.1</a> demonstrates important
+concepts, it does not show the recommended way
+to create and initialize an array in Scala. You'll see a better way
+in <a href="next-steps-in-scala.html#lst-init-array">Listing 3.2</a>  <a href="next-steps-in-scala.html#lst-init-array">here</a>.</p>
+
+</div>
+
+
+<p>Had you been in a more explicit mood, you could have
+specified the type of <span class="code">greetStrings</span> explicitly like this:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;greetStrings:&nbsp;<code class="typename">Array[String]</code>&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Array[String]</code>(<code class="literal">3</code>)
+</pre>
+
+
+<p>Given Scala's type inference, this line of code is semantically equivalent to the actual first line of <a href="next-steps-in-scala.html#lst-param-array">Listing 3.1</a>.
+But this form demonstrates that while the type parameterization portion (the type names in square brackets) forms
+part of the type of the instance, the value parameterization part (the values in parentheses) does not.
+The type of <span class="code">greetStrings</span> is <span class="code">Array[String]</span>, not <span class="code">Array[String](3)</span>.</p>
+
+<p>The next three lines of code in <a href="next-steps-in-scala.html#lst-param-array">Listing 3.1</a> initialize each element of the <span class="code">greetStrings</span> array:</p>
+
+<pre>
+  greetStrings(<code class="literal">0</code>)&nbsp;=&nbsp;<code class="quotedstring">"Hello"</code>
+  greetStrings(<code class="literal">1</code>)&nbsp;=&nbsp;<code class="quotedstring">",&nbsp;"</code>
+  greetStrings(<code class="literal">2</code>)&nbsp;=&nbsp;<code class="quotedstring">"world!\n"</code>
+</pre>
+
+
+<p>As mentioned previously, arrays<a id="i1726482861-1"/> in Scala are accessed by placing the index inside parentheses, not square brackets
+as in Java. Thus the zeroth element of the array is <span class="code">greetStrings(0)</span>, not <span class="code">greetStrings[0]</span>.</p>
+
+<p>These three lines of code illustrate an important concept to understand about Scala concerning the meaning of <span class="code">val</span><a id="i-1513931462-1"/>. When
+you define a variable with <span class="code">val</span>, the variable can't be reassigned, but the object to which it refers could potentially still be
+changed. So in this case, you couldn't reassign <span class="code">greetStrings</span> to a different array; <span class="code">greetStrings</span> will always
+point to the same <span class="code">Array[String]</span> instance with which it was initialized. But you <em>can</em> change the elements
+of that <span class="code">Array[String]</span> over time, so the array itself is mutable.</p>
+
+<p>The final two lines in <a href="next-steps-in-scala.html#lst-param-array">Listing 3.1</a> contain a <span class="code">for</span> expression that prints out each <span class="code">greetStrings</span> array element in turn:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(i&nbsp;&lt;-&nbsp;<code class="literal">0</code>&nbsp;to&nbsp;<code class="literal">2</code>)
+  &nbsp;&nbsp;print(greetStrings(i))
+</pre>
+
+
+<p>The first line of code in this <span class="code">for</span> expression illustrates another general rule of Scala: if a method takes only one parameter, you can<a id="i574171488-1"/>
+call it without a dot or parentheses.<a id="i-614149608-1"/> The <span class="code">to</span> in this example is actually a method that takes one <span class="code">Int</span> argument.
+The code <span class="code">0</span>&nbsp;<span class="code">to</span>&nbsp;<span class="code">2</span> is transformed into the method call <span class="code">(0).to(2)</span>.<a href="next-steps-in-scala.html#footnotemain3-1">[1]</a>
+Note that this syntax only works if you explicitly specify the
+receiver of the method call.  You cannot write "<span class="code">println</span>&nbsp;<span class="code">10</span>", but you
+can write "<span class="code">Console</span>&nbsp;<span class="code">println</span>&nbsp;<span class="code">10</span>".</p>
+
+<p>Scala doesn't technically have operator overloading,<a id="i-189261806-1"/><a id="i2049320438-1"/> because it doesn't actually have operators
+in the traditional sense. Instead, characters such as <span class="code">+</span>, <span class="code">-</span>, <span class="code">*</span>, and <span class="code">/</span> can
+be used in method names. Thus, when you typed <span class="code">1</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">2</span> into the Scala interpreter in Step 1, you were actually
+invoking a method named <span class="code">+</span> on the <span class="code">Int</span> object <span class="code">1</span>, passing in <span class="code">2</span> as a
+parameter. As illustrated in <a href="next-steps-in-scala.html#fig-operator-notation">Figure 3.1</a>, you could alternatively
+have written <span class="code">1</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">2</span> using traditional method invocation syntax, <span class="code">(1).+(2)</span>.</p>
+
+<div class="figure"><a id="fig-operator-notation"/>
+
+
+<p><img src="images/operatorNotation80.png" alt="image images/operatorNotation80.png"/></p>
+
+</div>
+<h5> Figure 3.1 - All operations are method calls in Scala.</h5>
+
+
+<p>Another important idea illustrated by this example will give you insight into why arrays are accessed with parentheses<a id="i580437291-1"/>
+in Scala. Scala has fewer special cases than Java. Arrays are simply instances of classes like any other class in
+Scala. When you apply parentheses surrounding one or more values to a variable, Scala will transform the code into an invocation of
+a method named <span class="code">apply</span><a id="i1032551708-1"/><a id="i-760757566-1"/> on that variable. So <span class="code">greetStrings(i)</span> gets transformed into <span class="code">greetStrings.apply(i)</span>. Thus accessing an
+element of an array in Scala is simply a method call like any other.<a id="i-1841919811-1"/>
+This principle is not restricted to arrays: any application
+of an object to some arguments in parentheses will be transformed to an <span class="code">apply</span>
+method call. Of
+course this will compile only if that type of object actually defines an <span class="code">apply</span> method.
+So it's not a special case; it's a general rule.</p>
+
+<p>Similarly, when an assignment is made to a variable to which parentheses and one or more arguments have
+been applied, the compiler will transform that into an invocation of an <span class="code">update</span> method that takes the
+arguments in parentheses as well as the object to the right of the equals sign.<a id="i1392004210-1"/>
+For example:</p>
+
+<pre>
+  greetStrings(<code class="literal">0</code>)&nbsp;=&nbsp;<code class="quotedstring">"Hello"</code>&nbsp;
+</pre>
+
+
+<p>will be transformed into:</p>
+
+<pre>
+  greetStrings.update(<code class="literal">0</code>,&nbsp;<code class="quotedstring">"Hello"</code>)
+</pre>
+
+
+<p>Thus, the following is semantically equivalent to the code
+in <a href="next-steps-in-scala.html#lst-param-array">Listing 3.1</a>:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;greetStrings&nbsp;=&nbsp;<code class="vem">new</code>&nbsp;<code class="typename">Array[String]</code>(<code class="literal">3</code>)
+  <br />  greetStrings.update(<code class="literal">0</code>,&nbsp;<code class="quotedstring">"Hello"</code>)
+  greetStrings.update(<code class="literal">1</code>,&nbsp;<code class="quotedstring">",&nbsp;"</code>)
+  greetStrings.update(<code class="literal">2</code>,&nbsp;<code class="quotedstring">"world!\n"</code>)
+  <br />  <code class="vem">for</code>&nbsp;(i&nbsp;&lt;-&nbsp;<code class="literal">0.</code>to(<code class="literal">2</code>))
+  &nbsp;&nbsp;print(greetStrings.apply(i))
+</pre>
+
+
+<p>Scala achieves a conceptual simplicity by treating everything, from
+arrays to expressions, as objects with methods. You
+don't have to remember special cases, such as the differences
+in Java between primitive and their corresponding wrapper types, or
+between arrays and regular objects. Moreover, this uniformity does not
+incur a significant performance cost. The Scala compiler uses Java
+arrays, primitive types<a id="i-1876955136-1"/><a id="i-1448312026-1"/>, and native arithmetic where possible in the
+compiled code.<a id="i884498802-2"/><a id="i341425106-1"/></p>
+
+<p>Although the examples you've seen so far in this step compile and run just fine,
+Scala provides a more concise way to create and initialize arrays that you would
+normally use (see <a href="next-steps-in-scala.html#lst-init-array">Listing 3.2</a>).
+This code creates a new array of length three, initialized to the passed strings,
+<span class="code">"zero"</span>, <span class="code">"one"</span>, and <span class="code">"two"</span>. The compiler infers the type of the array to
+be <span class="code">Array[String]</span>, because you passed strings to it.</p>
+
+<p><a id="lst-init-array"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;numNames&nbsp;=&nbsp;<code class="typename">Array</code>(<code class="quotedstring">"zero"</code>,&nbsp;<code class="quotedstring">"one"</code>,&nbsp;<code class="quotedstring">"two"</code>)
+</pre>
+
+
+<h5>Listing 3.2 - Creating and initializing an array.</h5>
+
+
+<p>What<a id="i-1162394563-1"/><a id="i1766069577-1"/><a id="i1302049027-1"/> you're actually doing in <a href="next-steps-in-scala.html#lst-init-array">Listing 3.2</a> is calling a factory<a id="i-640194953-1"/><a id="i1891034327-1"/>
+method,<a id="i-1125093732-1"/> named <span class="code">apply</span>, which creates and returns the new array.<a id="i-930370406-1"/><a id="i-1249757433-1"/>
+This <span class="code">apply</span> method takes a variable number of arguments<a href="next-steps-in-scala.html#footnotemain3-2">[2]</a><a id="i-1544402352-1"/><a id="i-580179190-1"/> and is defined on the <span class="code">Array</span> <em>companion object</em>.<a id="i228947968-1"/>
+You'll learn more about companion objects in 
+<a href="classes-and-objects.html#sec-singleton-objects">Section 4.3</a>. If you're a Java programmer, you can think of
+this as calling a static method named <span class="code">apply</span> on class <span class="code">Array</span>. A more verbose
+way to call the same <span class="code">apply</span> method is:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;numNames2&nbsp;=&nbsp;Array.apply(<code class="quotedstring">"zero"</code>,&nbsp;<code class="quotedstring">"one"</code>,&nbsp;<code class="quotedstring">"two"</code>)
+</pre>
+
+
+<h3><a id="step8">Step 8. Use lists</a></h3>
+
+
+<p>One of the big ideas of the functional style of programming is that methods should<a id="i102982549-1"/>
+not have side effects.<a id="i18918201-2"/><a id="i-86904923-1"/> A method's only act should be to compute and return a value. Some benefits gained when you take this approach are
+that methods become less entangled, and therefore more reliable and reusable.
+Another benefit (in a statically typed language) is that everything that goes into and out of a method
+is checked by a type checker, so logic errors are more likely to manifest themselves
+as type errors.
+Applying this functional philosophy to the world of objects means making
+objects immutable.<a id="i2043021322-1"/><a id="i-124569956-1"/></p>
+
+<p>As you've seen, a Scala array is a mutable sequence of objects that all share the same type.
+An <span class="code">Array[String]</span> contains only strings, for example.
+Although you can't change the length of an array after it is instantiated, you can change its
+element values. Thus, arrays are mutable objects.</p>
+
+<p>For an immutable sequence of objects that share the same type you can
+use Scala's <span class="code">List</span><a id="i882498454-1"/> class. As with arrays,
+a <span class="code">List[String]</span> contains only strings.  Scala's <span class="code">List</span>, <span class="code">scala.List</span>, differs from
+Java's <span class="code">java.util.List</span> type in that Scala <span class="code">List</span>s are
+always immutable (whereas Java <span class="code">List</span>s can be mutable). More generally, Scala's <span class="code">List</span> is designed to
+enable a functional style of programming. Creating a list is easy, and <a href="next-steps-in-scala.html#lst-init-list">Listing 3.3</a> shows how:</p>
+
+<p><a id="lst-init-list"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;oneTwoThree&nbsp;=&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)
+</pre>
+
+
+<h5>Listing 3.3 - Creating and initializing a list.</h5>
+
+
+<p>The<a id="i-797883688-1"/><a id="i-625874522-1"/><a id="i457962676-1"/> code in <a href="next-steps-in-scala.html#lst-init-list">Listing 3.3</a><a id="i486535256-1"/> establishes a new <span class="code">val</span> named <span class="code">oneTwoThree</span>,
+initialized with a new <span class="code">List[Int]</span> with the integer elements 1,
+2, and 3.<a href="next-steps-in-scala.html#footnotemain3-3">[3]</a><a id="i19484993-1"/><a id="i1305057997-1"/> Because <span class="code">List</span>s are immutable,<a id="i124289382-1"/> they behave a bit like Java
+strings: when you call a method on a list that might seem by
+its name to imply the list will mutate, it instead creates and returns a
+new list with the new value. For example, <span class="code">List</span>
+has a method named `<span class="code">:::</span>'<a id="i55390901-1"/><a id="i-1839436249-1"/> for list concatenation. Here's how you use it:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;oneTwo&nbsp;=&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>)
+  <code class="vem">val</code>&nbsp;threeFour&nbsp;=&nbsp;<code class="typename">List</code>(<code class="literal">3</code>,&nbsp;<code class="literal">4</code>)
+  <code class="vem">val</code>&nbsp;oneTwoThreeFour&nbsp;=&nbsp;oneTwo&nbsp;:::&nbsp;threeFour
+  println(oneTwo&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;and&nbsp;"</code>&nbsp;+&nbsp;threeFour&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;were&nbsp;not&nbsp;mutated."</code>)
+  println(<code class="quotedstring">"Thus,&nbsp;"</code>&nbsp;+&nbsp;oneTwoThreeFour&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;is&nbsp;a&nbsp;new&nbsp;list."</code>)
+</pre>
+
+
+<p>If you run this script, you'll see:</p>
+
+<pre>
+  <code class="output">List(1,&nbsp;2)&nbsp;and&nbsp;List(3,&nbsp;4)&nbsp;were&nbsp;not&nbsp;mutated.</code>
+  <code class="output">Thus,&nbsp;List(1,&nbsp;2,&nbsp;3,&nbsp;4)&nbsp;is&nbsp;a&nbsp;new&nbsp;list.</code>
+</pre>
+
+
+<p>Perhaps the most common operator you'll use with lists is
+`<span class="code">::</span>',<a id="i1674095775-1"/><a id="i620923488-1"/> which is pronounced
+"cons."<a id="i1411857630-1"/> Cons prepends a
+new element to the beginning of an existing list and returns the
+resulting list. 
+For example, if you run this script:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;twoThree&nbsp;=&nbsp;<code class="typename">List</code>(<code class="literal">2</code>,&nbsp;<code class="literal">3</code>)
+  <code class="vem">val</code>&nbsp;oneTwoThree&nbsp;=&nbsp;<code class="literal">1</code>&nbsp;::&nbsp;twoThree
+  println(oneTwoThree)
+</pre>
+
+
+<p>You'll see:</p>
+
+<pre>
+  <code class="output">List(1,&nbsp;2,&nbsp;3)</code>
+</pre>
+
+
+<div class="note">
+<h4>Note</h4>
+In the expression "<span class="code">1</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">twoThree</span>", <span class="code">::</span> is a method of its <span style="font-style:italic">
+right</span> operand, the list, <span class="code">twoThree</span>.  You might suspect there's something
+amiss with the associativity<a id="i-1085593547-1"/> of the <span class="code">::</span> method, but it is actually a
+simple rule to remember: If a method is used in operator notation, such as
+<span class="code">a</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">b</span>, the method is invoked on the left 
+operand, as in <span class="code">a.*(b)</span>&mdash;unless the method name ends in a colon. If
+the method name ends in a colon, the method is invoked on the
+<em>right</em> operand. Therefore, in <span class="code">1</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">twoThree</span>, the <span class="code">::</span> method is
+invoked on <span class="code">twoThree</span>, passing in <span class="code">1</span>, like this: <span class="code">twoThree.::(1)</span>.  
+Operator associativity will be described in more detail in
+<a href="basic-types-and-operations.html#sec-precedence">Section 5.9</a>.<a id="note-colonmethod"/><a id="i192988404-1"/><a id="i-1491182453-1"/>
+
+
+</div>
+
+
+<p>Given that a shorthand way to specify an empty list is <span class="code">Nil</span>,<a id="i1899558990-1"/> one way to initialize new lists
+is to string together elements with the cons operator, with <span class="code">Nil</span> as the last element.<a href="next-steps-in-scala.html#footnotemain3-4">[4]</a> For example, the following script will produce the same output as the previous one, "<span class="code">List(1,</span>&nbsp;<span class="code">2,</span>&nbsp;<span class="code">3)</span>":</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;oneTwoThree&nbsp;=&nbsp;<code class="literal">1</code>&nbsp;::&nbsp;<code class="literal">2</code>&nbsp;::&nbsp;<code class="literal">3</code>&nbsp;::&nbsp;<code class="typename">Nil</code>
+  println(oneTwoThree)
+</pre>
+
+
+<p>Scala's <span class="code">List</span> is packed with useful methods, many of which are shown
+in <a href="next-steps-in-scala.html#tab-listmethods">Table 3.1</a>. The full power of lists will be revealed
+in <a href="working-with-lists.html">Chapter 16</a><a id="i51698754-1"/><a id="i-1815843466-1"/>.</p>
+
+<div class="aside">
+<h3>Why not append to lists?</h3>
+
+
+<p>Class <span class="code">List</span> does offer an "append" operation&mdash;it's
+written <span class="code">:+</span> and is explained in <a href="collections-in-depth.html">Chapter 24</a>&mdash;but this operation is rarely used, because
+the time it takes to append to a list grows linearly with the size
+of the list, whereas prepending with <span class="code">::</span> takes constant time.
+If you want to build a list efficiently by appending elements, you can prepend them and when you're done call <span class="code">reverse</span>. Or you can use a <span class="code">ListBuffer</span>, a
+mutable list that does offer an append operation, and when you're done call
+<span class="code">toList</span>. <span class="code">ListBuffer</span> will be described in
+<a href="implementing-lists.html#sec-the-listbuffer-class">Section 22.2</a>.</p>
+
+</div>
+
+
+<p><a id="tab-listmethods"/></p>
+
+<h5>Some <span class="code">List</span> methods and usages<a id="i-262118592-1"/></h5>
+<table style="border-collapse: collapse">
+<tr class="topline bottomline">
+  <th>
+<span style="font-size:medium"><span style="font-weight:bold">What it is</span></span>
+  </th>
+  <th>
+<div style="text-align: center"><span style="font-size:medium"><span style="font-weight:bold">What it does</span></span>
+</div>
+
+
+  </th>
+</tr>
+<tr>
+  <td>
+    <span class="code">List()</span> or <span class="code">Nil</span>
+  </td>
+  <td>
+    The empty <span class="code">List</span>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">List("Cool",</span>&nbsp;<span class="code">"tools",</span>&nbsp;<span class="code">"rule")</span>
+  </td>
+  <td>
+    Creates a new <span class="code">List[String]</span> with the three values <span class="code">"Cool"</span>, <span class="code">"tools"</span>, and <span class="code">"rule"</span>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">val</span>&nbsp;<span class="code">thrill</span>&nbsp;<span class="code">=</span>&nbsp;<span class="code">"Will"</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">"fill"</span>&nbsp;<span class="code">::</span><br />
+  <span class="code">"until"</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">Nil</span>
+  </td>
+  <td>
+    Creates a new <span class="code">List[String]</span> with the three values <span class="code">"Will"</span>, <span class="code">"fill"</span>, and <span class="code">"until"</span>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">List("a",</span>&nbsp;<span class="code">"b")</span>&nbsp;<span class="code">:::</span>&nbsp;<span class="code">List("c",</span>&nbsp;<span class="code">"d")</span>
+  </td>
+  <td>
+    Concatenates two lists (returns
+ a new <span class="code">List[String]</span> with values <span class="code">"a"</span>, <span class="code">"b"</span>, <span class="code">"c"</span>, and <span class="code">"d"</span>)
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill(2)</span>
+  </td>
+  <td>
+    Returns the element at index 2 (zero based) of the <span class="code">thrill</span> list (returns <span class="code">"until"</span>)
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.count(s</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">s.length</span>&nbsp;<span class="code">==</span>&nbsp;<span class="code">4)</span>
+  </td>
+  <td>
+    Counts the number of string elements in <span class="code">thrill</span> that have length 4 (returns 2)<a id="i607267229-1"/><a id="i-1852559773-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.drop(2)</span>
+  </td>
+  <td>
+    Returns the <span class="code">thrill</span> list without its first 2
+elements (returns <span class="code">List("until")</span>)<a id="i-673511213-1"/><a id="i1464293147-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.dropRight(2)</span>
+  </td>
+  <td>
+    Returns the <span class="code">thrill</span> list without its rightmost 2 elements (returns <span class="code">List("Will")</span>)<a id="i915202043-1"/><a id="i-981552191-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.exists(s</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">s</span>&nbsp;<span class="code">==</span>&nbsp;<span class="code">"until")</span>
+  </td>
+  <td>
+    Determines whether a string element exists in <span class="code">thrill</span> that has the value <span class="code">"until"</span> (returns <span class="code">true</span>)<a id="i339085162-1"/><a id="i-1529560696-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.filter(s</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">s.length</span>&nbsp;<span class="code">==</span>&nbsp;<span class="code">4)</span>
+  </td>
+  <td>
+    Returns a list of all elements, in order, of the <span class="code">thrill</span> list that have length 4 (returns <span class="code">List("Will",</span>&nbsp;<span class="code">"fill")</span>)<a id="i1807572102-1"/><a id="i-1514694492-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.forall(s</span>&nbsp;<span class="code">=&gt;</span><br />
+  <span class="code">s.endsWith("l"))</span>
+  </td>
+  <td>
+    Indicates whether all elements in the <span class="code">thrill</span> list end with the letter <span class="code">"l"</span> (returns <span class="code">true</span>)<a id="i260029766-1"/><a id="i-1508992668-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.foreach(s</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">print(s))</span>
+  </td>
+  <td>
+    Executes the <span class="code">print</span> statement on each of the strings in the <span class="code">thrill</span> list (prints <span class="code">"Willfilluntil"</span>)<a id="i331113560-1"/><a id="i465975966-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.foreach(print)</span>
+  </td>
+  <td>
+    Same as the previous, but more concise (also prints <span class="code">"Willfilluntil"</span>)
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.head</span>
+  </td>
+  <td>
+    Returns the first element in the <span class="code">thrill</span> list (returns <span class="code">"Will"</span>)<a id="i-735890706-1"/><a id="i1464399372-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.init</span>
+  </td>
+  <td>
+    Returns a list of all but the last element in the <span class="code">thrill</span> list (returns <span class="code">List("Will",</span>&nbsp;<span class="code">"fill")</span>)<a id="i-1293540834-1"/><a id="i1464438076-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.isEmpty</span>
+  </td>
+  <td>
+    Indicates whether the <span class="code">thrill</span> list is empty (returns <span class="code">false</span>)<a id="i1657074897-1"/><a id="i-1093268841-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.last</span>
+  </td>
+  <td>
+    Returns the last element in the <span class="code">thrill</span> list (returns <span class="code">"until"</span>)<a id="i1113811620-1"/><a id="i1464515266-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.length</span>
+  </td>
+  <td>
+    Returns the number of elements in the <span class="code">thrill</span> list (returns 3)<a id="i1353349876-1"/><a id="i-1346566126-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.map(s</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">s</span>&nbsp;<span class="code">+</span>&nbsp;<span class="code">"y")</span>
+  </td>
+  <td>
+    Returns a list resulting from adding a <span class="code">"y"</span> to each string element in the <span class="code">thrill</span> list (returns <span class="code">List("Willy",</span>&nbsp;<span class="code">"filly",</span>&nbsp;<span class="code">"untily")</span>)<a id="i395196522-1"/><a id="i1986906032-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.mkString(",</span>&nbsp;<span class="code">")</span>
+  </td>
+  <td>
+    Makes a string with the elements of the list
+(returns <span class="code">"Will,</span>&nbsp;<span class="code">fill,</span>&nbsp;<span class="code">until"</span>)<a id="i1357784029-1"/><a id="i746937723-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.filterNot(s</span>&nbsp;<span class="code">=&gt;</span><br />
+  <span class="code">s.length</span>&nbsp;<span class="code">==</span>&nbsp;<span class="code">4)</span>
+  </td>
+  <td>
+    Returns a list of all elements, in order, of the <span class="code">thrill</span> list <em>except those</em> that have length 4 (returns <span class="code">List("until")</span>)<a id="i1676197778-1"/><a id="i-1174813264-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.reverse</span>
+  </td>
+  <td>
+    Returns a list containing all elements of the <span class="code">thrill</span> list in reverse order (returns <span class="code">List("until",</span>&nbsp;<span class="code">"fill",</span>&nbsp;<span class="code">"Will")</span>)<a id="i1817641200-1"/><a id="i-2051462346-1"/>
+  </td>
+</tr>
+<tr>
+  <td>
+    <span class="code">thrill.sort((s,</span>&nbsp;<span class="code">t)</span>&nbsp;<span class="code">=&gt;</span><br />
+  <span class="code">s.charAt(0).toLower</span>&nbsp;<span class="code">&lt;</span><br />
+  <span class="code">t.charAt(0).toLower)</span>
+  </td>
+  <td>
+    Returns a list containing all elements of the <span class="code">thrill</span> list in alphabetical order of the first character lowercased (returns <span class="code">List("fill",</span>&nbsp;<span class="code">"until",</span>&nbsp;<span class="code">"Will")</span>)<a id="i532902316-1"/><a id="i1464737226-1"/>
+  </td>
+</tr>
+<tr class="bottomline">
+  <td>
+    <span class="code">thrill.tail</span>
+  </td>
+  <td>
+    Returns the <span class="code">thrill</span> list minus its first element (returns <span class="code">List("fill",</span>&nbsp;<span class="code">"until")</span>)<a id="i849842526-1"/><a id="i1464753276-1"/>
+  </td>
+</tr>
+</table>
+
+
+<h3><a id="step9">Step 9. Use tuples</a></h3>
+
+
+<p>Another useful container object is the <em>tuple</em>. Like lists, tuples are<a id="i-2050968957-1"/><a id="i-1857258168-1"/>
+immutable, but unlike lists, tuples can contain different types of elements. Whereas a list might be a <span class="code">List[Int]</span> or
+a <span class="code">List[String]</span>, a tuple could contain both an integer and a string at the same time. Tuples are very useful, for example,
+if you need to return multiple objects from a method. Whereas in Java<a id="i651595778-1"/>
+you would often create a JavaBean-like<a id="i1133571489-1"/> class to hold the multiple return values,<a id="i2120520132-1"/> in
+Scala you can simply return a tuple. And it is simple: To instantiate a new tuple that holds some objects, just place the objects in parentheses, separated by
+commas. Once you have a tuple instantiated, you can access its elements individually with a dot, underscore, and the one-based index of the element. 
+An example is shown in <a href="next-steps-in-scala.html#lst-init-tuple">Listing 3.4</a>:</p>
+
+<p><a id="lst-init-tuple"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;pair&nbsp;=&nbsp;(<code class="literal">99</code>,&nbsp;<code class="quotedstring">"Luftballons"</code>)
+  &nbsp;&nbsp;println(pair._1)
+  &nbsp;&nbsp;println(pair._2)
+</pre>
+
+
+<h5>Listing 3.4 - Creating and using a tuple.</h5>
+
+
+<p>In the first line of <a href="next-steps-in-scala.html#lst-init-tuple">Listing 3.4</a>, you create a new tuple that contains the integer 99,
+as its first element, and the string, <span class="code">"Luftballons"</span>, as its second element.
+Scala infers the type of the tuple to be <span class="code">Tuple2[Int,</span>&nbsp;<span class="code">String]</span>, and gives that type to the variable
+<span class="code">pair</span> as well. In the second line, you access the <span class="code">_1</span> field, which will produce
+the first element, 99. The "<span class="code">.</span>" in the second line is the same dot you'd use to access a field or invoke a method.
+In this case you are accessing a field named <span class="code">_1</span>.<a id="i-837880330-1"/>
+If you run this script, you'll see:</p>
+
+<pre>
+  <code class="output">99</code>
+  <code class="output">Luftballons</code>
+</pre>
+
+
+<p>The actual type of a tuple depends on the number of elements it contains and the types of those elements. Thus, the type
+of <span class="code">(99,</span>&nbsp;<span class="code">"Luftballons")</span> is <span class="code">Tuple2[Int,</span>&nbsp;<span class="code">String]</span>. The type of <span class="code">('u',</span>&nbsp;<span class="code">'r',</span>&nbsp;<span class="code">"the",</span>&nbsp;<span class="code">1,</span>&nbsp;<span class="code">4,</span>&nbsp;<span class="code">"me")</span>
+is <span class="code">Tuple6[Char,</span>&nbsp;<span class="code">Char,</span>&nbsp;<span class="code">String,</span>&nbsp;<span class="code">Int,</span>&nbsp;<span class="code">Int,</span>&nbsp;<span class="code">String]</span>.<a href="next-steps-in-scala.html#footnotemain3-5">[5]</a></p>
+
+<div class="aside">
+<h3>Accessing the elements of a tuple</h3>
+
+
+<p>You may be wondering why you can't access the elements of a 
+tuple like the elements of a list, for example, with "<span class="code">pair(0)</span>". The reason is
+that a list's <span class="code">apply</span> method always returns the same type,
+but each element of a tuple may be a different type: <span class="code">_1</span> can have one result
+type, <span class="code">_2</span> another, and so on. These <span class="code">_N</span> 
+numbers are one-based, instead of zero-based, because starting with <span class="code">1</span> is a tradition set by other languages with 
+statically typed tuples,<a id="i-188293365-1"/> such as Haskell and ML.</p>
+
+</div>
+
+
+<h3><a id="step10">Step 10. Use sets and maps</a></h3>
+
+
+<p><a id="sec-updateops"/></p>
+
+<p>Because Scala aims to help you take advantage of both
+functional<a id="i1434668372-1"/><a id="i-1837133869-1"/>
+and imperative styles,<a id="i148663933-1"/><a id="i341176230-1"/> its collections libraries make a point to
+differentiate between mutable and immutable collections. For
+example, arrays are always mutable; lists are always
+immutable. Scala also provides mutable
+and immutable alternatives for sets and maps, but uses the same simple names for both
+versions.
+For sets<a id="i-472072085-1"/> and
+maps,<a id="i-1702928719-1"/> Scala models
+mutability in the class hierarchy.</p>
+
+<p>For example, the Scala API contains a base <em>trait</em> for sets,<a id="i3526737-1"/>
+where a trait is similar to a Java interface. (You'll find out more
+about traits in <a href="traits.html">Chapter 12</a>.) Scala then
+provides two subtraits, one for mutable sets and another for
+immutable sets.</p>
+
+<p>As you can see in <a href="next-steps-in-scala.html#fig-set-hierarchy">Figure 3.2</a>,
+these three traits all share the same simple name, <span class="code">Set</span>. Their fully
+qualified names differ, however, because each resides in a different
+package.  Concrete set classes in the Scala API, such as the
+<span class="code">HashSet</span><a id="i1649804972-1"/> classes shown in <a href="next-steps-in-scala.html#fig-set-hierarchy">Figure 3.2</a>, extend
+either the mutable or immutable <span class="code">Set</span> trait. (Although in Java you
+"implement" interfaces, in Scala you "extend" or "mix in" traits.<a id="i-1672969622-1"/>) Thus, if
+you want to use a <span class="code">HashSet</span>, you can choose between mutable and
+immutable varieties depending upon your needs. The default way to create
+a set is shown in <a href="next-steps-in-scala.html#lst-init-immutable-set">Listing 3.5</a>:<a id="i1277661430-1"/><a id="i1124278062-1"/><a id="i-1634739460-1"/><a id="i1868251958-1"/>
+<a id="lst-init-immutable-set"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">var</code>&nbsp;jetSet&nbsp;=&nbsp;<code class="typename">Set</code>(<code class="quotedstring">"Boeing"</code>,&nbsp;<code class="quotedstring">"Airbus"</code>)
+  &nbsp;&nbsp;jetSet&nbsp;+=&nbsp;<code class="quotedstring">"Lear"</code>
+  &nbsp;&nbsp;println(jetSet.contains(<code class="quotedstring">"Cessna"</code>))
+</pre>
+
+
+<h5>Listing 3.5 - Creating, initializing, and using an immutable set.<a id="i1504035872-1"/></h5>
+
+
+<div class="figure"><a id="fig-set-hierarchy"/>
+
+
+<p><img src="images/sets85.png" alt="image images/sets85.png"/></p>
+
+</div>
+<h5> Figure 3.2 - Class hierarchy for Scala sets.<a id="i-1161517801-1"/><a id="i894901459-1"/><a id="i-702923198-1"/></h5>
+
+
+<p>In the first line of code in <a href="next-steps-in-scala.html#lst-init-immutable-set">Listing 3.5</a>, you define
+a new <span class="code">var</span> named <span class="code">jetSet</span> and initialize it with an immutable set containing
+the two strings, <span class="code">"Boeing"</span> and <span class="code">"Airbus"</span>. As this example shows, you can
+create sets in Scala similarly to how you create lists and arrays: by invoking a factory
+method named <span class="code">apply</span> on a <span class="code">Set</span> companion object. In <a href="next-steps-in-scala.html#lst-init-immutable-set">Listing 3.5</a>,
+you invoke <span class="code">apply</span> on the
+companion object for <span class="code">scala.collection.immutable.Set</span>,
+which returns an instance of a default, immutable <span class="code">Set</span>. The Scala compiler
+infers <span class="code">jetSet</span>'s type to be the immutable <span class="code">Set[String]</span>.</p>
+
+<p>To add a new element to a set, you call <span class="code">+</span> on the set<a id="i-457936727-1"/>, 
+passing in the new element.
+On both mutable and immutable sets, the
+<span class="code">+</span> method will
+create and return a new set with the element added. 
+In <a href="next-steps-in-scala.html#lst-init-immutable-set">Listing 3.5</a>,
+you're working with an immutable set. Although mutable sets offer an actual <span class="code">+=</span> method, immutable sets do
+not<a id="i518995282-1"/>.</p>
+
+<p>In this case, the second line of code, "<span class="code">jetSet</span>&nbsp;<span class="code">+=</span>&nbsp;<span class="code">"Lear"</span>", 
+is essentially a shorthand for:</p>
+
+<pre>
+  jetSet&nbsp;=&nbsp;jetSet&nbsp;+&nbsp;<code class="quotedstring">"Lear"</code>
+</pre>
+
+
+<p>Thus, in the second line of <a href="next-steps-in-scala.html#lst-init-immutable-set">Listing 3.5</a>, you reassign
+the <span class="code">jetSet</span> <span class="code">var</span> with a new set containing <span class="code">"Boeing"</span>, <span class="code">"Airbus"</span>, and
+<span class="code">"Lear"</span>. Finally, the last line of <a href="next-steps-in-scala.html#lst-init-immutable-set">Listing 3.5</a> prints out whether or not the set contains the string <span class="code">"Cessna"</span>. (As you'd expect, it prints <span class="code">false</span>.)</p>
+
+<p>If you want a mutable set, you'll need to use an <em>import</em>, as shown in
+<a href="next-steps-in-scala.html#lst-init-mutable-set">Listing 3.6</a>:<a id="i1926037870-1"/></p>
+
+<p><a id="lst-init-mutable-set"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;scala.collection.mutable
+  <br />  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;movieSet&nbsp;=&nbsp;<code class="typename">mutable.Set</code>(<code class="quotedstring">"Hitch"</code>,&nbsp;<code class="quotedstring">"Poltergeist"</code>)
+  &nbsp;&nbsp;movieSet&nbsp;+=&nbsp;<code class="quotedstring">"Shrek"</code>
+  &nbsp;&nbsp;println(movieSet)&nbsp;
+</pre>
+
+
+<h5>Listing 3.6 - Creating, initializing, and using a mutable set.<a id="i1504035872-2"/></h5>
+
+
+<p>In<a id="i-875218022-1"/> the first line of <a href="next-steps-in-scala.html#lst-init-mutable-set">Listing 3.6</a> you import the mutable
+<span class="code">Set</span>. As with
+Java, an import statement allows you to use a simple name, such as <span class="code">Set</span>, 
+instead of the longer, fully qualified name.<a id="i-2107109778-1"/> As a result, when you say <span class="code">Set</span>
+on the third line, the compiler knows you mean <span class="code">scala.collection.mutable.Set</span>.
+On that line, you initialize <span class="code">movieSet</span>
+with a new mutable set that contains the strings <span class="code">"Hitch"</span> and <span class="code">"Poltergeist"</span>.
+The subsequent line adds <span class="code">"Shrek"</span> to the mutable set by calling the <span class="code">+=</span> method
+on the set, passing in the string <span class="code">"Shrek"</span>.
+As mentioned previously, <span class="code">+=</span> is an actual method defined on mutable sets.
+Had you wanted to, instead of writing <span class="code">movieSet</span>&nbsp;<span class="code">+=</span>&nbsp;<span class="code">"Shrek"</span>, you could
+have written <span class="code">movieSet.+=("Shrek")</span>.<a href="next-steps-in-scala.html#footnotemain3-6">[6]</a></p>
+
+<p>Although the default set implementations produced by the mutable and immutable
+<span class="code">Set</span> factory methods shown thus far will likely be sufficient for most
+situations, occasionally you may want an explicit set class. Fortunately, the
+syntax is similar. Simply import that class you need, and use the factory method
+on its companion object. For example, if you need an immutable <span class="code">HashSet</span>, you
+could do this:</p>
+
+<pre>
+  <code class="vem">import</code>&nbsp;scala.collection.immutable.HashSet
+  <br />  <code class="vem">val</code>&nbsp;hashSet&nbsp;=&nbsp;<code class="typename">HashSet</code>(<code class="quotedstring">"Tomatoes"</code>,&nbsp;<code class="quotedstring">"Chilies"</code>)
+  println(hashSet&nbsp;+&nbsp;<code class="quotedstring">"Coriander"</code>)
+</pre>
+
+
+<p>Another<a id="i3344023-1"/> useful collection class in Scala is <span class="code">Map</span>. As with sets, Scala provides mutable and<a id="i-2121468463-1"/>
+immutable versions of <span class="code">Map</span>, using a class hierarchy. As you can see in <a href="next-steps-in-scala.html#fig-map-hierarchy">Figure 3.3</a>, the class hierarchy for
+maps looks a lot like the one for sets. There's a base <span class="code">Map</span> trait in
+package <span class="code">scala.collection</span>, and two subtrait <span class="code">Map</span>s: a mutable <span class="code">Map</span> in
+<span class="code">scala.collection.mutable</span> and an immutable one in <span class="code">scala.collection.immutable</span>.</p>
+
+<div class="figure"><a id="fig-map-hierarchy"/>
+
+
+<p><img src="images/maps85.png" alt="image images/maps85.png"/></p>
+
+</div>
+<h5> Figure 3.3 - Class hierarchy for Scala maps.<a id="i691333469-1"/><a id="i-335955175-1"/><a id="i-703105912-1"/></h5>
+
+
+<p>Implementations of <span class="code">Map</span>, such as the <span class="code">HashMap</span>s shown in the class hierarchy in <a href="next-steps-in-scala.html#fig-map-hierarchy">Figure 3.3</a>,
+extend either the mutable or immutable trait. You can create and initialize maps
+using factory methods similar to those used for arrays, lists, and sets.</p>
+
+<p><a id="lst-init-mutable-map"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;scala.collection.mutable
+  <br />  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;treasureMap&nbsp;=&nbsp;<code class="typename">mutable.Map[Int,&nbsp;String]</code>()
+  &nbsp;&nbsp;treasureMap&nbsp;+=&nbsp;(<code class="literal">1</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"Go&nbsp;to&nbsp;island."</code>)
+  &nbsp;&nbsp;treasureMap&nbsp;+=&nbsp;(<code class="literal">2</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"Find&nbsp;big&nbsp;X&nbsp;on&nbsp;ground."</code>)
+  &nbsp;&nbsp;treasureMap&nbsp;+=&nbsp;(<code class="literal">3</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"Dig."</code>)
+  &nbsp;&nbsp;println(treasureMap(<code class="literal">2</code>))
+</pre>
+
+
+<h5>Listing 3.7 - Creating, initializing, and using a mutable
+map.<a id="i1682530400-1"/></h5>
+
+
+<p>For example,
+<a href="next-steps-in-scala.html#lst-init-mutable-map">Listing 3.7</a> shows a mutable map in action.
+On the first line of <a href="next-steps-in-scala.html#lst-init-mutable-map">Listing 3.7</a>, you import the mutable <span class="code">Map</span>. You then define a <span class="code">val</span> named <span class="code">treasureMap</span>, and initialize it with
+an empty mutable <span class="code">Map</span> that has integer keys and
+string values.
+The map is empty because you pass nothing to the factory method (the parentheses
+in "<span class="code">Map[Int,</span>&nbsp;<span class="code">String]()</span>" are empty).<a href="next-steps-in-scala.html#footnotemain3-7">[7]</a>
+On the next three lines you add key/value pairs to the map using
+the <span class="code">-&gt;</span> and <span class="code">+=</span> methods.<a id="i42793141-1"/> As illustrated previously, the Scala compiler transforms a binary operation expression like
+<span class="code">1</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">"Go</span>&nbsp;<span class="code">to</span>&nbsp;<span class="code">island."</span> into <span class="code">(1).-&gt;("Go</span>&nbsp;<span class="code">to</span>&nbsp;<span class="code">island.")</span>. Thus, when you say <span class="code">1</span>&nbsp;<span class="code">-&gt;</span>&nbsp;<span class="code">"Go</span>&nbsp;<span class="code">to</span>&nbsp;<span class="code">island."</span>,  you are actually calling a method
+named <span class="code">-&gt;</span> on
+an integer with the value 1, passing in a string with the value <span class="code">"Go</span>&nbsp;<span class="code">to</span>&nbsp;<span class="code">island."</span>
+This <span class="code">-&gt;</span> method, which you can invoke on any object in a Scala program,
+returns a two-element tuple<a id="i-316383483-1"/> containing the key and value.<a href="next-steps-in-scala.html#footnotemain3-8">[8]</a>
+You then pass this tuple to the <span class="code">+=</span> method of the map
+object to which <span class="code">treasureMap</span> refers. 
+Finally, the last line prints the value that corresponds to the key <span class="code">2</span> in the <span class="code">treasureMap</span>.</p>
+
+<p>If you run this code,
+it will print:</p>
+
+<pre>
+  Find&nbsp;big&nbsp;X&nbsp;on&nbsp;ground.
+</pre>
+
+
+<p>If you prefer an immutable map, no import is necessary, as immutable is the default
+map. An example is shown in <a href="next-steps-in-scala.html#lst-init-immutable-map">Listing 3.8</a>:<a id="i1124095348-1"/><a id="i-1948600164-1"/><a id="i-809004496-1"/></p>
+
+<p><a id="lst-init-immutable-map"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;romanNumeral&nbsp;=&nbsp;<code class="typename">Map</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="literal">1</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"I"</code>,&nbsp;<code class="literal">2</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"II"</code>,&nbsp;<code class="literal">3</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"III"</code>,&nbsp;<code class="literal">4</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"IV"</code>,&nbsp;<code class="literal">5</code>&nbsp;-&gt;&nbsp;<code class="quotedstring">"V"</code>
+  &nbsp;&nbsp;)
+  &nbsp;&nbsp;println(romanNumeral(<code class="literal">4</code>))
+</pre>
+
+
+<h5>Listing 3.8 - Creating, initializing, and using an immutable
+map.<a id="i1503853158-1"/><a id="i-1742365636-1"/></h5>
+
+
+<p>Given there are no imports, when you say <span class="code">Map</span> in the first line of <a href="next-steps-in-scala.html#lst-init-immutable-map">Listing 3.8</a>, you'll get the
+default: a <span class="code">scala.collection.immutable.Map</span>. You pass five key/value tuples to the map's factory method, which returns an immutable <span class="code">Map</span> containing
+the passed key/value pairs. If you run the code in <a href="next-steps-in-scala.html#lst-init-immutable-map">Listing 3.8</a> it will print "<span class="code">IV</span>".</p>
+
+<h3><a id="step11">Step 11. Learn to recognize the functional style</a></h3>
+
+
+<p><a id="sec-importance-of-vals"/></p>
+
+<p>As mentioned in <a href="a-scalable-language.html">Chapter 1</a>, Scala allows
+you to program in an imperative style,<a id="i975391822-1"/> but encourages you to adopt a
+more functional style.<a id="i-1384669019-1"/> If you are coming to Scala from an imperative
+background&mdash;for example, if you are a Java programmer&mdash;one of the
+main challenges you may face when learning Scala is figuring
+out how to program in the functional style. We realize this style
+might be unfamiliar at first, and in this book we try hard to 
+guide you through the transition. It will require some work on your part, 
+and we encourage you to make the effort.
+If you come from an imperative background, 
+we believe that learning to program in a functional style 
+will not only make you
+a better Scala programmer, it will expand your horizons 
+and make you a better programmer in general.</p>
+
+<p>The first step is to recognize the difference between the two
+styles in code. One telltale sign is that if code contains any <span class="code">var</span>s,
+it is probably in an imperative style. If the code contains no <span class="code">var</span>s at all&mdash;<i>i.e.</i>, it
+contains <em>only</em> <span class="code">val</span>s&mdash;it is probably in a functional style. One way to move towards a 
+functional style, therefore, is to try to program without <span class="code">var</span>s<a id="i-96078285-1"/>.</p>
+
+<p>If you're coming from an imperative background, such as Java, C++, or
+C#, you may think of <span class="code">var</span> as a regular variable and <span class="code">val</span> as a
+special kind of variable.<a id="i-687482648-1"/> On the other hand, if you're coming from a
+functional background, such as Haskell, OCaml, or Erlang<a id="i2012001632-2"/><a id="i916374005-2"/><a id="i337211374-1"/><a id="i-140820978-1"/><a id="i-1496851060-3"/><a id="i-1028679267-3"/>, you might
+think of <span class="code">val</span> as a regular variable and <span class="code">var</span> as akin to
+blasphemy. The Scala perspective, however, is that <span class="code">val</span> and <span class="code">var</span>
+are just two different tools in your toolbox, both useful, neither
+inherently evil. Scala encourages you to lean towards <span class="code">val</span>s, but
+ultimately reach for the best tool given the job at hand. Even if you
+agree with this balanced philosophy, however, you may still find it
+challenging at first to figure out how to get rid of <span class="code">var</span>s in your
+code.</p>
+
+<p>Consider the following <span class="code">while</span> loop example, adapted from <a href="first-steps-in-scala.html">Chapter 2</a>, which uses a <span class="code">var</span>
+and is therefore in the imperative style:<a id="i-334114095-1"/></p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;printArgs(args:&nbsp;<code class="typename">Array[String]</code>):&nbsp;<code class="typename">Unit</code>&nbsp;=&nbsp;{
+  &nbsp;&nbsp;<code class="vem">var</code>&nbsp;i&nbsp;=&nbsp;<code class="literal">0</code>
+  &nbsp;&nbsp;<code class="vem">while</code>&nbsp;(i&nbsp;&lt;&nbsp;args.length)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;println(args(i))
+  &nbsp;&nbsp;&nbsp;&nbsp;i&nbsp;+=&nbsp;<code class="literal">1</code>
+  &nbsp;&nbsp;}
+  }
+</pre>
+
+
+<p>You can transform this bit of code into a more functional style by getting rid of the <span class="code">var</span>, for example, like this:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;printArgs(args:&nbsp;<code class="typename">Array[String]</code>):&nbsp;<code class="typename">Unit</code>&nbsp;=&nbsp;{
+  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(arg&nbsp;&lt;-&nbsp;args)
+  &nbsp;&nbsp;&nbsp;&nbsp;println(arg)
+  }
+</pre>
+
+
+<p>or this:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;printArgs(args:&nbsp;<code class="typename">Array[String]</code>):&nbsp;<code class="typename">Unit</code>&nbsp;=&nbsp;{
+  &nbsp;&nbsp;args.foreach(println)
+  }
+</pre>
+
+
+<p>This example illustrates one benefit of programming with fewer <span class="code">var</span>s. The refactored (more functional) code is clearer, more
+concise, and less error-prone than the original (more imperative) code. The reason Scala encourages a functional
+style is that it can help you write more understandable, less error-prone code<a id="i-1761697159-1"/>.</p>
+
+<p>But you can go even further. The refactored <span class="code">printArgs</span> method is not <em>purely</em> functional because it has side
+effects&mdash;in this case, its side effect<a id="i18918201-3"/> is printing to the standard output stream. The telltale sign of a function with side
+effects is that its result type is <span class="code">Unit</span>. If a function isn't returning any interesting value, which is what a result type of <span class="code">Unit</span> means,<a id="i-1581694980-1"/> the only way that
+function can make a difference in the world is through some kind of side effect. A more functional approach
+would be to define a method that formats the passed <span class="code">args</span> for printing, but just returns the formatted string, as shown in <a href="next-steps-in-scala.html#lst-format-args">Listing 3.9</a>:</p>
+
+<p><a id="lst-format-args"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;formatArgs(args:&nbsp;<code class="typename">Array[String]</code>)&nbsp;=&nbsp;args.mkString(<code class="quotedstring">"\n"</code>)
+</pre>
+
+
+<h5>Listing 3.9 - A function without side effects or <span class="code">var</span>s.</h5>
+
+
+<p>Now you're really functional: no side effects or <span class="code">var</span>s in sight. The <span class="code">mkString</span> method<a id="i1706355665-1"/>, which you can call on any iterable collection (including arrays, lists, sets,
+and maps), returns a string consisting
+of the result of calling <span class="code">toString</span> on each element, separated by the passed string. Thus if <span class="code">args</span> contains three elements
+<span class="code">"zero"</span>, <span class="code">"one"</span>, and <span class="code">"two"</span>, <span class="code">formatArgs</span> will return <span class="code">"zero\none\ntwo"</span>. 
+Of course, this function doesn't actually print anything
+out like the <span class="code">printArgs</span> methods did, but you can easily pass its result to <span class="code">println</span> to accomplish that:</p>
+
+<pre>
+  println(formatArgs(args))
+</pre>
+
+
+<p>Every useful program is likely to have side effects of some form; otherwise, it wouldn't be able to provide value to the outside world.
+Preferring methods without side effects<a id="i255589052-1"/> encourages you to design programs where side-effecting code is minimized. One benefit of this approach
+is that it can help make your programs easier to test<a id="i-1422446064-1"/>.</p>
+
+<p>For example, to test any of the
+three <span class="code">printArgs</span> methods shown earlier in this section, you'd
+need to redefine <span class="code">println</span>, capture the output passed to it, and make sure it is what you expect. By contrast, you could test the <span class="code">formatArgs</span> function simply
+by checking its result<a id="i-2030836876-1"/>:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;res&nbsp;=&nbsp;formatArgs(<code class="typename">Array</code>(<code class="quotedstring">"zero"</code>,&nbsp;<code class="quotedstring">"one"</code>,&nbsp;<code class="quotedstring">"two"</code>))
+  assert(res&nbsp;==&nbsp;<code class="quotedstring">"zero\none\ntwo"</code>)
+</pre>
+
+
+<p>Scala's <span class="code">assert</span> method checks the passed <span class="code">Boolean</span> and if it is false, throws <span class="code">AssertionError</span>.<a id="i1445339835-1"/><a id="i-176392533-1"/> If
+the passed <span class="code">Boolean</span> is true, <span class="code">assert</span> just
+returns quietly. You'll learn more about assertions and tests in <a href="assertions-and-tests.html">Chapter 14</a>.</p>
+
+<p>That said, bear in mind that neither <span class="code">var</span>s nor side effects are inherently evil. Scala is not a pure functional language that forces you to program
+everything in the functional style. Scala is a hybrid imperative/functional language. You may find that in some
+situations an imperative style is a better fit for the problem at hand, and in such cases you should not hesitate
+to use it.
+To help you learn how to program without <span class="code">var</span>s, however, we'll show you many specific examples of code with <span class="code">var</span>s and how to transform those
+<span class="code">var</span>s to <span class="code">val</span>s in <a href="builtin-control-structures.html">Chapter 7</a>.</p>
+
+<div class="aside">
+<h3>A balanced attitude for Scala programmers</h3>
+
+
+<p>Prefer <span class="code">val</span>s, immutable objects, and methods without side effects. Reach for them
+first. Use <span class="code">var</span>s, mutable objects, and methods with side effects when you have a
+specific need and justification for them.<a id="i1618156815-1"/></p>
+
+</div>
+
+
+<h3><a id="step12">Step 12. Read lines from a file</a></h3>
+
+
+<p>Scripts that perform small, everyday tasks often need to process lines in files. In this section, you'll build a script that
+reads lines from a file and prints them out prepended with the number of characters in each line. The first version is shown in <a href="next-steps-in-scala.html#lst-from-file-first">Listing 3.10</a>:<a id="i539380770-1"/><a id="i972936021-1"/><a id="i855616002-1"/></p>
+
+<p><a id="lst-from-file-first"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;scala.io.Source
+  <br />  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(args.length&nbsp;&gt;&nbsp;<code class="literal">0</code>)&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(line&nbsp;&lt;-&nbsp;Source.fromFile(args(<code class="literal">0</code>)).getLines())
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(line.length&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;"</code>&nbsp;+&nbsp;line)
+  &nbsp;&nbsp;}
+  &nbsp;&nbsp;<code class="vem">else</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;Console.err.println(<code class="quotedstring">"Please&nbsp;enter&nbsp;filename"</code>)
+</pre>
+
+
+<h5>Listing 3.10 - Reading lines from a file.<a id="i-1925017016-1"/></h5>
+
+
+<p>This script starts with an import of a class named <span class="code">Source</span> from package <span class="code">scala.io</span>.<a id="i835817156-1"/> It then checks
+to see if at least one argument was specified on the command line. If so, the first argument is interpreted 
+as a filename to open and process. The expression <span class="code">Source.fromFile(args(0))</span> attempts to open the specified
+file and returns a <span class="code">Source</span> object, on which you call <span class="code">getLines</span>. The <span class="code">getLines</span> method<a id="i1243928720-1"/> returns an <span class="code">Iterator[String]</span>, which provides one
+line on each iteration, excluding the end-of-line character. The <span class="code">for</span> expression iterates through
+these lines and prints for each the length of the line, a space, and the line itself. If there were no arguments
+supplied on the command line, the final else clause will print a message to the standard error stream.
+If you place this code in a file named <span class="code">countchars1.scala</span>, and run it on itself with<a id="i517167387-1"/>:</p>
+
+<pre>
+  $&nbsp;scala&nbsp;countchars1.scala&nbsp;countchars1.scala
+</pre>
+
+
+<p>You should see:</p>
+
+<pre>
+  22&nbsp;import&nbsp;scala.io.Source
+  0&nbsp;
+  22&nbsp;if&nbsp;(args.length&nbsp;&gt;&nbsp;0)&nbsp;{
+  0&nbsp;
+  51&nbsp;&nbsp;&nbsp;for&nbsp;(line&nbsp;&lt;-&nbsp;Source.fromFile(args(0)).getLines())
+  37&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(line.length&nbsp;+&nbsp;"&nbsp;"&nbsp;+&nbsp;line)
+  1&nbsp;}
+  4&nbsp;else
+  46&nbsp;&nbsp;&nbsp;Console.err.println("Please&nbsp;enter&nbsp;filename")
+</pre>
+
+
+<p>Although the script in its current form prints out the needed information, you may wish to line
+up the numbers, right adjusted, and add a pipe character, so that the output looks instead like:</p>
+
+<pre>
+  22&nbsp;|&nbsp;import&nbsp;scala.io.Source
+  &nbsp;0&nbsp;|&nbsp;
+  22&nbsp;|&nbsp;if&nbsp;(args.length&nbsp;&gt;&nbsp;0)&nbsp;{
+  &nbsp;0&nbsp;|&nbsp;
+  51&nbsp;|&nbsp;&nbsp;&nbsp;for&nbsp;(line&nbsp;&lt;-&nbsp;Source.fromFile(args(0)).getLines())
+  37&nbsp;|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(line.length&nbsp;+&nbsp;"&nbsp;"&nbsp;+&nbsp;line)
+  &nbsp;1&nbsp;|&nbsp;}
+  &nbsp;4&nbsp;|&nbsp;else
+  46&nbsp;|&nbsp;&nbsp;&nbsp;Console.err.println("Please&nbsp;enter&nbsp;filename")
+</pre>
+
+
+<p>To accomplish this, you can iterate through the lines twice. The first time through you'll determine
+the maximum width required by any line's character count.
+The second time through you'll print the output, using the
+maximum width calculated previously. Because you'll be iterating through
+the lines twice, you may as well assign them to a variable:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;lines&nbsp;=&nbsp;Source.fromFile(args(<code class="literal">0</code>)).getLines().toList
+</pre>
+
+
+<p>The final <span class="code">toList</span> is required
+because the <span class="code">getLines</span> method returns an iterator. Once you've iterated through an iterator, it is spent.
+By transforming it into a list via the <span class="code">toList</span> call, you gain the ability to iterate as many times
+as you wish, at the cost of storing all lines from the file in memory at once. The <span class="code">lines</span>
+variable, therefore, references a list of strings that contains the contents of the file specified on
+the command line. Next, because you'll be calculating the width of each line's character count twice, once per iteration,
+you might factor that expression out into a small function, which calculates the character width of the passed
+string's length:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;widthOfLength(s:&nbsp;<code class="typename">String</code>)&nbsp;=&nbsp;s.length.toString.length
+</pre>
+
+
+<p>With this function, you could calculate the maximum width like this:</p>
+
+<pre>
+  <code class="vem">var</code>&nbsp;maxWidth&nbsp;=&nbsp;<code class="literal">0</code>
+  <code class="vem">for</code>&nbsp;(line&nbsp;&lt;-&nbsp;lines)
+  &nbsp;&nbsp;maxWidth&nbsp;=&nbsp;maxWidth.max(widthOfLength(line))
+</pre>
+
+
+<p>Here you iterate through each line with a <span class="code">for</span> expression, calculate
+the character width of that line's length, and, if it is larger than the current maximum, assign it to <span class="code">maxWidth</span>, a <span class="code">var</span> that was
+initialized to 0. (The
+<span class="code">max</span> method,<a id="i-256644535-1"/> which you can invoke on any <span class="code">Int</span>, returns the greater of the value on which it was invoked and the value
+passed to it.) Alternatively, if you prefer to find the maximum without <span class="code">var</span>s, you could first find
+the longest line like this:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;longestLine&nbsp;=&nbsp;lines.reduceLeft(
+  &nbsp;&nbsp;(a,&nbsp;b)&nbsp;=&gt;&nbsp;<code class="vem">if</code>&nbsp;(a.length&nbsp;&gt;&nbsp;b.length)&nbsp;a&nbsp;<code class="vem">else</code>&nbsp;b&nbsp;
+  )&nbsp;
+</pre>
+
+
+<p>The <span class="code">reduceLeft</span> method<a id="i2086106882-1"/><a id="i1836203449-1"/> applies the passed function to the first two elements in <span class="code">lines</span>, then applies it to the result of the first
+application and the next element in <span class="code">lines</span>, and so on, all the way through the list. On each such application, the result will be the longest line
+encountered so far because the passed function, <span class="code">(a,</span>&nbsp;<span class="code">b)</span>&nbsp;<span class="code">=&gt;</span>&nbsp;<span class="code">if</span>&nbsp;<span class="code">(a.length</span>&nbsp;<span class="code">&gt;</span>&nbsp;<span class="code">b.length)</span>&nbsp;<span class="code">a</span>&nbsp;<span class="code">else</span>&nbsp;<span class="code">b</span>, returns the longest of the two passed strings. "<span class="code">reduceLeft</span>" will return
+the result of the last application of the function, which in this case will be the longest
+string element contained in <span class="code">lines</span>.</p>
+
+<p>Given this result, you can calculate the maximum width by passing the longest
+line to <span class="code">widthOfLength</span>:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;maxWidth&nbsp;=&nbsp;widthOfLength(longestLine)
+</pre>
+
+
+<p>All that remains is to print out the lines with proper formatting. You can do that like this<a id="i-880685326-1"/>:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(line&nbsp;&lt;-&nbsp;lines)&nbsp;{
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;numSpaces&nbsp;=&nbsp;maxWidth&nbsp;-&nbsp;widthOfLength(line)
+  &nbsp;&nbsp;<code class="vem">val</code>&nbsp;padding&nbsp;=&nbsp;<code class="quotedstring">"&nbsp;"</code>&nbsp;*&nbsp;numSpaces
+  &nbsp;&nbsp;println(padding&nbsp;+&nbsp;line.length&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;|&nbsp;"</code>&nbsp;+&nbsp;line)
+  }
+</pre>
+
+
+<p>In this <span class="code">for</span> expression, you once again iterate through the lines. For each line, you first calculate the number of spaces
+required before the line length and assign it to <span class="code">numSpaces</span>. Then you create a string containing <span class="code">numSpaces</span> spaces with
+the expression <span class="code">"</span>&nbsp;<span class="code">"</span>&nbsp;<span class="code">*</span>&nbsp;<span class="code">numSpaces</span>. Finally, you print out the information with the desired formatting. The entire script looks as shown in <a href="next-steps-in-scala.html#lst-from-file-last">Listing 3.11</a>:</p>
+
+<p><a id="lst-from-file-last"/></p>
+
+<pre>
+  &nbsp;&nbsp;<code class="vem">import</code>&nbsp;scala.io.Source
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;widthOfLength(s:&nbsp;<code class="typename">String</code>)&nbsp;=&nbsp;s.length.toString.length
+  <br />  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(args.length&nbsp;&gt;&nbsp;<code class="literal">0</code>)&nbsp;{
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;lines&nbsp;=&nbsp;Source.fromFile(args(<code class="literal">0</code>)).getLines().toList
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;longestLine&nbsp;=&nbsp;lines.reduceLeft(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(a,&nbsp;b)&nbsp;=&gt;&nbsp;<code class="vem">if</code>&nbsp;(a.length&nbsp;&gt;&nbsp;b.length)&nbsp;a&nbsp;<code class="vem">else</code>&nbsp;b&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;maxWidth&nbsp;=&nbsp;widthOfLength(longestLine)
+  <br />  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(line&nbsp;&lt;-&nbsp;lines)&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;numSpaces&nbsp;=&nbsp;maxWidth&nbsp;-&nbsp;widthOfLength(line)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">val</code>&nbsp;padding&nbsp;=&nbsp;<code class="quotedstring">"&nbsp;"</code>&nbsp;*&nbsp;numSpaces
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;println(padding&nbsp;+&nbsp;line.length&nbsp;+&nbsp;<code class="quotedstring">"&nbsp;|&nbsp;"</code>&nbsp;+&nbsp;line)
+  &nbsp;&nbsp;&nbsp;&nbsp;}
+  &nbsp;&nbsp;}
+  &nbsp;&nbsp;<code class="vem">else</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;Console.err.println(<code class="quotedstring">"Please&nbsp;enter&nbsp;filename"</code>)
+</pre>
+
+
+<h5>Listing 3.11 - Printing formatted character counts for the lines of a file.</h5>
+
+
+<h3>Conclusion</h3>
+
+
+<p>With the knowledge you've gained in this chapter, you should be able to start using Scala for small tasks, especially scripts. In later chapters, we will dive further into these topics and introduce other topics that weren't even hinted at here.</p>
+
+<hr/>
+<h4>Footnotes for Chapter 3:</h4>
+
+
+<p><a id="footnotemain3-1"/>[1] This <span class="code">to</span> method actually returns not an array but a different
+kind of sequence, containing the
+values 0, 1, and 2, which the <span class="code">for</span> expression iterates over. Sequences and other collections will be described in <a href="working-with-other-collections.html">Chapter 17</a>.</p>
+
+<p><a id="footnotemain3-2"/>[2] Variable-length
+argument lists, or <em>repeated parameters</em>, are described in
+<a href="functions-and-closures.html#sec-fancy-parameters">Section 8.8</a>.</p>
+
+<p><a id="footnotemain3-3"/>[3] You don't need to say <span class="code">new</span>&nbsp;<span class="code">List</span> because
+"<span class="code">List.apply()</span>" is defined as a factory method on the
+<span class="code">scala.List</span> <em>companion object</em>.  You'll read more on companion
+objects in <a href="classes-and-objects.html#sec-singleton-objects">Section 4.3</a>.</p>
+
+<p><a id="footnotemain3-4"/>[4] The reason
+you need <span class="code">Nil</span> at the end is that <span class="code">::</span> is defined on class <span class="code">List</span>. If you try to just say <span class="code">1</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">2</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">3</span>, it
+won't compile because <span class="code">3</span> is an <span class="code">Int</span>, which doesn't have a <span class="code">::</span> method.</p>
+
+<p><a id="footnotemain3-5"/>[5] Although conceptually you could create tuples of any length, currently
+the Scala library only defines them up to <span class="code">Tuple22</span>.</p>
+
+<p><a id="footnotemain3-6"/>[6] Because the set in <a href="next-steps-in-scala.html#lst-init-mutable-set">Listing 3.6</a> is mutable, there is no need to reassign <span class="code">movieSet</span>, which is why it
+can be a <span class="code">val</span>. By contrast, using <span class="code">+=</span> with the immutable set in <a href="next-steps-in-scala.html#lst-init-immutable-set">Listing 3.5</a> required reassigning <span class="code">jetSet</span>, which is why it must be a <span class="code">var</span>.<a id="i877592417-1"/></p>
+
+<p><a id="footnotemain3-7"/>[7] The explicit type parameterization,<a id="i-219390285-2"/><a id="i-24732165-2"/>
+"<span class="code">[Int,</span>&nbsp;<span class="code">String]</span>", is required in <a href="next-steps-in-scala.html#lst-init-mutable-map">Listing 3.7</a> because without any values passed to the factory
+method, the compiler is unable to infer the map's type parameters. By contrast, 
+the compiler can infer the type parameters from the values passed to the map
+factory shown in <a href="next-steps-in-scala.html#lst-init-immutable-map">Listing 3.8</a>, thus no explicit
+type parameters are needed.</p>
+
+<p><a id="footnotemain3-8"/>[8] The Scala mechanism that allows you to
+invoke <span class="code">-&gt;</span> on any object, <em>implicit conversion</em>, will be covered in
+<a href="implicit-conversions-and-parameters.html">Chapter 21</a>.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>

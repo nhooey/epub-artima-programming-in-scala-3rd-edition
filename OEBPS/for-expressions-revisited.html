@@ -1,0 +1,912 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+          "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type"
+        content="text/html; charset=UTF-8"/>
+    <title>Programming in Scala, 3rd Edition</title>
+
+    <link rel="stylesheet" type="text/css" href="book.css" />
+  </head>
+<body>
+<h2><a id="chap-for-expressions-revisited">Chapter 23</a></h2>
+<h1>For Expressions Revisited</h1>
+
+
+<p><a href="working-with-lists.html">Chapter 16</a>
+demonstrated that higher-order functions, such as
+<span class="code">map</span>, <span class="code">flatMap</span>, and <span class="code">filter</span>, provide powerful
+constructions for dealing with lists.  But sometimes the level of
+abstraction required by these functions makes a program a bit hard to
+understand.</p>
+
+<p>Here's an example. Say you are given a list of persons,
+each defined as an instance of a class <span class="code">Person</span>. Class <span class="code">Person</span> 
+has fields indicating the person's name, whether he or she is male, 
+and his or her children.</p>
+
+<p>Here's the class definition:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Person</code>(name:&nbsp;<code class="typename">String</code>,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;isMale:&nbsp;<code class="typename">Boolean</code>,&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;children:&nbsp;<code class="typename">Person</code>*)
+</pre>
+
+
+<p>Here's a list of some sample <span class="code">person</span>s:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;lara&nbsp;=&nbsp;<code class="typename">Person</code>(<code class="quotedstring">"Lara"</code>,&nbsp;<code class="vem">false</code>)
+  <code class="vem">val</code>&nbsp;bob&nbsp;=&nbsp;<code class="typename">Person</code>(<code class="quotedstring">"Bob"</code>,&nbsp;<code class="vem">true</code>)
+  <code class="vem">val</code>&nbsp;julie&nbsp;=&nbsp;<code class="typename">Person</code>(<code class="quotedstring">"Julie"</code>,&nbsp;<code class="vem">false</code>,&nbsp;lara,&nbsp;bob)
+  <code class="vem">val</code>&nbsp;persons&nbsp;=&nbsp;<code class="typename">List</code>(lara,&nbsp;bob,&nbsp;julie)
+</pre>
+
+
+<p>Now, say you want to find out the names of all pairs 
+of mothers and their children in that list.
+Using <span class="code">map</span>, <span class="code">flatMap</span> and <span class="code">filter</span>, you can formulate the following query:</p>
+
+<pre>
+  scala&gt;&nbsp;persons&nbsp;filter&nbsp;(p&nbsp;=&gt;&nbsp;!p.isMale)&nbsp;flatMap&nbsp;(p&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p.children&nbsp;map&nbsp;(c&nbsp;=&gt;&nbsp;(p.name,&nbsp;c.name))))
+  <code class="output">res0:&nbsp;List[(String,&nbsp;String)]&nbsp;=&nbsp;List((Julie,Lara),&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;(Julie,Bob))</code>
+</pre>
+
+
+<p>You could optimize this example a bit by using a <span class="code">withFilter</span> call instead of <span class="code">filter</span>.
+This would avoid the creation of an intermediate data structure for female persons:</p>
+
+<pre>
+  scala&gt;&nbsp;persons&nbsp;withFilter&nbsp;(p&nbsp;=&gt;&nbsp;!p.isMale)&nbsp;flatMap&nbsp;(p&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(p.children&nbsp;map&nbsp;(c&nbsp;=&gt;&nbsp;(p.name,&nbsp;c.name))))
+  <code class="output">res1:&nbsp;List[(String,&nbsp;String)]&nbsp;=&nbsp;List((Julie,Lara),&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;(Julie,Bob))</code>
+</pre>
+
+
+<p>These queries do their job, but they are not exactly trivial to write or understand.
+Is there a simpler way? In fact, there is. Remember the <span class="code">for</span> expressions in 
+<a href="builtin-control-structures.html#sec-for-expressions">Section 7.3</a><a id="i-207940604-3"/>? Using a <span class="code">for</span> expression, the same example 
+can be written as follows:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(p&nbsp;&lt;-&nbsp;persons;&nbsp;<code class="vem">if</code>&nbsp;!p.isMale;&nbsp;c&nbsp;&lt;-&nbsp;p.children)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">yield</code>&nbsp;(p.name,&nbsp;c.name)
+  <code class="output">res2:&nbsp;List[(String,&nbsp;String)]&nbsp;=&nbsp;List((Julie,Lara),&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;(Julie,Bob))</code>
+</pre>
+
+
+<p>The result of this expression is exactly the same as the 
+result of the previous expression.  What's more, most readers of the code would likely find the <span class="code">for</span> expression
+much clearer than the previous query, which used the higher-order
+functions, <span class="code">map</span><a id="i-482121133-1"/>,
+<span class="code">flatMap</span><a id="i-1499753963-1"/>, and
+<span class="code">withFilter</span><a id="i582713813-1"/>.</p>
+
+<p>However, the last two queries are not as dissimilar as it might seem. In
+fact, it turns out that the Scala compiler will translate the second
+query into the first one. More generally, all <span class="code">for</span> expressions that
+<span class="code">yield</span><a id="i-1534065145-1"/> a result are translated by the compiler into combinations of
+invocations of the higher-order methods <span class="code">map</span>, <span class="code">flatMap</span>, and
+<span class="code">withFilter</span>. All <span class="code">for</span> loops without <span class="code">yield</span> are translated into a
+smaller set of higher-order functions: just <span class="code">withFilter</span>
+and <span class="code">foreach</span><a id="i-493461951-1"/>.</p>
+
+<p>In this chapter, you'll find out first about the precise rules of
+writing <span class="code">for</span> expressions. After that, you'll see how they can make
+combinatorial problems easier to solve. Finally, you'll learn how
+<span class="code">for</span> expressions are translated, and how as a result, <span class="code">for</span> expressions can help you "grow" the
+Scala language into new application domains.</p>
+
+<h3>23.1 For expressions</h3>
+
+
+<p>Generally, a <span class="code">for</span> expression is of the form:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(&nbsp;<code style="font-style:italic">seq</code>&nbsp;)&nbsp;<code class="vem">yield</code>&nbsp;<code style="font-style:italic">expr</code>
+</pre>
+
+
+<p>Here, <span style="font-style:italic">seq</span> is a sequence of <span style="font-style:italic">generators</span>, <span style="font-style:italic">definitions</span>, and
+<span style="font-style:italic">filters</span>, with semicolons between successive elements.
+An example is the <span class="code">for</span> expression:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(p&nbsp;&lt;-&nbsp;persons;&nbsp;n&nbsp;=&nbsp;p.name;&nbsp;<code class="vem">if</code>&nbsp;(n&nbsp;startsWith&nbsp;<code class="quotedstring">"To"</code>))&nbsp;
+  <code class="vem">yield</code>&nbsp;n
+</pre>
+
+
+<p>This <span class="code">for</span> expression contains one generator, one definition, and one filter.
+As mentioned in <a href="builtin-control-structures.html#sec-for-expressions">Section 7.3</a>  <a href="builtin-control-structures.html#exa-for-semicolon-explanation">here</a>, you can also enclose the sequence in braces instead of parentheses. Then
+the semicolons become optional:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;{
+  &nbsp;&nbsp;p&nbsp;&lt;-&nbsp;persons&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;a&nbsp;generator</code>
+  &nbsp;&nbsp;n&nbsp;=&nbsp;p.name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;a&nbsp;definition</code>
+  &nbsp;&nbsp;<code class="vem">if</code>&nbsp;(n&nbsp;startsWith&nbsp;<code class="quotedstring">"To"</code>)&nbsp;&nbsp;&nbsp;&nbsp;<code class="comment">//&nbsp;a&nbsp;filter</code>
+  }&nbsp;<code class="vem">yield</code>&nbsp;n
+</pre>
+
+
+<p>A <span style="font-style:italic">generator</span> is of the form:<a id="i1422302298-1"/></p>
+
+<pre>
+  <code style="font-style:italic">pat</code>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code>
+</pre>
+
+
+<p>The expression <span style="font-style:italic">expr</span> typically returns a list, even though you will see
+later that this can be generalized. The pattern <span style="font-style:italic">pat</span> gets matched
+one-by-one against all elements of that list.<a id="i-1272952554-2"/><a id="i371386352-2"/> If the match succeeds, the 
+variables in the pattern get bound to the corresponding parts of the element, 
+just the way it is described in <a href="case-classes-and-pattern-matching.html">Chapter 15</a>.
+But if the match fails, no <span class="code">MatchError</span> is thrown.<a id="i797126047-1"/>
+Instead, the element is simply discarded from the iteration.</p>
+
+<p>In the most common case,
+the pattern <span style="font-style:italic">pat</span> is just a variable <span style="font-style:italic">x</span>, as in
+<span class="code"><span style="font-style:italic">x</span></span>&nbsp;<span class="code">&lt;-</span>&nbsp;<span class="code"><span style="font-style:italic">expr</span></span>. In that case,
+the variable <span style="font-style:italic">x</span> simply iterates over all elements returned by <span style="font-style:italic">expr</span>.</p>
+
+<p>A <span style="font-style:italic">definition</span> is of the form:</p>
+
+<pre>
+  <code style="font-style:italic">pat</code>&nbsp;=&nbsp;<code style="font-style:italic">expr</code>
+</pre>
+
+
+<p>This definition binds the pattern <span style="font-style:italic">pat</span> to the value of <span style="font-style:italic">expr</span>, so it has the same effect as a <span class="code">val</span> definition:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;<code style="font-style:italic">x</code>&nbsp;=&nbsp;<code style="font-style:italic">expr</code>
+</pre>
+
+
+<p>The most common case is again where the pattern is a simple variable <span class="code">x</span> (<i>e.g.</i>,
+<span class="code"><span style="font-style:italic">x</span></span>&nbsp;<span class="code">=</span>&nbsp;<span class="code"><span style="font-style:italic">expr</span></span>). This defines <span style="font-style:italic">x</span> as a name for the value
+<span style="font-style:italic">expr</span>.</p>
+
+<p>A <span style="font-style:italic">filter</span> is of the form:</p>
+
+<div style="page-break-after:always"/>
+
+
+<pre>
+  <code class="vem">if</code>&nbsp;<code style="font-style:italic">expr</code>
+</pre>
+
+
+<p>Here, <span style="font-style:italic">expr</span> is an expression of type <span class="code">Boolean</span>.<a id="i331566550-1"/>
+The filter drops from the iteration all elements for which <span style="font-style:italic">expr</span> returns <span class="code">false</span>.</p>
+
+<p>Every <span class="code">for</span> expression starts with a generator. If there are several
+generators in a <span class="code">for</span> expression, later generators vary more rapidly than
+earlier ones. You can verify this easily with the following simple test:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(x&nbsp;&lt;-&nbsp;<code class="typename">List</code>(<code class="literal">1</code>,&nbsp;<code class="literal">2</code>);&nbsp;y&nbsp;&lt;-&nbsp;<code class="typename">List</code>(<code class="quotedstring">"one"</code>,&nbsp;<code class="quotedstring">"two"</code>))&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">yield</code>&nbsp;(x,&nbsp;y)
+  <code class="output">res3:&nbsp;List[(Int,&nbsp;String)]&nbsp;=</code>
+  <code class="output">&nbsp;&nbsp;List((1,one),&nbsp;(1,two),&nbsp;(2,one),&nbsp;(2,two))</code>
+</pre>
+
+
+<h3>23.2 The n-queens problem</h3>
+
+
+<p>A particularly suitable application area of <span class="code">for</span> expressions are
+combinatorial puzzles. An example of such a puzzle is the 8-queens
+problem: Given a standard chess-board, place eight queens such that no
+queen is in check from any other (a queen can check another piece if
+they are on the same column, row, or diagonal). To find a solution to
+this problem, it's actually simpler to generalize it to chess-boards
+of arbitrary size. Hence, the problem is to place <i>N</i> queens on a
+chess-board of <i>N</i>  <span style="font-family:sans-serif">x</span>  <i>N</i> squares, where the size <i>N</i> is
+arbitrary. We'll start numbering cells at one, so the upper-left cell
+of an <i>N</i>  <span style="font-family:sans-serif">x</span>  <i>N</i> board has coordinate (1, 1) and the lower-right
+cell has coordinate (<i>N</i>, <i>N</i>).</p>
+
+<p>To solve the N-queens problem, note that you need to place a queen in
+each row.  So you could place queens in successive rows, each time
+checking that a newly placed queen is not in check from any other
+queens that have already been placed. In the course of this search, it
+might happen that a queen that needs to be placed in row <i>k</i> would be
+in check in all fields of that row from queens in row 1 to <i>k</i>-1. In
+that case, you need to abort that part of the search in order to
+continue with a different configuration of queens in columns 1 to
+<i>k</i>-1.</p>
+
+<p>An imperative solution to this problem would place queens one by one,
+moving them around on the board. But it looks difficult to come up
+with a scheme that really tries all possibilities. A more functional approach represents a solution directly, as a value.
+A solution consists of a list of coordinates, one for each queen
+placed on the board. 
+Note, however, that a full solution can
+not be found in a single step. It needs to be built up gradually, by
+occupying successive rows with queens.</p>
+
+<p>This suggests a recursive algorithm.  Assume you have already
+generated all solutions of placing <i>k</i> queens on a board of size <i>N</i>
+ <span style="font-family:sans-serif">x</span>  <i>N</i>, where <i>k</i> is less than <i>N</i>. Each such solution can be
+presented by a list of length <i>k</i> of coordinates <span class="code">(row,</span>&nbsp;<span class="code">column)</span>,
+where both row and column numbers range from 1 to <i>N</i>.  It's
+convenient to treat these partial solution lists as stacks, where the
+coordinates of the queen in row <i>k</i> come first in the list, followed
+by the coordinates of the queen in row <i>k</i>-1, and so on. The bottom of
+the stack is the coordinate of the queen placed in the first row of
+the board.  All solutions together are represented as a list of
+lists, with one element for each solution.</p>
+
+<p>Now, to place the next queen in row <i>k</i>+1, generate all possible extensions
+of each previous solution by one more queen. This yields another list
+of solution lists, this time of length <i>k</i>+1. Continue the process
+until you have obtained all solutions of the size of the chess-board <i>N</i>.</p>
+
+<p>This algorithmic idea is embodied in function <span class="code">placeQueens</span> below:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;queens(n:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">List[List[(Int,&nbsp;Int)]]</code>&nbsp;=&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;placeQueens(k:&nbsp;<code class="typename">Int</code>):&nbsp;<code class="typename">List[List[(Int,&nbsp;Int)]]</code>&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(k&nbsp;==&nbsp;<code class="literal">0</code>)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">List</code>(<code class="typename">List</code>())
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;queens&nbsp;&lt;-&nbsp;placeQueens(k&nbsp;-&nbsp;<code class="literal">1</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;column&nbsp;&lt;-&nbsp;<code class="literal">1</code>&nbsp;to&nbsp;n
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;queen&nbsp;=&nbsp;(k,&nbsp;column)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;isSafe(queen,&nbsp;queens)&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;<code class="vem">yield</code>&nbsp;queen&nbsp;::&nbsp;queens
+  <br />  &nbsp;&nbsp;placeQueens(n)
+  }
+</pre>
+
+
+<p>The outer function <span class="code">queens</span> in the program above simply calls <span class="code">placeQueens</span>
+with the size of the board <span class="code">n</span> as its argument. The task of the function 
+application <span class="code">placeQueens(k)</span> is to
+generate all partial solutions of length <span class="code">k</span> in a list. Every element
+of the list is one solution, represented by a list of length <span class="code">k</span>. So <span class="code">placeQueens</span> 
+returns a list of lists.</p>
+
+<p>If the parameter <span class="code">k</span> to <span class="code">placeQueens</span> is <span class="code">0</span>, this means that it needs
+to generate all solutions of placing zero queens on zero rows. There
+is only one such solution: place no queen at all. This solution is
+represented by the empty list. So if <span class="code">k</span> is zero,
+<span class="code">placeQueens</span> returns <span class="code">List(List())</span>, a list consisting of a single
+element that is the empty list.  Note that this is quite different
+from the empty list <span class="code">List()</span>. If <span class="code">placeQueens</span> returns <span class="code">List()</span>,
+this means <span style="font-style:italic">no solutions</span>, instead of a single solution consisting
+of no placed queens.</p>
+
+<p>In the other case, where <span class="code">k</span> is not zero, all the work of
+<span class="code">placeQueens</span> is done in a <span class="code">for</span> expression. The first generator of
+that <span class="code">for</span> expression iterates through all solutions of placing <span class="code">k</span>&nbsp;<span class="code">-</span>&nbsp;<span class="code">1</span>
+queens on the board. The second generator iterates through all
+possible <span class="code">column</span>s on which the <span class="code">k</span>'th queen might be placed.  
+The third part of the <span class="code">for</span> expression 
+defines the newly considered <span class="code">queen</span> position to be the pair consisting of row
+<span class="code">k</span> and each produced <span class="code">column</span>.
+The fourth part of the <span class="code">for</span> expression is a filter which checks with
+<span class="code">isSafe</span> whether the new queen is safe from check by all previous queens
+(the definition of <span class="code">isSafe</span> will be discussed a bit later).</p>
+
+<p>If the new queen is not in check from any other queens, it can form
+part of a partial solution, so <span class="code">placeQueens</span> generates with 
+<span class="code">queen</span>&nbsp;<span class="code">::</span>&nbsp;<span class="code">queens</span> a new solution. If the new queen is not safe from check,
+the filter returns <span class="code">false</span>, so no solution is generated.</p>
+
+<p>The only remaining bit is the <span class="code">isSafe</span> method, which is used to check whether a
+given <span class="code">queen</span> is in check from any other element in a list of <span class="code">queens</span>. Here is its definition:</p>
+
+<pre>
+  <code class="vem">def</code>&nbsp;isSafe(queen:&nbsp;(<code class="typename">Int</code>,&nbsp;<code class="typename">Int</code>),&nbsp;queens:&nbsp;<code class="typename">List[(Int,&nbsp;Int)]</code>)&nbsp;=&nbsp;
+  &nbsp;&nbsp;queens&nbsp;forall&nbsp;(q&nbsp;=&gt;&nbsp;!inCheck(queen,&nbsp;q))
+  <br />  <code class="vem">def</code>&nbsp;inCheck(q1:&nbsp;(<code class="typename">Int</code>,&nbsp;<code class="typename">Int</code>),&nbsp;q2:&nbsp;(<code class="typename">Int</code>,&nbsp;<code class="typename">Int</code>))&nbsp;=&nbsp;
+  &nbsp;&nbsp;q1._1&nbsp;==&nbsp;q2._1&nbsp;||&nbsp;&nbsp;<code class="comment">//&nbsp;same&nbsp;row</code>
+  &nbsp;&nbsp;q1._2&nbsp;==&nbsp;q2._2&nbsp;||&nbsp;&nbsp;<code class="comment">//&nbsp;same&nbsp;column</code>
+  &nbsp;&nbsp;(q1._1&nbsp;-&nbsp;q2._1).abs&nbsp;==&nbsp;(q1._2&nbsp;-&nbsp;q2._2).abs&nbsp;<code class="comment">//&nbsp;on&nbsp;diagonal</code>
+</pre>
+
+
+<p>The <span class="code">isSafe</span> method expresses that a <span class="code">queen</span> is safe with respect to some other <span class="code">queens</span> if 
+it is not in check from any other queen. The <span class="code">inCheck</span> method expresses that
+queens <span class="code">q1</span> and <span class="code">q2</span> are mutually in check.</p>
+
+<p>It returns <span class="code">true</span> in one of three cases:</p>
+
+<ol>
+
+
+<li>If the two queens have the same row coordinate, 
+
+
+</li>
+<li>If the two queens have the same column coordinate, 
+
+
+</li>
+<li>If the two queens are on the same diagonal (<i>i.e.</i>, the difference between their rows and the difference between their columns are the same).
+
+
+</li></ol>
+
+
+<p>The first case&mdash;that the two queens have the same row coordinate&mdash;cannot happen in the application because <span class="code">placeQueens</span> already takes
+care to place each queen in a different row.  So you could remove the
+test without changing the functionality of the program.</p>
+
+<h3 id="sec-for-queries">23.3 Querying with <span class="code">for</span> expressions</h3>
+
+
+<p>The <span class="code">for</span> notation is essentially equivalent to common operations of
+database query languages<a id="i1851175608-1"/>. For instance, say you are given a 
+database named <span class="code">books</span>, represented as a list of books, where
+<span class="code">Book</span> is defined as follows:</p>
+
+<pre>
+  <code class="vem">case</code>&nbsp;<code class="vem">class</code>&nbsp;<code class="typename">Book</code>(title:&nbsp;<code class="typename">String</code>,&nbsp;authors:&nbsp;<code class="typename">String</code>*)
+</pre>
+
+
+<p>Here is a small example database represented as an in-memory
+list:<a id="i471924076-2"/><a id="i-1712702061-2"/><a id="i1109104818-1"/><a id="i-601321358-1"/><a id="i134333723-1"/><a id="i875843663-1"/><a id="i1916394333-2"/><a id="i-1202190098-1"/><a id="i1512661551-2"/></p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;books:&nbsp;<code class="typename">List[Book]</code>&nbsp;=
+  &nbsp;&nbsp;<code class="typename">List</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Book</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"Structure&nbsp;and&nbsp;Interpretation&nbsp;of&nbsp;Computer&nbsp;Programs"</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"Abelson,&nbsp;Harold"</code>,&nbsp;<code class="quotedstring">"Sussman,&nbsp;Gerald&nbsp;J."</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;),
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Book</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"Principles&nbsp;of&nbsp;Compiler&nbsp;Design"</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"Aho,&nbsp;Alfred"</code>,&nbsp;<code class="quotedstring">"Ullman,&nbsp;Jeffrey"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;),
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Book</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"Programming&nbsp;in&nbsp;Modula-2"</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"Wirth,&nbsp;Niklaus"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;),
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Book</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"Elements&nbsp;of&nbsp;ML&nbsp;Programming"</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"Ullman,&nbsp;Jeffrey"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;),
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Book</code>(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"The&nbsp;Java&nbsp;Language&nbsp;Specification"</code>,&nbsp;<code class="quotedstring">"Gosling,&nbsp;James"</code>,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="quotedstring">"Joy,&nbsp;Bill"</code>,&nbsp;<code class="quotedstring">"Steele,&nbsp;Guy"</code>,&nbsp;<code class="quotedstring">"Bracha,&nbsp;Gilad"</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;)
+  &nbsp;&nbsp;)
+</pre>
+
+
+<p>To find the titles of all books whose author's last name is "Gosling":</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(b&nbsp;&lt;-&nbsp;books;&nbsp;a&nbsp;&lt;-&nbsp;b.authors
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;a&nbsp;startsWith&nbsp;<code class="quotedstring">"Gosling"</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">yield</code>&nbsp;b.title
+  <code class="output">res4:&nbsp;List[String]&nbsp;=&nbsp;List(The&nbsp;Java&nbsp;Language&nbsp;Specification)</code>
+</pre>
+
+
+<p>Or to find the titles of all books that have the string "Program" in
+their title:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(b&nbsp;&lt;-&nbsp;books&nbsp;<code class="vem">if</code>&nbsp;(b.title&nbsp;indexOf&nbsp;<code class="quotedstring">"Program"</code>)&nbsp;&gt;=&nbsp;<code class="literal">0</code>)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">yield</code>&nbsp;b.title
+  <code class="output">res5:&nbsp;List[String]&nbsp;=&nbsp;List(Structure&nbsp;and&nbsp;Interpretation&nbsp;of&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;Computer&nbsp;Programs,&nbsp;Programming&nbsp;in&nbsp;Modula-2,&nbsp;Elements&nbsp;of&nbsp;ML&nbsp;</code>
+  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;Programming)</code>
+</pre>
+
+
+<p>Or to find the names of all authors who have written at least two
+books in the database:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">for</code>&nbsp;(b1&nbsp;&lt;-&nbsp;books;&nbsp;b2&nbsp;&lt;-&nbsp;books&nbsp;<code class="vem">if</code>&nbsp;b1&nbsp;!=&nbsp;b2;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a1&nbsp;&lt;-&nbsp;b1.authors;&nbsp;a2&nbsp;&lt;-&nbsp;b2.authors&nbsp;<code class="vem">if</code>&nbsp;a1&nbsp;==&nbsp;a2)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">yield</code>&nbsp;a1
+  <code class="output">res6:&nbsp;List[String]&nbsp;=&nbsp;List(Ullman,&nbsp;Jeffrey,&nbsp;Ullman,&nbsp;Jeffrey)</code>
+</pre>
+
+
+<p>The last solution is still not perfect because authors will appear
+several times in the list of results.  You still need to remove
+duplicate authors from result lists.  This can be achieved with the
+following function:</p>
+
+<pre>
+  scala&gt;&nbsp;<code class="vem">def</code>&nbsp;removeDuplicates[A](xs:&nbsp;<code class="typename">List[A]</code>):&nbsp;<code class="typename">List[A]</code>&nbsp;=&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">if</code>&nbsp;(xs.isEmpty)&nbsp;xs
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">else</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xs.head&nbsp;::&nbsp;removeDuplicates(
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;xs.tail&nbsp;filter&nbsp;(x&nbsp;=&gt;&nbsp;x&nbsp;!=&nbsp;xs.head)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
+  <code class="output">removeDuplicates:&nbsp;[A](xs:&nbsp;List[A])List[A]</code>
+  <br />  scala&gt;&nbsp;removeDuplicates(res6)
+  <code class="output">res7:&nbsp;List[String]&nbsp;=&nbsp;List(Ullman,&nbsp;Jeffrey)</code>
+</pre>
+
+
+<p>It's worth noting that the last expression in method <span class="code">removeDuplicates</span>
+can be equivalently expressed using a <span class="code">for</span> expression:</p>
+
+<pre>
+  xs.head&nbsp;::&nbsp;removeDuplicates(
+  &nbsp;&nbsp;<code class="vem">for</code>&nbsp;(x&nbsp;&lt;-&nbsp;xs.tail&nbsp;<code class="vem">if</code>&nbsp;x&nbsp;!=&nbsp;xs.head)&nbsp;<code class="vem">yield</code>&nbsp;x
+  )
+</pre>
+
+
+<h3>23.4 Translation of <span class="code">for</span> expressions</h3>
+
+
+<p>Every <span class="code">for</span> expression can be expressed in terms of the three
+higher-order functions <span class="code">map</span>, <span class="code">flatMap</span>, and <span class="code">withFilter</span>.
+This section describes the translation scheme, which is also used by the Scala compiler.</p>
+
+<h4>Translating <span class="code">for</span> expressions with one generator</h4>
+
+
+<p>First, assume you have a simple <span class="code">for</span> expression:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(<i>x</i>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>1</sub>)&nbsp;<code class="vem">yield</code>&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>
+</pre>
+
+
+<p>where <i>x</i> is a variable. Such an expression is translated to:</p>
+
+<pre>
+  <code style="font-style:italic">expr</code><sub>1</sub>.map(<i>x</i>&nbsp;=&gt;&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>)
+</pre>
+
+
+<h4>Translating <span class="code">for</span> expressions starting with a generator and a filter</h4>
+
+
+<p>Now, consider <span class="code">for</span> expressions that combine a leading generator with some other
+elements. A <span class="code">for</span> expression of the form:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(<i>x</i>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>1</sub>&nbsp;<code class="vem">if</code>&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>)&nbsp;<code class="vem">yield</code>&nbsp;<code style="font-style:italic">expr</code><sub>3</sub>
+</pre>
+
+
+<p>is translated to:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(<i>x</i>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>1</sub>&nbsp;withFilter&nbsp;(<i>x</i>&nbsp;=&gt;&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>))&nbsp;<code class="vem">yield</code>&nbsp;<code style="font-style:italic">expr</code><sub>3</sub>
+</pre>
+
+
+<p>This translation gives another <span class="code">for</span> expression that is  
+shorter by one element than the original, because an <span class="code">if</span> 
+element is transformed into an application of <span class="code">withFilter</span> on the first
+generator expression. The translation then continues with this second expression, 
+so in the end you obtain:</p>
+
+<pre>
+  <code style="font-style:italic">expr</code><sub>1</sub>&nbsp;withFilter&nbsp;(<i>x</i>&nbsp;=&gt;&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>)&nbsp;map&nbsp;(<i>x</i>&nbsp;=&gt;&nbsp;<code style="font-style:italic">expr</code><sub>3</sub>)
+</pre>
+
+
+<p>The same translation scheme also applies if there are further elements 
+following the filter. If <span style="font-style:italic">seq</span> is an arbitrary sequence of generators,
+definitions, and filters, then:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(<i>x</i>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>1</sub>&nbsp;<code class="vem">if</code>&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>;&nbsp;<code style="font-style:italic">seq</code>)&nbsp;<code class="vem">yield</code>&nbsp;<code style="font-style:italic">expr</code><sub>3</sub>
+</pre>
+
+
+<p>is translated to:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(<i>x</i>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>1</sub>&nbsp;withFilter&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>;&nbsp;<code style="font-style:italic">seq</code>)&nbsp;<code class="vem">yield</code>&nbsp;<code style="font-style:italic">expr</code><sub>3</sub>
+</pre>
+
+
+<p>Then translation continues with the second expression, which is again shorter
+by one element than the original one.</p>
+
+<h4>Translating <span class="code">for</span> expressions starting with two generators</h4>
+
+
+<p>The next case handles <span class="code">for</span> expressions that start with two generators, as in:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(<i>x</i>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>1</sub>;&nbsp;<i>y</i>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>;&nbsp;<code style="font-style:italic">seq</code>)&nbsp;<code class="vem">yield</code>&nbsp;<code style="font-style:italic">expr</code><sub>3</sub>
+</pre>
+
+
+<p>Again, assume that <span style="font-style:italic">seq</span> is an arbitrary sequence of
+generators, definitions, and filters. In fact, <span style="font-style:italic">seq</span> might also be
+empty, and in that case there would not be a semicolon after
+<span class="code"><span style="font-style:italic">expr</span><sub>2</sub></span>. The translation scheme stays the same in each case. The 
+<span class="code">for</span> expression above is translated to an application of <span class="code">flatMap</span>:</p>
+
+<pre>
+  <code style="font-style:italic">expr</code><sub>1</sub>.flatMap(<i>x</i>&nbsp;=&gt;&nbsp;<code class="vem">for</code>&nbsp;(<i>y</i>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>;&nbsp;<code style="font-style:italic">seq</code>)&nbsp;<code class="vem">yield</code>&nbsp;<code style="font-style:italic">expr</code><sub>3</sub>)
+</pre>
+
+
+<p>This time, there is another <span class="code">for</span> expression in the function value passed to <span class="code">flatMap</span>.
+That <span class="code">for</span> expression (which is again simpler by one element than the original)
+is in turn translated with the same rules.</p>
+
+<p>The three translation schemes given so far are sufficient to translate
+all <span class="code">for</span> expressions that contain just generators and filters, and
+where generators bind only simple variables. Take, for instance, the query, "find all authors 
+who have published at least two books," from <a href="for-expressions-revisited.html#sec-for-queries">Section 23.3</a>:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(b1&nbsp;&lt;-&nbsp;books;&nbsp;b2&nbsp;&lt;-&nbsp;books&nbsp;<code class="vem">if</code>&nbsp;b1&nbsp;!=&nbsp;b2;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a1&nbsp;&lt;-&nbsp;b1.authors;&nbsp;a2&nbsp;&lt;-&nbsp;b2.authors&nbsp;<code class="vem">if</code>&nbsp;a1&nbsp;==&nbsp;a2)
+  <code class="vem">yield</code>&nbsp;a1
+</pre>
+
+
+<p>This query translates to the following <span class="code">map</span>/<span class="code">flatMap</span>/<span class="code">filter</span> combination:</p>
+
+<pre>
+  books&nbsp;flatMap&nbsp;(b1&nbsp;=&gt;
+  &nbsp;&nbsp;books&nbsp;withFilter&nbsp;(b2&nbsp;=&gt;&nbsp;b1&nbsp;!=&nbsp;b2)&nbsp;flatMap&nbsp;(b2&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;b1.authors&nbsp;flatMap&nbsp;(a1&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b2.authors&nbsp;withFilter&nbsp;(a2&nbsp;=&gt;&nbsp;a1&nbsp;==&nbsp;a2)&nbsp;map&nbsp;(a2&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a1))))
+</pre>
+
+
+<p>The translation scheme presented so far does not yet handle generators
+that bind whole patterns instead of simple variables.  It also
+does not yet cover definitions. These two aspects will be explained in
+the next two sub-sections.</p>
+
+<h4>Translating patterns in generators</h4>
+
+
+<p>The translation scheme becomes more complicated if the left hand side
+of generator is a pattern, <span style="font-style:italic">pat</span>, other than a simple variable. The case where the <span class="code">for</span> expression binds a tuple of
+variables is still relatively easy to handle. In that case, almost the same scheme as for single variables applies.</p>
+
+<p>A <span class="code">for</span> expression of the form:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;((<i>x</i><sub>1</sub>,&nbsp;...,&nbsp;<i>x</i><sub>n</sub>)&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>1</sub>)&nbsp;<code class="vem">yield</code>&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>
+</pre>
+
+
+<p>translates to:</p>
+
+<pre>
+  <code style="font-style:italic">expr</code><sub>1</sub>.map&nbsp;{&nbsp;<code class="vem">case</code>&nbsp;(<i>x</i><sub>1</sub>,&nbsp;...,&nbsp;<i>x</i><sub>n</sub>)&nbsp;=&gt;&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>&nbsp;}
+</pre>
+
+
+<p>Things become a bit more involved if the left hand side of the generator
+is an arbitrary pattern <span style="font-style:italic">pat</span> instead of a single variable or a tuple.</p>
+
+<p>In this case:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(<code style="font-style:italic">pat</code>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>1</sub>)&nbsp;<code class="vem">yield</code>&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>
+</pre>
+
+
+<p>translates to:</p>
+
+<pre>
+  <code style="font-style:italic">expr</code><sub>1</sub>&nbsp;withFilter&nbsp;{
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code style="font-style:italic">pat</code>&nbsp;=&gt;&nbsp;<code class="vem">true</code>
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;_&nbsp;=&gt;&nbsp;<code class="vem">false</code>
+  }&nbsp;map&nbsp;{&nbsp;
+  &nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code style="font-style:italic">pat</code>&nbsp;=&gt;&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>
+  }
+</pre>
+
+
+<p>That is, the generated items are first filtered and
+only those that match <span style="font-style:italic">pat</span> are mapped. Therefore, it's guaranteed
+that a pattern-matching generator will never throw a <span class="code">MatchError</span>.<a id="i797126047-2"/></p>
+
+<p>The scheme here only treated the case where the <span class="code">for</span> expression
+contains a single pattern-matching generator. Analogous rules apply if
+the <span class="code">for</span> expression contains other generators, filters or
+definitions. Because these additional rules don't add much new
+insight, they are omitted from discussion here. If you are interested,
+you can look them up in the <em>Scala Language Specification</em>  <a href="bibliography.html#sls">[Ode11]</a>.</p>
+
+<h4>Translating definitions</h4>
+
+
+<p>The last missing situation is where a <span class="code">for</span> expression contains embedded
+definitions.  Here's a typical case:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(<i>x</i>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>1</sub>;&nbsp;<i>y</i>&nbsp;=&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>;&nbsp;<code style="font-style:italic">seq</code>)&nbsp;<code class="vem">yield</code>&nbsp;<code style="font-style:italic">expr</code><sub>3</sub>
+</pre>
+
+
+<p>Assume again that <span style="font-style:italic">seq</span> is a (possibly empty) sequence of generators, definitions, and filters.
+This expression is translated to this one:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;((<i>x</i>,&nbsp;<i>y</i>)&nbsp;&lt;-&nbsp;<code class="vem">for</code>&nbsp;(<i>x</i>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>1</sub>)&nbsp;<code class="vem">yield</code>&nbsp;(<i>x</i>,&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>);&nbsp;<code style="font-style:italic">seq</code>)&nbsp;
+  <code class="vem">yield</code>&nbsp;<code style="font-style:italic">expr</code><sub>3</sub>
+</pre>
+
+
+<p>So you see that <span class="code"><span style="font-style:italic">expr</span><sub>2</sub></span> is evaluated each time there is a new <i>x</i> value being generated.
+This re-evaluation is necessary because <span class="code"><span style="font-style:italic">expr</span><sub>2</sub></span> might refer to <i>x</i> and so needs
+to be re-evaluated for changing values of <i>x</i>. For you as a programmer,
+the conclusion is that it's probably not a good idea to have definitions
+embedded in <span class="code">for</span> expressions that do not refer to variables bound by some 
+preceding generator, because re-evaluating such expressions would be wasteful.
+For instance, instead of:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(x&nbsp;&lt;-&nbsp;<code class="literal">1</code>&nbsp;to&nbsp;<code class="literal">1000</code>;&nbsp;y&nbsp;=&nbsp;expensiveComputationNotInvolvingX)
+  <code class="vem">yield</code>&nbsp;x&nbsp;*&nbsp;y
+</pre>
+
+
+<p>it's usually better to write:</p>
+
+<pre>
+  <code class="vem">val</code>&nbsp;y&nbsp;=&nbsp;expensiveComputationNotInvolvingX
+  <code class="vem">for</code>&nbsp;(x&nbsp;&lt;-&nbsp;<code class="literal">1</code>&nbsp;to&nbsp;<code class="literal">1000</code>)&nbsp;<code class="vem">yield</code>&nbsp;x&nbsp;*&nbsp;y
+</pre>
+
+
+<h4>Translating <span class="code">for</span> loops</h4>
+
+
+<p>The previous subsections showed how <span class="code">for</span> expressions that
+contain a <span class="code">yield</span> are translated.<a id="i-382847944-1"/> What about <span class="code">for</span> loops that simply
+perform a side effect without returning anything? Their translation is
+similar, but simpler than <span class="code">for</span> expressions. In principle, wherever the
+previous translation scheme used a <span class="code">map</span> or a <span class="code">flatMap</span> in the
+translation, the translation scheme for <span class="code">for</span> loops uses just a <span class="code">foreach</span>.</p>
+
+<p>For instance, the expression:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(<i>x</i>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>1</sub>)&nbsp;<code style="font-style:italic">body</code>
+</pre>
+
+
+<p>translates to:</p>
+
+<pre>
+  <code style="font-style:italic">expr</code><sub>1</sub>&nbsp;foreach&nbsp;(<i>x</i>&nbsp;=&gt;&nbsp;<code style="font-style:italic">body</code>)
+</pre>
+
+
+<p>A larger example is the expression:</p>
+
+<pre>
+  <code class="vem">for</code>&nbsp;(<i>x</i>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>1</sub>;&nbsp;<code class="vem">if</code>&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>;&nbsp;<i>y</i>&nbsp;&lt;-&nbsp;<code style="font-style:italic">expr</code><sub>3</sub>)&nbsp;<code style="font-style:italic">body</code>
+</pre>
+
+
+<p>This expression translates to:</p>
+
+<pre>
+  <code style="font-style:italic">expr</code><sub>1</sub>&nbsp;withFilter&nbsp;(<i>x</i>&nbsp;=&gt;&nbsp;<code style="font-style:italic">expr</code><sub>2</sub>)&nbsp;foreach&nbsp;(<i>x</i>&nbsp;=&gt;
+  &nbsp;&nbsp;<code style="font-style:italic">expr</code><sub>3</sub>&nbsp;foreach&nbsp;(<i>y</i>&nbsp;=&gt;&nbsp;<code style="font-style:italic">body</code>))
+</pre>
+
+
+<p>For example, the following expression sums up all elements of a
+matrix represented as a list of lists:</p>
+
+<pre>
+  <code class="vem">var</code>&nbsp;sum&nbsp;=&nbsp;<code class="literal">0</code>
+  <code class="vem">for</code>&nbsp;(xs&nbsp;&lt;-&nbsp;xss;&nbsp;x&nbsp;&lt;-&nbsp;xs)&nbsp;sum&nbsp;+=&nbsp;x
+</pre>
+
+
+<p>This loop is translated into two nested <span class="code">foreach</span> applications:</p>
+
+<pre>
+  <code class="vem">var</code>&nbsp;sum&nbsp;=&nbsp;<code class="literal">0</code>
+  xss&nbsp;foreach&nbsp;(xs&nbsp;=&gt;&nbsp;
+  &nbsp;&nbsp;xs&nbsp;foreach&nbsp;(x&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;sum&nbsp;+=&nbsp;x))
+</pre>
+
+
+<h3>23.5 Going the other way</h3>
+
+
+<p>The previous section showed that <span class="code">for</span> expressions can be translated
+into applications of the higher-order functions <span class="code">map</span>, <span class="code">flatMap</span>,
+and <span class="code">withFilter</span>.  In fact, you could equally go the other way:
+Every application of a <span class="code">map</span>, <span class="code">flatMap</span>, or <span class="code">filter</span> 
+can be represented as a <span class="code">for</span> expression.</p>
+
+<p>Here are implementations of
+the three methods in terms of <span class="code">for</span> expressions. The methods are contained
+in an object <span class="code">Demo</span> to distinguish them from the standard operations
+on <span class="code">List</span>s. To be concrete, the three functions all take a <span class="code">List</span> as parameter, but the translation
+scheme would work just as well with other collection types:</p>
+
+<pre>
+  <code class="vem">object</code>&nbsp;<code class="typename">Demo</code>&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;map[A,&nbsp;B](xs:&nbsp;<code class="typename">List[A]</code>,&nbsp;f:&nbsp;A&nbsp;=&gt;&nbsp;B):&nbsp;<code class="typename">List[B]</code>&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(x&nbsp;&lt;-&nbsp;xs)&nbsp;<code class="vem">yield</code>&nbsp;f(x)
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;flatMap[A,&nbsp;B](xs:&nbsp;<code class="typename">List[A]</code>,&nbsp;f:&nbsp;A&nbsp;=&gt;&nbsp;<code class="typename">List[B]</code>):&nbsp;<code class="typename">List[B]</code>&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(x&nbsp;&lt;-&nbsp;xs;&nbsp;y&nbsp;&lt;-&nbsp;f(x))&nbsp;<code class="vem">yield</code>&nbsp;y
+  <br />  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;filter[A](xs:&nbsp;<code class="typename">List[A]</code>,&nbsp;p:&nbsp;A&nbsp;=&gt;&nbsp;<code class="typename">Boolean</code>):&nbsp;<code class="typename">List[A]</code>&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">for</code>&nbsp;(x&nbsp;&lt;-&nbsp;xs&nbsp;<code class="vem">if</code>&nbsp;p(x))&nbsp;<code class="vem">yield</code>&nbsp;x
+  }
+</pre>
+
+
+<p>Not surprisingly, the translation of the <span class="code">for</span> expression used in the body of
+<span class="code">Demo.map</span> will produce a call to <span class="code">map</span> in class <span class="code">List</span>.
+Similarly, <span class="code">Demo.flatMap</span> and <span class="code">Demo.filter</span> translate to
+<span class="code">flatMap</span> and <span class="code">withFilter</span> in class <span class="code">List</span>. So this little demonstration shows that <span class="code">for</span> expressions really are
+equivalent in their expressiveness to applications of the three
+functions <span class="code">map</span>, <span class="code">flatMap</span>, and <span class="code">withFilter</span>.</p>
+
+<h3>23.6 Generalizing <span class="code">for</span></h3>
+
+
+<p>Because the translation of <span class="code">for</span> expressions only relies on
+the presence of methods <span class="code">map</span>, <span class="code">flatMap</span>, and
+<span class="code">withFilter</span>, it is possible to apply the <span class="code">for</span> notation 
+to a large class of data types.</p>
+
+<p>You have already seen <span class="code">for</span> expressions over lists and arrays.  These
+are supported because lists, as well as arrays, define operations
+<span class="code">map</span>, <span class="code">flatMap</span>, and <span class="code">withFilter</span>. Because they define a <span class="code">foreach</span> method as well, <span class="code">for</span> loops
+over these data types are also possible.</p>
+
+<p>Besides lists and arrays, there are many other types in the Scala
+standard library that support the same four methods and therefore
+allow <span class="code">for</span> expressions. Examples are ranges, iterators, streams, and
+all implementations of sets.<a id="i2076162232-1"/> It's also perfectly possible for your own
+data types to support <span class="code">for</span> expressions by defining the necessary
+methods. To support the full range of <span class="code">for</span> expressions and <span class="code">for</span> loops,
+you need to define <span class="code">map</span>, <span class="code">flatMap</span>, <span class="code">withFilter</span>, and <span class="code">foreach</span> as
+methods of your data type. But it's also possible to define a subset
+of these methods, and thereby support a subset of all possible
+<span class="code">for</span> expressions or loops.</p>
+
+<p>Here are the precise rules:</p>
+
+<ul>
+
+
+<li>
+If your type defines just <span class="code">map</span>, it allows <span class="code">for</span> expressions 
+consisting of a single generator.
+
+
+</li>
+<li>
+If it defines <span class="code">flatMap</span> as well as <span class="code">map</span>, it allows <span class="code">for</span> expressions
+consisting of several generators.
+
+
+</li>
+<li>
+If it defines <span class="code">foreach</span>, it allows <span class="code">for</span> loops (both with single and multiple generators).
+
+
+</li>
+<li>
+If it defines <span class="code">withFilter</span>, it allows for 
+filter expressions starting with an <span class="code">if</span> in
+the <span class="code">for</span> expression.
+
+
+</li></ul>
+
+
+<p>The translation of <span class="code">for</span> expressions happens before type
+checking.<a id="i-1430360982-1"/><a id="i746576009-1"/> This
+allows for maximum flexibility because the only requirement is that the
+result of expanding a <span class="code">for</span> expression type checks. Scala defines no
+typing rules for the <span class="code">for</span> expressions themselves, and does not require that methods
+<span class="code">map</span>, <span class="code">flatMap</span>, <span class="code">withFilter</span>, or <span class="code">foreach</span> have any particular
+type signatures.</p>
+
+<p>Nevertheless, there is a typical setup that captures the most
+common intention of the higher order methods to which <span class="code">for</span> expressions translate. 
+Say you have a
+parameterized class, <span class="code">C</span>, which typically would stand for some sort of
+collection. Then it's quite natural to pick the following type signatures 
+for <span class="code">map</span>, <span class="code">flatMap</span>, <span class="code">withFilter</span>, and <span class="code">foreach</span>:</p>
+
+<pre>
+  <code class="vem">abstract</code>&nbsp;<code class="vem">class</code>&nbsp;C[A]&nbsp;{
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;map[B](f:&nbsp;A&nbsp;=&gt;&nbsp;B):&nbsp;C[B]
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;flatMap[B](f:&nbsp;A&nbsp;=&gt;&nbsp;C[B]):&nbsp;C[B]
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;withFilter(p:&nbsp;A&nbsp;=&gt;&nbsp;<code class="typename">Boolean</code>):&nbsp;C[A]
+  &nbsp;&nbsp;<code class="vem">def</code>&nbsp;foreach(b:&nbsp;A&nbsp;=&gt;&nbsp;<code class="typename">Unit</code>):&nbsp;<code class="typename">Unit</code>
+  }
+</pre>
+
+
+<p>That is, the <span class="code">map</span> function takes a function from the collection's
+element type <span class="code">A</span> to some other type <span class="code">B</span>. It produces a new
+collection of the same kind <span class="code">C</span>, but with <span class="code">B</span> as the element type.
+The <span class="code">flatMap</span> method takes a function <span class="code">f</span> from <span class="code">A</span> to some
+<span class="code">C</span>-collection of <span class="code">B</span>s and produces a <span class="code">C</span>-collection of
+<span class="code">B</span>s.  The <span class="code">withFilter</span> method takes a predicate function from the
+collection's element type <span class="code">A</span> to <span class="code">Boolean</span>. It produces a collection
+of the same type as the one on which it is invoked.  Finally, the
+<span class="code">foreach</span> method takes a function from <span class="code">A</span> to <span class="code">Unit</span> and produces
+a <span class="code">Unit</span> result:</p>
+
+<p>In class <span class="code">C</span> above, the <span class="code">withFilter</span> method produces a new
+collection of the same class. That means that every invocation of
+<span class="code">withFilter</span> creates a new <span class="code">C</span> object, just the same as <span class="code">filter</span>
+would work. Now, in the translation of for expressions, any calls to
+<span class="code">withFilter</span> are always followed by calls to one of the other three
+methods. Therefore, the object created by <span class="code">withFilter</span> will be
+taken apart by one of the other methods immediately afterwards. If
+objects of class <span class="code">C</span> are large (think long sequences), you might want
+to avoid the creation of such an intermediate object. A standard
+technique is to let <span class="code">withFilter</span> return not a <span class="code">C</span> object but just a
+wrapper object that "remembers" that elements need to be filtered
+before being processed further.</p>
+
+<p>Concentrating on just the first three functions of class <span class="code">C</span>, the
+following facts are noteworthy. In functional programming, there's a
+general concept called a <span style="font-style:italic">monad</span>, which can explain a large number
+of types with computations, ranging from collections, to computations
+with state and I/O, backtracking computations, and transactions, to
+name a few.<a id="i-1068505564-1"/> You can formulate functions <span class="code">map</span>,
+<span class="code">flatMap</span>, and <span class="code">withFilter</span> on a monad, and, if you do, they end up
+having exactly the types given here.</p>
+
+<p>Furthermore, you can
+characterize every monad by <span class="code">map</span>, <span class="code">flatMap</span>, and <span class="code">withFilter</span>,
+plus a "unit" constructor that produces a monad from an element
+value. In an object-oriented language, this "unit" constructor is
+simply an instance constructor or a factory method.  Therefore,
+<span class="code">map</span>, <span class="code">flatMap</span>, and <span class="code">withFilter</span> can be seen as an object-oriented
+version of the functional concept of monad.  Because <span class="code">for</span>
+expressions are equivalent to applications of these three methods,
+they can be seen as syntax for monads.</p>
+
+<p>All this suggests that the concept of <span class="code">for</span> expression is more
+general than just iteration over a collection, and indeed it is. For
+instance, <span class="code">for</span> expressions also play an important role in asynchronous
+I/O, or as an alternative notation for optional values.
+Watch out in the Scala libraries for occurrences of <span class="code">map</span>,
+<span class="code">flatMap</span>, and <span class="code">withFilter</span>&mdash;when they are present,
+<span class="code">for</span> expressions suggest themselves as a concise way of manipulating
+elements of the type.</p>
+
+<h3>23.7 Conclusion</h3>
+
+
+<p>In this chapter, you were given a peek under the hood of
+<span class="code">for</span> expressions and <span class="code">for</span> loops. You learned that they translate
+into applications of a standard set of higher-order methods. As a
+result, you saw that <span class="code">for</span> expressions are really
+much more general than mere iterations over collections, and that you
+can design your own classes to support them.</p>
+
+<div style="page-break-after:always"/>
+
+
+<div style="page-break-after:always"/>
+
+</body>
+</html>
