@@ -89,3 +89,8 @@
         float: right;
       }
 
+      .large {
+        font-size: large;
+        display: inline;
+      }
+

@@ -375,8 +375,8 @@ time.</p>
 needs to be tail recursive, for instance because you expect that it
 would recurse very deeply otherwise. To make sure that the Scala
 compiler does perform the tail-recursion optimization described in
-<a href="functions-and-closures.html#sec-tail-recursion">Section 8.9</a> on this method, you can add <span class="code">
-@tailrec</span> in front of the method definition.  If the optimization
+<a href="functions-and-closures.html#sec-tail-recursion">Section 8.9</a> on this method, you can add <pre class="code">
+@tailrec</pre> in front of the method definition.  If the optimization
 cannot be performed, you will then get a warning together with an
 explanation of the reasons.</p>
 

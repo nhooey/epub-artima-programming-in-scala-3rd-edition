@@ -714,7 +714,7 @@ in "<pre class="code">7</pre>&nbsp;<pre class="code">toLong</pre>").</p>
 
 <p>In contrast to the infix operator notation&mdash;in which operators take two operands, one to the left and the other to the right&mdash;prefix and postfix
 operators are <em>unary</em>: they take just one operand.<a id="i-1088310403-1"/> In prefix notation, the operand is to the right of the operator.<a id="i711311856-1"/><a id="i-2117778892-1"/>
-Some examples of prefix operators are <pre class="code">-2.0</pre>, <pre class="code">!found</pre>, and <span class="code"><span style="font-size:large">~</span>0xFF</span>. As with the
+Some examples of prefix operators are <pre class="code">-2.0</pre>, <pre class="code">!found</pre>, and <span class="code"><pre class="large">~</pre>0xFF</span>. As with the
 infix operators, these prefix operators are a shorthand way of invoking methods. In this case,
 however, the name of the method has "<pre class="code">unary_</pre>" prepended to the operator character. For instance, Scala will transform the expression <pre class="code">-2.0</pre> into
 the method invocation "<pre class="code">(2.0).unary_-</pre>".  You can demonstrate this to yourself by typing the method call both via operator notation and explicitly:</p>
@@ -727,7 +727,7 @@ the method invocation "<pre class="code">(2.0).unary_-</pre>".  You can demonstr
 </pre>
 
 
-<p>The only identifiers that can be used as prefix operators are <pre class="code">+</pre>, <pre class="code">-</pre>, <pre class="code">!</pre>, and <span class="code"><span style="font-size:large">~</span></span>. Thus, if you define a method named <pre class="code">unary_!</pre>, you
+<p>The only identifiers that can be used as prefix operators are <pre class="code">+</pre>, <pre class="code">-</pre>, <pre class="code">!</pre>, and <pre class="code"><pre class="large">~</pre></pre>. Thus, if you define a method named <pre class="code">unary_!</pre>, you
 could invoke that method on a value or variable of the appropriate type using prefix operator notation, such as <pre class="code">!p</pre>. But if you define a method
 named <pre class="code">unary_*</pre>, you wouldn't be able to use prefix operator notation because <pre class="code">*</pre> isn't one of the four identifiers that can be used as prefix
 operators. You could invoke the method normally, as in <pre class="code">p.unary_*</pre>, but if you attempted to invoke it via <pre class="code">*p</pre>, Scala will
@@ -937,7 +937,7 @@ called <a href="glossary.html#g-1173919606"><em>by-name parameters</em></a> and 
 
 <p>Scala enables you to perform operations on individual bits of integer types with several bitwise methods.<a id="i1795120479-1"/><a id="i824307652-1"/><a id="i608439332-1"/><a id="i-788169784-1"/><a id="i-354658411-1"/>
 The bitwise methods are: bitwise-and (<pre class="code">&amp;</pre>), bitwise-or (<pre class="code">|</pre>), and bitwise-xor (<pre class="code">^</pre>).<a href="basic-types-and-operations.html#footnotemain5-5">[5]</a> The unary bitwise
-complement operator (<span class="code"><span style="font-size:large">~</span></span>, the method <span class="code">unary_<span style="font-size:large">~</span></span>) inverts each bit in its operand. For example:</p>
+complement operator (<pre class="code"><pre class="large">~</pre></pre>, the method <span class="code">unary_<pre class="large">~</pre></span>) inverts each bit in its operand. For example:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="literal">1</code>&nbsp;&amp;&nbsp;<code class="literal">2</code>&nbsp;&nbsp;
@@ -953,7 +953,7 @@ complement operator (<span class="code"><span style="font-size:large">~</span></
 
 <p>The first expression, <pre class="code">1</pre>&nbsp;<pre class="code">&amp;</pre>&nbsp;<pre class="code">2</pre>, bitwise-ands each bit in 1 (0001) and 2 (0010), which yields 0 (0000). The
 second expression, <pre class="code">1</pre>&nbsp;<pre class="code">|</pre>&nbsp;<pre class="code">2</pre>, bitwise-ors each bit in the same operands, yielding 3 (0011). The third expression, <pre class="code">1</pre>&nbsp;<pre class="code">^</pre>&nbsp;<pre class="code">3</pre>,
-bitwise-xors each bit in 1 (0001) and 3 (0011), yielding 2 (0010). The final expression, <span class="code"><span style="font-size:large">~</span>1</span>, inverts each bit in 1 (0001),
+bitwise-xors each bit in 1 (0001) and 3 (0011), yielding 2 (0010). The final expression, <span class="code"><pre class="large">~</pre>1</span>, inverts each bit in 1 (0001),
 yielding -2, which in binary looks like 11111111111111111111111111111110.</p>
 
 <p>Scala integer types also offer three shift methods: shift left (<pre class="code">&lt;&lt;</pre>), shift right (<pre class="code">&gt;&gt;</pre>), and<a id="i1503282158-1"/><a id="i683040431-1"/><a id="i1817662978-1"/><a id="i-1799112486-1"/>
@@ -1242,7 +1242,7 @@ good style to use parentheses to clarify what operators are operating upon what 
 Perhaps the only precedence you can truly count on other programmers knowing without looking up is that multiplicative operators, <pre class="code">*</pre>,
 <pre class="code">/</pre>, and <span class="code"><span class="texttt">%</span></span>, have a higher precedence than the additive ones <pre class="code">+</pre> and <pre class="code">-</pre>. Thus even if <pre class="code">a</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">b</pre>&nbsp;<pre class="code">&lt;&lt;</pre>&nbsp;<pre class="code">c</pre> yields the result you want without
 parentheses, the extra clarity you get by writing <pre class="code">(a</pre>&nbsp;<pre class="code">+</pre>&nbsp;<pre class="code">b)</pre>&nbsp;<pre class="code">&lt;&lt;</pre>&nbsp;<pre class="code">c</pre> may reduce the frequency with which your peers utter
-your name in operator notation, for example, by shouting in disgust, "<pre class="code">bills</pre>  <span class="code">!*&amp;^<span class="texttt">%</span><span style="font-size:large">~</span></span>  <pre class="code">code!</pre>".<a href="basic-types-and-operations.html#footnotemain5-8">[8]</a></p>
+your name in operator notation, for example, by shouting in disgust, "<pre class="code">bills</pre>  <span class="code">!*&amp;^<span class="texttt">%</span><pre class="large">~</pre></span>  <pre class="code">code!</pre>".<a href="basic-types-and-operations.html#footnotemain5-8">[8]</a></p>
 
 <h3 id="sec-rich-wrappers">5.10 Rich wrappers</h3>
 
@@ -1486,7 +1486,7 @@ right-hand side, but any reasonable <pre class="code">equals</pre> method should
 <pre class="code">false</pre> if its argument is <pre class="code">null</pre>.</p>
 
 <p><a id="footnotemain5-8"/>[8] By now you should be able to figure out that
-given this code, the Scala compiler would invoke <span class="code">(bills.!*&amp;^<span class="texttt">%</span><span style="font-size:large">~</span>(code)).!()</span>.</p>
+given this code, the Scala compiler would invoke <span class="code">(bills.!*&amp;^<span class="texttt">%</span><pre class="large">~</pre>(code)).!()</span>.</p>
 
 <div style="page-break-after:always"/>
 
