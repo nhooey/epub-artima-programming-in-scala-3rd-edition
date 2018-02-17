@@ -724,9 +724,9 @@ Here's an example:</p>
   <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;futureNums&nbsp;=&nbsp;<code class="typename">List</code>(fortyTwo,&nbsp;fortySix)
   <code class="output">futureNums:&nbsp;List[scala.concurrent.Future[Int]]&nbsp;=&nbsp;...</code>
   <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;folded&nbsp;=
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Future.fold(futureNums)(0)&nbsp;{&nbsp;(acc,&nbsp;num)&nbsp;=&gt;</code>
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;acc&nbsp;+&nbsp;num</code>
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Future</code>.fold(futureNums)(0)&nbsp;{&nbsp;(acc,&nbsp;num)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;acc&nbsp;+&nbsp;num
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
   <code class="output">folded:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
   <br />  scala&gt;&nbsp;folded.value
   <code class="output">res53:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(88))</code>
@@ -738,9 +738,9 @@ the initial future result as the start value. Here's an example:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;reduced&nbsp;=
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Future.reduce(futureNums)&nbsp;{&nbsp;(acc,&nbsp;num)&nbsp;=&gt;</code>
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;acc&nbsp;+&nbsp;num</code>
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Future</code>.reduce(futureNums)&nbsp;{&nbsp;(acc,&nbsp;num)&nbsp;=&gt;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;acc&nbsp;+&nbsp;num
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
   <code class="output">reduced:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
   <br />  scala&gt;&nbsp;reduced.value
   <code class="output">res54:&nbsp;Option[scala.util.Try[Int]]&nbsp;=&nbsp;Some(Success(88))</code>
@@ -757,7 +757,7 @@ example, <pre class="code">sequence</pre> is used to transform a <pre class="cod
 a <pre class="code">Future[List[Int]]</pre>:</p>
 
 <pre>
-  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;futureList&nbsp;=&nbsp;Future.sequence(futureNums)
+  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;futureList&nbsp;=&nbsp;<code class="typename">Future</code>.sequence(futureNums)
   <code class="output">futureList:&nbsp;scala.concurrent.Future[List[Int]]&nbsp;=&nbsp;...</code>
   <br />  scala&gt;&nbsp;futureList.value
   <code class="output">res55:&nbsp;Option[scala.util.Try[List[Int]]]&nbsp;=</code>
@@ -773,7 +773,7 @@ into a <pre class="code">Future[List[Int]]</pre> by <pre class="code">Future.tra
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;traversed&nbsp;=
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Future.traverse(List(1,&nbsp;2,&nbsp;3))&nbsp;{&nbsp;i&nbsp;=&gt;&nbsp;Future(i)&nbsp;}</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Future</code>.traverse(List(1,&nbsp;2,&nbsp;3))&nbsp;{&nbsp;i&nbsp;=&gt;&nbsp;Future(i)&nbsp;}
   <code class="output">traversed:&nbsp;scala.concurrent.Future[List[Int]]&nbsp;=&nbsp;...</code>
   <br />  scala&gt;&nbsp;traversed.value
   <code class="output">res58:&nbsp;Option[scala.util.Try[List[Int]]]&nbsp;=&nbsp;</code>
@@ -818,15 +818,17 @@ Here's an example:</p>
 <pre>
   scala&gt;&nbsp;<code class="vem">import</code>&nbsp;scala.util.{<code class="typename">Success</code>,&nbsp;<code class="typename">Failure</code>}
   <code class="output">import&nbsp;scala.util.{Success,&nbsp;Failure}</code>
-  <br />  scala&gt;&nbsp;success&nbsp;onComplete&nbsp;{
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Success(res)&nbsp;=&gt;&nbsp;println(res)</code>
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Failure(ex)&nbsp;=&gt;&nbsp;println(ex)</code>
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code>
+  <br />
+  scala&gt;&nbsp;success&nbsp;onComplete&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Success</code>(res)&nbsp;=&gt;&nbsp;println(res)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Failure</code>(ex)&nbsp;=&gt;&nbsp;println(ex)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
   <code class="output">42</code>
-  <br />  scala&gt;&nbsp;failure&nbsp;onComplete&nbsp;{
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Success(res)&nbsp;=&gt;&nbsp;println(res)</code>
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Failure(ex)&nbsp;=&gt;&nbsp;println(ex)</code>
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code>
+  <br />
+  scala&gt;&nbsp;failure&nbsp;onComplete&nbsp;{
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Success</code>(res)&nbsp;=&gt;&nbsp;println(res)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;<code class="typename">Failure</code>(ex)&nbsp;=&gt;&nbsp;println(ex)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
   <code class="output">java.lang.ArithmeticException:&nbsp;/&nbsp;by&nbsp;zero</code>
 </pre>
 
@@ -841,9 +843,9 @@ the callback function has been fully executed:</p>
 
 <pre>
   scala&gt;&nbsp;<code class="vem">val</code>&nbsp;newFuture&nbsp;=&nbsp;success&nbsp;andThen&nbsp;{
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Success(res)&nbsp;=&gt;&nbsp;println(res)</code>
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;Failure(ex)&nbsp;=&gt;&nbsp;println(ex)</code>
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;<code class="typename">Success</code>(res)&nbsp;=&gt;&nbsp;println(res)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;<code class="typename">Failure</code>(ex)&nbsp;=&gt;&nbsp;println(ex)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
   <code class="output">42</code>
   <code class="output">newFuture:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
   <br />  scala&gt;&nbsp;newFuture.value
@@ -881,8 +883,8 @@ two-step process, a <pre class="code">zip</pre> followed by a <pre class="code">
   <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;zipped&nbsp;=&nbsp;futNum&nbsp;zip&nbsp;futStr
   <code class="output">zipped:&nbsp;scala.concurrent.Future[(Int,&nbsp;String)]&nbsp;=&nbsp;...</code>
   <br />  scala&gt;&nbsp;<code class="vem">val</code>&nbsp;mapped&nbsp;=&nbsp;zipped&nbsp;map&nbsp;{
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case&nbsp;(num,&nbsp;str)&nbsp;=&gt;&nbsp;s"$num&nbsp;is&nbsp;the&nbsp;$str"&nbsp;</code>
-  <code class="output">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</code>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="vem">case</code>&nbsp;(num,&nbsp;str)&nbsp;=&gt;&nbsp;s<code class="quotedstring">"$num&nbsp;is&nbsp;the&nbsp;$str"</code>&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
   <code class="output">mapped:&nbsp;scala.concurrent.Future[String]&nbsp;=&nbsp;...</code>
   <br />  scala&gt;&nbsp;mapped.value
   <code class="output">res2:&nbsp;Option[scala.util.Try[String]]&nbsp;=</code>
@@ -917,8 +919,8 @@ Here's an example:</p>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
   <code class="output">flipped:&nbsp;scala.concurrent.Future[Int]&nbsp;=&nbsp;...</code>
   <br />  scala&gt;&nbsp;flipped.value
-  <code class="output">res5:&nbsp;Option[scala.util.Try[Int]]&nbsp;=</code>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code class="typename">Some</code>(<code class="typename">Failure</code>(<code class="typename">java.lang.Exception</code>:&nbsp;<code class="literal">42</code>))
+  <code class="output">res5:&nbsp;Option[scala.util.Try[Int]]&nbsp;=
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Some(Failure(java.lang.Exception:&nbsp;42))</code>
 </pre>
 
 
